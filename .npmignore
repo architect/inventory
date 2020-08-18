@@ -1,0 +1,11 @@
+_mock
+.DS_Store
+.eslintignore
+.git/
+.github/
+.nyc_output/
+changelog.md
+codecov.yaml
+coverage/
+scratch/
+test/
