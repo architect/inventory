@@ -1,10 +1,10 @@
-let validateARN = require('./arn')
+// let validateARN = require('./arn')
 
-module.exports = function validatePolicies (policies) {
-  if (!policies || !policies.length) return
-
+module.exports = function validatePolicies (policies, callback) {
+  callback()
   // TODO deeper policy validation
-  for (let policy of policies) {
-    validateARN(policy)
-  }
+  // if (!policies || !policies.length) callback()
+  // for (let policy of policies) {
+  //   validateARN(policy)
+  // }
 }

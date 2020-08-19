@@ -1,4 +1,5 @@
 let { readArc } = require('@architect/parser')
+let series = require('run-series')
 let inventoryDefaults = require('./defaults')
 let config = require('./config')
 let getEnv = require('./env')
@@ -36,19 +37,30 @@ module.exports = function architectInventory (params = {}, callback) {
   // Fill out the pragmas
   inventory = config.pragmas(project)
 
-  getEnv(params, inventory, function done (err, env) {
+  series([
+    // Populate environment variables
+    function _getEnv (callback) {
+      getEnv(params, inventory, function done (err, env) {
+        if (err) callback(err)
+        else {
+          inventory.project.env = env
+          callback()
+        }
+      })
+    },
+
+    // Final validation pass
+    function _validate (callback) {
+      validate(inventory, cwd, callback)
+    }
+  ],
+  function done (err) {
     if (err) callback(err)
     else {
-      inventory.project.env = env
-
-      // Final validation pass
-      validate(inventory)
-
       callback(null, {
         inventory,
         // get: get.bind({}, inventory)
       })
     }
   })
-
 }
