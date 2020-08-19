@@ -18,7 +18,7 @@ module.exports = function populateHTTP ({ item, dir, cwd }) {
       return route
     }
   }
-  else if (typeof item === 'object') {
+  else if (typeof item === 'object' && !Array.isArray(item)) {
     let path = Object.keys(item)[0]
     let method = item[path].method.toLowerCase()
     let valid = validMethod(method) && validPath(path)

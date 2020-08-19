@@ -16,7 +16,7 @@ module.exports = function populateScheduled ({ item, dir, cwd }) {
     let srcDir = join(cwd, dir, name)
     return { name, srcDir, rate, cron }
   }
-  else if (typeof item === 'object') {
+  else if (typeof item === 'object' && !Array.isArray(item)) {
     let name = Object.keys(item)[0]
 
     // Handle rate + cron

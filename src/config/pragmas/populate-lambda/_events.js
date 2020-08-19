@@ -6,7 +6,7 @@ module.exports = function populateEvents ({ item, dir, cwd }) {
     let srcDir = join(cwd, dir, name)
     return { name, srcDir }
   }
-  else if (typeof item === 'object') {
+  else if (typeof item === 'object' && !Array.isArray(item)) {
     let name = Object.keys(item)[0]
     let srcDir = item[name].path
       ? join(cwd, item[name].path)
