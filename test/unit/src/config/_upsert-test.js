@@ -56,7 +56,6 @@ idk
   t.equal(str(defaults), str(result), 'Ignored invalid setting')
 })
 
-
 test('Individual setting upsert: timeout', t => {
   t.plan(2)
   let value = 10

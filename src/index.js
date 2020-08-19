@@ -35,9 +35,20 @@ module.exports = function architectInventory (params = {}, callback) {
   inventory = config.project(project)
 
   // Fill out the pragmas
-  inventory = config.pragmas(project)
+  try {
+    inventory = config.pragmas(project)
+  }
+  catch (err) {
+    errors = err
+  }
 
   series([
+    // End here if first-pass pragma validation failed
+    function _pragmaValidationFailed (callback) {
+      if (errors) callback(errors)
+      else callback()
+    },
+
     // Populate environment variables
     function _getEnv (callback) {
       getEnv(params, inventory, function done (err, env) {
