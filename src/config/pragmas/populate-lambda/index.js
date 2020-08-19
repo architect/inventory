@@ -16,6 +16,7 @@ function populateLambda (type, pragma, inventory) {
   if (!pragma || !pragma.length) return null // Jic
 
   let createDefaultConfig = () => JSON.parse(JSON.stringify(inventory.project.defaultFunctionConfig))
+  let cwd = inventory.project.dir
 
   // Fill er up
   let lambdas = []
@@ -25,10 +26,10 @@ function populateLambda (type, pragma, inventory) {
     let config = createDefaultConfig()
 
     // Knock out any pragma-specific early
-    if (type === 'events') config.fifo = true
+    if (type === 'queues') config.fifo = true
 
     // Get name, source dir, and any pragma-specific properties
-    let result = getLambda({ type, item })
+    let result = getLambda({ type, item, cwd })
     let { name, srcDir } = result
 
     // Populate the handler before deferring to function config

@@ -1,6 +1,6 @@
 let { join } = require('path')
 
-module.exports = function populateScheduled ({ item, dir }) {
+module.exports = function populateScheduled ({ item, dir, cwd }) {
   let rate = null
   let cron = null
   if (Array.isArray(item) && item.length >= 3) {
@@ -13,7 +13,7 @@ module.exports = function populateScheduled ({ item, dir }) {
     if (schedType === 'rate') rate = schedValue
     if (schedType === 'cron') cron = schedValue
 
-    let srcDir = join(process.cwd(), dir, name)
+    let srcDir = join(cwd, dir, name)
     return { name, srcDir, rate, cron }
   }
   else if (typeof item === 'object') {
@@ -24,8 +24,8 @@ module.exports = function populateScheduled ({ item, dir }) {
     if (item[name].cron) cron = item[name].cron.join(' ')
 
     let srcDir = item[name].path
-      ? join(process.cwd(), item[name].path)
-      : join(process.cwd(), dir, name)
+      ? join(cwd, item[name].path)
+      : join(cwd, dir, name)
     return { name, srcDir, rate, cron }
   }
   throw Error(`Invalid @scheduled item: ${item}`)
