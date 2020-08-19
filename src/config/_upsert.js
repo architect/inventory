@@ -47,10 +47,6 @@ module.exports = function upsertProps (config, newConfig) {
       value = setting[name]
       propIsArray = name === 'policies' || name === 'layers'
     }
-    else if (typeof setting === 'string') {
-      name = setting
-      value = {}
-    }
     else continue // Technically invalid and should have been caught by parser
 
     /**
