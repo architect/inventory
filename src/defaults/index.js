@@ -20,6 +20,7 @@ module.exports = function inventoryDefaults () {
       defaultFunctionConfig,
       arc: [],
       raw: '',
+      env: null,
     },
     // App + vendor config
     app: '',

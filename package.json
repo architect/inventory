@@ -23,8 +23,12 @@
     "@architect/parser": "~2.2.0-RC.0",
     "@architect/utils": "~1.5.11"
   },
+  "peerDependencies": {
+    "aws-sdk": "~2.644.0"
+  },
   "devDependencies": {
     "@architect/eslint-config": "0.0.1",
+    "aws-sdk": "~2.644.0",
     "codecov": "~3.7.2",
     "eslint": "^7.1.0",
     "nyc": "~15.1.0",

@@ -1,6 +1,7 @@
 let { readArc } = require('@architect/parser')
 let inventoryDefaults = require('./defaults')
 let config = require('./config')
+let getEnv = require('./env')
 let validate = require('./validate')
 // let get = require('./get')
 
@@ -12,7 +13,7 @@ let validate = require('./validate')
  * @param {object} params - Contains optional cwd
  * @returns {object} - Inventory object (including Arc & project defaults and enumerated pragmas) & config getter
  */
-module.exports = function architectInventory (params = {}) {
+module.exports = function architectInventory (params = {}, callback) {
   let { cwd } = params
   cwd = cwd || process.cwd()
   let { arc, raw, filepath, errors } = readArc({ cwd })
@@ -35,11 +36,19 @@ module.exports = function architectInventory (params = {}) {
   // Fill out the pragmas
   inventory = config.pragmas(project)
 
-  // One final validation pass
-  validate(inventory)
+  getEnv(params, inventory, function done (err, env) {
+    if (err) callback(err)
+    else {
+      inventory.project.env = env
 
-  return {
-    inventory,
-    // get: get.bind({}, inventory)
-  }
+      // Final validation pass
+      validate(inventory)
+
+      callback(null, {
+        inventory,
+        // get: get.bind({}, inventory)
+      })
+    }
+  })
+
 }
