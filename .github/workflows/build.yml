@@ -23,6 +23,11 @@ jobs:
     - name: Check out repo
       uses: actions/checkout@v1
 
+    - name: Set up Windows
+      if: matrix.os == 'windows-latest'
+      run: |
+        npm config set script-shell "C:\\Program Files\\Git\\bin\\bash.exe"
+
     - name: Set up Node.js
       uses: actions/setup-node@v1
       with:
