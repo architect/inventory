@@ -16,6 +16,8 @@ module.exports = function configureHTTP ({ arc, inventory }) {
       handlerFunction: 'handler',
       configFile: null,
       explicit: false,
+      method: 'get',
+      path: '/'
     }
     http.unshift(root)
   }
