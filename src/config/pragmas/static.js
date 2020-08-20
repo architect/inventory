@@ -15,14 +15,15 @@ module.exports = function configureStatic ({ arc }) {
 
   for (let setting of arc.static) {
     let validSetting = key => settings.some(s => s === key)
-    if (Array.isArray(setting) &&
+    if (setting.ignore) {
+      _static.ignore = setting.ignore
+    }
+    else if (Array.isArray(setting) &&
         setting.length === 2 &&
         validSetting(setting[0]) &&
         _static[setting[0]] === null) {
-      _static[setting[0]] = setting[1]
-    }
-    else if (typeof setting === 'object' && setting.ignore) {
-      _static.ignore = setting.ignore
+      let isIgnore = setting[0] === 'ignore'
+      _static[setting[0]] = isIgnore ? [ setting[1] ] : setting[1]
     }
   }
 
