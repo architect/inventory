@@ -18,7 +18,7 @@ test('Test @app population', t => {
 @app
 ${name}
 `)
-  t.equal(populateApp({ arc }), name)
+  t.equal(populateApp({ arc }), name, `Returned correct app name: ${name}`)
 
   arc = parse(`
 @app
