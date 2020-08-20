@@ -4,7 +4,7 @@ let inventoryDefaults = require('./defaults')
 let config = require('./config')
 let getEnv = require('./env')
 let validate = require('./validate')
-// let get = require('./get')
+let get = require('./get')
 
 /**
  * Architect Inventory
@@ -70,7 +70,7 @@ module.exports = function architectInventory (params = {}, callback) {
     else {
       callback(null, {
         inventory,
-        // get: get.bind({}, inventory)
+        get: get(inventory)
       })
     }
   })
