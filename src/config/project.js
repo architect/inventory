@@ -16,7 +16,7 @@ module.exports = function getProjectConfig (params) {
     // TODO add manifestCreated once we determine we can get birthtime reliably
   }
 
-  project.dir = cwd
+  project.src = cwd
   project.arc = arc
   project.raw = raw
 

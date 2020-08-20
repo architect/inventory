@@ -8,7 +8,7 @@ let populateEvents = require(sut)
 
 let cwd = process.cwd()
 let inventory = inventoryDefaults()
-inventory.project.dir = cwd
+inventory.project.src = cwd
 let eventsDir = join(cwd, 'src', 'events')
 let values = [ 'foo', 'bar' ]
 
@@ -35,8 +35,8 @@ ${values.join('\n')}
     t.ok(events.some(event => event.name === val), `Got event: ${val}`)
   })
   events.forEach(event => {
-    t.equal(event.srcDir, join(eventsDir, event.name), `Event configured with correct source dir: ${event.srcDir}`)
-    t.ok(event.handlerFile.startsWith(event.srcDir), `Handler file is in the correct source dir`)
+    t.equal(event.src, join(eventsDir, event.name), `Event configured with correct source dir: ${event.src}`)
+    t.ok(event.handlerFile.startsWith(event.src), `Handler file is in the correct source dir`)
   })
 })
 
@@ -45,9 +45,9 @@ test('@events population: complex format', t => {
 
   let complexValues = [
     `${values[0]}
-  path ${values[0]}/path`,
+  src ${values[0]}/path`,
     `${values[1]}
-  path ${values[1]}/path`
+  src ${values[1]}/path`
   ]
   let arc = parse(`
 @events
@@ -59,7 +59,7 @@ ${complexValues.join('\n')}
     t.ok(events.some(event => event.name === val), `Got event: ${val}`)
   })
   events.forEach(event => {
-    t.equal(event.srcDir, join(cwd, `${event.name}/path`), `Event configured with correct source dir: ${event.name}/path`)
+    t.equal(event.src, join(cwd, `${event.name}/path`), `Event configured with correct source dir: ${event.name}/path`)
     t.ok(event.handlerFile.startsWith(join(cwd, `${event.name}/path`)), `Handler file is in the correct source dir`)
   })
 })
@@ -83,8 +83,8 @@ ${complexValues.join('\n')}
     t.ok(events.some(event => event.name === val), `Got event: ${val}`)
   })
   events.forEach(event => {
-    t.equal(event.srcDir, join(eventsDir, event.name), `Complex event entry fell back to correct default source dir: ${event.srcDir}`)
-    t.ok(event.handlerFile.startsWith(event.srcDir), `Handler file is in the correct source dir`)
+    t.equal(event.src, join(eventsDir, event.name), `Complex event entry fell back to correct default source dir: ${event.src}`)
+    t.ok(event.handlerFile.startsWith(event.src), `Handler file is in the correct source dir`)
   })
 })
 

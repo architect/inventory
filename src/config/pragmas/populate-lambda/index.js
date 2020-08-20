@@ -16,7 +16,7 @@ function populateLambda (type, pragma, inventory) {
   if (!pragma || !pragma.length) return null // Jic
 
   let createDefaultConfig = () => JSON.parse(JSON.stringify(inventory.project.defaultFunctionConfig))
-  let cwd = inventory.project.dir
+  let cwd = inventory.project.src
 
   // Fill er up
   let lambdas = []
@@ -30,13 +30,13 @@ function populateLambda (type, pragma, inventory) {
 
     // Get name, source dir, and any pragma-specific properties
     let result = getLambda({ type, item, cwd })
-    let { name, srcDir } = result
+    let { name, src } = result
 
     // Populate the handler before deferring to function config
     if (item[name] && item[name].handler) config.handler = item[name].handler
 
     // Now let's check in on the function config
-    let { arc: arcConfig, filepath, errors } = readArcConfig({ cwd: srcDir })
+    let { arc: arcConfig, filepath, errors } = readArcConfig({ cwd: src })
     if (errors) throw Error(errors)
 
     // Set function config file path (if one is present)
@@ -48,12 +48,12 @@ function populateLambda (type, pragma, inventory) {
     }
 
     // Now we know the final source dir + runtime + handler: assemble handler props
-    let { handlerFile, handlerFunction } = getHandler(config, srcDir)
+    let { handlerFile, handlerFunction } = getHandler(config, src)
 
     let lambda = {
       name,
       config,
-      srcDir,
+      src,
       handlerFile,
       handlerFunction,
       configFile,

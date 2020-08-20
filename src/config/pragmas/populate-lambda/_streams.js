@@ -12,28 +12,28 @@ module.exports = function populateStreams ({ type, item, dir, cwd }) {
     }
     if (name) {
       // Check for the legacy dir from before `@tables tablename stream true` generated an @streams item
-      let legacySrcDir = join(cwd, dir, name)
-      let streamSrcDir = join(cwd, 'src', 'streams', name)
-      let srcDir = existsSync(legacySrcDir) ? legacySrcDir : streamSrcDir
+      let legacySrc = join(cwd, dir, name)
+      let streamSrc = join(cwd, 'src', 'streams', name)
+      let src = existsSync(legacySrc) ? legacySrc : streamSrc
       let table = name
-      return { name, srcDir, table }
+      return { name, src, table }
     }
   }
   else if (typeof item === 'string' && type === 'streams') {
     let name = item
-    let srcDir = join(cwd, dir, name)
+    let src = join(cwd, dir, name)
     let table = name
-    return { name, srcDir, table }
+    return { name, src, table }
   }
   else if (typeof item === 'object' && !Array.isArray(item) && type === 'streams') {
     let name = Object.keys(item)[0]
-    let srcDir = item[name].path
-      ? join(cwd, item[name].path)
+    let src = item[name].src
+      ? join(cwd, item[name].src)
       : join(cwd, dir, name)
     let table = item[name].table
       ? item[name].table
       : name
-    return { name, srcDir, table }
+    return { name, src, table }
   }
   throw Error(`Invalid @${type} item: ${item}`)
 }

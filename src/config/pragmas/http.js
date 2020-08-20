@@ -11,7 +11,7 @@ module.exports = function configureHTTP ({ arc, inventory }) {
     let root = {
       name: 'get /',
       config: inventory.arc.defaultFunctionConfig,
-      srcDir: null,
+      src: null,
       handlerFile: null,
       handlerFunction: 'handler',
       configFile: null,

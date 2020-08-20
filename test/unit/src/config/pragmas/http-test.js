@@ -10,7 +10,7 @@ let populateHTTP = require(sut)
 
 let cwd = process.cwd()
 let inventory = inventoryDefaults()
-inventory.project.dir = cwd
+inventory.project.src = cwd
 let httpDir = join(cwd, 'src', 'http')
 
 test('Set up env', t => {
@@ -41,8 +41,8 @@ ${values.join('\n')}
       t.equal(route.explicit, false, 'Implicit get / route sets explicit flag to false')
     }
     else {
-      t.equal(route.srcDir, join(httpDir, name), `Route configured with correct source dir: ${route.srcDir}`)
-      t.ok(route.handlerFile.startsWith(route.srcDir), `Handler file is in the correct source dir`)
+      t.equal(route.src, join(httpDir, name), `Route configured with correct source dir: ${route.src}`)
+      t.ok(route.handlerFile.startsWith(route.src), `Handler file is in the correct source dir`)
     }
   })
 })
@@ -64,8 +64,8 @@ ${values.join('\n')}
     if (route.name === 'get /') {
       t.equal(route.explicit, true, 'Explicit get / route sets explicit flag to true')
     }
-    t.equal(route.srcDir, join(httpDir, name), `Route configured with correct source dir: ${route.srcDir}`)
-    t.ok(route.handlerFile.startsWith(route.srcDir), `Handler file is in the correct source dir`)
+    t.equal(route.src, join(httpDir, name), `Route configured with correct source dir: ${route.src}`)
+    t.ok(route.handlerFile.startsWith(route.src), `Handler file is in the correct source dir`)
   })
 })
 
@@ -75,13 +75,13 @@ test('@http population: complex format + implicit get /', t => {
   let complexValues = [
     `/${values[0]}
   method get
-  path ${values[0]}/path`,
+  src ${values[0]}/path`,
     `/${values[1]}
   method get
-  path ${values[1]}/path`,
+  src ${values[1]}/path`,
     `/${values[2]}
   method get
-  path ${values[2]}/path`,
+  src ${values[2]}/path`,
   ]
   let arc = parse(`
 @http
@@ -97,8 +97,8 @@ ${complexValues.join('\n')}
       t.equal(route.explicit, false, 'Implicit get / route sets explicit flag to false')
     }
     else {
-      t.equal(route.srcDir, join(cwd, `${route.path}/path`), `Route configured with correct source dir: ${route.srcDir}`)
-      t.ok(route.handlerFile.startsWith(route.srcDir), `Handler file is in the correct source dir`)
+      t.equal(route.src, join(cwd, `${route.path}/path`), `Route configured with correct source dir: ${route.src}`)
+      t.ok(route.handlerFile.startsWith(route.src), `Handler file is in the correct source dir`)
     }
   })
 })
@@ -109,16 +109,16 @@ test('@http population: complex format + explicit get /', t => {
   let complexValues = [
     `/
   method get
-  path index/path`,
+  src index/path`,
     `/${values[0]}
   method get
-  path ${values[0]}/path`,
+  src ${values[0]}/path`,
     `/${values[1]}
   method get
-  path ${values[1]}/path`,
+  src ${values[1]}/path`,
     `/${values[2]}
   method get
-  path ${values[2]}/path`,
+  src ${values[2]}/path`,
   ]
   let arc = parse(`
 @http
@@ -132,11 +132,11 @@ ${complexValues.join('\n')}
   http.forEach(route => {
     if (route.name === 'get /') {
       t.equal(route.explicit, true, 'Explicit get / route sets explicit flag to true')
-      t.equal(route.srcDir, join(cwd, `index/path`), `Route configured with correct source dir: ${route.srcDir}`)
+      t.equal(route.src, join(cwd, `index/path`), `Route configured with correct source dir: ${route.src}`)
     }
     else {
-      t.equal(route.srcDir, join(cwd, `${route.path}/path`), `Route configured with correct source dir: ${route.srcDir}`)
-      t.ok(route.handlerFile.startsWith(route.srcDir), `Handler file is in the correct source dir`)
+      t.equal(route.src, join(cwd, `${route.path}/path`), `Route configured with correct source dir: ${route.src}`)
+      t.ok(route.handlerFile.startsWith(route.src), `Handler file is in the correct source dir`)
     }
   })
 })
@@ -167,8 +167,8 @@ ${complexValues.join('\n')}
       t.equal(route.explicit, false, 'Implicit get / route sets explicit flag to false')
     }
     else {
-      t.equal(route.srcDir, join(httpDir, name), `Complex HTTP entry fell back to correct default source dir: ${route.srcDir}`)
-      t.ok(route.handlerFile.startsWith(route.srcDir), `Handler file is in the correct source dir`)
+      t.equal(route.src, join(httpDir, name), `Complex HTTP entry fell back to correct default source dir: ${route.src}`)
+      t.ok(route.handlerFile.startsWith(route.src), `Handler file is in the correct source dir`)
     }
   })
 })

@@ -13,8 +13,8 @@ module.exports = function populateScheduled ({ item, dir, cwd }) {
     if (schedType === 'rate') rate = schedValue
     if (schedType === 'cron') cron = schedValue
 
-    let srcDir = join(cwd, dir, name)
-    return { name, srcDir, rate, cron }
+    let src = join(cwd, dir, name)
+    return { name, src, rate, cron }
   }
   else if (typeof item === 'object' && !Array.isArray(item)) {
     let name = Object.keys(item)[0]
@@ -23,10 +23,10 @@ module.exports = function populateScheduled ({ item, dir, cwd }) {
     if (item[name].rate) rate = item[name].rate.join(' ')
     if (item[name].cron) cron = item[name].cron.join(' ')
 
-    let srcDir = item[name].path
-      ? join(cwd, item[name].path)
+    let src = item[name].src
+      ? join(cwd, item[name].src)
       : join(cwd, dir, name)
-    return { name, srcDir, rate, cron }
+    return { name, src, rate, cron }
   }
   throw Error(`Invalid @scheduled item: ${item}`)
 }

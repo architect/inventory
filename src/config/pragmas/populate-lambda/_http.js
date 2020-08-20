@@ -12,8 +12,8 @@ module.exports = function populateHTTP ({ item, dir, cwd }) {
     if (valid) {
       let name = `${method} ${path}`
       let lambdaName = `${method}${getLambdaName(path)}`
-      let srcDir = join(cwd, dir, lambdaName)
-      let route = { name, method, path, srcDir }
+      let src = join(cwd, dir, lambdaName)
+      let route = { name, method, path, src }
       if (name === 'get /') route.explicit = true
       return route
     }
@@ -25,10 +25,10 @@ module.exports = function populateHTTP ({ item, dir, cwd }) {
     if (valid) {
       let name = `${method} ${path}`
       let lambdaName = `${method}${getLambdaName(path)}`
-      let srcDir = item[path].path
-        ? join(cwd, item[path].path)
+      let src = item[path].src
+        ? join(cwd, item[path].src)
         : join(cwd, dir, lambdaName)
-      let route = { name, method, path, srcDir }
+      let route = { name, method, path, src }
       if (name === 'get /') route.explicit = true
       return route
     }

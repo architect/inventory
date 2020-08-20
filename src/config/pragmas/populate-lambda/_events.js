@@ -3,15 +3,15 @@ let { join } = require('path')
 module.exports = function populateEvents ({ item, dir, cwd }) {
   if (typeof item === 'string') {
     let name = item
-    let srcDir = join(cwd, dir, name)
-    return { name, srcDir }
+    let src = join(cwd, dir, name)
+    return { name, src }
   }
   else if (typeof item === 'object' && !Array.isArray(item)) {
     let name = Object.keys(item)[0]
-    let srcDir = item[name].path
-      ? join(cwd, item[name].path)
+    let src = item[name].src
+      ? join(cwd, item[name].src)
       : join(cwd, dir, name)
-    return { name, srcDir }
+    return { name, src }
   }
   throw Error(`Invalid @events or @queues item: ${item}`)
 }
