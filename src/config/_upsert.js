@@ -7,11 +7,12 @@
  */
 module.exports = function upsertProps (config, newConfig) {
   let props = JSON.parse(JSON.stringify(config))
+  let layers = []
+  let policies = []
 
   for (let setting of newConfig) {
     let name
     let value
-    let propIsArray
 
     /**
      * Normalize singular vs. plural and array vs. object syntax of settings
@@ -31,7 +32,6 @@ module.exports = function upsertProps (config, newConfig) {
       if (setting[0] === 'layer') setting[0] = 'layers'
       name = setting[0]
       value = setting[1]
-      propIsArray = name === 'policies' || name === 'layers'
     }
     else if (typeof setting === 'object') {
       // Normalize singular to AWS equivalents
@@ -45,27 +45,28 @@ module.exports = function upsertProps (config, newConfig) {
       }
       name = Object.keys(setting)[0]
       value = setting[name]
-      propIsArray = name === 'policies' || name === 'layers'
     }
     else continue // Technically invalid and should have been caught by parser
 
     /**
      * Populate default config with new properties
      */
-    if (propIsArray) {
-      // Value may be a single item or an array
-      if (!Array.isArray(value)) value = [ value ]
-      if (!props[name]) props[name] = value
-      else {
-        let values = props[name].concat(value).filter(p => p)
-        // Dedupe jic
-        props[name] = [ ...new Set(values) ]
-      }
+    if (name === 'layers' && !!(value)) {
+      if (Array.isArray(value)) layers = layers.concat(value)
+      else layers.push(value)
+    }
+    else if (name === 'policies' && !!(value)) {
+      if (Array.isArray(value)) policies = policies.concat(value)
+      else policies.push(value)
     }
     else if (typeof value !== 'undefined') {
       props[name] = value
     }
   }
+
+  // Drop in new (de-duped) layers, but don't unnecessarily overwrite
+  if (layers.length) props.layers = [ ...new Set(layers) ]
+  if (policies.length) props.policies = [ ...new Set(policies) ]
 
   return props
 }
