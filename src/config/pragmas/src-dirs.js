@@ -3,7 +3,7 @@ module.exports = function collectSourceDirs ({ inventory }) {
   Object.entries(inventory).forEach(([ pragma, values ]) => {
     if (Array.isArray(values)) {
       inventory[pragma].forEach(item => {
-        if (item.srcDir) srcDirs.push(item.srcDir)
+        if (item.src) srcDirs.push(item.src)
       })
     }
   })
