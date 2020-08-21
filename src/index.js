@@ -23,7 +23,7 @@ module.exports = function architectInventory (params = {}, callback) {
   }
 
   // Start building out the inventory
-  let inventory = inventoryDefaults()
+  let inventory = inventoryDefaults(params)
 
   // Set up project params for config
   let project = { cwd, arc, raw, filepath, inventory }

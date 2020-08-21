@@ -4,10 +4,11 @@ let fnConfig = require('./function-config')
  * Returns a default stub inventory object
  * - Every possible officially supported value should be present
  */
-module.exports = function inventoryDefaults () {
-  let defaultFunctionConfig = fnConfig()
+module.exports = function inventoryDefaults (params = {}) {
+  let { cwd, region } = params
   // Allow region env var override
-  let region = process.env.AWS_REGION || 'us-west-2'
+  region = process.env.AWS_REGION || region || 'us-west-2'
+  let defaultFunctionConfig = fnConfig()
   return {
     // Meta
     arc: {
@@ -16,7 +17,7 @@ module.exports = function inventoryDefaults () {
     },
     project: {
       type: 'aws',
-      dir: '',
+      src: cwd,
       manifest: null,
       // manifestCreated: null, // TODO
       defaultFunctionConfig,
