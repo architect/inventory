@@ -6,6 +6,8 @@ let fnConfig = require('./function-config')
  */
 module.exports = function inventoryDefaults () {
   let defaultFunctionConfig = fnConfig()
+  // Allow region env var override
+  let region = process.env.AWS_REGION || 'us-west-2'
   return {
     // Meta
     arc: {
@@ -32,7 +34,7 @@ module.exports = function inventoryDefaults () {
       memory: null,
       policies: null,
       profile: null,
-      region: 'us-west-2',
+      region,
       runtime: null,
       timeout: null,
     },

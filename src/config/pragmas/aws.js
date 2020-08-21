@@ -1,12 +1,9 @@
 let upsert = require('../_upsert')
 
 module.exports = function configureAWS ({ arc, inventory }) {
-  if (!arc.aws) return null
+  if (!arc.aws) return inventory.aws
 
   let aws = upsert(inventory.aws, arc.aws)
-
-  // Allow env var override for AWS_REGION
-  aws.region = process.env.AWS_REGION || aws.region
 
   return aws
 }

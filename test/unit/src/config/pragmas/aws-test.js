@@ -7,15 +7,16 @@ let sut = join(process.cwd(), 'src', 'config', 'pragmas', 'aws')
 let populateAWS = require(sut)
 
 let inventory = inventoryDefaults()
+let str = s => JSON.stringify(s)
 
 test('Set up env', t => {
   t.plan(1)
   t.ok(populateAWS, 'Event Lambda populator is present')
 })
 
-test('No @aws returns null', t => {
+test('No @aws returns default @aws', t => {
   t.plan(1)
-  t.equal(populateAWS({ arc: {}, inventory }), null, 'Returned null')
+  t.equal(str(populateAWS({ arc: {}, inventory })), str(inventory.aws), 'Returned default @aws')
 })
 
 test('Test @aws population', t => {
@@ -36,6 +37,7 @@ timeout ${value}
   let region = process.env.AWS_REGION
   let east1 = 'us-east-1'
   process.env.AWS_REGION = east1
+  inventory = inventoryDefaults()
   aws = populateAWS({ arc, inventory })
   t.equal(aws.region, east1, `Region defaults to ${east1}`)
 
