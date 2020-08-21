@@ -11,12 +11,14 @@ let get = require('./get')
  * - Returns fully enumerated Architect project, including current config for every Lambda
  * - Also returns a handy getter for fetching any config via pragma + Arc item
  *
- * @param {object} params - Contains optional cwd
+ * @param {object} params - Contains optional cwd (string) and env (boolean)
  * @returns {object} - Inventory object (including Arc & project defaults and enumerated pragmas) & config getter
  */
 module.exports = function architectInventory (params = {}, callback) {
+  // Always ensure we have a working dir
+  params.cwd = params.cwd || process.cwd()
   let { cwd } = params
-  cwd = cwd || process.cwd()
+
   let { arc, raw, filepath, errors } = readArc({ cwd })
   if (errors) {
     throw ReferenceError(errors)
@@ -62,7 +64,7 @@ module.exports = function architectInventory (params = {}, callback) {
 
     // Final validation pass
     function _validate (callback) {
-      validate(inventory, cwd, callback)
+      validate(params, inventory, callback)
     }
   ],
   function done (err) {

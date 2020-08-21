@@ -1,12 +1,13 @@
 let series = require('run-series')
-let validateLayers = require('./layers')
-let validateTablesChildren = require('./tables-children')
+let layers = require('./layers')
+let tablesChildren = require('./tables-children')
 
 /**
  * Final inventory validation
  */
-module.exports = function validate (inventory, cwd, callback) {
+module.exports = function validate (params, inventory, callback) {
   let { region } = inventory.aws
+  let { cwd, validateLayers = true } = params
 
   let lambdaTypes = [
     'events',
@@ -38,13 +39,14 @@ module.exports = function validate (inventory, cwd, callback) {
 
   let validations = layerValidations.map(params => {
     return function (callback) {
-      validateLayers(params, callback)
+      if (validateLayers) layers(params, callback)
+      else callback()
     }
   })
 
   // Ensure @tables children (@streams, @indexes) have parent tables present
   validations.push(function (callback) {
-    validateTablesChildren(inventory, callback)
+    tablesChildren(inventory, callback)
   })
 
   series(validations, callback)
