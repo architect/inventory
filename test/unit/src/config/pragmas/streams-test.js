@@ -47,6 +47,7 @@ ${tableNames[1]}
   stream true
 `)
   let streams = populateStreams({ arc, inventory })
+  mockFs.restore() // Must be restored before any tape tests are resolved because mock-fs#201
   t.equal(streams.length, tableNames.length, 'Got correct number of streams back')
   tableNames.forEach(val => {
     t.ok(streams.some(stream => stream.name === val), `Got stream: ${val}`)
@@ -59,7 +60,6 @@ ${tableNames[1]}
     t.equal(src, dir, `Stream configured with correct source dir: ${src}`)
     t.ok(handlerFile.startsWith(src), `Handler file is in the correct source dir`)
   })
-  mockFs.restore()
 })
 
 test('Presence of @tables legacy dir does not impact @streams', t => {
@@ -74,11 +74,11 @@ test('Presence of @tables legacy dir does not impact @streams', t => {
 ${tableNames[0]}
 `)
   let streams = populateStreams({ arc, inventory })
+  mockFs.restore() // Must be restored before any tape tests are resolved because mock-fs#201
   streams.forEach(stream => {
     let { name, src } = stream
     t.equal(src, join(streamsDir, name), `Stream configured with correct source dir: ${src}`)
   })
-  mockFs.restore()
 })
 
 test('@streams population: simple format', t => {
