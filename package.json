@@ -4,9 +4,9 @@
   "description": "Architect project resource enumeration utility",
   "main": "src/index.js",
   "scripts": {
-    "test": "npm run lint && npm run coverage",
-    "test:unit": "tape 'test/**/*-test.js' | tap-spec",
-    "test:integration": "# todo",
+    "test": "npm run lint && npm run test:integration && npm run coverage",
+    "test:unit": "tape 'test/unit/**/*-test.js' | tap-spec",
+    "test:integration": "tape 'test/integration/**/*-test.js' | tap-spec",
     "coverage": "nyc --reporter=lcov --reporter=text npm run test:unit",
     "lint": "eslint . --fix",
     "rc": "npm version prerelease --preid RC"
@@ -20,7 +20,7 @@
   },
   "license": "Apache-2.0",
   "dependencies": {
-    "@architect/parser": "~2.2.0-RC.0",
+    "@architect/parser": "~2.2.0",
     "@architect/utils": "~1.5.11",
     "run-series": "~1.1.8"
   },
@@ -31,7 +31,7 @@
     "@architect/eslint-config": "0.0.1",
     "aws-sdk": "~2.644.0",
     "codecov": "~3.7.2",
-    "eslint": "^7.1.0",
+    "eslint": "~7.7.0",
     "mock-fs": "~4.13.0",
     "nyc": "~15.1.0",
     "tap-spec": "^5.0.0",

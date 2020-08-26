@@ -1,4 +1,4 @@
-let { readArc } = require('@architect/parser')
+let readArc = require('./read/arc')
 let series = require('run-series')
 let inventoryDefaults = require('./defaults')
 let config = require('./config')
@@ -19,10 +19,8 @@ module.exports = function architectInventory (params = {}, callback) {
   params.cwd = params.cwd || process.cwd()
   let { cwd } = params
 
-  let { arc, raw, filepath, errors } = readArc({ cwd })
-  if (errors) {
-    throw ReferenceError(errors)
-  }
+  let { arc, raw, filepath } = readArc({ cwd })
+  let errors
 
   // Start building out the inventory
   let inventory = inventoryDefaults(params)

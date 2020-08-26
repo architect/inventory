@@ -15,7 +15,7 @@ module.exports = function _get (inventory) {
     else if (isType('string') && !name) {
       return inventory[pragma]
     }
-    return undefined
+    return undefined // jic
   }
 
   let get = {}
