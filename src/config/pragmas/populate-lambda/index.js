@@ -1,4 +1,4 @@
-let { readArcConfig } = require('@architect/parser')
+let readArcConfig = require('../../../read/arc-config')
 let getHandler = require('./get-handler')
 let upsert = require('../../_upsert')
 
