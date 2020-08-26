@@ -17,45 +17,47 @@ module.exports = function configureArcPragmas ({ arc, inventory }) {
     throw ReferenceError('Inventory can only configure pragmas for AWS projects')
   }
 
-  // @app
-  inventory.app = app({ arc, inventory })
+  let pragmas = {
+    // @app
+    app: app({ arc, inventory }),
 
-  // @aws
-  inventory.aws = aws({ arc, inventory })
+    // @aws
+    aws: aws({ arc, inventory }),
 
-  // @events
-  inventory.events = events({ arc, inventory })
+    // @events
+    events: events({ arc, inventory }),
 
-  // @http
-  inventory.http = http({ arc, inventory })
+    // @http
+    http: http({ arc, inventory }),
 
-  // @indexes
-  inventory.indexes = indexes({ arc, inventory })
+    // @indexes
+    indexes: indexes({ arc, inventory }),
 
-  // @macros
-  inventory.macros = macros({ arc, inventory })
+    // @macros
+    macros: macros({ arc, inventory }),
 
-  // @queues
-  inventory.queues = queues({ arc, inventory })
+    // @queues
+    queues: queues({ arc, inventory }),
 
-  // @scheduled
-  inventory.scheduled = scheduled({ arc, inventory })
+    // @scheduled
+    scheduled: scheduled({ arc, inventory }),
 
-  // @static
-  inventory.static = static({ arc, inventory })
+    // @static
+    static: static({ arc, inventory }),
 
-  // @streams
-  inventory.streams = streams({ arc, inventory })
+    // @streams
+    streams: streams({ arc, inventory }),
 
-  // @tables
-  inventory.tables = tables({ arc, inventory })
+    // @tables
+    tables: tables({ arc, inventory }),
 
-  // @ws
-  inventory.ws = ws({ arc, inventory })
+    // @ws
+    ws: ws({ arc, inventory }),
+  }
 
   // Lambda source directory list
-  inventory.lambdaSrcDirs = srcDirs({ arc, inventory })
-  inventory.localPaths = inventory.lambdaSrcDirs
+  pragmas.lambdaSrcDirs = srcDirs({ arc, pragmas })
+  pragmas.localPaths = pragmas.lambdaSrcDirs
 
-  return inventory
+  return pragmas
 }

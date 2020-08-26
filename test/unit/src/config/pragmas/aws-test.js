@@ -11,7 +11,7 @@ let str = s => JSON.stringify(s)
 
 test('Set up env', t => {
   t.plan(1)
-  t.ok(populateAWS, 'Event Lambda populator is present')
+  t.ok(populateAWS, '@aws populator is present')
 })
 
 test('No @aws returns default @aws', t => {

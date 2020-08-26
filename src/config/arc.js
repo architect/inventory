@@ -6,7 +6,7 @@ let { join } = require('path')
  */
 module.exports = function getArcConfig (params) {
   let { cwd, inventory } = params
-  let { arc } = inventory
+  let arc = { ...inventory.arc }
 
   // Version
   let installed = join(cwd, 'node_modules', '@architect', 'architect', 'package.json')
@@ -15,6 +15,5 @@ module.exports = function getArcConfig (params) {
     arc.version = version
   }
 
-  inventory.arc = arc
-  return inventory
+  return arc
 }

@@ -6,7 +6,7 @@ let populateApp = require(sut)
 
 test('Set up env', t => {
   t.plan(1)
-  t.ok(populateApp, 'Event Lambda populator is present')
+  t.ok(populateApp, '@app populator is present')
 })
 
 test('Test @app population', t => {

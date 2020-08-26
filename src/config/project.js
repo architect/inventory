@@ -5,7 +5,7 @@ let upsert = require('./_upsert')
  */
 module.exports = function getProjectConfig (params) {
   let { arc, raw, filepath, inventory } = params
-  let { project } = inventory
+  let project = { ...inventory.project }
 
   if (arc.aws) {
     project.defaultFunctionConfig = upsert(project.defaultFunctionConfig, arc.aws)
@@ -19,6 +19,5 @@ module.exports = function getProjectConfig (params) {
   project.arc = arc
   project.raw = raw
 
-  inventory.project = project
-  return inventory
+  return project
 }

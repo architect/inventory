@@ -31,14 +31,17 @@ module.exports = function architectInventory (params = {}, callback) {
   let project = { cwd, arc, raw, filepath, inventory }
 
   // Populate inventory.arc
-  inventory = config.arc(project)
+  inventory.arc = config.arc(project)
 
   // Establish default function config from project + Arc defaults
-  inventory = config.project(project)
+  inventory.project = config.project(project)
 
   // Fill out the pragmas
   try {
-    inventory = config.pragmas(project)
+    inventory = {
+      ...inventory,
+      ...config.pragmas(project)
+    }
   }
   catch (err) {
     errors = err

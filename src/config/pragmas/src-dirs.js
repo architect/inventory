@@ -1,9 +1,10 @@
-module.exports = function collectSourceDirs ({ inventory }) {
+module.exports = function collectSourceDirs ({ pragmas }) {
   let srcDirs = []
-  Object.entries(inventory).forEach(([ pragma, values ]) => {
+  Object.entries(pragmas).forEach(([ pragma, values ]) => {
     if (Array.isArray(values)) {
-      inventory[pragma].forEach(item => {
+      pragmas[pragma].forEach(item => {
         if (item.src) srcDirs.push(item.src)
+        else throw Error(`Lambda is missing source directory: ${item}`)
       })
     }
   })

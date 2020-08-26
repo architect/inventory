@@ -10,9 +10,8 @@ module.exports = function populateWebSockets ({ item, dir, cwd }) {
   else if (typeof item === 'object' && !Array.isArray(item)) {
     let name = Object.keys(item)[0]
     let route = name
-    let src = item[name].src
-      ? join(cwd, item[name].src)
-      : join(cwd, dir, name)
+    // Add back src switch on presence of item[name].src when WS gets more options
+    let src = join(cwd, item[name].src)
     return { name, route, src }
   }
   throw Error(`Invalid @ws item: ${item}`)

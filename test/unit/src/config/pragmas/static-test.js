@@ -8,7 +8,7 @@ let str = s => JSON.stringify(s)
 
 test('Set up env', t => {
   t.plan(1)
-  t.ok(populateStatic, 'Static populator is present')
+  t.ok(populateStatic, '@static populator is present')
 })
 
 test('No @static returns null', t => {

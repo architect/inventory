@@ -11,7 +11,7 @@ module.exports = function configureStreams ({ arc, inventory }) {
 
   // Populate @tables
   let tables = arc.tables && arc.tables.filter(t => typeof t === 'object' && t[Object.keys(t)[0]].stream === true)
-  if (tables.length) {
+  if (tables && tables.length) {
     tables = populate.tables(tables, inventory)
   }
   else tables = null

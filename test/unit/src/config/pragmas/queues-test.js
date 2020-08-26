@@ -32,11 +32,12 @@ ${values.join('\n')}
   let queues = populateQueues({ arc, inventory })
   t.equal(queues.length, values.length, 'Got correct number of queues back')
   values.forEach(val => {
-    t.ok(queues.some(event => event.name === val), `Got event: ${val}`)
+    t.ok(queues.some(queue => queue.name === val), `Got queue: ${val}`)
   })
-  queues.forEach(event => {
-    t.equal(event.src, join(queuesDir, event.name), `Event configured with correct source dir: ${event.src}`)
-    t.ok(event.handlerFile.startsWith(event.src), `Handler file is in the correct source dir`)
+  queues.forEach(queue => {
+    let { handlerFile, name, src } = queue
+    t.equal(src, join(queuesDir, name), `Queue configured with correct source dir: ${src}`)
+    t.ok(handlerFile.startsWith(src), `Handler file is in the correct source dir`)
   })
 })
 
@@ -56,11 +57,12 @@ ${complexValues.join('\n')}
   let queues = populateQueues({ arc, inventory })
   t.equal(queues.length, complexValues.length, 'Got correct number of queues back')
   values.forEach(val => {
-    t.ok(queues.some(event => event.name === val), `Got event: ${val}`)
+    t.ok(queues.some(queue => queue.name === val), `Got queue: ${val}`)
   })
-  queues.forEach(event => {
-    t.equal(event.src, join(cwd, `${event.name}/path`), `Event configured with correct source dir: ${event.name}/path`)
-    t.ok(event.handlerFile.startsWith(join(cwd, `${event.name}/path`)), `Handler file is in the correct source dir`)
+  queues.forEach(queue => {
+    let { handlerFile, name, src } = queue
+    t.equal(src, join(cwd, `${name}/path`), `Queue configured with correct source dir: ${name}/path`)
+    t.ok(handlerFile.startsWith(join(cwd, `${name}/path`)), `Handler file is in the correct source dir`)
   })
 })
 
@@ -80,15 +82,16 @@ ${complexValues.join('\n')}
   let queues = populateQueues({ arc, inventory })
   t.equal(queues.length, complexValues.length, 'Got correct number of queues back')
   values.forEach(val => {
-    t.ok(queues.some(event => event.name === val), `Got event: ${val}`)
+    t.ok(queues.some(queue => queue.name === val), `Got queue: ${val}`)
   })
-  queues.forEach(event => {
-    t.equal(event.src, join(queuesDir, event.name), `Complex event entry fell back to correct default source dir: ${event.src}`)
-    t.ok(event.handlerFile.startsWith(event.src), `Handler file is in the correct source dir`)
+  queues.forEach(queue => {
+    let { handlerFile, name, src } = queue
+    t.equal(src, join(queuesDir, name), `Complex queue entry fell back to correct default source dir: ${src}`)
+    t.ok(handlerFile.startsWith(src), `Handler file is in the correct source dir`)
   })
 })
 
-test('@queues population: invalid events throw', t => {
+test('@queues population: invalid queues throw', t => {
   t.plan(1)
 
   let arc = parse(`
@@ -97,5 +100,5 @@ hi there
 `)
   t.throws(() => {
     populateQueues({ arc, inventory })
-  }, 'Invalid event threw')
+  }, 'Invalid queue threw')
 })

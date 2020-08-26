@@ -84,7 +84,7 @@ ${complexValues.join('\n')}
   let scheduled = populateScheduled({ arc, inventory })
   t.equal(scheduled.length, complexValues.length, 'Got correct number of scheduled events back')
   names.forEach(name => {
-    t.ok(scheduled.some(event => event.name === name), `Got event: ${name}`)
+    t.ok(scheduled.some(sched => sched.name === name), `Got scheduled event: ${name}`)
   })
   scheduled.forEach(sched => {
     t.equal(sched.src, join(cwd, `${sched.name}/path`), `Scheduled event configured with correct source dir: ${sched.name}/path`)
@@ -119,10 +119,10 @@ ${complexValues.join('\n')}
   let scheduled = populateScheduled({ arc, inventory })
   t.equal(scheduled.length, complexValues.length, 'Got correct number of scheduled events back')
   names.forEach(name => {
-    t.ok(scheduled.some(event => event.name === name), `Got event: ${name}`)
+    t.ok(scheduled.some(sched => sched.name === name), `Got scheduled event: ${name}`)
   })
   scheduled.forEach(sched => {
-    t.equal(sched.src, join(scheduledDir, sched.name), `Complex event entry fell back to correct default source dir: ${sched.src}`)
+    t.equal(sched.src, join(scheduledDir, sched.name), `Complex scheduled event entry fell back to correct default source dir: ${sched.src}`)
     t.ok(sched.handlerFile.startsWith(sched.src), `Handler file is in the correct source dir`)
     if (sched.rate) {
       t.equal(str(rate), str(sched.rate), `Got back correct rate object: ${str(rate)}`)
@@ -136,7 +136,7 @@ ${complexValues.join('\n')}
   })
 })
 
-test('@scheduled population: invalid events throw', t => {
+test('@scheduled population: invalid scheduled events throw', t => {
   t.plan(1)
   let arc = parse(`
 @scheduled
@@ -144,5 +144,5 @@ hi there
 `)
   t.throws(() => {
     populateScheduled({ arc, inventory })
-  }, 'Invalid event threw')
+  }, 'Invalid scheduled event threw')
 })

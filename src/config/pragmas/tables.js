@@ -2,7 +2,7 @@ module.exports = function configureTables ({ arc }) {
   if (!arc.tables || !arc.tables.length) return null
 
   let tables = arc.tables.map(table => {
-    if (typeof table === 'object') {
+    if (typeof table === 'object' && !Array.isArray(table)) {
       let name = Object.keys(table)[0]
       let partitionKey = null
       let partitionKeyType = null

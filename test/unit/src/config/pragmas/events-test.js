@@ -35,8 +35,9 @@ ${values.join('\n')}
     t.ok(events.some(event => event.name === val), `Got event: ${val}`)
   })
   events.forEach(event => {
-    t.equal(event.src, join(eventsDir, event.name), `Event configured with correct source dir: ${event.src}`)
-    t.ok(event.handlerFile.startsWith(event.src), `Handler file is in the correct source dir`)
+    let { handlerFile, name, src } = event
+    t.equal(src, join(eventsDir, name), `Event configured with correct source dir: ${src}`)
+    t.ok(handlerFile.startsWith(src), `Handler file is in the correct source dir`)
   })
 })
 
@@ -59,8 +60,9 @@ ${complexValues.join('\n')}
     t.ok(events.some(event => event.name === val), `Got event: ${val}`)
   })
   events.forEach(event => {
-    t.equal(event.src, join(cwd, `${event.name}/path`), `Event configured with correct source dir: ${event.name}/path`)
-    t.ok(event.handlerFile.startsWith(join(cwd, `${event.name}/path`)), `Handler file is in the correct source dir`)
+    let { handlerFile, name, src } = event
+    t.equal(src, join(cwd, `${name}/path`), `Event configured with correct source dir: ${name}/path`)
+    t.ok(handlerFile.startsWith(join(cwd, `${name}/path`)), `Handler file is in the correct source dir`)
   })
 })
 
@@ -83,8 +85,9 @@ ${complexValues.join('\n')}
     t.ok(events.some(event => event.name === val), `Got event: ${val}`)
   })
   events.forEach(event => {
-    t.equal(event.src, join(eventsDir, event.name), `Complex event entry fell back to correct default source dir: ${event.src}`)
-    t.ok(event.handlerFile.startsWith(event.src), `Handler file is in the correct source dir`)
+    let { handlerFile, name, src } = event
+    t.equal(src, join(eventsDir, name), `Complex event entry fell back to correct default source dir: $vent.src}`)
+    t.ok(handlerFile.startsWith(src), `Handler file is in the correct source dir`)
   })
 })
 
