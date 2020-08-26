@@ -1,8 +1,8 @@
-# Architect Sandbox changelog
+# Architect Inventory changelog
 
 ---
 
-## [0.0.0]
+## [1.0.0] 2020-08-26
 
 ### Added
 
