@@ -1,11 +1,13 @@
 let populate = require('./populate-lambda')
 
 module.exports = function configureHTTP ({ arc, inventory }) {
-  if (!arc.http || !arc.http.length) return null
+  if (!arc.http) return null
 
-  let http = populate.http(arc.http, inventory)
+  // Populate normally returns null on an empty Lambda pragma
+  // However, @http is special bc $default handler, so fall back to an empty array
+  let http = populate.http(arc.http, inventory) || []
 
-  let hasRoot = http.find(route => route.name === 'get /')
+  let hasRoot = http && http.find(route => route.name === 'get /')
   if (!hasRoot) {
     let root = {
       name: 'get /',

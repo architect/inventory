@@ -15,9 +15,16 @@ test('Set up env', t => {
 // This test assumes that the bits of inventory running here remain sync
 // Should anything go async, this test may exhibit wonky behavior!
 let get
-inventory({ cwd: join(mock, 'max') }, (err, result) => {
-  if (err) throw Error(err)
-  else get = getter(result.inventory)
+
+test('Set up max inventory', t => {
+  t.plan(1)
+  inventory({ cwd: join(mock, 'max') }, (err, result) => {
+    if (err) t.fail(err)
+    else {
+      get = getter(result.inventory)
+      t.ok(get, 'Got getter')
+    }
+  })
 })
 
 test('Get @app', t => {
@@ -40,13 +47,6 @@ test('Get @http', t => {
   t.ok(get.http('get /'), 'Got back correct value: get /')
   t.ok(get.http('put /some-put'), 'Got back correct value: put /some-put')
   t.notOk(get.http('get /nope'), 'Did not get back nonexistent route')
-})
-
-test('Get @indexes', t => {
-  t.plan(3)
-  t.ok(get.indexes, 'Got @indexes getter')
-  t.ok(get.indexes('a-table'), 'Got back correct value: a-table')
-  t.notOk(get.indexes('another-table'), 'Did not get back nonexistent index')
 })
 
 test('Get @indexes', t => {
@@ -112,5 +112,88 @@ test('Get @ws', t => {
   t.ok(get.ws('default'), 'Got back correct value: default')
   t.ok(get.ws('disconnect'), 'Got back correct value: disconnect')
   t.ok(get.ws('some-ws-route'), 'Got back correct value: some-ws-route')
+  t.notOk(get.ws('idk'), 'Did not get back nonexistent WebSocket route')
+})
+
+test('Set up static inventory', t => {
+  t.plan(1)
+  inventory({ cwd: join(mock, 'static') }, (err, result) => {
+    if (err) t.fail(err)
+    else {
+      get = getter(result.inventory)
+      t.ok(get, 'Got getter')
+    }
+  })
+})
+
+test('Get @app', t => {
+  t.plan(2)
+  t.ok(get.app, 'Got @app getter')
+  t.equal(get.app(), 'static', 'Got back correct value: static')
+})
+
+test('Get @aws', t => {
+  t.plan(4)
+  t.ok(get.aws, 'Got @aws getter')
+  t.equal(get.aws('region'), 'us-west-2', 'Got back correct value (default): us-west-2')
+  t.equal(get.aws('profile'), null, 'Got back correct value: null')
+  t.notOk(get.aws('idk'), 'Did not get back nonexistent setting')
+})
+
+test('Get @http', t => {
+  t.plan(3)
+  t.ok(get.http, 'Got @http getter')
+  t.ok(get.http('get /'), 'Got back correct value: get /')
+  t.notOk(get.http('put /some-put'), 'Did not get back nonexistent route')
+})
+
+test('Get @indexes', t => {
+  t.plan(2)
+  t.ok(get.indexes, 'Got @indexes getter')
+  t.notOk(get.indexes('another-table'), 'Did not get back nonexistent index')
+})
+
+test('Get @macros', t => {
+  t.plan(2)
+  t.ok(get.macros, 'Got @macros getter')
+  t.notOk(get.macros('idk'), 'Did not get back nonexistent macro')
+})
+
+test('Get @queues', t => {
+  t.plan(2)
+  t.ok(get.queues, 'Got @queues getter')
+  t.notOk(get.queues('idk'), 'Did not get back nonexistent queue')
+})
+
+test('Get @scheduled', t => {
+  t.plan(2)
+  t.ok(get.scheduled, 'Got @scheduled getter')
+  t.notOk(get.scheduled('idk'), 'Did not get back nonexistent scheduled event')
+})
+
+test('Get @static', t => {
+  t.plan(5)
+  t.ok(get.static, 'Got @static getter')
+  t.equal(get.static('folder'), 'public', 'Got back correct value (default): public')
+  t.equal(get.static('spa'), false, 'Got back correct value (default): false')
+  t.equal(get.static('ignore'), null, 'Got back correct value: null')
+  t.notOk(get.static('idk'), 'Did not get back nonexistent setting')
+})
+
+test('Get @streams', t => {
+  t.plan(2)
+  t.ok(get.streams, 'Got @streams getter')
+  t.notOk(get.streams('idk'), 'Did not get back nonexistent stream')
+})
+
+test('Get @tables', t => {
+  t.plan(2)
+  t.ok(get.tables, 'Got @tables getter')
+  t.notOk(get.tables('idk'), 'Did not get back nonexistent stream')
+})
+
+test('Get @ws', t => {
+  t.plan(2)
+  t.ok(get.ws, 'Got @ws getter')
   t.notOk(get.ws('idk'), 'Did not get back nonexistent WebSocket route')
 })
