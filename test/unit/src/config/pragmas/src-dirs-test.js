@@ -36,6 +36,23 @@ test('Lambda source dir population', t => {
   t.equal(str(srcDirs.sort()), str(values.sort()), 'Got back same source dirs from various pragmas')
 })
 
+test('HTTP $default handler', t => {
+  t.plan(1)
+
+  let pragmas = {
+    http: [
+      {
+        name: 'get /',
+        explicit: false,
+        src: null
+      }
+    ]
+  }
+
+  let srcDirs = populateSrcDirs({ pragmas })
+  t.equal(srcDirs, null, 'Got back null srcDirs')
+})
+
 
 test('Lambdas missing src throw', t => {
   t.plan(1)
