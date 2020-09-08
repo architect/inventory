@@ -2,4 +2,4 @@
 @app
 static
 
-@http
+@static
