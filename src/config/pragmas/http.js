@@ -5,7 +5,6 @@ module.exports = function configureHTTP ({ arc, inventory }) {
 
   let http = populate.http(arc.http, inventory)
 
-  // TODO handle get /
   let hasRoot = http.find(route => route.name === 'get /')
   if (!hasRoot) {
     let root = {
