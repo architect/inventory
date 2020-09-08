@@ -2,11 +2,13 @@
 
 ---
 
-## [1.0.1] 2020-09-08
+## [1.0.1 - 1.0.2] 2020-09-08
 
 ### Fixed
 
-- Fix issue where projects without `get /` would return an error during Lambda source dir population
+- Fixed issue where projects without `get /` would return an error during Lambda source dir population
+- Fixed inventory rules around @http + @static
+- Fixed getter when accessing pragmas with null values
 
 ---
 

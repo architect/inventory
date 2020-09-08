@@ -16,15 +16,15 @@ test('No @static returns null', t => {
   t.equal(populateStatic({ arc: {} }), null, 'Returned null')
 })
 
-test('@static returns all known null values', t => {
+test('@static returns all known defaults or null values', t => {
   t.plan(2)
   let mock = {
     fingerprint: null,
-    folder: null,
+    folder: 'public',
     ignore: null,
     prefix: null,
     prune: null,
-    spa: null,
+    spa: false,
     staging: null,
     production: null,
   }
@@ -34,7 +34,7 @@ idk whatev
 `)
   let _static = populateStatic({ arc })
   t.equal(Object.keys(_static).length, 8, 'Returned correct number of settings')
-  t.equal(str(_static), str(mock), 'Returned all known keys (null)')
+  t.equal(str(_static), str(mock), 'Returned all known keys')
 })
 
 test('Individual @static setting: fingerprint', t => {
