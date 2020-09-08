@@ -1,9 +1,12 @@
 module.exports = function _get (inventory) {
-  function getter (pragma, name) {
-    let isType = type => typeof inventory[pragma] === type
-    if (inventory[pragma] === null) return null
-    if (Array.isArray(inventory[pragma])) {
-      return inventory[pragma].find(i => {
+  function getter (prag, name) {
+    let pragma = inventory[prag]
+    let isType = type => typeof pragma === type
+
+    // Getters
+    if (pragma === null) return null
+    if (Array.isArray(pragma)) {
+      return pragma.find(i => {
         // Handle arrays of named entities
         if (i.name) return i.name === name
         // Handle arrays of string values
@@ -11,10 +14,10 @@ module.exports = function _get (inventory) {
       })
     }
     else if (isType('object')) {
-      return inventory[pragma][name]
+      return pragma[name]
     }
     else if (isType('string') && !name) {
-      return inventory[pragma]
+      return pragma
     }
     return undefined // jic
   }
