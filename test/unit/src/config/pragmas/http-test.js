@@ -23,6 +23,16 @@ test('No @http returns null', t => {
   t.equal(populateHTTP({ arc: {}, inventory }), null, 'Returned null')
 })
 
+test('@http population via @static: implicit get /', t => {
+  t.plan(2)
+  let arc = parse(`@static`)
+  let http = populateHTTP({ arc, inventory })
+  t.equal(http.length, 1, 'Got correct routes back: get /')
+  http.forEach(route => {
+    t.equal(route.explicit, false, 'Implicit get / route sets explicit flag to false')
+  })
+})
+
 test('@http population: simple format + implicit get /', t => {
   t.plan(8)
   let values = [ 'get /foo', 'put /bar' ]

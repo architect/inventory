@@ -1,7 +1,8 @@
 let populate = require('./populate-lambda')
 
 module.exports = function configureHTTP ({ arc, inventory }) {
-  if (!arc.http) return null
+  // @http get / is inferred by @static
+  if (!arc.http && !arc.static) return null
 
   // Populate normally returns null on an empty Lambda pragma
   // However, @http is special bc $default handler, so fall back to an empty array

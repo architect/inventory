@@ -1,4 +1,5 @@
 module.exports = function configureStatic ({ arc }) {
+  // @static is inferred by @http
   if (!arc.static && !arc.http) return null
 
   let staticPragma = arc.static || []

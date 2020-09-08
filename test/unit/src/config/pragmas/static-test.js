@@ -16,6 +16,13 @@ test('No @static returns null', t => {
   t.equal(populateStatic({ arc: {} }), null, 'Returned null')
 })
 
+test('@static population via @http', t => {
+  t.plan(1)
+  let arc = parse(`@http`)
+  let _static = populateStatic({ arc })
+  t.equal(Object.keys(_static).length, 8, 'Returned correct number of settings')
+})
+
 test('@static returns all known defaults or null values', t => {
   t.plan(2)
   let mock = {
