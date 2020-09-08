@@ -1,6 +1,7 @@
 module.exports = function _get (inventory) {
   function getter (pragma, name) {
     let isType = type => typeof inventory[pragma] === type
+    if (inventory[pragma] === null) return null
     if (Array.isArray(inventory[pragma])) {
       return inventory[pragma].find(i => {
         // Handle arrays of named entities
