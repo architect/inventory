@@ -5,8 +5,8 @@
   "main": "src/index.js",
   "scripts": {
     "test": "npm run lint && npm run test:integration && npm run coverage",
-    "test:unit": "tape 'test/unit/**/*-test.js' | tap-spec",
-    "test:integration": "tape 'test/integration/**/*-test.js' | tap-spec",
+    "test:unit": "cross-env tape 'test/unit/**/*-test.js' | tap-spec",
+    "test:integration": "cross-env tape 'test/integration/**/*-test.js' | tap-spec",
     "coverage": "nyc --reporter=lcov --reporter=text npm run test:unit",
     "lint": "eslint . --fix",
     "rc": "npm version prerelease --preid RC"
@@ -31,6 +31,7 @@
     "@architect/eslint-config": "0.0.1",
     "aws-sdk": "~2.644.0",
     "codecov": "~3.7.2",
+    "cross-env": "~7.0.2",
     "eslint": "~7.8.1",
     "mock-fs": "~4.13.0",
     "nyc": "~15.1.0",
