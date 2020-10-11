@@ -143,7 +143,7 @@ test('Get @aws', t => {
 test('Get @http', t => {
   t.plan(3)
   t.ok(get.http, 'Got @http getter')
-  t.ok(get.http('get /'), 'Got back correct value: get /')
+  t.ok(get.http('get /*'), 'Got back correct value: get /*')
   t.notOk(get.http('put /some-put'), 'Did not get back nonexistent route')
 })
 

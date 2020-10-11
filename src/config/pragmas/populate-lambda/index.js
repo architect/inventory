@@ -25,12 +25,15 @@ function populateLambda (type, pragma, inventory) {
     // Set up fresh config
     let config = createDefaultConfig()
 
-    // Knock out any pragma-specific early
-    if (type === 'queues') config.fifo = true
-
     // Get name, source dir, and any pragma-specific properties
     let result = getLambda({ type, item, cwd })
     let { name, src } = result
+
+    // Knock out any pragma-specific early
+    if (type === 'queues') config.fifo = true
+    if (type === 'http') {
+      if (name.startsWith('get ') || name.startsWith('any ')) config.views = true
+    }
 
     // Populate the handler before deferring to function config
     if (item[name] && item[name].handler) config.handler = item[name].handler

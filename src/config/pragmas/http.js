@@ -5,23 +5,34 @@ module.exports = function configureHTTP ({ arc, inventory }) {
   if (!arc.http && !arc.static) return null
 
   // Populate normally returns null on an empty Lambda pragma
-  // However, @http is special bc $default handler, so fall back to an empty array
+  // However, @http is special because it gets the Architect Static Asset Proxy (ASAP), so fall back to an empty array
   let http = populate.http(arc.http, inventory) || []
 
-  let hasRoot = http && http.find(route => route.name === 'get /')
+  let findRoot = route => {
+    let r = route.name.split(' ')
+    let method = r[0]
+    let path = r[1]
+    let rootParam = path.startsWith('/:') && path.split('/').length === 2
+    let isRootMethod = method === 'get' || method === 'any'
+    let isRootPath = path === '/' || path === '/*' || rootParam
+    return isRootMethod && isRootPath
+  }
+  let hasRoot = http.some(findRoot)
   if (!hasRoot) {
-    let root = {
-      name: 'get /',
+    // Inject ASAP
+    let asap = {
+      name: 'get /*',
       config: inventory.arc.defaultFunctionConfig,
       src: null,
       handlerFile: null,
       handlerFunction: 'handler',
       configFile: null,
-      explicit: false,
+      arcStaticAssetProxy: true,
       method: 'get',
-      path: '/'
+      path: '/*'
     }
-    http.unshift(root)
+    asap.config.views = false
+    http.unshift(asap)
   }
 
   return http

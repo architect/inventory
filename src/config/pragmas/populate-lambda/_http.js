@@ -2,9 +2,9 @@ let { join } = require('path')
 let getLambdaName = require('./get-lambda-name')
 
 module.exports = function populateHTTP ({ item, dir, cwd }) {
-  let methods = [ 'get', 'post', 'put', 'patch', 'delete', /* 'options'*/ ]
+  let methods = [ 'get', 'post', 'put', 'patch', 'delete', 'options', 'head', 'any' ]
   let validMethod = str => methods.some(m => m === str.toLowerCase())
-  let validPath = str => str.match(/^\/[a-zA-Z0-9/\-:._]*$/) // TODO add more validation
+  let validPath = str => str.match(/^\/[a-zA-Z0-9/\-:._\*]*$/) // TODO add more validation
   if (Array.isArray(item) && item.length === 2) {
     let method = item[0].toLowerCase()
     let path = item[1]
@@ -14,7 +14,6 @@ module.exports = function populateHTTP ({ item, dir, cwd }) {
       let lambdaName = `${method}${getLambdaName(path)}`
       let src = join(cwd, dir, lambdaName)
       let route = { name, method, path, src }
-      if (name === 'get /') route.explicit = true
       return route
     }
   }
@@ -29,7 +28,6 @@ module.exports = function populateHTTP ({ item, dir, cwd }) {
         ? join(cwd, item[path].src)
         : join(cwd, dir, lambdaName)
       let route = { name, method, path, src }
-      if (name === 'get /') route.explicit = true
       return route
     }
   }
