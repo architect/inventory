@@ -9,9 +9,9 @@ test('Set up env', t => {
 })
 
 test('Function config returns correct defaults', t => {
-  t.plan(9)
+  t.plan(11)
   let result = functionConfig()
-  t.equal(Object.keys(result).length, 8, 'Got correct number of params')
+  t.equal(Object.keys(result).length, 10, 'Got correct number of params')
   t.ok(result.timeout, 'Got timeout')
   t.ok(result.memory, 'Got memory')
   t.ok(result.runtime, 'Got runtime')
@@ -20,4 +20,6 @@ test('Function config returns correct defaults', t => {
   t.ok(result.concurrency, 'Got concurrency')
   t.ok(result.layers, 'Got layers')
   t.ok(result.policies, 'Got policies')
+  t.ok(result.shared, 'Got shared')
+  t.ok(result.env, 'Got env')
 })

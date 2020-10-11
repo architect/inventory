@@ -42,7 +42,7 @@ test('Upsert returns same number of params', t => {
   t.plan(3)
   let result = upsert(defaults, [])
   t.ok(result, 'Got result from upsert')
-  t.equal(Object.keys(result).length, 8, 'Got back same number of params as base config')
+  t.equal(Object.keys(result).length, 10, 'Got back same number of params as base config')
   t.equal(str(defaults), str(result), 'Passed back config as-is')
 })
 

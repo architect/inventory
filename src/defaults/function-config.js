@@ -13,5 +13,7 @@ module.exports = function createDefaultFunctionConfig () {
     concurrency: 'unthrottled',
     layers: [],
     policies: [],
+    shared: true,
+    env: true,
   }
 }
