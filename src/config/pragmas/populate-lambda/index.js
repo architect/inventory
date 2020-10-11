@@ -44,7 +44,7 @@ function populateLambda (type, pragma, inventory) {
 
     // Layer any function config over Arc / project defaults
     if (arcConfig && arcConfig.aws) {
-      config = upsert(createDefaultConfig(), arcConfig.aws)
+      config = upsert(config, arcConfig.aws)
     }
 
     // Now we know the final source dir + runtime + handler: assemble handler props
