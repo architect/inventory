@@ -15,6 +15,12 @@ get /
   src some-put
   method put
 
+
+@proxy
+testing http://testing.site
+staging http://staging.site
+production http://production.site
+
 @indexes
 a-table
   idk *String

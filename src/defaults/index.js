@@ -44,11 +44,13 @@ module.exports = function inventoryDefaults (params = {}) {
     http: null,
     indexes: null,
     macros: null,
+    proxy: null,
     queues: null,
     scheduled: null,
     static: null,
     streams: null,
     tables: null,
+    views: null,
     ws: null,
     // Collection of all Function paths
     lambdaSrcDirs: null,
