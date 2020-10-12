@@ -1,5 +1,6 @@
 let app = require('./app')
 let aws = require('./aws')
+let cdn = require('./cdn')
 let events = require('./events')
 let http = require('./http')
 let indexes = require('./indexes')
@@ -25,6 +26,9 @@ module.exports = function configureArcPragmas ({ arc, inventory }) {
 
     // @aws
     aws: aws({ arc, inventory }),
+
+    // @cdn
+    cdn: cdn({ arc, inventory }),
 
     // @events
     events: events({ arc, inventory }),

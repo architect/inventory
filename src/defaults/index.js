@@ -40,6 +40,7 @@ module.exports = function inventoryDefaults (params = {}) {
       timeout: null,
     },
     // App pragmas
+    cdn: null,
     events: null,
     http: null,
     indexes: null,

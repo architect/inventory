@@ -15,6 +15,7 @@ get /
   src some-put
   method put
 
+@cdn
 
 @proxy
 testing http://testing.site
