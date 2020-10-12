@@ -9,6 +9,7 @@ let scheduled = require('./scheduled')
 let static = require('./static')
 let streams = require('./streams')
 let tables = require('./tables')
+let views = require('./views')
 let ws = require('./ws')
 let srcDirs = require('./src-dirs')
 
@@ -54,6 +55,9 @@ module.exports = function configureArcPragmas ({ arc, inventory }) {
     // @ws
     ws: ws({ arc, inventory }),
   }
+
+  // @views (which needs @http to validate)
+  pragmas.views = views({ arc, pragmas })
 
   // Lambda source directory list
   pragmas.lambdaSrcDirs = srcDirs({ arc, pragmas })
