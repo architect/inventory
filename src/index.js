@@ -34,7 +34,7 @@ module.exports = function architectInventory (params = {}, callback) {
   // Establish default function config from project + Arc defaults
   inventory.project = config.project(project)
 
-  // Fill out the pragmas
+  // Userland: fill out the pragmas
   try {
     inventory = {
       ...inventory,
