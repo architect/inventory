@@ -4,6 +4,8 @@ maxed-out
 @aws
 region us-west-1
 
+@cdn
+
 @events
 an-event
 another-event
@@ -15,19 +17,17 @@ get /
   src some-put
   method put
 
-@cdn
-
-@proxy
-testing http://testing.site
-staging http://staging.site
-production http://production.site
-
 @indexes
 a-table
   idk *String
 
 @macros
 architect/node-prune
+
+@proxy
+testing http://testing.site
+staging http://staging.site
+production http://production.site
 
 @queues
 a-queue
@@ -61,6 +61,9 @@ a-table
   stream true
 another-table
   id *Number
+
+@views
+put /some-put
 
 @ws
 connect

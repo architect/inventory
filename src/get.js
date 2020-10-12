@@ -19,6 +19,9 @@ module.exports = function _get (inventory) {
     else if (isType('string') && !name) {
       return pragma
     }
+    else if (isType('boolean') && !name) {
+      return pragma
+    }
     return undefined // jic
   }
 
