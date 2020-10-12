@@ -2,6 +2,23 @@
 
 ---
 
+## [-] 2020-10-11
+
+### Added
+
+- Added `@proxy` support
+- Added `@views` support
+- Added `@cdn` support
+- Added `@http` `any`, `head`, and `options` method support
+- Added `@http` `*` (catchall) syntax support
+
+
+### Fixed
+
+- Fixed issue with overwriting a Lambda's base config if Arc config is present
+
+---
+
 ## [1.0.1 - 1.0.3] 2020-09-08
 
 ### Fixed
