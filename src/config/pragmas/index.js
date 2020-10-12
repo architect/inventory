@@ -3,6 +3,7 @@ let aws = require('./aws')
 let events = require('./events')
 let http = require('./http')
 let indexes = require('./indexes')
+let proxy = require('./proxy')
 let macros = require('./macros')
 let queues = require('./queues')
 let scheduled = require('./scheduled')
@@ -36,6 +37,9 @@ module.exports = function configureArcPragmas ({ arc, inventory }) {
 
     // @macros
     macros: macros({ arc, inventory }),
+
+    // @proxy
+    proxy: proxy({ arc, inventory }),
 
     // @queues
     queues: queues({ arc, inventory }),
