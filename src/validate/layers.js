@@ -17,14 +17,9 @@ module.exports = function validate (params, callback) {
       err.push(`- Lambda can only be configured with up to 5 layers; got:${layerList}`)
     }
     // CloudFormation fails without a helpful error if any layers aren't in the same region as the app because CloudFormation
-    for (let layer of layers) {
-      let arnError = validateARN(layer)
+    for (let arn of layers) {
+      let arnError = validateARN({ arn, region })
       if (arnError) err.push(arnError)
-
-      let layerRegion = layer.split(':')[3]
-      if (region && region !== layerRegion) {
-        err.push(`- Lambda layers must be in the same region as app\n  - App region: ${region}\n  - Layer ARN: ${layer}\n  - Layer region: ${layerRegion ? layerRegion : 'unknown'}`)
-      }
     }
 
     if (err.length) {
