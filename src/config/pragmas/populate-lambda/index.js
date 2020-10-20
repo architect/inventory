@@ -49,6 +49,9 @@ function populateLambda (type, pragma, inventory) {
     if (arcConfig && arcConfig.aws) {
       config = upsert(config, arcConfig.aws)
     }
+    if (arcConfig && arcConfig.arc) {
+      config = upsert(config, arcConfig.arc)
+    }
 
     // Now we know the final source dir + runtime + handler: assemble handler props
     let { handlerFile, handlerFunction } = getHandler(config, src)

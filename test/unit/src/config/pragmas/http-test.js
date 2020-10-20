@@ -24,7 +24,7 @@ test('No @http returns null', t => {
 })
 
 test('@http population via @static: implicit get /* (Arc Static Asset Proxy)', t => {
-  // t.plan(2)
+  t.plan(18)
   let arc
 
   function check (arc, expected, expectASAP = false) {
@@ -72,10 +72,6 @@ any /*`)
   arc = parse(`@http
 any /:param`)
   check(arc, 1)
-
-
-
-  t.end()
 })
 
 test('@http population: simple format + implicit get /*', t => {
