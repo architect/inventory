@@ -1,10 +1,11 @@
-let aws = require('aws-sdk')
 
 /**
  * Read env vars out of SSM
  */
 module.exports = function env (params, inventory, callback) {
   if (params.env) {
+    // eslint-disable-next-line
+    let aws = require('aws-sdk')
     let name = inventory.app
     let { region } = inventory.aws
     let ssm = new aws.SSM({ region })
