@@ -18,6 +18,7 @@
 ### Fixed
 
 - Fixed issue with overwriting a Lambda's base config if Arc config is present
+- Fixed legacy `@ws` folder pathing issue
 
 ---
 
