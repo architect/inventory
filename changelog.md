@@ -11,6 +11,8 @@
 - Added `@cdn` support
 - Added `@http` `any`, `head`, and `options` method support
 - Added `@http` `*` (catchall) syntax support
+- Added async/await interface
+- Added `config.arc` (formerly `.arc-config`) support for `@arc` settings
 
 
 ### Fixed

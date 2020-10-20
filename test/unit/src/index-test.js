@@ -28,3 +28,26 @@ test('Inventory returns errors', t => {
     else t.fail('Should have returned an error')
   })
 })
+
+test('Inventory invokes async', async t => {
+  t.plan(2)
+  try {
+    let result = await inv({ cwd: join(mock, 'max') })
+    t.ok(result.inventory, 'Called back with inventory object')
+    t.ok(result.get, 'Called back with getter')
+  }
+  catch (err) {
+    t.fail(err)
+  }
+})
+
+test('Inventory throws async', async t => {
+  t.plan(1)
+  try {
+    await inv({ cwd: join(mock, 'fail') })
+    t.fail('Should have returned an error')
+  }
+  catch (err) {
+    t.pass('Invalid Architect project manifest returned an inventory error')
+  }
+})

@@ -15,6 +15,17 @@ let get = require('./get')
  * @returns {object} - Inventory object (including Arc & project defaults and enumerated pragmas) & config getter
  */
 module.exports = function architectInventory (params = {}, callback) {
+
+  // Set up promise if there's no callback
+  let promise
+  if (!callback) {
+    promise = new Promise(function (res, rej) {
+      callback = function (err, result) {
+        err ? rej(err) : res(result)
+      }
+    })
+  }
+
   // Always ensure we have a working dir
   params.cwd = params.cwd || process.cwd()
   let { cwd } = params
@@ -77,4 +88,6 @@ module.exports = function architectInventory (params = {}, callback) {
       })
     }
   })
+
+  return promise
 }
