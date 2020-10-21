@@ -24,26 +24,33 @@ test('No @http returns null', t => {
 })
 
 test('@http population via @static: implicit get /* (Arc Static Asset Proxy)', t => {
-  t.plan(27)
+  t.plan(29)
   let arc
 
   function check (arc, expected, expectASAP = false) {
     let inventory = inventoryDefaults()
     inventory._project.src = cwd
     let http = populateHTTP({ arc, inventory })
-    t.equal(http.length, expected, `Got expected number of routes back: ${expected}`)
+    let result = http === null ? http : http.length
+    t.equal(result, expected, `Got expected number of routes back: ${expected}`)
     if (expectASAP) {
       let asap = http.find(r => r.arcStaticAssetProxy)
       t.equal(asap.arcStaticAssetProxy, expectASAP, `Found Arc Static Asset Proxy root handler`)
       t.equal(inventory._project.rootHandler, 'arcStaticAssetProxy', '_project.rootHandler set to: arcStaticAssetProxy')
     }
-    else {
+    else if (result) {
       t.equal(http[0].arcStaticAssetProxy, undefined, `Found explicitly defined root handler`)
       t.equal(inventory._project.rootHandler, 'configured', '_project.rootHandler set to: configured')
+    }
+    else {
+      t.equal(result, null, 'Did not populate @http')
     }
   }
 
   arc = parse(`@static`)
+  check(arc, null)
+
+  arc = parse(`@static\n@http`)
   check(arc, 1, true)
 
   arc = parse(`@http`)
