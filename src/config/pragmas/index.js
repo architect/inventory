@@ -16,7 +16,7 @@ let ws = require('./ws')
 let srcDirs = require('./src-dirs')
 
 module.exports = function configureArcPragmas ({ arc, inventory }) {
-  if (inventory.project.type !== 'aws') {
+  if (inventory._project.type !== 'aws') {
     throw ReferenceError('Inventory can only configure pragmas for AWS projects')
   }
 

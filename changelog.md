@@ -18,6 +18,7 @@
 ### Changed
 
 - Moved `inventory.arc` metadata to `inventory._arc` (should we need to use an Architect-specific `@arc` pragma)
+- Moved `inventory.project` metadata to `inventory._project` to better denote that it is indeed project metadata
 
 
 ### Fixed

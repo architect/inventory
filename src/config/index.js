@@ -1,9 +1,9 @@
-let arc = require('./arc')
-let project = require('./project')
+let _arc = require('./arc')
+let _project = require('./project')
 let pragmas = require('./pragmas')
 
 module.exports = {
-  arc,
-  project,
+  _arc,
+  _project,
   pragmas,
 }

@@ -15,7 +15,7 @@ module.exports = function inventoryDefaults (params = {}) {
       version: 'Unknown',
       defaultFunctionConfig,
     },
-    project: {
+    _project: {
       type: 'aws',
       src: cwd,
       manifest: null,

@@ -15,8 +15,8 @@ let getStreams = require('./_streams')
 function populateLambda (type, pragma, inventory) {
   if (!pragma || !pragma.length) return null // Jic
 
-  let createDefaultConfig = () => JSON.parse(JSON.stringify(inventory.project.defaultFunctionConfig))
-  let cwd = inventory.project.src
+  let createDefaultConfig = () => JSON.parse(JSON.stringify(inventory._project.defaultFunctionConfig))
+  let cwd = inventory._project.src
 
   // Fill er up
   let lambdas = []
@@ -86,11 +86,11 @@ function getLambda (params) {
 }
 
 module.exports = {
-  events: populateLambda.bind({}, 'events',),
-  http: populateLambda.bind({}, 'http',),
-  queues: populateLambda.bind({}, 'queues',),
-  scheduled: populateLambda.bind({}, 'scheduled',),
-  streams: populateLambda.bind({}, 'streams',),
-  tables: populateLambda.bind({}, 'tables',),
-  ws: populateLambda.bind({}, 'ws',),
+  events:     populateLambda.bind({}, 'events'),
+  http:       populateLambda.bind({}, 'http'),
+  queues:     populateLambda.bind({}, 'queues'),
+  scheduled:  populateLambda.bind({}, 'scheduled'),
+  streams:    populateLambda.bind({}, 'streams'),
+  tables:     populateLambda.bind({}, 'tables'),
+  ws:         populateLambda.bind({}, 'ws'),
 }

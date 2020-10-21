@@ -40,10 +40,10 @@ module.exports = function architectInventory (params = {}, callback) {
   let project = { cwd, arc, raw, filepath, inventory }
 
   // Populate inventory.arc
-  inventory._arc = config.arc(project)
+  inventory._arc = config._arc(project)
 
   // Establish default function config from project + Arc defaults
-  inventory.project = config.project(project)
+  inventory._project = config._project(project)
 
   // Userland: fill out the pragmas
   try {
@@ -68,7 +68,7 @@ module.exports = function architectInventory (params = {}, callback) {
       getEnv(params, inventory, function done (err, env) {
         if (err) callback(err)
         else {
-          inventory.project.env = env
+          inventory._project.env = env
           callback()
         }
       })

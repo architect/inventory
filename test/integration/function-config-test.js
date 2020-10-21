@@ -24,7 +24,7 @@ test('Inventory and compare functions with / without function config', t => {
       let { inventory, get } = result
       t.ok(inventory, 'Inventory returned inventory object')
       t.ok(get, 'Inventory returned getter')
-      let def = inventory.project.defaultFunctionConfig
+      let def = inventory._project.defaultFunctionConfig
       let custom = {
         runtime: 'nodejs8.10',
         timeout: 10,

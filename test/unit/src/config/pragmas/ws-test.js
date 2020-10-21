@@ -8,7 +8,7 @@ let populateWS = require(sut)
 
 let cwd = process.cwd()
 let inventory = inventoryDefaults()
-inventory.project.src = cwd
+inventory._project.src = cwd
 let wsDir = join(cwd, 'src', 'ws')
 
 test('Set up env', t => {

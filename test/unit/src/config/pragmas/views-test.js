@@ -8,7 +8,7 @@ let inventoryDefaults = require(inventoryDefaultsPath)
 let sut = join(process.cwd(), 'src', 'config', 'pragmas', 'views')
 let populateViews = require(sut)
 let inventory = inventoryDefaults()
-inventory.project.src = process.cwd()
+inventory._project.src = process.cwd()
 
 test('Set up env', t => {
   t.plan(1)

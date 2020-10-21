@@ -10,7 +10,7 @@ let populateHTTP = require(sut)
 
 let cwd = process.cwd()
 let inventory = inventoryDefaults()
-inventory.project.src = cwd
+inventory._project.src = cwd
 let httpDir = join(cwd, 'src', 'http')
 
 test('Set up env', t => {

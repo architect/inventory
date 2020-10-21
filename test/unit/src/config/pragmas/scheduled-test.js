@@ -8,7 +8,7 @@ let populateScheduled = require(sut)
 
 let cwd = process.cwd()
 let inventory = inventoryDefaults()
-inventory.project.src = cwd
+inventory._project.src = cwd
 let scheduledDir = join(cwd, 'src', 'scheduled')
 let str = s => JSON.stringify(s)
 let rate = {

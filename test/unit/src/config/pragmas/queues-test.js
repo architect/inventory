@@ -8,7 +8,7 @@ let populateQueues = require(sut)
 
 let cwd = process.cwd()
 let inventory = inventoryDefaults()
-inventory.project.src = cwd
+inventory._project.src = cwd
 let queuesDir = join(cwd, 'src', 'queues')
 let values = [ 'foo', 'bar' ]
 
