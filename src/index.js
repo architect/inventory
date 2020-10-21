@@ -40,7 +40,7 @@ module.exports = function architectInventory (params = {}, callback) {
   let project = { cwd, arc, raw, filepath, inventory }
 
   // Populate inventory.arc
-  inventory.arc = config.arc(project)
+  inventory._arc = config.arc(project)
 
   // Establish default function config from project + Arc defaults
   inventory.project = config.project(project)

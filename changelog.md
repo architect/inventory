@@ -15,6 +15,11 @@
 - Added `config.arc` (formerly `.arc-config`) support for `@arc` settings
 
 
+### Changed
+
+- Moved `inventory.arc` metadata to `inventory._arc` (should we need to use an Architect-specific `@arc` pragma)
+
+
 ### Fixed
 
 - Fixed issue with overwriting a Lambda's base config if Arc config is present

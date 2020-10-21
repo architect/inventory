@@ -24,7 +24,7 @@ test('Inventory defaults returns correct default inventory object', t => {
   t.plan(inventoryParamSize + 1)
 
   t.equal(Object.keys(result).length, inventoryParamSize, 'Got correct number of params')
-  t.ok(result.arc, 'Got arc')
+  t.ok(result._arc, 'Got arc')
   t.ok(result.project, 'Got project')
   t.equal(result.lambdaSrcDirs, null, 'Got lambdaSrcDirs')
   t.equal(result.localPaths, null, 'Got localPaths')
@@ -44,6 +44,6 @@ test('Architect project defaults are pre-populated', t => {
 test('Inventory got default function config', t => {
   t.plan(2)
   let defaultConfig = defaultFunctionConfig()
-  t.equal(str(result.arc.defaultFunctionConfig), str(defaultConfig), 'Arc got default function config')
+  t.equal(str(result._arc.defaultFunctionConfig), str(defaultConfig), 'Arc got default function config')
   t.equal(str(result.project.defaultFunctionConfig), str(defaultConfig), 'Project got default function config')
 })

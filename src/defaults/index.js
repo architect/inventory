@@ -11,7 +11,7 @@ module.exports = function inventoryDefaults (params = {}) {
   let defaultFunctionConfig = fnConfig()
   return {
     // Meta
-    arc: {
+    _arc: {
       version: 'Unknown',
       defaultFunctionConfig,
     },
