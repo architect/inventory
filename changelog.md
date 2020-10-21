@@ -18,6 +18,7 @@
 ### Fixed
 
 - Fixed issue with overwriting a Lambda's base config if Arc config is present
+- Fixed missing `handlerFile` extension for deno functions
 - Fixed legacy `@ws` folder pathing issue
 
 ---
