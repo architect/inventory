@@ -13,6 +13,7 @@
 - Added `@http` `*` (catchall) syntax support
 - Added async/await interface
 - Added `config.arc` (formerly `.arc-config`) support for `@arc` settings
+- Added `inventory._project.rootHandler` property for determining whether a user explicitly configured a root handler
 
 
 ### Changed

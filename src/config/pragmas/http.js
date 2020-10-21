@@ -17,8 +17,8 @@ module.exports = function configureHTTP ({ arc, inventory }) {
     let isRootPath = path === '/' || path === '/*' || rootParam
     return isRootMethod && isRootPath
   }
-  let hasRoot = http.some(findRoot)
-  if (!hasRoot) {
+  let rootHandler = http.some(findRoot) ? 'configured' : 'arcStaticAssetProxy'
+  if (rootHandler === 'arcStaticAssetProxy') {
     // Inject ASAP
     let asap = {
       name: 'get /*',
@@ -34,6 +34,9 @@ module.exports = function configureHTTP ({ arc, inventory }) {
     asap.config.views = false
     http.unshift(asap)
   }
+
+  // Impure but it's way less complicated to just do this
+  inventory._project.rootHandler = rootHandler
 
   return http
 }

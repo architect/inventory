@@ -21,6 +21,7 @@ module.exports = function inventoryDefaults (params = {}) {
       manifest: null,
       // manifestCreated: null, // TODO
       defaultFunctionConfig,
+      rootHandler: null,
       arc: [],
       raw: '',
       env: null,
