@@ -1,4 +1,4 @@
-let readArcConfig = require('../../../read/arc-config')
+let read = require('../../../read')
 let getHandler = require('./get-handler')
 let upsert = require('../../_upsert')
 
@@ -39,7 +39,7 @@ function populateLambda (type, pragma, inventory) {
     if (item[name] && item[name].handler) config.handler = item[name].handler
 
     // Now let's check in on the function config
-    let { arc: arcConfig, filepath, errors } = readArcConfig({ cwd: src })
+    let { arc: arcConfig, filepath, errors } = read({ type: 'functionConfig', cwd: src })
     if (errors) throw Error(errors)
 
     // Set function config file path (if one is present)

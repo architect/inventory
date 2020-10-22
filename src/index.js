@@ -1,4 +1,4 @@
-let readArc = require('./read/arc')
+let read = require('./read')
 let series = require('run-series')
 let inventoryDefaults = require('./defaults')
 let config = require('./config')
@@ -30,7 +30,7 @@ module.exports = function architectInventory (params = {}, callback) {
   params.cwd = params.cwd || process.cwd()
   let { cwd } = params
 
-  let { arc, raw, filepath } = readArc({ cwd })
+  let { arc, raw, filepath } = read({ type: 'projectManifest', cwd })
   let errors
 
   // Start building out the inventory
@@ -39,14 +39,14 @@ module.exports = function architectInventory (params = {}, callback) {
   // Set up project params for config
   let project = { cwd, arc, raw, filepath, inventory }
 
-  // Populate inventory.arc
-  inventory._arc = config._arc(project)
-
-  // Establish default function config from project + Arc defaults
-  inventory._project = config._project(project)
-
-  // Userland: fill out the pragmas
   try {
+    // Populate inventory.arc
+    inventory._arc = config._arc(project)
+
+    // Establish default function config from project + Arc defaults
+    inventory._project = config._project(project)
+
+    // Userland: fill out the pragmas
     inventory = {
       ...inventory,
       ...config.pragmas(project)

@@ -12,19 +12,21 @@ module.exports = function inventoryDefaults (params = {}) {
   return {
     // Meta
     _arc: {
-      version: 'Unknown',
-      defaultFunctionConfig,
+      version: 'Unknown',     // @architect/architect semver (if installed)
+      defaultFunctionConfig,  // Architect's default function config
     },
     _project: {
       type: 'aws',
       src: cwd,
-      manifest: null,
-      // manifestCreated: null, // TODO
-      defaultFunctionConfig,
-      rootHandler: null,
-      arc: [],
-      raw: '',
-      env: null,
+      manifest: null,         // Root project manifest filename
+      // manifestCreated      // TODO
+      preferences: null,      // Local preferences obj
+      preferencesFile: null,  // Local preferences file path
+      defaultFunctionConfig,  // Project-level function config
+      rootHandler: null,      // null | configured | asap
+      arc: [],                // Raw arc obj
+      raw: '',                // Raw arc string
+      env: null,              // Env vars pulled from SSM (if enabled)
     },
     // App + vendor config
     app: '',
@@ -36,7 +38,7 @@ module.exports = function inventoryDefaults (params = {}) {
       memory: null,
       policies: null,
       profile: null,
-      region,
+      region,                 // AWS always requires a region, so we provide a default
       runtime: null,
       timeout: null,
     },
@@ -56,6 +58,6 @@ module.exports = function inventoryDefaults (params = {}) {
     ws: null,
     // Collection of all Function paths
     lambdaSrcDirs: null,
-    localPaths: null, // TODO deprecate me (copy of lambdaSrcDirs for backwards compat)
+    localPaths: null,         // TODO deprecate (copies lambdaSrcDirs for backwards compat)
   }
 }
