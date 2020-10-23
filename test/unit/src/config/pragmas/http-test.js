@@ -24,7 +24,7 @@ test('No @http returns null', t => {
 })
 
 test('@http population via @static: implicit get /* (Arc Static Asset Proxy)', t => {
-  t.plan(29)
+  t.plan(38)
   let arc
 
   function check (arc, expected, expectASAP = false) {
@@ -36,6 +36,9 @@ test('@http population via @static: implicit get /* (Arc Static Asset Proxy)', t
     if (expectASAP) {
       let asap = http.find(r => r.arcStaticAssetProxy)
       t.equal(asap.arcStaticAssetProxy, expectASAP, `Found Arc Static Asset Proxy root handler`)
+      t.equal(asap.config.shared, false, 'Arc Static Asset Proxy has disabled shared files')
+      t.equal(asap.config.views, false, 'Arc Static Asset Proxy has disabled shared views')
+      t.deepEqual(asap.config.layers, [], 'Arc Static Asset Proxy has no layers')
       t.equal(inventory._project.rootHandler, 'arcStaticAssetProxy', '_project.rootHandler set to: arcStaticAssetProxy')
     }
     else if (result) {

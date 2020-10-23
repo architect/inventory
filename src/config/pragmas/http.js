@@ -30,6 +30,7 @@ module.exports = function configureHTTP ({ arc, inventory }) {
       method: 'get',
       path: '/*'
     }
+    asap.config.shared = false
     asap.config.views = false
     http.unshift(asap)
   }
