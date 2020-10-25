@@ -24,7 +24,7 @@ test('Set up max inventory', t => {
   inventory({ cwd: join(mock, 'max') }, (err, result) => {
     if (err) t.fail(err)
     else {
-      get = getter(result.inventory)
+      get = getter(result.inv)
       t.ok(get, 'Got getter')
     }
   })
@@ -155,7 +155,7 @@ test('Set up static inventory', t => {
   inventory({ cwd: join(mock, 'static') }, (err, result) => {
     if (err) t.fail(err)
     else {
-      get = getter(result.inventory)
+      get = getter(result.inv)
       t.ok(get, 'Got getter')
     }
   })

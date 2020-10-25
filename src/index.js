@@ -83,7 +83,7 @@ module.exports = function architectInventory (params = {}, callback) {
     if (err) callback(err)
     else {
       callback(null, {
-        inventory,
+        inv: inventory,
         get: get(inventory)
       })
     }

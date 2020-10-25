@@ -15,7 +15,7 @@ test('Inventory calls callback', t => {
   inv({ cwd: join(mock, 'max') }, (err, result) => {
     if (err) t.fail(err)
     else {
-      t.ok(result.inventory, 'Called back with inventory object')
+      t.ok(result.inv, 'Called back with inventory object')
       t.ok(result.get, 'Called back with getter')
     }
   })
@@ -33,7 +33,7 @@ test('Inventory invokes async', async t => {
   t.plan(2)
   try {
     let result = await inv({ cwd: join(mock, 'max') })
-    t.ok(result.inventory, 'Called back with inventory object')
+    t.ok(result.inv, 'Called back with inventory object')
     t.ok(result.get, 'Called back with getter')
   }
   catch (err) {

@@ -24,11 +24,11 @@ test('Inventory an empty project', t => {
   inv({ cwd }, (err, result) => {
     if (err) t.fail(err)
     else {
-      let { inventory, get } = result
-      t.ok(inventory, 'Inventory returned inventory object')
+      let { inv, get } = result
+      t.ok(inv, 'Inventory returned inventory object')
       t.ok(get, 'Inventory returned getter')
       keys.forEach(key => {
-        let invFound = inventory[key] || inventory[key] === null
+        let invFound = inv[key] || inv[key] === null
         let getFound = get[key]
         t.ok(invFound, `Inventory has entry for: ${key}`)
         t.ok(getFound, `Getter has entry for: ${key}`)
@@ -45,11 +45,11 @@ test('Inventory a maxed-out project', t => {
   inv({ cwd }, (err, result) => {
     if (err) t.fail(err)
     else {
-      let { inventory, get } = result
-      t.ok(inventory, 'Inventory returned inventory object')
+      let { inv, get } = result
+      t.ok(inv, 'Inventory returned inventory object')
       t.ok(get, 'Inventory returned getter')
       keys.forEach(key => {
-        let invFound = inventory[key]
+        let invFound = inv[key]
         let getFound = get[key]
         t.ok(invFound, `Inventory has entry for: ${key}`)
         t.ok(getFound, `Getter has entry for: ${key}`)

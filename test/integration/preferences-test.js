@@ -29,16 +29,16 @@ test('Get preferences', t => {
   inv({ cwd }, (err, result) => {
     if (err) t.fail(err)
     else {
-      let { inventory, get } = result
-      t.ok(inventory, 'Inventory returned inventory object')
+      let { inv, get } = result
+      t.ok(inv, 'Inventory returned inventory object')
       t.ok(get, 'Inventory returned getter')
-      t.ok(inventory._project.preferences._arc, 'Got preferences (arc)')
-      t.ok(inventory._project.preferences._raw, 'Got preferences (raw)')
+      t.ok(inv._project.preferences._arc, 'Got preferences (arc)')
+      t.ok(inv._project.preferences._raw, 'Got preferences (raw)')
       // Delete the meta stuff so the actual preferences match the above
-      delete inventory._project.preferences._arc
-      delete inventory._project.preferences._raw
-      t.deepEqual(inventory._project.preferences, prefs, 'Got correct preferences')
-      t.equal(inventory._project.preferencesFile, join(cwd, 'preferences.arc'), 'Got correct preferences file')
+      delete inv._project.preferences._arc
+      delete inv._project.preferences._raw
+      t.deepEqual(inv._project.preferences, prefs, 'Got correct preferences')
+      t.equal(inv._project.preferencesFile, join(cwd, 'preferences.arc'), 'Got correct preferences file')
       reset()
     }
   })

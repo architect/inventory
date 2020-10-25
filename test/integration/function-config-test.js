@@ -21,10 +21,10 @@ test('Inventory and compare functions with / without function config', t => {
   inv({ cwd }, (err, result) => {
     if (err) t.fail(err)
     else {
-      let { inventory, get } = result
-      t.ok(inventory, 'Inventory returned inventory object')
+      let { inv, get } = result
+      t.ok(inv, 'Inventory returned inventory object')
       t.ok(get, 'Inventory returned getter')
-      let def = inventory._project.defaultFunctionConfig
+      let def = inv._project.defaultFunctionConfig
       let custom = {
         runtime: 'nodejs8.10',
         timeout: 10,
