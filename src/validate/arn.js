@@ -2,11 +2,11 @@
 module.exports = function validateARN ({ arn, region }) {
   let invalid = `- Invalid ARN: ${arn}`
   try {
-    let parts = arn.split(':')
-    if (!arn.startsWith('arn:') || parts.length !== 8) {
+    if (typeof arn !== 'string' || !arn.startsWith('arn:') || arn.split(':').length !== 8) {
       return invalid
     }
     if (region) {
+      let parts = arn.split(':')
       let layerRegion = parts[3]
       if (region && region !== layerRegion) {
         let err = `- Lambda layers must be in the same region as app\n` +

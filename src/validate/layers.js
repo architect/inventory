@@ -23,8 +23,10 @@ module.exports = function validate (params, callback) {
     }
 
     if (err.length) {
-      location = location.startsWith(sep) ? location.substr(1) : location
-      let msg = `Layer validation error${err.length > 1 ? 's' : ''} in ${location}:\n${err.join('\n')}`
+      // Location may be missing if running statelessly
+      location = location && location.startsWith(sep) ? location.substr(1) : location
+      let loc = location ? ' in ' + location : ''
+      let msg = `Layer validation error${err.length > 1 ? 's' : ''}${loc}:\n${err.join('\n')}`
       callback(Error(msg))
     }
     else callback()
