@@ -24,6 +24,8 @@ Runs an inventory against your project. Must be passed an options object that ma
 
 - `cwd` - **String** - Absolute file path of the project being inventoried
 - `env` - **Boolean** - Queries AWS infra to acquire environment variables for `testing`, `staging`, and `production` environments
+- `region` - **String** - Sets default AWS region; overrides default, but is overridden by `AWS_REGION` env var
+- `rawArc` - **String** - Raw Architect project manifest string, intended for testing; providing this will ignore your local manifest
 
 Returns results via `callback`, or returns a `promise` if `callback` is falsy, and resolves with results.
 

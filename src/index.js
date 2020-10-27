@@ -1,5 +1,6 @@
 let read = require('./read')
 let series = require('run-series')
+let { parser, lexer } = require('@architect/parser')
 let inventoryDefaults = require('./defaults')
 let config = require('./config')
 let getEnv = require('./env')
@@ -28,9 +29,17 @@ module.exports = function architectInventory (params = {}, callback) {
 
   // Always ensure we have a working dir
   params.cwd = params.cwd || process.cwd()
-  let { cwd } = params
+  let { cwd, rawArc } = params
 
-  let { arc, raw, filepath } = read({ type: 'projectManifest', cwd })
+  if (rawArc) {
+    var arc = parser(lexer(rawArc))
+    var raw = rawArc
+    var filepath = false
+  }
+  else {
+    var { arc, raw, filepath } = read({ type: 'projectManifest', cwd })
+  }
+
   let errors
 
   // Start building out the inventory

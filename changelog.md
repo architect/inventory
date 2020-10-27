@@ -14,12 +14,17 @@
 - Added async/await interface
 - Added `config.arc` (formerly `.arc-config`) support for `@arc` settings
 - Added `inventory._project.rootHandler` property for determining whether a user explicitly configured a root handler
+- Added local preferences via `preferences.arc` or `prefs.arc`
+- Added additional params to tables (`ttl`, `encrypt`, `PointInTimeRecovery`, `legacy`)
+- Added ability to pass raw Architect manifest string (`rawArc`) for stateless Inventory runs
 
 
 ### Changed
 
 - Moved `inventory.arc` metadata to `inventory._arc` (should we need to use an Architect-specific `@arc` pragma)
 - Moved `inventory.project` metadata to `inventory._project` to better denote that it is indeed project metadata
+- Renamed primary inventory output to `inv`
+- Updated AWS SDK
 
 
 ### Fixed
@@ -27,6 +32,9 @@
 - Fixed issue with overwriting a Lambda's base config if Arc config is present
 - Fixed missing `handlerFile` extension for deno functions
 - Fixed legacy `@ws` folder pathing issue
+- Fixed ASAP behavior to only be defined when `@http` is present, not `@static`
+- Disable shared files in ASAP
+- Fix issue where ASAP was overtaking `@proxy`
 
 ---
 
