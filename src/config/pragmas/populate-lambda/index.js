@@ -30,7 +30,9 @@ function populateLambda (type, pragma, inventory) {
     let { name, src } = result
 
     // Knock out any pragma-specific early
-    if (type === 'queues') config.fifo = true
+    if (type === 'queues') {
+      config.fifo = config.fifo === undefined ? true : config.fifo
+    }
     if (type === 'http') {
       if (name.startsWith('get ') || name.startsWith('any ')) config.views = true
     }

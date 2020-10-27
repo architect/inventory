@@ -22,6 +22,40 @@ test('No @queues returns null', t => {
   t.equal(populateQueues({ arc: {}, inventory }), null, 'Returned null')
 })
 
+test('@queues: fifo defaults', t => {
+  t.plan(2)
+  let arc
+  let queues
+
+  arc = parse(`
+@queues
+${values[0]}
+`)
+  queues = populateQueues({ arc, inventory })
+  queues.forEach(queue => {
+    let { config } = queue
+    t.equal(config.fifo, true, `Queue fifo is true by default`)
+  })
+
+  // A bit jank, but `@aws config fifo` is populated in a diff code path
+  // Thus, we have to manually mock it here to test the project-level function config for fifo
+  let inv = inventoryDefaults()
+  inv._project.src = cwd
+  inv._project.defaultFunctionConfig.fifo = false
+
+  arc = parse(`
+@aws
+fifo false
+@queues
+${values[0]}
+`)
+  queues = populateQueues({ arc, inventory: inv })
+  queues.forEach(queue => {
+    let { config } = queue
+    t.equal(config.fifo, false, `Queue fifo is set to false via @aws fifo false`)
+  })
+})
+
 test('@queues population: simple format', t => {
   t.plan(7)
 

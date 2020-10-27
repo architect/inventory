@@ -33,8 +33,9 @@
 - Fixed missing `handlerFile` extension for deno functions
 - Fixed legacy `@ws` folder pathing issue
 - Fixed ASAP behavior to only be defined when `@http` is present, not `@static`
-- Disable shared files in ASAP
-- Fix issue where ASAP was overtaking `@proxy`
+- Disabled shared files in ASAP
+- Fixed issue where ASAP was overtaking `@proxy`
+- Fixed manual override of queue fifo config
 
 ---
 
