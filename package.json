@@ -25,11 +25,11 @@
     "run-series": "~1.1.8"
   },
   "peerDependencies": {
-    "aws-sdk": "~2.644.0"
+    "aws-sdk": "2.712.0"
   },
   "devDependencies": {
     "@architect/eslint-config": "0.0.1",
-    "aws-sdk": "~2.644.0",
+    "aws-sdk": "2.712.0",
     "codecov": "~3.7.2",
     "cross-env": "~7.0.2",
     "eslint": "~7.8.1",
