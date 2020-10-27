@@ -24,26 +24,33 @@ test('No @http returns null', t => {
 })
 
 test('@http population via @static: implicit get /* (Arc Static Asset Proxy)', t => {
-  t.plan(38)
+  t.plan(44)
   let arc
 
-  function check (arc, expected, expectASAP = false) {
+  function check (arc, expected, expectedRootHandler) {
     let inventory = inventoryDefaults()
     inventory._project.src = cwd
     let http = populateHTTP({ arc, inventory })
     let result = http === null ? http : http.length
     t.equal(result, expected, `Got expected number of routes back: ${expected}`)
-    if (expectASAP) {
+    if (expectedRootHandler === 'arcStaticAssetProxy') {
       let asap = http.find(r => r.arcStaticAssetProxy)
-      t.equal(asap.arcStaticAssetProxy, expectASAP, `Found Arc Static Asset Proxy root handler`)
+      t.equal(asap.arcStaticAssetProxy, true, `Found Arc Static Asset Proxy root handler`)
       t.equal(asap.config.shared, false, 'Arc Static Asset Proxy has disabled shared files')
       t.equal(asap.config.views, false, 'Arc Static Asset Proxy has disabled shared views')
       t.deepEqual(asap.config.layers, [], 'Arc Static Asset Proxy has no layers')
-      t.equal(inventory._project.rootHandler, 'arcStaticAssetProxy', '_project.rootHandler set to: arcStaticAssetProxy')
+      t.equal(inventory._project.rootHandler, expectedRootHandler, '_project.rootHandler set to: arcStaticAssetProxy')
     }
-    else if (result) {
-      t.equal(http[0].arcStaticAssetProxy, undefined, `Found explicitly defined root handler`)
-      t.equal(inventory._project.rootHandler, 'configured', '_project.rootHandler set to: configured')
+    else if (expectedRootHandler) {
+      // Most cases: some HTTP routes
+      if (http.length) {
+        t.equal(http[0].arcStaticAssetProxy, undefined, `Found explicitly defined root handler`)
+      }
+      // Bare @proxy and no routes
+      else {
+        t.equal(http.length, expected, `Found correct number of roots: ${expected}`)
+      }
+      t.equal(inventory._project.rootHandler, expectedRootHandler, `_project.rootHandler set to: ${expectedRootHandler}`)
     }
     else {
       t.equal(result, null, 'Did not populate @http')
@@ -54,39 +61,53 @@ test('@http population via @static: implicit get /* (Arc Static Asset Proxy)', t
   check(arc, null)
 
   arc = parse(`@static\n@http`)
-  check(arc, 1, true)
+  check(arc, 1, 'arcStaticAssetProxy')
 
   arc = parse(`@http`)
-  check(arc, 1, true)
+  check(arc, 1, 'arcStaticAssetProxy')
 
   arc = parse(`@http
 post /`)
-  check(arc, 2, true)
+  check(arc, 2, 'arcStaticAssetProxy')
 
   arc = parse(`@http
 get /`)
-  check(arc, 1)
+  check(arc, 1, 'configured')
 
   arc = parse(`@http
 get /*`)
-  check(arc, 1)
+  check(arc, 1, 'configured')
 
   arc = parse(`@http
 get /:param`)
-  check(arc, 1)
+  check(arc, 1, 'configured')
 
   arc = parse(`@http
 any /`)
-  check(arc, 1)
+  check(arc, 1, 'configured')
 
   arc = parse(`@http
 any /*`)
-  check(arc, 1)
+  check(arc, 1, 'configured')
 
   arc = parse(`@http
 any /:param`)
-  check(arc, 1)
+  check(arc, 1, 'configured')
 
+  arc = parse(`@http
+@proxy
+testing https://some.site
+staging https://some.site
+proxuction https://some.site`)
+  check(arc, 0, 'proxy')
+
+  arc = parse(`@http
+post /
+@proxy
+testing https://some.site
+staging https://some.site
+proxuction https://some.site`)
+  check(arc, 1, 'proxy')
 })
 
 test('@http population: simple format + implicit get /*', t => {

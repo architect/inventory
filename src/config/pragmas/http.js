@@ -17,6 +17,7 @@ module.exports = function configureHTTP ({ arc, inventory }) {
     return isRootMethod && isRootPath
   }
   let rootHandler = http.some(findRoot) ? 'configured' : 'arcStaticAssetProxy'
+  if (arc.proxy) rootHandler = 'proxy'
   if (rootHandler === 'arcStaticAssetProxy') {
     // Inject ASAP
     let asap = {
