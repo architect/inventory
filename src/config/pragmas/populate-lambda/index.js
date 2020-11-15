@@ -55,6 +55,11 @@ function populateLambda (type, pragma, inventory) {
       config = upsert(config, arcConfig.arc)
     }
 
+    // Tidy up any irrelevant params
+    if (type !== 'http') {
+      delete config.apigateway
+    }
+
     // Now we know the final source dir + runtime + handler: assemble handler props
     let { handlerFile, handlerFunction } = getHandler(config, src)
 
