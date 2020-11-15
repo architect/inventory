@@ -20,18 +20,22 @@ test('No @aws returns default @aws', t => {
 })
 
 test('Test @aws population', t => {
-  t.plan(4)
+  t.plan(6)
+  let apiType = 'rest'
   let value = 10
   let arc
   let aws
 
   arc = parse(`
 @aws
+apigateway ${apiType}
 timeout ${value}
 `)
   aws = populateAWS({ arc, inventory })
+  t.notEqual(inventory.aws.apigateway, apiType, 'Testing value is not already the default')
   t.notEqual(inventory.aws.timeout, value, 'Testing value is not already the default')
   t.equal(inventory.aws.region, 'us-west-2', 'Region defaults to us-west-2')
+  t.equal(aws.apigateway, apiType, 'Properly upserted apigateway')
   t.equal(aws.timeout, value, 'Properly upserted timeout')
 
   let region = process.env.AWS_REGION
@@ -43,4 +47,17 @@ timeout ${value}
 
   if (region) process.env.AWS_REGION = region
   else delete process.env.AWS_REGION
+})
+
+test('@aws: invalid settings throw', t => {
+  t.plan(1)
+  let arc
+
+  arc = parse(`
+@aws
+apigateway idk
+`)
+  t.throws(() => {
+    populateAWS({ arc, inventory })
+  }, 'Invalid API Gateway setting threw')
 })
