@@ -81,7 +81,6 @@ production
     else t.fail('Expected an error')
   })
 
-
   prefs = `
 @env
 testing foo
@@ -95,4 +94,10 @@ staging
     if (err) t.equal(err.message, 'Invalid preferences setting: @env testing', 'Got back error message for invalid preference shape')
     else t.fail('Expected an error')
   })
+})
+
+test('Teardown', t => {
+  t.plan(1)
+  mockFs.restore()
+  t.pass('Restored fs')
 })
