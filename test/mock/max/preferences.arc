@@ -1,5 +1,8 @@
 @sandbox
-create false
+environment testing
+
+@create
+autocreate true
 
 @deploy
 false

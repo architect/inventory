@@ -1,5 +1,6 @@
 let upsert = require('../_upsert')
 let read = require('../../read')
+let validate = require('./validate')
 
 /**
  * Get the project-level configuration, overlaying arc.aws settings (if present)
@@ -52,7 +53,7 @@ module.exports = function getProjectConfig (params) {
       }
     })
 
-    // TODO validate, including / especially env prefs, which could easiyl wind up a funky shape
+    validate(preferences)
 
     project.preferences = {
       ...preferences,

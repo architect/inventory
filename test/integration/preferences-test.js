@@ -2,6 +2,7 @@ let { join } = require('path')
 let test = require('tape')
 let sut = join(process.cwd(), 'src', 'index')
 let inv = require(sut)
+let mockFs = require('mock-fs')
 
 let dir = process.cwd()
 let mock = join(process.cwd(), 'test', 'mock')
@@ -18,7 +19,8 @@ test('Get preferences', t => {
   t.plan(6)
   let cwd = join(mock, 'max')
   let prefs = {
-    sandbox: { create: false },
+    sandbox: { environment: 'testing' },
+    create: { autocreate: true },
     deploy: false,
     env: {
       testing: { 'env-var-1': 'foo', 'env-var-2': 'bar' },
@@ -41,5 +43,56 @@ test('Get preferences', t => {
       t.equal(inv._project.preferencesFile, join(cwd, 'preferences.arc'), 'Got correct preferences file')
       reset()
     }
+  })
+})
+
+test('Preferences validation', t => {
+  t.plan(3)
+  let prefs
+  prefs = `
+@env
+testing
+  env-var-1 foo
+  env-var-2 bar
+
+staging
+`
+  mockFs({ 'prefs.arc': prefs })
+  inv({}, err => {
+    if (err) t.equal(err.message, 'Invalid preferences setting: @env staging', 'Got back error message for invalid preference shape')
+    else t.fail('Expected an error')
+  })
+
+  prefs = `
+@env
+testing
+  env-var-1 foo
+  env-var-2 bar
+
+staging true
+
+production
+  env-var-1 foo
+  env-var-2 bar
+`
+  mockFs({ 'prefs.arc': prefs })
+  inv({}, err => {
+    if (err) t.equal(err.message, 'Invalid preferences setting: @env staging', 'Got back error message for invalid preference shape')
+    else t.fail('Expected an error')
+  })
+
+
+  prefs = `
+@env
+testing foo
+
+staging
+  env-var-1 foo
+  env-var-2 bar
+`
+  mockFs({ 'prefs.arc': prefs })
+  inv({}, err => {
+    if (err) t.equal(err.message, 'Invalid preferences setting: @env testing', 'Got back error message for invalid preference shape')
+    else t.fail('Expected an error')
   })
 })
