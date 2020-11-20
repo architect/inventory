@@ -1,5 +1,5 @@
-let upsert = require('./_upsert')
-let read = require('../read')
+let upsert = require('../_upsert')
+let read = require('../../read')
 
 /**
  * Get the project-level configuration, overlaying arc.aws settings (if present)
