@@ -25,6 +25,7 @@ module.exports = function getProjectConfig (params) {
     // Arc outputs an object of nested arrays
     // Basically, construct a pared-down intermediate prefs obj for consumers
     Object.entries(prefs.arc).forEach(([ key, val ]) => {
+      // TODO add additional preferences checks and normalization
       if (!preferences[key]) preferences[key] = {}
       if (Array.isArray(val)) {
         val.forEach(v => {
@@ -50,6 +51,8 @@ module.exports = function getProjectConfig (params) {
         })
       }
     })
+
+    // TODO validate, including / especially env prefs, which could easiyl wind up a funky shape
 
     project.preferences = {
       ...preferences,

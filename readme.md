@@ -16,6 +16,7 @@ Inventory is responsible for interpreting the configuration and shape of a given
 npm i @architect/inventory
 ```
 
+
 ## Usage
 
 ### `inventory(options[, callback]) → [Promise]`
