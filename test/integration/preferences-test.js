@@ -63,6 +63,7 @@ staging
     t.fail('Expected an error')
   }
   catch (err) {
+    mockFs.restore()
     t.equal(err.message, 'Invalid preferences setting: @env staging', 'Got back error message for invalid preference shape')
   }
 
@@ -84,6 +85,7 @@ production
     t.fail('Expected an error')
   }
   catch (err) {
+    mockFs.restore()
     t.equal(err.message, 'Invalid preferences setting: @env staging', 'Got back error message for invalid preference shape')
   }
 
@@ -101,6 +103,7 @@ staging
     t.fail('Expected an error')
   }
   catch (err) {
+    mockFs.restore()
     t.equal(err.message, 'Invalid preferences setting: @env testing', 'Got back error message for invalid preference shape')
   }
 })
