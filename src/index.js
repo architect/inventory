@@ -1,6 +1,6 @@
 let read = require('./read')
 let series = require('run-series')
-let { parser, lexer } = require('@architect/parser')
+let parser = require('@architect/parser')
 let inventoryDefaults = require('./defaults')
 let config = require('./config')
 let getEnv = require('./env')
@@ -32,7 +32,7 @@ module.exports = function architectInventory (params = {}, callback) {
   let { cwd, rawArc } = params
 
   if (rawArc) {
-    var arc = parser(lexer(rawArc))
+    var arc = parser(rawArc)
     var raw = rawArc
     var filepath = false
   }

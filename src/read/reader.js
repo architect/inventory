@@ -1,5 +1,5 @@
 let parse = require('@architect/parser')
-let { parser, lexer } = parse
+let parser = parse
 let { existsSync: exists, readFileSync } = require('fs')
 let { join } = require('path')
 let read = p => readFileSync(p).toString()
@@ -30,8 +30,9 @@ module.exports = function reader (reads, cwd) {
         if (exists(file)) {
           filepath = file
           raw = read(file)
+          // TODO add handling for empty/munged files I guess
           arc = type === 'arc'
-            ? parser(lexer(raw))
+            ? parser(raw)
             : parse[type](raw) // Parser has convenient json, yaml, toml methods!
         }
       })
@@ -40,7 +41,7 @@ module.exports = function reader (reads, cwd) {
     // Allow for a default backup
     if (type === '_default' && !filepath) {
       raw = value
-      arc = parser(lexer(raw))
+      arc = parser(raw)
     }
   })
 
