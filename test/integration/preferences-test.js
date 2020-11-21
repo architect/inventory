@@ -46,7 +46,7 @@ test('Get preferences', t => {
   })
 })
 
-test('Preferences validation', t => {
+test('Preferences validation', async t => {
   t.plan(3)
   let prefs
   prefs = `
@@ -58,10 +58,13 @@ testing
 staging
 `
   mockFs({ 'prefs.arc': prefs })
-  inv({}, err => {
-    if (err) t.equal(err.message, 'Invalid preferences setting: @env staging', 'Got back error message for invalid preference shape')
-    else t.fail('Expected an error')
-  })
+  try {
+    await inv({})
+    t.fail('Expected an error')
+  }
+  catch (err) {
+    t.equal(err.message, 'Invalid preferences setting: @env staging', 'Got back error message for invalid preference shape')
+  }
 
   prefs = `
 @env
@@ -76,10 +79,13 @@ production
   env-var-2 bar
 `
   mockFs({ 'prefs.arc': prefs })
-  inv({}, err => {
-    if (err) t.equal(err.message, 'Invalid preferences setting: @env staging', 'Got back error message for invalid preference shape')
-    else t.fail('Expected an error')
-  })
+  try {
+    await inv({})
+    t.fail('Expected an error')
+  }
+  catch (err) {
+    t.equal(err.message, 'Invalid preferences setting: @env staging', 'Got back error message for invalid preference shape')
+  }
 
   prefs = `
 @env
@@ -90,10 +96,13 @@ staging
   env-var-2 bar
 `
   mockFs({ 'prefs.arc': prefs })
-  inv({}, err => {
-    if (err) t.equal(err.message, 'Invalid preferences setting: @env testing', 'Got back error message for invalid preference shape')
-    else t.fail('Expected an error')
-  })
+  try {
+    await inv({})
+    t.fail('Expected an error')
+  }
+  catch (err) {
+    t.equal(err.message, 'Invalid preferences setting: @env testing', 'Got back error message for invalid preference shape')
+  }
 })
 
 test('Teardown', t => {
