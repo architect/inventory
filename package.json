@@ -20,7 +20,7 @@
   },
   "license": "Apache-2.0",
   "dependencies": {
-    "@architect/parser": "~2.3.0",
+    "@architect/parser": "~3.0.0",
     "run-series": "~1.1.9"
   },
   "peerDependencies": {
