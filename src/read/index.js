@@ -6,6 +6,7 @@ let projectManifest = {
   json: [ 'arc.json' ],
   yaml: [ 'arc.yaml', 'arc.yml' ],
   toml: [ 'arc.toml' ],
+  manifest: [ 'package.json' ],
   _default: `@app\napp-default\n@http\n@static`,
 }
 

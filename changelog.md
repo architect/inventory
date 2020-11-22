@@ -17,6 +17,7 @@
 - Added local preferences via `preferences.arc` or `prefs.arc`
 - Added additional params to tables (`ttl`, `encrypt`, `PointInTimeRecovery`, `legacy`)
 - Added ability to pass raw Architect manifest string (`rawArc`) for stateless Inventory runs
+- Added ability to define JSON-formatted Architect manifest in `package.json` (via `arc` or `architect` param)
 
 
 ### Changed
@@ -25,6 +26,7 @@
 - Moved `inventory.project` metadata to `inventory._project` to better denote that it is indeed project metadata
 - Renamed primary inventory output to `inv`
 - Updated AWS SDK
+- Getter returns arrays for certain pragmas that may have duplicative names (e.g. `@indexes`)
 
 
 ### Fixed
@@ -36,6 +38,7 @@
 - Disabled shared files in ASAP
 - Fixed issue where ASAP was overtaking `@proxy`
 - Fixed manual override of queue fifo config
+- Added graceful failure when attempting to read an empty manifest or config file
 
 ---
 

@@ -1,5 +1,4 @@
 let parse = require('@architect/parser')
-let parser = parse
 let { existsSync: exists, readFileSync } = require('fs')
 let { join } = require('path')
 let read = p => readFileSync(p).toString()
@@ -26,14 +25,31 @@ module.exports = function reader (reads, cwd) {
         // Again, bail if we found something
         if (filepath) return
 
-        let file = join(cwd, f)
-        if (exists(file)) {
-          filepath = file
-          raw = read(file)
-          // TODO add handling for empty/munged files I guess
-          arc = type === 'arc'
-            ? parser(raw)
-            : parse[type](raw) // Parser has convenient json, yaml, toml methods!
+        try {
+          // Bail if file doesn't exist
+          let file = join(cwd, f)
+          if (!exists(file)) return
+
+          if (type !== 'manifest') {
+            filepath = file
+            raw = read(file)
+            if (raw.trim() === '') throw Error('empty file')
+            arc = type === 'arc'
+              ? parse(raw)
+              : parse[type](raw) // Parser has convenient json, yaml, toml methods!
+          }
+          else if (f === 'package.json') {
+            let pkg = JSON.parse(read(file))
+            let foundArc = pkg.arc || pkg.architect
+            if (foundArc) {
+              filepath = file
+              raw = JSON.stringify(foundArc, null, 2)
+              arc = parse.json(raw)
+            }
+          }
+        }
+        catch (err) {
+          throw Error(`Problem reading ${f}: ${err.message}`)
         }
       })
     }
@@ -41,7 +57,7 @@ module.exports = function reader (reads, cwd) {
     // Allow for a default backup
     if (type === '_default' && !filepath) {
       raw = value
-      arc = parser(raw)
+      arc = parse(raw)
     }
   })
 

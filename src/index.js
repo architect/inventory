@@ -27,28 +27,30 @@ module.exports = function architectInventory (params = {}, callback) {
     })
   }
 
-  // Always ensure we have a working dir
-  params.cwd = params.cwd || process.cwd()
-  let { cwd, rawArc } = params
-
-  if (rawArc) {
-    var arc = parser(rawArc)
-    var raw = rawArc
-    var filepath = false
-  }
-  else {
-    var { arc, raw, filepath } = read({ type: 'projectManifest', cwd })
-  }
-
   let errors
-
-  // Start building out the inventory
-  let inventory = inventoryDefaults(params)
-
-  // Set up project params for config
-  let project = { cwd, arc, raw, filepath, inventory }
-
+  let inventory
   try {
+    // Always ensure we have a working dir
+    params.cwd = params.cwd || process.cwd()
+    let { cwd, rawArc } = params
+
+    // Stateless inventory run
+    if (rawArc) {
+      var arc = parser(rawArc)
+      var raw = rawArc
+      var filepath = false
+    }
+    // Get the Architect project manifest from the filesystem
+    else {
+      var { arc, raw, filepath } = read({ type: 'projectManifest', cwd })
+    }
+
+    // Start building out the inventory
+    inventory = inventoryDefaults(params)
+
+    // Set up project params for config
+    let project = { cwd, arc, raw, filepath, inventory }
+
     // Populate inventory.arc
     inventory._arc = config._arc(project)
 
