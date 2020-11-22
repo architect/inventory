@@ -1,25 +1,26 @@
 module.exports = function _get (inventory) {
   function getter (prag, name) {
     let pragma = inventory[prag]
-    let isType = type => typeof pragma === type
+    let is = type => typeof pragma === type
 
     // Getters
     if (pragma === null) return null
     if (Array.isArray(pragma)) {
-      return pragma.find(i => {
-        // Handle arrays of named entities
-        if (i.name) return i.name === name
-        // Handle arrays of string values
-        return i === name
-      })
+      // Handle arrays of named entities or string values
+      let finder = i => i && i.name && i.name === name || i === name
+      if (multipleResults.includes(prag)) {
+        let results = pragma.filter(finder)
+        return results.length ? results : undefined
+      }
+      return pragma.find(finder)
     }
-    else if (isType('object')) {
+    else if (is('object')) {
       return pragma[name]
     }
-    else if (isType('string') && !name) {
+    else if (is('string') && !name) {
       return pragma
     }
-    else if (isType('boolean') && !name) {
+    else if (is('boolean') && !name) {
       return pragma
     }
     return undefined // jic
@@ -31,3 +32,9 @@ module.exports = function _get (inventory) {
   })
   return get
 }
+
+// Everything is uniquely named except in certain special-case pragmas
+// These refer to other pragmas, and thus may allow multiple same/same-named entities
+let multipleResults = [
+  'indexes'
+]

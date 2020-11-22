@@ -20,6 +20,10 @@ get /
 @indexes
 a-table
   idk *String
+a-table
+  irdk *String
+another-table
+  idk *String
 
 @macros
 architect/node-prune

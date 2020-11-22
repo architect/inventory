@@ -67,10 +67,11 @@ test('Get @http', t => {
 })
 
 test('Get @indexes', t => {
-  t.plan(3)
+  t.plan(4)
   t.ok(get.indexes, 'Got @indexes getter')
-  t.ok(get.indexes('a-table'), 'Got back correct value: a-table')
-  t.notOk(get.indexes('another-table'), 'Did not get back nonexistent index')
+  t.equal(get.indexes('a-table').length, 2, 'Got back correct values: a-table')
+  t.equal(get.indexes('another-table').length, 1, 'Got back correct values: another-table')
+  t.notOk(get.indexes('yet-another-table'), 'Did not get back nonexistent index')
 })
 
 test('Get @macros', t => {
