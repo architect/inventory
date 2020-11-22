@@ -1,6 +1,7 @@
 module.exports = function validatePreferences (preferences) {
   // Env checks
   let { env } = preferences
+  if (!env) return
   if (env && typeof env !== 'object') envErr(env)
 
   let envs = [ 'testing', 'staging', 'production' ]

@@ -46,6 +46,32 @@ test('Get preferences', t => {
   })
 })
 
+test('Get preferences (only unknown items)', t => {
+  t.plan(5)
+  let prefs = { idk: { userland: true } }
+  let prefsText = `
+@idk
+userland true
+`
+  mockFs({ 'prefs.arc': prefsText })
+  inv({}, (err, result) => {
+    if (err) t.fail(err)
+    else {
+      mockFs.restore()
+      let { inv, get } = result
+      t.ok(inv, 'Inventory returned inventory object')
+      t.ok(get, 'Inventory returned getter')
+      t.ok(inv._project.preferences._arc, 'Got preferences (arc)')
+      t.ok(inv._project.preferences._raw, 'Got preferences (raw)')
+      // Delete the meta stuff so the actual preferences match the above
+      delete inv._project.preferences._arc
+      delete inv._project.preferences._raw
+      t.deepEqual(inv._project.preferences, prefs, 'Got correct preferences')
+      reset()
+    }
+  })
+})
+
 test('Preferences validation', async t => {
   t.plan(3)
   let prefs
