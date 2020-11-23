@@ -10,7 +10,7 @@ let populateHTTP = require(sut)
 
 let cwd = process.cwd()
 let inventory = inventoryDefaults()
-inventory.project.src = cwd
+inventory._project.src = cwd
 let httpDir = join(cwd, 'src', 'http')
 
 test('Set up env', t => {
@@ -23,17 +23,94 @@ test('No @http returns null', t => {
   t.equal(populateHTTP({ arc: {}, inventory }), null, 'Returned null')
 })
 
-test('@http population via @static: implicit get /', t => {
-  t.plan(2)
-  let arc = parse(`@static`)
-  let http = populateHTTP({ arc, inventory })
-  t.equal(http.length, 1, 'Got correct routes back: get /')
-  http.forEach(route => {
-    t.equal(route.explicit, false, 'Implicit get / route sets explicit flag to false')
-  })
+test('@http population via @static: implicit get /* (Arc Static Asset Proxy)', t => {
+  t.plan(44)
+  let arc
+
+  function check (arc, expected, expectedRootHandler) {
+    let inventory = inventoryDefaults()
+    inventory._project.src = cwd
+    let http = populateHTTP({ arc, inventory })
+    let result = http === null ? http : http.length
+    t.equal(result, expected, `Got expected number of routes back: ${expected}`)
+    if (expectedRootHandler === 'arcStaticAssetProxy') {
+      let asap = http.find(r => r.arcStaticAssetProxy)
+      t.equal(asap.arcStaticAssetProxy, true, `Found Arc Static Asset Proxy root handler`)
+      t.equal(asap.config.shared, false, 'Arc Static Asset Proxy has disabled shared files')
+      t.equal(asap.config.views, false, 'Arc Static Asset Proxy has disabled shared views')
+      t.deepEqual(asap.config.layers, [], 'Arc Static Asset Proxy has no layers')
+      t.equal(inventory._project.rootHandler, expectedRootHandler, '_project.rootHandler set to: arcStaticAssetProxy')
+    }
+    else if (expectedRootHandler) {
+      // Most cases: some HTTP routes
+      if (http.length) {
+        t.equal(http[0].arcStaticAssetProxy, undefined, `Found explicitly defined root handler`)
+      }
+      // Bare @proxy and no routes
+      else {
+        t.equal(http.length, expected, `Found correct number of roots: ${expected}`)
+      }
+      t.equal(inventory._project.rootHandler, expectedRootHandler, `_project.rootHandler set to: ${expectedRootHandler}`)
+    }
+    else {
+      t.equal(result, null, 'Did not populate @http')
+    }
+  }
+
+  arc = parse(`@static`)
+  check(arc, null)
+
+  arc = parse(`@static\n@http`)
+  check(arc, 1, 'arcStaticAssetProxy')
+
+  arc = parse(`@http`)
+  check(arc, 1, 'arcStaticAssetProxy')
+
+  arc = parse(`@http
+post /`)
+  check(arc, 2, 'arcStaticAssetProxy')
+
+  arc = parse(`@http
+get /`)
+  check(arc, 1, 'configured')
+
+  arc = parse(`@http
+get /*`)
+  check(arc, 1, 'configured')
+
+  arc = parse(`@http
+get /:param`)
+  check(arc, 1, 'configured')
+
+  arc = parse(`@http
+any /`)
+  check(arc, 1, 'configured')
+
+  arc = parse(`@http
+any /*`)
+  check(arc, 1, 'configured')
+
+  arc = parse(`@http
+any /:param`)
+  check(arc, 1, 'configured')
+
+  arc = parse(`@http
+@proxy
+testing https://some.site
+staging https://some.site
+proxuction https://some.site`)
+  check(arc, 0, 'proxy')
+
+  arc = parse(`@http
+post /
+@proxy
+testing https://some.site
+staging https://some.site
+proxuction https://some.site`)
+  check(arc, 1, 'proxy')
 })
 
-test('@http population: simple format + implicit get /', t => {
+test('@http population: simple format + implicit get /*', t => {
   t.plan(8)
   let values = [ 'get /foo', 'put /bar' ]
   let arc = parse(`
@@ -47,8 +124,8 @@ ${values.join('\n')}
   })
   http.forEach(route => {
     let name = `${route.method}${getLambdaName(route.path)}`
-    if (route.name === 'get /') {
-      t.equal(route.explicit, false, 'Implicit get / route sets explicit flag to false')
+    if (route.name === 'get /*') {
+      t.equal(route.arcStaticAssetProxy, true, 'Implicit get /* (ASAP) found')
     }
     else {
       t.equal(route.src, join(httpDir, name), `Route configured with correct source dir: ${route.src}`)
@@ -57,9 +134,9 @@ ${values.join('\n')}
   })
 })
 
-test('@http population: simple format + explicit get /', t => {
+test('@http population: simple format + explicit get /*', t => {
   t.plan(11)
-  let values = [ 'get /', 'get /foo', 'put /bar' ]
+  let values = [ 'get /*', 'get /foo', 'put /bar' ]
   let arc = parse(`
 @http
 ${values.join('\n')}
@@ -71,15 +148,15 @@ ${values.join('\n')}
   })
   http.forEach(route => {
     let name = `${route.method}${getLambdaName(route.path)}`
-    if (route.name === 'get /') {
-      t.equal(route.explicit, true, 'Explicit get / route sets explicit flag to true')
+    if (route.name === 'get /*') {
+      t.notOk(route.arcStaticAssetProxy, 'Explicit get /* does not have truthy arcStaticAssetProxy param')
     }
     t.equal(route.src, join(httpDir, name), `Route configured with correct source dir: ${route.src}`)
     t.ok(route.handlerFile.startsWith(route.src), `Handler file is in the correct source dir`)
   })
 })
 
-test('@http population: complex format + implicit get /', t => {
+test('@http population: complex format + implicit get /*', t => {
   t.plan(11)
   let values = [ 'foo', 'bar', 'baz' ]
   let complexValues = [
@@ -103,8 +180,8 @@ ${complexValues.join('\n')}
     t.ok(http.some(route => route.name === `get /${val}`), `Got route: ${val}`)
   })
   http.forEach(route => {
-    if (route.name === 'get /') {
-      t.equal(route.explicit, false, 'Implicit get / route sets explicit flag to false')
+    if (route.name === 'get /*') {
+      t.equal(route.arcStaticAssetProxy, true, 'Implicit get /* (ASAP) found')
     }
     else {
       t.equal(route.src, join(cwd, `${route.path}/path`), `Route configured with correct source dir: ${route.src}`)
@@ -113,11 +190,11 @@ ${complexValues.join('\n')}
   })
 })
 
-test('@http population: complex format + explicit get /', t => {
+test('@http population: complex format + explicit get /*', t => {
   t.plan(13)
-  let values = [ 'foo', 'bar', 'baz', '/' ]
+  let values = [ 'foo', 'bar', 'baz', '/*' ]
   let complexValues = [
-    `/
+    `/*
   method get
   src index/path`,
     `/${values[0]}
@@ -140,8 +217,8 @@ ${complexValues.join('\n')}
     t.ok(http.some(route => route.name === `get /${val.replace('/', '')}`), `Got route: ${val}`)
   })
   http.forEach(route => {
-    if (route.name === 'get /') {
-      t.equal(route.explicit, true, 'Explicit get / route sets explicit flag to true')
+    if (route.name === 'get /*') {
+      t.notOk(route.arcStaticAssetProxy, 'Explicit get /* does not have truthy arcStaticAssetProxy param')
       t.equal(route.src, join(cwd, `index/path`), `Route configured with correct source dir: ${route.src}`)
     }
     else {
@@ -151,7 +228,7 @@ ${complexValues.join('\n')}
   })
 })
 
-test('@http population: complex format + implicit get / + fallback to default paths', t => {
+test('@http population: complex format + implicit get /* + fallback to default paths', t => {
   t.plan(11)
   let values = [ 'foo', 'bar', 'baz' ]
   let complexValues = [
@@ -173,8 +250,8 @@ ${complexValues.join('\n')}
   })
   http.forEach(route => {
     let name = `${route.method}${getLambdaName(route.path)}`
-    if (route.name === 'get /') {
-      t.equal(route.explicit, false, 'Implicit get / route sets explicit flag to false')
+    if (route.name === 'get /*') {
+      t.equal(route.arcStaticAssetProxy, true, 'Implicit get /* (ASAP) found')
     }
     else {
       t.equal(route.src, join(httpDir, name), `Complex HTTP entry fell back to correct default source dir: ${route.src}`)

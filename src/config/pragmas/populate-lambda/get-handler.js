@@ -6,8 +6,9 @@ module.exports = function getHandler (config, src) {
   if (runtime.startsWith('nodejs')) ext = 'js'
   if (runtime.startsWith('python')) ext = 'py'
   if (runtime.startsWith('ruby'))   ext = 'rb'
+  if (runtime.startsWith('deno'))   ext = 'ts'
   // TODO add Go, Java, .NET, etc.
-  let handlerFile = `${src}/${parts[0]}.${ext}`
+  let handlerFile = `${src}/${parts[0]}${ext ? '.' + ext : ''}`
   let handlerFunction = parts[1]
   return { handlerFile, handlerFunction }
 }

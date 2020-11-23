@@ -36,14 +36,14 @@ test('Lambda source dir population', t => {
   t.equal(str(srcDirs.sort()), str(values.sort()), 'Got back same source dirs from various pragmas')
 })
 
-test('HTTP $default handler', t => {
+test('HTTP Arc Static Asset Proxy handler', t => {
   t.plan(1)
 
   let pragmas = {
     http: [
       {
-        name: 'get /',
-        explicit: false,
+        name: 'get /*',
+        arcStaticAssetProxy: true,
         src: null
       }
     ]

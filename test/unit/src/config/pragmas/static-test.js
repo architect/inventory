@@ -66,7 +66,6 @@ ${setting} ${value}
 `)
   _static = populateStatic({ arc })
   t.equal(_static[setting], value, `Returned correct ${setting} setting: ${value}`)
-  t.end()
 })
 
 test('Individual @static setting: folder', t => {
@@ -155,7 +154,6 @@ ${setting} ${value}
 `)
   _static = populateStatic({ arc })
   t.equal(_static[setting], value, `Returned correct ${setting} setting: ${value}`)
-  t.end()
 })
 
 test('Individual @static setting: spa', t => {
@@ -180,7 +178,6 @@ ${setting} ${value}
 `)
   _static = populateStatic({ arc })
   t.equal(_static[setting], value, `Returned correct ${setting} setting: ${value}`)
-  t.end()
 })
 
 test('Individual @static setting: staging', t => {

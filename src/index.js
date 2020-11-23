@@ -1,5 +1,6 @@
-let readArc = require('./read/arc')
+let read = require('./read')
 let series = require('run-series')
+let parser = require('@architect/parser')
 let inventoryDefaults = require('./defaults')
 let config = require('./config')
 let getEnv = require('./env')
@@ -15,27 +16,48 @@ let get = require('./get')
  * @returns {object} - Inventory object (including Arc & project defaults and enumerated pragmas) & config getter
  */
 module.exports = function architectInventory (params = {}, callback) {
-  // Always ensure we have a working dir
-  params.cwd = params.cwd || process.cwd()
-  let { cwd } = params
 
-  let { arc, raw, filepath } = readArc({ cwd })
+  // Set up promise if there's no callback
+  let promise
+  if (!callback) {
+    promise = new Promise(function (res, rej) {
+      callback = function (err, result) {
+        err ? rej(err) : res(result)
+      }
+    })
+  }
+
   let errors
-
-  // Start building out the inventory
-  let inventory = inventoryDefaults(params)
-
-  // Set up project params for config
-  let project = { cwd, arc, raw, filepath, inventory }
-
-  // Populate inventory.arc
-  inventory.arc = config.arc(project)
-
-  // Establish default function config from project + Arc defaults
-  inventory.project = config.project(project)
-
-  // Fill out the pragmas
+  let inventory
   try {
+    // Always ensure we have a working dir
+    params.cwd = params.cwd || process.cwd()
+    let { cwd, rawArc } = params
+
+    // Stateless inventory run
+    if (rawArc) {
+      var arc = parser(rawArc)
+      var raw = rawArc
+      var filepath = false
+    }
+    // Get the Architect project manifest from the filesystem
+    else {
+      var { arc, raw, filepath } = read({ type: 'projectManifest', cwd })
+    }
+
+    // Start building out the inventory
+    inventory = inventoryDefaults(params)
+
+    // Set up project params for config
+    let project = { cwd, arc, raw, filepath, inventory }
+
+    // Populate inventory.arc
+    inventory._arc = config._arc(project)
+
+    // Establish default function config from project + Arc defaults
+    inventory._project = config._project(project)
+
+    // Userland: fill out the pragmas
     inventory = {
       ...inventory,
       ...config.pragmas(project)
@@ -57,7 +79,7 @@ module.exports = function architectInventory (params = {}, callback) {
       getEnv(params, inventory, function done (err, env) {
         if (err) callback(err)
         else {
-          inventory.project.env = env
+          inventory._project.env = env
           callback()
         }
       })
@@ -72,9 +94,11 @@ module.exports = function architectInventory (params = {}, callback) {
     if (err) callback(err)
     else {
       callback(null, {
-        inventory,
+        inv: inventory,
         get: get(inventory)
       })
     }
   })
+
+  return promise
 }

@@ -8,7 +8,7 @@ let populateEvents = require(sut)
 
 let cwd = process.cwd()
 let inventory = inventoryDefaults()
-inventory.project.src = cwd
+inventory._project.src = cwd
 let eventsDir = join(cwd, 'src', 'events')
 let values = [ 'foo', 'bar' ]
 

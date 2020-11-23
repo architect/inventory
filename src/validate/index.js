@@ -15,8 +15,8 @@ module.exports = function validate (params, inventory, callback) {
   Object.entries(inventory).forEach(([ i ]) => {
     let item = inventory[i]
     if (i === 'aws') {
-      let location = inventory.project.manifest &&
-                     inventory.project.manifest.replace(cwd, '')
+      let location = inventory._project.manifest &&
+                     inventory._project.manifest.replace(cwd, '')
       let layers = item.layers
       layerValidations.push({ layers, region, location })
     }

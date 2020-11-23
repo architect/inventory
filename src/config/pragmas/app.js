@@ -1,3 +1,5 @@
+let { validate, patterns } =  require('./validate')
+
 module.exports = function configureApp ({ arc }) {
   if (!Array.isArray(arc.app) ||
       arc.app.length !== 1 ||
@@ -6,6 +8,10 @@ module.exports = function configureApp ({ arc }) {
   }
 
   let appName = arc.app[0]
+
+  // Validation
+  validate.regex(appName, patterns.looseName, '@app')
+  validate.size(appName, 100, '@app')
 
   return appName
 }

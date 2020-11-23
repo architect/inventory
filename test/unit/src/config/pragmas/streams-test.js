@@ -9,7 +9,7 @@ let populateStreams = require(sut)
 
 let cwd = process.cwd()
 let inventory = inventoryDefaults()
-inventory.project.src = cwd
+inventory._project.src = cwd
 let tablesDir = join(cwd, 'src', 'tables')
 let streamsDir = join(cwd, 'src', 'streams')
 

@@ -2,6 +2,46 @@
 
 ---
 
+## [-] 2020-10-11
+
+### Added
+
+- Added `@proxy` support
+- Added `@views` support
+- Added `@cdn` support
+- Added `@http` `any`, `head`, and `options` method support
+- Added `@http` `*` (catchall) syntax support
+- Added async/await interface
+- Added `config.arc` (formerly `.arc-config`) support for `@arc` settings
+- Added `inventory._project.rootHandler` property for determining whether a user explicitly configured a root handler
+- Added local preferences via `preferences.arc` or `prefs.arc`
+- Added additional params to tables (`ttl`, `encrypt`, `PointInTimeRecovery`, `legacy`)
+- Added ability to pass raw Architect manifest string (`rawArc`) for stateless Inventory runs
+- Added ability to define JSON-formatted Architect manifest in `package.json` (via `arc` or `architect` param)
+
+
+### Changed
+
+- Moved `inventory.arc` metadata to `inventory._arc` (should we need to use an Architect-specific `@arc` pragma)
+- Moved `inventory.project` metadata to `inventory._project` to better denote that it is indeed project metadata
+- Renamed primary inventory output to `inv`
+- Updated AWS SDK
+- Getter returns arrays for certain pragmas that may have duplicative names (e.g. `@indexes`)
+
+
+### Fixed
+
+- Fixed issue with overwriting a Lambda's base config if Arc config is present
+- Fixed missing `handlerFile` extension for deno functions
+- Fixed legacy `@ws` folder pathing issue
+- Fixed ASAP behavior to only be defined when `@http` is present, not `@static`
+- Disabled shared files in ASAP
+- Fixed issue where ASAP was overtaking `@proxy`
+- Fixed manual override of queue fifo config
+- Added graceful failure when attempting to read an empty manifest or config file
+
+---
+
 ## [1.0.1 - 1.0.3] 2020-09-08
 
 ### Fixed

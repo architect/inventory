@@ -9,8 +9,8 @@ test('Set up env', t => {
   t.ok(populateApp, '@app populator is present')
 })
 
-test('Test @app population', t => {
-  t.plan(2)
+test('@app population', t => {
+  t.plan(1)
   let name = 'hi-there'
   let arc
 
@@ -19,6 +19,11 @@ test('Test @app population', t => {
 ${name}
 `)
   t.equal(populateApp({ arc }), name, `Returned correct app name: ${name}`)
+})
+
+test('@app validation', t => {
+  t.plan(5)
+  let arc
 
   arc = parse(`
 @app
@@ -26,5 +31,37 @@ hi there
 `)
   t.throws(() => {
     populateApp({ arc })
-  }, 'Invalid app name threw')
+  }, 'Invalid app name threw: >1 word')
+
+  arc = parse(`
+@app
+true
+`)
+  t.throws(() => {
+    populateApp({ arc })
+  }, 'Invalid app name threw: bool')
+
+  arc = parse(`
+@app
+0cool
+`)
+  t.throws(() => {
+    populateApp({ arc })
+  }, 'Invalid app name threw: non-lowercase alpha first char')
+
+  arc = parse(`
+@app
+hello!
+`)
+  t.throws(() => {
+    populateApp({ arc })
+  }, 'Invalid app name threw: invalid char')
+
+  arc = parse(`
+@app
+abcdefghi-abcdefghi-abcdefghi-abcdefghi-abcdefghi-abcdefghi-abcdefghi-abcdefghi-abcdefghi-abcdefghi-a
+`)
+  t.throws(() => {
+    populateApp({ arc })
+  }, 'Invalid app name threw: too long')
 })

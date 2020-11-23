@@ -1,4 +1,4 @@
-let readArcConfig = require('../../../read/arc-config')
+let read = require('../../../read')
 let getHandler = require('./get-handler')
 let upsert = require('../../_upsert')
 
@@ -15,8 +15,8 @@ let getStreams = require('./_streams')
 function populateLambda (type, pragma, inventory) {
   if (!pragma || !pragma.length) return null // Jic
 
-  let createDefaultConfig = () => JSON.parse(JSON.stringify(inventory.project.defaultFunctionConfig))
-  let cwd = inventory.project.src
+  let createDefaultConfig = () => JSON.parse(JSON.stringify(inventory._project.defaultFunctionConfig))
+  let cwd = inventory._project.src
 
   // Fill er up
   let lambdas = []
@@ -25,18 +25,23 @@ function populateLambda (type, pragma, inventory) {
     // Set up fresh config
     let config = createDefaultConfig()
 
-    // Knock out any pragma-specific early
-    if (type === 'queues') config.fifo = true
-
     // Get name, source dir, and any pragma-specific properties
     let result = getLambda({ type, item, cwd })
     let { name, src } = result
+
+    // Knock out any pragma-specific early
+    if (type === 'queues') {
+      config.fifo = config.fifo === undefined ? true : config.fifo
+    }
+    if (type === 'http') {
+      if (name.startsWith('get ') || name.startsWith('any ')) config.views = true
+    }
 
     // Populate the handler before deferring to function config
     if (item[name] && item[name].handler) config.handler = item[name].handler
 
     // Now let's check in on the function config
-    let { arc: arcConfig, filepath, errors } = readArcConfig({ cwd: src })
+    let { arc: arcConfig, filepath, errors } = read({ type: 'functionConfig', cwd: src })
     if (errors) throw Error(errors)
 
     // Set function config file path (if one is present)
@@ -44,7 +49,15 @@ function populateLambda (type, pragma, inventory) {
 
     // Layer any function config over Arc / project defaults
     if (arcConfig && arcConfig.aws) {
-      config = upsert(createDefaultConfig(), arcConfig.aws)
+      config = upsert(config, arcConfig.aws)
+    }
+    if (arcConfig && arcConfig.arc) {
+      config = upsert(config, arcConfig.arc)
+    }
+
+    // Tidy up any irrelevant params
+    if (type !== 'http') {
+      delete config.apigateway
     }
 
     // Now we know the final source dir + runtime + handler: assemble handler props
@@ -80,11 +93,11 @@ function getLambda (params) {
 }
 
 module.exports = {
-  events: populateLambda.bind({}, 'events',),
-  http: populateLambda.bind({}, 'http',),
-  queues: populateLambda.bind({}, 'queues',),
-  scheduled: populateLambda.bind({}, 'scheduled',),
-  streams: populateLambda.bind({}, 'streams',),
-  tables: populateLambda.bind({}, 'tables',),
-  ws: populateLambda.bind({}, 'ws',),
+  events:     populateLambda.bind({}, 'events'),
+  http:       populateLambda.bind({}, 'http'),
+  queues:     populateLambda.bind({}, 'queues'),
+  scheduled:  populateLambda.bind({}, 'scheduled'),
+  streams:    populateLambda.bind({}, 'streams'),
+  tables:     populateLambda.bind({}, 'tables'),
+  ws:         populateLambda.bind({}, 'ws'),
 }

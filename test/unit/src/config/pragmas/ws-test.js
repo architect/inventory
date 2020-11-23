@@ -8,7 +8,7 @@ let populateWS = require(sut)
 
 let cwd = process.cwd()
 let inventory = inventoryDefaults()
-inventory.project.src = cwd
+inventory._project.src = cwd
 let wsDir = join(cwd, 'src', 'ws')
 
 test('Set up env', t => {
@@ -88,6 +88,29 @@ ${complexValues.join('\n')}
     t.equal(src, join(cwd, `${name}/path`), `Route configured with correct source dir: ${src}`)
     t.ok(handlerFile.startsWith(src), `Handler file is in the correct source dir`)
   })
+})
+
+test(`@ws population: deprecated mode (prepends 'ws-')`, t => {
+  t.plan(14)
+  process.env.DEPRECATED = true
+  let defaults = [ 'connect', 'default', 'disconnect' ]
+  let arc = parse(`
+@ws
+${defaults.join('\n')}
+`)
+  let ws = populateWS({ arc, inventory })
+  t.equal(ws.length, defaults.length, 'Got correct number of routes back')
+  defaults.forEach(val => {
+    t.ok(ws.some(route => route.name === val), `Got route.name: ${val}`)
+    t.ok(ws.some(route => route.route === val), `Got route.route: ${val}`)
+  })
+  ws.forEach(route => {
+    let { name, handlerFile, src } = route
+    t.equal(src, join(wsDir, 'ws-' + name), `Route configured with correct source dir: ${src}`)
+    t.ok(handlerFile.startsWith(src), `Handler file is in the correct source dir`)
+  })
+  delete process.env.DEPRECATED
+  t.notOk(process.env.DEPRECATED, 'Cleaned up deprecated status')
 })
 
 test('@ws population: invalid paths throw', t => {

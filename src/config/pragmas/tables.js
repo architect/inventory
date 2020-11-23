@@ -1,36 +1,41 @@
 module.exports = function configureTables ({ arc }) {
   if (!arc.tables || !arc.tables.length) return null
 
-  let tables = arc.tables.map(table => {
-    if (typeof table === 'object' && !Array.isArray(table)) {
-      let name = Object.keys(table)[0]
-      let partitionKey = null
-      let partitionKeyType = null
-      let sortKey = null
-      let sortKeyType = null
-      let stream = null
-      Object.entries(table[name]).forEach(([ key, value ]) => {
+  let tables = arc.tables.map(t => {
+    if (typeof t === 'object' && !Array.isArray(t)) {
+      let name = Object.keys(t)[0]
+      let table = {
+        name,
+        partitionKey: null,
+        partitionKeyType: null,
+        sortKey: null,
+        sortKeyType: null,
+        stream: null,
+        ttl: null,
+        encrypt: null,
+        PointInTimeRecovery: null,
+      }
+      Object.entries(t[name]).forEach(([ key, value ]) => {
         let isStr = typeof value === 'string'
+        let pitr = 'PointInTimeRecovery' // It's just so long
         if (isStr && value.startsWith('**')) {
-          sortKey = key
-          sortKeyType = value.replace('**', '')
+          table.sortKey = key
+          table.sortKeyType = value.replace('**', '')
         }
         else if (isStr && value.startsWith('*')) {
-          partitionKey = key
-          partitionKeyType = value.replace('*', '')
+          table.partitionKey = key
+          table.partitionKeyType = value.replace('*', '')
         }
-        if (key === 'stream') stream = value
+        if (key === 'stream')   table.stream = value
+        if (value === 'TTL')    table.ttl = key
+        if (key === 'encrypt')  table.encrypt = value
+        if (key === pitr)       table[pitr] = value
+        if (key === 'legacy')   table.legacy = value // Arc v5 to v8+ compat
       })
-      return {
-        name,
-        partitionKey,
-        partitionKeyType,
-        sortKey,
-        sortKeyType,
-        stream,
-      }
+
+      return table
     }
-    throw Error(`Invalid @tables item: ${table}`)
+    throw Error(`Invalid @tables item: ${t}`)
   })
 
   return tables

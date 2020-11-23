@@ -15,7 +15,7 @@ test('No @indexes returns null', t => {
 })
 
 test('@indexes population', t => {
-  t.plan(11)
+  t.plan(16)
 
   let arc = parse(`
 @indexes
@@ -25,9 +25,11 @@ string-keys
 number-keys
   numID *Number
   numSort **Number
+number-keys # Second index on the same table
+  numID *Number
 `)
   let indexes = populateIndexes({ arc })
-  t.ok(indexes.length === 2, 'Got correct number of indexes back')
+  t.ok(indexes.length === 3, 'Got correct number of indexes back')
   t.equal(indexes[0].name, 'string-keys', 'Got back correct name for first index')
   t.equal(indexes[0].partitionKey, 'strID', 'Got back correct partition key for first index')
   t.equal(indexes[0].partitionKeyType, 'String', 'Got back correct partition key type for first index')
@@ -38,6 +40,11 @@ number-keys
   t.equal(indexes[1].partitionKeyType, 'Number', 'Got back correct partition key type for second index')
   t.equal(indexes[1].sortKey, 'numSort', 'Got back correct sort key for second index')
   t.equal(indexes[1].sortKeyType, 'Number', 'Got back correct sort key type for second index')
+  t.equal(indexes[2].name, 'number-keys', 'Got back correct name for second index')
+  t.equal(indexes[2].partitionKey, 'numID', 'Got back correct partition key for second index')
+  t.equal(indexes[2].partitionKeyType, 'Number', 'Got back correct partition key type for second index')
+  t.equal(indexes[2].sortKey, null, 'Got back correct sort key for second index')
+  t.equal(indexes[2].sortKeyType, null, 'Got back correct sort key type for second index')
 })
 
 test('@indexes population: invalid indexes throw', t => {
