@@ -19,7 +19,7 @@ test('Inventory defaults returns correct default inventory object', t => {
   let pragmas = readdirSync(pragmaDir)
     .filter(f => f.endsWith('.js') && (f !== 'index.js' && f !== 'src-dirs.js'))
     .map(f => f.replace('.js', ''))
-  let inventoryParamSize = pragmas.length + 4 // arc + project + lambdaSrcDirs + localPaths
+  let inventoryParamSize = pragmas.length + 3 // arc + project + lambdaSrcDirs
 
   t.plan(inventoryParamSize + 1)
 
@@ -27,7 +27,6 @@ test('Inventory defaults returns correct default inventory object', t => {
   t.ok(result._arc, 'Got arc')
   t.ok(result._project, 'Got project')
   t.equal(result.lambdaSrcDirs, null, 'Got lambdaSrcDirs')
-  t.equal(result.localPaths, null, 'Got localPaths')
 
   pragmas.forEach(pragma => {
     if (pragma === 'app') t.equal(result.app, '', 'Got app')
