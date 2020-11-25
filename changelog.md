@@ -2,7 +2,15 @@
 
 ---
 
-## [-] 2020-10-11
+## [1.1.1] 2020-11-25
+
+### Fixed
+
+- Fixed side effect of ASAP mutating default function configurations project-wide
+
+---
+
+## [1.1.0] 2020-11-23
 
 ### Added
 

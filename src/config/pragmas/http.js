@@ -22,7 +22,7 @@ module.exports = function configureHTTP ({ arc, inventory }) {
     // Inject ASAP
     let asap = {
       name: 'get /*',
-      config: inventory._arc.defaultFunctionConfig,
+      config: { ...inventory._arc.defaultFunctionConfig },
       src: null,
       handlerFile: null,
       handlerFunction: 'handler',
