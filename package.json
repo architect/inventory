@@ -20,6 +20,7 @@
   },
   "license": "Apache-2.0",
   "dependencies": {
+    "@architect/asap": "~3.13.8",
     "@architect/parser": "~3.0.0",
     "run-series": "~1.1.9"
   },
