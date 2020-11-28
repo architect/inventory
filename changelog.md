@@ -2,6 +2,15 @@
 
 ---
 
+## [1.1.2] 2020-11-28
+
+### Added
+
+- Moved `@architect/asap` from Package into inventory
+- Added test case
+
+---
+
 ## [1.1.1] 2020-11-25
 
 ### Fixed
