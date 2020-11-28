@@ -1,3 +1,5 @@
+let { join } = require('path')
+let { existsSync } = require('fs')
 let populate = require('./populate-lambda')
 
 module.exports = function configureHTTP ({ arc, inventory }) {
@@ -19,12 +21,22 @@ module.exports = function configureHTTP ({ arc, inventory }) {
   let rootHandler = http.some(findRoot) ? 'configured' : 'arcStaticAssetProxy'
   if (arc.proxy) rootHandler = 'proxy'
   if (rootHandler === 'arcStaticAssetProxy') {
+    // Inventory running as an arc/arc dependency (most common use case)
+    let src = join(process.cwd(), 'node_modules', '@architect', 'asap', 'dist')
+    // Inventory running in arc/arc as a global install
+    let global = join(__dirname, '..', '..', '..', '..', 'asap', 'dist')
+    // Inventory running from a local (symlink) context (usually testing/dev)
+    let local = join(__dirname, '..', '..', '..', 'node_modules', '@architect', 'asap', 'dist')
+    if (!existsSync(src) && existsSync(global)) src = global
+    else if (!existsSync(src) && existsSync(local)) src = local
+    else if (!existsSync(src)) throw ReferenceError('Cannot find Architect Static Asset Proxy dist')
+
     // Inject ASAP
     let asap = {
       name: 'get /*',
       config: { ...inventory._arc.defaultFunctionConfig },
-      src: null,
-      handlerFile: null,
+      src,
+      handlerFile: join(src, 'index.js'),
       handlerFunction: 'handler',
       configFile: null,
       arcStaticAssetProxy: true,

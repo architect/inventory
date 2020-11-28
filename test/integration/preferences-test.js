@@ -6,6 +6,7 @@ let mockFs = require('mock-fs')
 
 let dir = process.cwd()
 let mock = join(process.cwd(), 'test', 'mock')
+let arc = '@app\nappname\n@http\nget /'
 function reset () {
   process.chdir(dir)
 }
@@ -53,7 +54,10 @@ test('Get preferences (only unknown items)', t => {
 @idk
 userland true
 `
-  mockFs({ 'prefs.arc': prefsText })
+  mockFs({
+    'app.arc': arc,
+    'prefs.arc': prefsText
+  })
   inv({}, (err, result) => {
     if (err) t.fail(err)
     else {
@@ -83,7 +87,10 @@ testing
 
 staging
 `
-  mockFs({ 'prefs.arc': prefs })
+  mockFs({
+    'app.arc': arc,
+    'prefs.arc': prefs
+  })
   try {
     await inv({})
     t.fail('Expected an error')
