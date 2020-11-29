@@ -6,8 +6,8 @@ module.exports = function collectSourceDirs ({ pragmas }) {
     let mayHaveSrcDirs = lambdaPragmas.some(p => p === pragma)
     if (mayHaveSrcDirs && Array.isArray(values)) {
       pragmas[pragma].forEach(item => {
-        if (item.src && typeof item.src === 'string') srcDirs.push(item.src)
-        else if (item.arcStaticAssetProxy === true) return // Special exception for ASAP
+        if (item.arcStaticAssetProxy === true) return // Special exception for ASAP
+        else if (typeof item.src === 'string') srcDirs.push(item.src)
         else throw Error(`Lambda is missing source directory: ${JSON.stringify(item, null, 2)}`)
       })
     }
