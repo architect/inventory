@@ -12,6 +12,12 @@
 
 ## [1.1.1] 2020-11-25
 
+### Added
+
+- Moved `@architect/asap` from Package into inventory
+- Added test case
+
+
 ### Fixed
 
 - Fixed side effect of ASAP mutating default function configurations project-wide
