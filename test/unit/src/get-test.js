@@ -107,6 +107,14 @@ test('Get @scheduled', t => {
   t.notOk(get.scheduled('idk'), 'Did not get back nonexistent scheduled event')
 })
 
+test('Get @shared', t => {
+  t.plan(4)
+  t.ok(get.shared, 'Got @shared getter')
+  t.ok(get.shared('src'), 'Got back correct value: src')
+  t.ok(get.shared('shared'), 'Got back correct value: shared')
+  t.notOk(get.shared('idk'), 'Did not get back nonexistent setting')
+})
+
 test('Get @static', t => {
   t.plan(4)
   t.ok(get.static, 'Got @static getter')
@@ -132,9 +140,10 @@ test('Get @tables', t => {
 })
 
 test('Get @views', t => {
-  t.plan(3)
+  t.plan(4)
   t.ok(get.views, 'Got @views getter')
-  t.ok(get.views('put /some-put'), 'Got back correct value: put /some-put')
+  t.ok(get.views('src'), 'Got back correct value: src')
+  t.ok(get.views('views'), 'Got back correct value: views')
   t.notOk(get.views('idk'), 'Did not get back nonexistent setting')
 })
 

@@ -8,6 +8,7 @@ let proxy = require('./proxy')
 let macros = require('./macros')
 let queues = require('./queues')
 let scheduled = require('./scheduled')
+let shared = require('./shared')
 let static = require('./static')
 let streams = require('./streams')
 let tables = require('./tables')
@@ -64,12 +65,14 @@ module.exports = function configureArcPragmas ({ arc, inventory }) {
     ws: ws({ arc, inventory }),
   }
 
-  // @views (which needs @http to validate)
-  pragmas.views = views({ arc, pragmas })
-
   // Lambda source directory list
   pragmas.lambdaSrcDirs = srcDirs({ arc, pragmas })
-  pragmas.localPaths = pragmas.lambdaSrcDirs
+
+  // @shared (which needs all Lambdae pragmas to validate)
+  pragmas.shared = shared({ arc, pragmas, inventory })
+
+  // @views (which needs @http to validate)
+  pragmas.views = views({ arc, pragmas, inventory })
 
   return pragmas
 }

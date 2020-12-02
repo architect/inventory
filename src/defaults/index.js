@@ -51,6 +51,7 @@ module.exports = function inventoryDefaults (params = {}) {
     proxy: null,
     queues: null,
     scheduled: null,
+    shared: null,
     static: null,
     streams: null,
     tables: null,

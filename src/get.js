@@ -1,7 +1,8 @@
+let is = require('./lib/is')
+
 module.exports = function _get (inventory) {
   function getter (prag, name) {
     let pragma = inventory[prag]
-    let is = type => typeof pragma === type
 
     // Getters
     if (pragma === null) return null
@@ -14,13 +15,13 @@ module.exports = function _get (inventory) {
       }
       return pragma.find(finder)
     }
-    else if (is('object')) {
+    else if (is.object(pragma)) {
       return pragma[name]
     }
-    else if (is('string') && !name) {
+    else if (is.string(pragma) && !name) {
       return pragma
     }
-    else if (is('boolean') && !name) {
+    else if (is.bool(pragma) && !name) {
       return pragma
     }
     return undefined // jic

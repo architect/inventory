@@ -52,6 +52,10 @@ cron-scheduled-complex
 folder some-folder
 prefix some-prefix
 
+@shared
+queues
+  a-queue
+
 @streams
 a-stream
   table another-table
