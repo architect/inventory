@@ -2,10 +2,17 @@
 
 ---
 
-## [1.2.0] 2020-11-25
+## [1.2.0] 2020-12-02
+
+### Added
+
+- Added new `@shared` pragma
+- Customizable shared + views folders
+
 
 ### Changed
 
+- Breaking change: `inv.views` shape has now changed
 - Deprecates legacy `localPaths` array (which has since been moved over to `lambdaSrcDirs`)
 
 ---
