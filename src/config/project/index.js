@@ -1,13 +1,17 @@
 let upsert = require('../_upsert')
-let read = require('../../read')
-let validate = require('./validate')
+let prefs = require('./prefs')
+let is = require('../../lib/is')
 
 /**
  * Get the project-level configuration, overlaying arc.aws settings (if present)
  */
 module.exports = function getProjectConfig (params) {
   let { arc, raw, filepath, inventory } = params
-  let project = { ...inventory._project }
+  let project = {
+    ...inventory._project,
+    arc,
+    raw,
+  }
 
   if (arc.aws) {
     project.defaultFunctionConfig = upsert(project.defaultFunctionConfig, arc.aws)
@@ -18,53 +22,32 @@ module.exports = function getProjectConfig (params) {
     // TODO add manifestCreated once we determine we can get birthtime reliably
   }
 
-  // Populate local project configuration
-  let prefs = read({ type: 'preferences', cwd: inventory._project.src })
-  if (prefs.filepath) {
-    let preferences = {}
-    // Ok, this gets a bit hairy
-    // Arc outputs an object of nested arrays
-    // Basically, construct a pared-down intermediate prefs obj for consumers
-    Object.entries(prefs.arc).forEach(([ key, val ]) => {
-      // TODO add additional preferences checks and normalization
-      if (!preferences[key]) preferences[key] = {}
-      if (Array.isArray(val)) {
-        val.forEach(v => {
-          if (Array.isArray(v)) {
-            if (v.length === 1)       preferences[key] = v[0]
-            else if (v.length === 2)  preferences[key][v[0]] = v[1]
-            else if (v.length > 2)    preferences[key][v[0]] = [ ...v.slice(1) ]
-          }
-          else if (typeof v === 'object' && Object.keys(v).length) {
-            Object.keys(v).forEach(k => preferences[key][k] = v[k])
-          }
-          else if (!Array.isArray(v)) preferences[key] = v
-        })
-      }
-      // Turn env vars with spaces into strings
-      if (key === 'env') {
-        [ 'testing', 'staging', 'production' ].forEach(e => {
-          if (preferences.env[e]) {
-            Object.entries(preferences.env[e]).forEach(([ key, val ]) => {
-              if (Array.isArray(val)) preferences.env[e][key] = val.join(' ')
-            })
-          }
-        })
-      }
-    })
+  let scopes = [ 'global', 'local' ]
+  for (let scope of scopes) {
+    let p = prefs({ scope, inventory })
+    if (p) {
+      // Set up the scoped metadata
+      project[`${scope}Preferences`] = p.preferences
+      project[`${scope}PreferencesFile`] = p.preferencesFile
 
-    validate(preferences)
-
-    project.preferences = {
-      ...preferences,
-      _arc: prefs.arc,
-      _raw: prefs.raw,
+      // Build out the final preferences
+      if (!project.preferences) project.preferences = {}
+      Object.keys(p.preferences).forEach(pragma => {
+        // Ignore the raw data
+        if (pragma === '_arc' || pragma === '_raw') return
+        // Allow booleans, etc.
+        if (!is.object(p.preferences[pragma])) {
+          project.preferences[pragma] = p.preferences[pragma]
+          return
+        }
+        // Traverse and merge individual settings
+        if (!project.preferences[pragma]) project.preferences[pragma] = {}
+        Object.entries(p.preferences[pragma]).forEach(([ setting, value ]) => {
+          project.preferences[pragma][setting] = value
+        })
+      })
     }
-    project.preferencesFile = prefs.filepath
   }
-
-  project.arc = arc
-  project.raw = raw
 
   return project
 }
