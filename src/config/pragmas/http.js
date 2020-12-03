@@ -29,7 +29,6 @@ module.exports = function configureHTTP ({ arc, inventory }) {
     let local = join(__dirname, '..', '..', '..', 'node_modules', '@architect', 'asap', 'dist')
     if (!existsSync(src) && existsSync(global)) src = global
     else if (!existsSync(src) && existsSync(local)) src = local
-    else if (!existsSync(src)) throw ReferenceError('Cannot find Architect Static Asset Proxy dist')
 
     // Inject ASAP
     let asap = {
