@@ -8,11 +8,13 @@
 
 - Added new `@shared` pragma
 - Customizable shared + views folders
+- Added global preferences lookup (`~/.preferences.arc` + `~/.prefs.arc`, etc.) and global / local preference merging
 
 
 ### Changed
 
 - Breaking change: `inv.views` shape has now changed
+- Breaking change: `inv._project.preferencesFile` has been deprecated in favor of `inv._project.globalPreferencesFile` + `inv._project.localPreferencesFile`
 - Deprecates legacy `localPaths` array (which has since been moved over to `lambdaSrcDirs`)
 
 ---

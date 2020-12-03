@@ -18,15 +18,18 @@ module.exports = function inventoryDefaults (params = {}) {
     _project: {
       type: 'aws',
       src: cwd,
-      manifest: null,         // Root project manifest filename
-      // manifestCreated      // TODO
-      preferences: null,      // Local preferences obj
-      preferencesFile: null,  // Local preferences file path
-      defaultFunctionConfig,  // Project-level function config
-      rootHandler: null,      // null | configured | arcStaticAssetProxy | proxy
-      arc: [],                // Raw arc obj
-      raw: '',                // Raw arc string
-      env: null,              // Env vars pulled from SSM (if enabled)
+      manifest: null,               // Root project manifest filename
+      // manifestCreated            // TODO
+      preferences: null,            // Realized preferences obj, resolved from global > local
+      localPreferences: null,       // Local preferences obj
+      localPreferencesFile: null,   // Local preferences file path
+      globalPreferences: null,      // Global preferences obj
+      globalPreferencesFile: null,  // Global preferences file path
+      defaultFunctionConfig,        // Project-level function config
+      rootHandler: null,            // null | configured | arcStaticAssetProxy | proxy
+      arc: [],                      // Raw arc obj
+      raw: '',                      // Raw arc string
+      env: null,                    // Env vars pulled from SSM (if enabled)
     },
     // App + vendor config
     app: '',
