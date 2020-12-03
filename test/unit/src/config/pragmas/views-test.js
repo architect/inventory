@@ -80,7 +80,7 @@ test(`@views population: defaults only to 'get' + 'any' routes (without @views)`
   values.forEach(val => {
     let route = pragmas.http.find(r => r.name === val)
     if (val !== values[2]) {
-      t.ok(views.views.some(route => route === val), `Got views route: ${val}`)
+      t.ok(views.views.includes(route.src), `Got views route: ${val}`)
       t.ok(route.config.views, `Views setting enabled in route: ${val}`)
     }
     else {
@@ -104,7 +104,7 @@ test(`@views population: defaults only to 'get' + 'any' routes (with empty @view
   values.forEach(val => {
     let route = pragmas.http.find(r => r.name === val)
     if (val !== values[2]) {
-      t.ok(views.views.some(route => route === val), `Got views route: ${val}`)
+      t.ok(views.views.includes(route.src), `Got views route: ${val}`)
       t.ok(route.config.views, `Views setting enabled in route: ${val}`)
     }
     else {
@@ -132,7 +132,7 @@ src foo/bar`)
   values.forEach(val => {
     let route = pragmas.http.find(r => r.name === val)
     if (val !== values[2]) {
-      t.ok(views.views.some(route => route === val), `Got views route: ${val}`)
+      t.ok(views.views.includes(route.src), `Got views route: ${val}`)
       t.ok(route.config.views, `Views setting enabled in route: ${val}`)
     }
     else {
@@ -161,7 +161,7 @@ src foo/bar`)
   values.forEach(val => {
     let route = pragmas.http.find(r => r.name === val)
     if (val === values[2]) {
-      t.ok(views.views.some(route => route === val), `Got views route: ${val}`)
+      t.ok(views.views.includes(route.src), `Got views route: ${val}`)
       t.ok(route.config.views, `Views setting enabled in route: ${val}`)
     }
     else {

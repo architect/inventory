@@ -73,7 +73,7 @@ module.exports = function configureShared ({ arc, pragmas, inventory }) {
   for (let pragma of lambdae) {
     if (!pragmas[pragma]) continue
     for (let { src, config } of pragmas[pragma]) {
-      if (config.shared === true) {
+      if (config.shared === true && !shared.shared.includes(src)) {
         shared.shared.push(src)
       }
     }
