@@ -72,9 +72,9 @@ module.exports = function configureShared ({ arc, pragmas, inventory }) {
   // lambda.config.shared was added by function config defaults, or added above
   for (let pragma of lambdae) {
     if (!pragmas[pragma]) continue
-    for (let { name, config } of pragmas[pragma]) {
+    for (let { src, config } of pragmas[pragma]) {
       if (config.shared === true) {
-        shared.shared.push(name)
+        shared.shared.push(src)
       }
     }
   }
