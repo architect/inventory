@@ -23,7 +23,7 @@
 
 ### Added
 
-- Moved `@architect/asap` from Package into inventory
+- Moved `@architect/asap` from Package into Inventory
 - Added test case
 
 
