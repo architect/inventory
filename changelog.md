@@ -2,6 +2,15 @@
 
 ---
 
+## [1.2.1] 2020-12-05
+
+### Added
+
+- Adds `lambdasBySrcDir` param for looking up a Lambda by its source dir dir
+  - Useful for when the only thing known about a Lambda is its source directory (see: hydration, direct deploys, etc.)
+
+---
+
 ## [1.2.0] 2020-12-02
 
 ### Added
