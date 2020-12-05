@@ -19,20 +19,22 @@ test('Inventory defaults returns correct default inventory object', t => {
   let pragmas = readdirSync(pragmaDir)
     .filter(f => f.endsWith('.js') && (f !== 'index.js' && f !== 'src-dirs.js'))
     .map(f => f.replace('.js', ''))
-  let inventoryParamSize = pragmas.length + 3 // arc + project + lambdaSrcDirs
+  let inventoryParamSize = pragmas.length + 4 // arc + project + (lambdaSrcDirs + lambdasBySrcDir)
 
   t.plan(inventoryParamSize + 1)
 
   t.equal(Object.keys(result).length, inventoryParamSize, 'Got correct number of params')
-  t.ok(result._arc, 'Got arc')
-  t.ok(result._project, 'Got project')
-  t.equal(result.lambdaSrcDirs, null, 'Got lambdaSrcDirs')
+  t.ok(result._arc, 'Got _arc')
+  t.ok(result._project, 'Got _project')
 
   pragmas.forEach(pragma => {
     if (pragma === 'app') t.equal(result.app, '', 'Got app')
     else if (pragma === 'aws') t.ok(result.aws, 'Got aws')
     else t.equal(result[pragma], null, `Got ${pragma}`)
   })
+
+  t.equal(result.lambdaSrcDirs, null, 'Got lambdaSrcDirs')
+  t.equal(result.lambdasBySrcDir, null, 'Got lambdasBySrcDir')
 })
 
 test('Architect project defaults are pre-populated', t => {

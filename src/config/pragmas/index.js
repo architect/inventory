@@ -66,7 +66,9 @@ module.exports = function configureArcPragmas ({ arc, inventory }) {
   }
 
   // Lambda source directory list
-  pragmas.lambdaSrcDirs = srcDirs({ arc, pragmas })
+  let dirs = srcDirs({ arc, pragmas })
+  pragmas.lambdaSrcDirs = dirs.lambdaSrcDirs
+  pragmas.lambdasBySrcDir = dirs.lambdasBySrcDir
 
   // @shared (which needs all Lambdae pragmas to validate)
   pragmas.shared = shared({ arc, pragmas, inventory })

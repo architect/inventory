@@ -62,5 +62,7 @@ module.exports = function inventoryDefaults (params = {}) {
     ws: null,
     // Collection of all Function paths
     lambdaSrcDirs: null,
+    // Lambda lookup by source directory
+    lambdasBySrcDir: null,
   }
 }
