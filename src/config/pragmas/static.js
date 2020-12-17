@@ -31,7 +31,10 @@ module.exports = function configureStatic ({ arc, inventory }) {
   }
 
   // Handy shortcut to ASAP for bare @static
-  if (!arc.http) inventory._project.asapSrc = asapSrc()
+  if (!arc.http) {
+    inventory._project.rootHandler = 'arcStaticAssetProxy'
+    inventory._project.asapSrc = asapSrc()
+  }
 
   return _static
 }

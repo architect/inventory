@@ -24,16 +24,17 @@ test('No @static returns null', t => {
 })
 
 test('@static population via @http', t => {
-  t.plan(2)
+  t.plan(3)
   reset()
   let arc = parse(`@http`)
   let _static = populateStatic({ arc, inventory })
   t.equal(Object.keys(_static).length, 8, 'Returned correct number of settings')
+  t.notOk(inventory._project.rootHandler, '_project.rootHandler not set')
   t.notOk(inventory._project.asapSrc, '_project.asapSrc not set')
 })
 
 test('@static returns all known defaults or null values', t => {
-  t.plan(3)
+  t.plan(4)
   reset()
   let mock = {
     fingerprint: null,
@@ -52,6 +53,7 @@ idk whatev
   let _static = populateStatic({ arc, inventory })
   t.equal(Object.keys(_static).length, 8, 'Returned correct number of settings')
   t.equal(str(_static), str(mock), 'Returned all known keys')
+  t.equal(inventory._project.rootHandler, 'arcStaticAssetProxy', '_project.rootHandler set')
   t.ok(inventory._project.asapSrc, '_project.asapSrc set')
 })
 
