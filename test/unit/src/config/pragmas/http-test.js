@@ -24,7 +24,7 @@ test('No @http returns null', t => {
 })
 
 test('@http population via @static: implicit get /* (Arc Static Asset Proxy)', t => {
-  t.plan(50)
+  t.plan(55)
   let arc
 
   function check (arc, expected, expectedRootHandler) {
@@ -42,6 +42,7 @@ test('@http population via @static: implicit get /* (Arc Static Asset Proxy)', t
       t.equal(asap.config.views, false, 'Arc Static Asset Proxy has disabled shared views')
       t.deepEqual(asap.config.layers, [], 'Arc Static Asset Proxy has no layers')
       t.equal(inventory._project.rootHandler, expectedRootHandler, '_project.rootHandler set to: arcStaticAssetProxy')
+      t.ok(inventory._project.asapSrc, '_project.asapSrc set')
     }
     else if (expectedRootHandler) {
       // Most cases: some HTTP routes
@@ -58,6 +59,9 @@ test('@http population via @static: implicit get /* (Arc Static Asset Proxy)', t
       t.equal(result, null, 'Did not populate @http')
     }
   }
+
+  arc = parse(`@nada`)
+  check(arc, null)
 
   arc = parse(`@static`)
   check(arc, null)

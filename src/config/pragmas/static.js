@@ -1,4 +1,6 @@
-module.exports = function configureStatic ({ arc }) {
+let asapSrc = require('../../lib/asap-src')
+
+module.exports = function configureStatic ({ arc, inventory }) {
   // @static is inferred by @http
   if (!arc.static && !arc.http) return null
 
@@ -27,6 +29,9 @@ module.exports = function configureStatic ({ arc }) {
       _static[setting[0]] = isIgnore ? [ setting[1] ] : setting[1]
     }
   }
+
+  // Handy shortcut to ASAP for bare @static
+  if (!arc.http) inventory._project.asapSrc = asapSrc()
 
   return _static
 }

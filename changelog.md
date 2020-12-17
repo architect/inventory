@@ -8,6 +8,7 @@
 
 - Adds `lambdasBySrcDir` param for looking up a Lambda by its source dir dir
   - Useful for when the only thing known about a Lambda is its source directory (see: hydration, direct deploys, etc.)
+- Adds `inv._project.asapSrc` shortcut for getting the configured ASAP dist path
 
 ---
 
