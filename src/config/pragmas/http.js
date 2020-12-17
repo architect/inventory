@@ -1,6 +1,6 @@
 let { join } = require('path')
-let { existsSync } = require('fs')
 let populate = require('./populate-lambda')
+let asapSrc = require('../../lib/asap-src')
 
 module.exports = function configureHTTP ({ arc, inventory }) {
   if (!arc.http) return null
@@ -21,14 +21,7 @@ module.exports = function configureHTTP ({ arc, inventory }) {
   let rootHandler = http.some(findRoot) ? 'configured' : 'arcStaticAssetProxy'
   if (arc.proxy) rootHandler = 'proxy'
   if (rootHandler === 'arcStaticAssetProxy') {
-    // Inventory running as an arc/arc dependency (most common use case)
-    let src = join(process.cwd(), 'node_modules', '@architect', 'asap', 'dist')
-    // Inventory running in arc/arc as a global install
-    let global = join(__dirname, '..', '..', '..', '..', 'asap', 'dist')
-    // Inventory running from a local (symlink) context (usually testing/dev)
-    let local = join(__dirname, '..', '..', '..', 'node_modules', '@architect', 'asap', 'dist')
-    if (!existsSync(src) && existsSync(global)) src = global
-    else if (!existsSync(src) && existsSync(local)) src = local
+    let src = asapSrc()
 
     // Inject ASAP
     let asap = {
@@ -44,6 +37,7 @@ module.exports = function configureHTTP ({ arc, inventory }) {
     }
     asap.config.shared = false
     asap.config.views = false
+    inventory._project.asapSrc = src // Handy shortcut to ASAP
     http.unshift(asap)
   }
 
