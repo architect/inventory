@@ -1,6 +1,6 @@
 let populate = require('./populate-lambda')
 
-module.exports = function configureWebSockets ({ arc, inventory }) {
+module.exports = function configureWS ({ arc, inventory }) {
   if (!arc.ws) return null
 
   let ws = [ ...arc.ws ]
