@@ -1,76 +1,43 @@
-let app = require('./app')
-let aws = require('./aws')
-let cdn = require('./cdn')
-let events = require('./events')
-let http = require('./http')
-let indexes = require('./indexes')
-let proxy = require('./proxy')
-let macros = require('./macros')
-let queues = require('./queues')
-let scheduled = require('./scheduled')
-let shared = require('./shared')
-let static = require('./static')
-let streams = require('./streams')
-let tables = require('./tables')
-let views = require('./views')
-let ws = require('./ws')
+/* eslint-disable global-require */
+let visitors = [
+  require('./app'),       // @app
+  require('./aws'),       // @aws
+  require('./cdn'),       // @cdn
+  require('./events'),    // @events
+  require('./http'),      // @http
+  require('./indexes'),   // @indexes
+  require('./proxy'),     // @macros
+  require('./macros'),    // @proxy
+  require('./queues'),    // @queues
+  require('./scheduled'), // @scheduled
+  require('./static'),    // @static
+  require('./streams'),   // @streams
+  require('./tables'),    // @tables
+  require('./ws'),        // @ws
+]
+// Special order-dependent visitors that run in a second pass
 let srcDirs = require('./src-dirs')
+let shared = require('./shared')
+let views = require('./views')
 
 module.exports = function configureArcPragmas ({ arc, inventory }) {
   if (inventory._project.type !== 'aws') {
     throw ReferenceError('Inventory can only configure pragmas for AWS projects')
   }
 
-  let pragmas = {
-    // @app
-    app: app({ arc, inventory }),
-
-    // @aws
-    aws: aws({ arc, inventory }),
-
-    // @cdn
-    cdn: cdn({ arc, inventory }),
-
-    // @events
-    events: events({ arc, inventory }),
-
-    // @http
-    http: http({ arc, inventory }),
-
-    // @indexes
-    indexes: indexes({ arc, inventory }),
-
-    // @macros
-    macros: macros({ arc, inventory }),
-
-    // @proxy
-    proxy: proxy({ arc, inventory }),
-
-    // @queues
-    queues: queues({ arc, inventory }),
-
-    // @scheduled
-    scheduled: scheduled({ arc, inventory }),
-
-    // @static
-    static: static({ arc, inventory }),
-
-    // @streams
-    streams: streams({ arc, inventory }),
-
-    // @tables
-    tables: tables({ arc, inventory }),
-
-    // @ws
-    ws: ws({ arc, inventory }),
-  }
+  let pragmas = {}
+  visitors.forEach(visitor => {
+    // Expects pragma visitors to have function name of: `configure${pragma}`
+    let name = visitor.name.replace('configure', '').toLowerCase()
+    pragmas[name] = visitor({ arc, inventory })
+  })
 
   // Lambda source directory list
   let dirs = srcDirs({ arc, pragmas })
   pragmas.lambdaSrcDirs = dirs.lambdaSrcDirs
   pragmas.lambdasBySrcDir = dirs.lambdasBySrcDir
 
-  // @shared (which needs all Lambdae pragmas to validate)
+  // @shared (which needs all Lambdae pragmas + srcDirs to validate)
   pragmas.shared = shared({ arc, pragmas, inventory })
 
   // @views (which needs @http to validate)
