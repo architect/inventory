@@ -17,13 +17,31 @@ test('Get global preferences', t => {
   t.plan(11)
   let prefs = {
     sandbox: { environment: 'testing' },
+    'sandbox-startup': [
+      'ls',
+      'echo hi',
+      'echo hello',
+      'echo hello there',
+      `echo hi there`,
+      `echo 'hi there'`,
+      `echo hi #here`,
+    ],
     env: {
       testing: { 'env-var-1': 'foo', 'env-var-2': 'bar' },
-    }
+    },
   }
   let prefsText = `
 @sandbox
 environment testing
+
+@sandbox-startup
+ls
+echo hi
+echo hello
+echo hello there
+echo "hi there"
+echo 'hi there'
+echo "hi #here"
 
 @env
 testing
@@ -63,13 +81,22 @@ test('Get local preferences', t => {
   let cwd = join(mock, 'max')
   let prefs = {
     sandbox: { environment: 'testing' },
+    'sandbox-startup': [
+      'ls',
+      'echo hi',
+      'echo hello',
+      'echo hello there',
+      `echo hi there`,
+      `echo 'hi there'`,
+      `echo hi #here`,
+    ],
     create: { autocreate: true },
     deploy: false,
     env: {
       testing: { 'env-var-1': 'foo', 'env-var-2': 'bar' },
       staging: { 'env-var-1': 'fiz', 'env-var-2': 'buz' },
       production: { 'env-var-1': 'qix qix', 'env-var-2': 'qux qux' }
-    }
+    },
   }
   inv({ cwd }, (err, result) => {
     if (err) t.fail(err)
