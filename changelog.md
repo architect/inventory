@@ -2,6 +2,14 @@
 
 ---
 
+## [1.2.2] 2021-01-04
+
+### Added
+
+- Added `@sandbox-startup` to preferences to replace the sometimes-wonky `@sandbox startup` setting, fixes #1032
+
+---
+
 ## [1.2.1] 2020-12-05
 
 ### Added

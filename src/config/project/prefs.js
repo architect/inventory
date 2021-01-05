@@ -40,6 +40,13 @@ module.exports = function getPrefs ({ scope, inventory }) {
           }
         })
       }
+      // Turn Sandbox scripts into commands
+      if (key === 'sandbox-startup') {
+        preferences[key] = val.map(v => {
+          if (typeof v === 'string') return v
+          if (Array.isArray(v)) return v.join(' ')
+        })
+      }
     })
 
     validate(preferences)

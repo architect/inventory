@@ -1,6 +1,15 @@
 @sandbox
 environment testing
 
+@sandbox-startup
+ls
+echo hi
+echo hello #there
+echo hello there
+echo "hi there"
+echo 'hi there'
+echo "hi #here"
+
 @create
 autocreate true
 
