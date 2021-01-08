@@ -15,8 +15,14 @@ module.exports = function configureStatic ({ arc, inventory }) {
     staging: null,
     production: null,
   }
-  let settings = Object.entries(_static).map(([ setting ]) => setting)
 
+  if (Array.isArray(arc.static)) {
+    let disabled = [ false, 'disable', 'disabled' ]
+    let isDisabled = disabled.some(s => s === arc.static[0])
+    if (isDisabled) return false
+  }
+
+  let settings = Object.entries(_static).map(([ setting ]) => setting)
   for (let setting of staticPragma) {
     let validSetting = key => settings.some(s => s === key)
     if (setting.ignore) {
