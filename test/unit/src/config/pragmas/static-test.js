@@ -23,6 +23,17 @@ test('No @static returns null', t => {
   t.equal(populateStatic({ arc: {} }), null, 'Returned null')
 })
 
+test('@static can be disabled', t => {
+  t.plan(1)
+  reset()
+  let arc
+  let _static
+
+  arc = parse(`@static\nfalse`)
+  _static = populateStatic({ arc, inventory })
+  t.equal(_static, false, 'Static is disabled')
+})
+
 test('@static population via @http', t => {
   t.plan(3)
   reset()

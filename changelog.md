@@ -7,6 +7,7 @@
 ### Added
 
 - Added `@sandbox-startup` to preferences to replace the sometimes-wonky `@sandbox startup` setting, fixes #1032
+- Added ability for `@static` buckets – otherwise enabled by default – to be disabled with `@static false`
 
 ---
 
