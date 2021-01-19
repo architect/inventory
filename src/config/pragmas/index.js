@@ -1,19 +1,20 @@
 /* eslint-disable global-require */
 let visitors = [
-  require('./app'),       // @app
-  require('./aws'),       // @aws
-  require('./cdn'),       // @cdn
-  require('./events'),    // @events
-  require('./http'),      // @http
-  require('./indexes'),   // @indexes
-  require('./proxy'),     // @macros
-  require('./macros'),    // @proxy
-  require('./queues'),    // @queues
-  require('./scheduled'), // @scheduled
-  require('./static'),    // @static
-  require('./streams'),   // @streams
-  require('./tables'),    // @tables
-  require('./ws'),        // @ws
+  require('./app'),          // @app
+  require('./aws'),          // @aws
+  require('./cdn'),          // @cdn
+  require('./events'),       // @events
+  require('./http'),         // @http
+  require('./indexes'),      // @indexes
+  require('./proxy'),        // @macros
+  require('./macros'),       // @proxy
+  require('./macromodules'), // references to macro modules
+  require('./queues'),       // @queues
+  require('./scheduled'),    // @scheduled
+  require('./static'),       // @static
+  require('./streams'),      // @streams
+  require('./tables'),       // @tables
+  require('./ws'),           // @ws
 ]
 // Special order-dependent visitors that run in a second pass
 let srcDirs = require('./src-dirs')
@@ -33,7 +34,7 @@ module.exports = function configureArcPragmas ({ arc, inventory }) {
   })
 
   // Lambda source directory list
-  let dirs = srcDirs({ arc, pragmas })
+  let dirs = srcDirs({ arc, inventory, pragmas })
   pragmas.lambdaSrcDirs = dirs.lambdaSrcDirs
   pragmas.lambdasBySrcDir = dirs.lambdasBySrcDir
 

@@ -1,21 +1,33 @@
 let lambdaPragmas = require('../../defaults/lambda-pragmas')
 
-module.exports = function collectSourceDirs ({ pragmas }) {
+module.exports = function collectSourceDirs ({ inventory, pragmas }) {
   let lambdaSrcDirs = []
   let unsortedBySrcDir = {}
+  function registerLambda (item, pragma) {
+    lambdaSrcDirs.push(item.src)
+    unsortedBySrcDir[item.src] = unsortedBySrcDir[item.src]
+      ? [ unsortedBySrcDir[item.src], { ...item, pragma } ] // Multiple Lambdae may map to a single dir
+      : { ...item, pragma }
+  }
   Object.entries(pragmas).forEach(([ pragma, values ]) => {
-    let mayHaveSrcDirs = lambdaPragmas.some(p => p === pragma)
-    if (mayHaveSrcDirs && Array.isArray(values)) {
-      pragmas[pragma].forEach(item => {
-        if (item.arcStaticAssetProxy === true) return // Special exception for ASAP
-        else if (typeof item.src === 'string') {
-          lambdaSrcDirs.push(item.src)
-          unsortedBySrcDir[item.src] = unsortedBySrcDir[item.src]
-            ? [ unsortedBySrcDir[item.src], { ...item, pragma } ] // Multiple Lambdae may map to a single dir
-            : { ...item, pragma }
+    if (pragma === 'macromodules') {
+      Object.values(pragmas[pragma]).forEach(macroModule => {
+        if (macroModule && macroModule.create) {
+          macroModule.create({ inv: inventory }).forEach(lambda => registerLambda(lambda, 'macro'))
         }
-        else throw Error(`Lambda is missing source directory: ${JSON.stringify(item, null, 2)}`)
       })
+    }
+    else {
+      let mayHaveSrcDirs = lambdaPragmas.some(p => p === pragma)
+      if (mayHaveSrcDirs && Array.isArray(values)) {
+        pragmas[pragma].forEach(item => {
+          if (item.arcStaticAssetProxy === true) return // Special exception for ASAP
+          else if (typeof item.src === 'string') {
+            registerLambda(item, pragma)
+          }
+          else throw Error(`Lambda is missing source directory: ${JSON.stringify(item, null, 2)}`)
+        })
+      }
     }
   })
 

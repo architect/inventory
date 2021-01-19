@@ -58,3 +58,21 @@ test('Inventory a maxed-out project', t => {
     }
   })
 })
+
+test('Inventory a project with a macro that registers lambdas', t => {
+  t.plan(6)
+  let cwd = join(mock, 'macro-lambda')
+  inv({ cwd }, (err, result) => {
+    if (err) t.fail(err)
+    else {
+      let { inv } = result
+      t.equals(inv.macros[0], 'custom-pubsub', 'custom macro registered')
+      t.equals(typeof inv.macromodules['custom-pubsub'], 'function', 'custom macro module pulled into inventory')
+      t.ok(inv.lambdaSrcDirs.includes(join(cwd, 'src', 'pubsub', 'channel-one')), 'lambdaSrcDirs contains first of two macro custom lambdae')
+      t.ok(inv.lambdaSrcDirs.includes(join(cwd, 'src', 'pubsub', 'channel-two')), 'lambdaSrcDirs contains second of two macro custom lambdae')
+      t.ok(inv.lambdasBySrcDir[join(cwd, 'src', 'pubsub', 'channel-one')], 'lambdasBySrcDir contains first of two macro custom lambdae')
+      t.ok(inv.lambdasBySrcDir[join(cwd, 'src', 'pubsub', 'channel-two')], 'lambdasBySrcDir contains second of two macro custom lambdae')
+      reset()
+    }
+  })
+})
