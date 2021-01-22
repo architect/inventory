@@ -47,6 +47,30 @@ number-keys # Second index on the same table
   t.equal(indexes[2].sortKeyType, null, 'Got back correct sort key type for second index')
 })
 
+test('@indexes parses custom indexName', t => {
+  t.plan(4)
+
+  let arc = parse(`
+@indexes
+string-keys
+  strID *String
+  strSort **String
+  name CustomIndex
+number-keys
+  numID *Number
+  numSort **Number
+number-keys # Second index on the same table
+  numID *Number
+  name MyNumberIndex
+  `)
+
+  let indexes = populateIndexes({ arc })
+  t.ok(indexes.length === 3, 'Got correct number of indexes back')
+  t.equal(indexes[0].indexName, 'CustomIndex', 'Got back custom index name for first index')
+  t.equal(indexes[1].indexName, null, 'Got correct indexName for second index')
+  t.equal(indexes[2].indexName, 'MyNumberIndex', 'Got correct indexName for third index')
+})
+
 test('@indexes population: invalid indexes throw', t => {
   t.plan(2)
   let arc
