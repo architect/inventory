@@ -2,6 +2,14 @@
 
 ---
 
+## [1.2.3] 2021-01-22
+
+### Added
+
+- Added `name` param for `@indexes` pragma to allow explict naming of GSIs
+
+---
+
 ## [1.2.2] 2021-01-04
 
 ### Added
