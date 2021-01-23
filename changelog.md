@@ -6,7 +6,7 @@
 
 ### Added
 
-- Added `name` param for `@indexes` pragma to allow explict naming of GSIs
+- Added `name` param for `@indexes` pragma to allow explict naming of GSIs; thanks @anatomic!
 
 ---
 
