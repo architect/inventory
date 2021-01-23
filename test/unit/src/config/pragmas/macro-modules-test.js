@@ -1,6 +1,6 @@
 let { join } = require('path')
 let test = require('tape')
-let sut = join(process.cwd(), 'src', 'config', 'pragmas', 'macroModules')
+let sut = join(process.cwd(), 'src', 'config', 'pragmas', 'macromodules')
 let macroMods = require(sut)
 
 test('Set up env', t => {
