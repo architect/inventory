@@ -6,8 +6,9 @@ let visitors = [
   require('./events'),    // @events
   require('./http'),      // @http
   require('./indexes'),   // @indexes
-  require('./proxy'),     // @macros
-  require('./macros'),    // @proxy
+  require('./proxy'),     // @proxy
+  require('./macros'),    // @macros
+  require('./plugins'),   // @plugins
   require('./queues'),    // @queues
   require('./scheduled'), // @scheduled
   require('./static'),    // @static
@@ -33,7 +34,7 @@ module.exports = function configureArcPragmas ({ arc, inventory }) {
   })
 
   // Lambda source directory list
-  let dirs = srcDirs({ arc, pragmas })
+  let dirs = srcDirs({ arc, inventory, pragmas })
   pragmas.lambdaSrcDirs = dirs.lambdaSrcDirs
   pragmas.lambdasBySrcDir = dirs.lambdasBySrcDir
 

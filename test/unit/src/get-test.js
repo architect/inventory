@@ -77,7 +77,7 @@ test('Get @indexes', t => {
 test('Get @macros', t => {
   t.plan(3)
   t.ok(get.macros, 'Got @macros getter')
-  t.ok(get.macros('architect/node-prune'), 'Got back correct value: architect/node-prune')
+  t.ok(get.macros('prune'), 'Got back correct value: prune')
   t.notOk(get.macros('idk'), 'Did not get back nonexistent macro')
 })
 

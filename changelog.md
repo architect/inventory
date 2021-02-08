@@ -2,6 +2,16 @@
 
 ---
 
+## [1.3.0] 2021-02-08
+
+### Added
+
+- Added `plugins` pragma, a map of plugin names to plugin modules
+- Wired up plugin modules into `lambdasBySrcDir` and `lambdaSrcDirs`
+  - First steps towards allowing plugin authors to add their own Lambdas to arc projects
+
+---
+
 ## [1.2.3] 2021-01-22
 
 ### Added

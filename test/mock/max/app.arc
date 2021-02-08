@@ -26,7 +26,7 @@ another-table
   idk *String
 
 @macros
-architect/node-prune
+prune
 
 @proxy
 testing http://testing.site
