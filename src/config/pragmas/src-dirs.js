@@ -10,8 +10,8 @@ module.exports = function collectSourceDirs ({ arc, inventory, pragmas }) {
       : { ...item, pragma }
   }
   Object.entries(pragmas).forEach(([ pragma, values ]) => {
-    if (pragma == 'plugins') {
-      Object.values(pragmas[pragma]).forEach(pluginModule => {
+    if (pragma == 'plugins' && pragmas['plugins']) {
+      Object.values(pragmas['plugins']).forEach(pluginModule => {
         if (pluginModule && pluginModule.pluginFunctions) {
           pluginModule.pluginFunctions(arc, { inv: inventory }).forEach(lambda => registerLambda(lambda, 'plugin'))
         }
