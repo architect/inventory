@@ -2,7 +2,7 @@ const { join } = require('path')
 const { existsSync } = require('fs')
 
 module.exports = function configurePlugins ({ arc, inventory }) {
-  if (!arc.plugins || !arc.plugins.length) return {}
+  if (!arc.plugins || !arc.plugins.length) return null
   let plugins = {}
   let cwd = inventory._project.src
   for (let name of arc.plugins) {

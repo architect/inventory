@@ -15,9 +15,9 @@ test('Set up env', t => {
   t.ok(populatePlugins, '@plugins module populator is present')
 })
 
-test('No @plugins returns empty object', t => {
+test('No @plugins returns null', t => {
   t.plan(1)
-  t.equal(Object.keys(populatePlugins({ arc: {} })).length, 0, 'Returned empty object')
+  t.equal(populatePlugins({ arc: {} }), null, 'Returned null')
 })
 
 test('@plugin via src/plugins/plugin.js', t => {

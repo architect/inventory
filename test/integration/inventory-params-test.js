@@ -62,16 +62,18 @@ test('Inventory a maxed-out project', t => {
 test('Inventory a project with a plugin that registers lambdas', t => {
   t.plan(6)
   let cwd = join(mock, 'plugins-lambda')
+  let channelOneDir = join(cwd, 'src', 'pubsub', 'channel-one')
+  let channelTwoDir = join(cwd, 'src', 'pubsub', 'channel-two')
   inv({ cwd }, (err, result) => {
     if (err) t.fail(err)
     else {
       let { inv } = result
       t.ok(inv.plugins['custom-pubsub'], 'plugin registered')
       t.equals(typeof inv.plugins['custom-pubsub'], 'object', 'custom plugin module pulled into inventory')
-      t.ok(inv.lambdaSrcDirs.includes(join(cwd, 'src', 'pubsub', 'channel-one')), 'lambdaSrcDirs contains first of two plugin custom lambdae')
-      t.ok(inv.lambdaSrcDirs.includes(join(cwd, 'src', 'pubsub', 'channel-two')), 'lambdaSrcDirs contains second of two plugin custom lambdae')
-      t.ok(inv.lambdasBySrcDir[join(cwd, 'src', 'pubsub', 'channel-one')], 'lambdasBySrcDir contains first of two plugin custom lambdae')
-      t.ok(inv.lambdasBySrcDir[join(cwd, 'src', 'pubsub', 'channel-two')], 'lambdasBySrcDir contains second of two plugin custom lambdae')
+      t.ok(inv.lambdaSrcDirs.includes(channelOneDir), 'lambdaSrcDirs contains first of two plugin custom lambdae')
+      t.ok(inv.lambdaSrcDirs.includes(channelTwoDir), 'lambdaSrcDirs contains second of two plugin custom lambdae')
+      t.ok(inv.lambdasBySrcDir[channelOneDir], 'lambdasBySrcDir contains first of two plugin custom lambdae')
+      t.ok(inv.lambdasBySrcDir[channelTwoDir], 'lambdasBySrcDir contains second of two plugin custom lambdae')
       reset()
     }
   })

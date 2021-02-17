@@ -28,6 +28,9 @@ another-table
 @macros
 prune
 
+@plugins
+something
+
 @proxy
 testing http://testing.site
 staging http://staging.site
