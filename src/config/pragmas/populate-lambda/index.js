@@ -5,6 +5,7 @@ let upsert = require('../../_upsert')
 // Pragma-specific Lambda constructors
 let getHTTP = require('./_http')
 let getEvents = require('./_events')
+let getPlugins = require('./_plugins')
 let getScheduled = require('./_scheduled')
 let getWS = require('./_websockets')
 let getStreams = require('./_streams')
@@ -22,58 +23,64 @@ function populateLambda (type, pragma, inventory) {
   let lambdas = []
 
   for (let item of pragma) {
-    // Set up fresh config
-    let config = createDefaultConfig()
-
     // Get name, source dir, and any pragma-specific properties
-    let result = getLambda({ type, item, cwd })
-    let { name, src } = result
+    let results = getLambda({ type, item, cwd, inventory })
+    // some lambda populators (e.g. plugins) may return empty results
+    if (!results) continue
+    // some lambda populators (e.g. plugins) may return multiple results
+    if (!(Array.isArray(results))) results = [ results ]
 
-    // Knock out any pragma-specific early
-    if (type === 'queues') {
-      config.fifo = config.fifo === undefined ? true : config.fifo
-    }
-    if (type === 'http') {
-      if (name.startsWith('get ') || name.startsWith('any ')) config.views = true
-    }
+    results.forEach(result => {
+      let { name, src } = result
+      // Set up fresh config
+      let config = createDefaultConfig()
 
-    // Populate the handler before deferring to function config
-    if (item[name] && item[name].handler) config.handler = item[name].handler
+      // Knock out any pragma-specific early
+      if (type === 'queues') {
+        config.fifo = config.fifo === undefined ? true : config.fifo
+      }
+      if (type === 'http') {
+        if (name.startsWith('get ') || name.startsWith('any ')) config.views = true
+      }
 
-    // Now let's check in on the function config
-    let { arc: arcConfig, filepath, errors } = read({ type: 'functionConfig', cwd: src })
-    if (errors) throw Error(errors)
+      // Populate the handler before deferring to function config
+      if (item[name] && item[name].handler) config.handler = item[name].handler
 
-    // Set function config file path (if one is present)
-    let configFile = filepath ? filepath : null
+      // Now let's check in on the function config
+      let { arc: arcConfig, filepath, errors } = read({ type: 'functionConfig', cwd: src })
+      if (errors) throw Error(errors)
 
-    // Layer any function config over Arc / project defaults
-    if (arcConfig && arcConfig.aws) {
-      config = upsert(config, arcConfig.aws)
-    }
-    if (arcConfig && arcConfig.arc) {
-      config = upsert(config, arcConfig.arc)
-    }
+      // Set function config file path (if one is present)
+      let configFile = filepath ? filepath : null
 
-    // Tidy up any irrelevant params
-    if (type !== 'http') {
-      delete config.apigateway
-    }
+      // Layer any function config over Arc / project defaults
+      if (arcConfig && arcConfig.aws) {
+        config = upsert(config, arcConfig.aws)
+      }
+      if (arcConfig && arcConfig.arc) {
+        config = upsert(config, arcConfig.arc)
+      }
 
-    // Now we know the final source dir + runtime + handler: assemble handler props
-    let { handlerFile, handlerFunction } = getHandler(config, src)
+      // Tidy up any irrelevant params
+      if (type !== 'http') {
+        delete config.apigateway
+      }
 
-    let lambda = {
-      name,
-      config,
-      src,
-      handlerFile,
-      handlerFunction,
-      configFile,
-      ...result, // Any other pragma-specific stuff
-    }
+      // Now we know the final source dir + runtime + handler: assemble handler props
+      let { handlerFile, handlerFunction } = getHandler(config, src)
 
-    lambdas.push(lambda)
+      let lambda = {
+        name,
+        config,
+        src,
+        handlerFile,
+        handlerFunction,
+        configFile,
+        ...result, // Any other pragma-specific stuff
+      }
+
+      lambdas.push(lambda)
+    })
   }
 
   return lambdas
@@ -85,6 +92,7 @@ function getLambda (params) {
 
   if (type === 'http')      return getHTTP(params)
   if (type === 'events')    return getEvents(params)
+  if (type === 'plugins')   return getPlugins(params)
   if (type === 'queues')    return getEvents(params) // Effectively the same as events
   if (type === 'scheduled') return getScheduled(params)
   if (type === 'streams')   return getStreams(params)
@@ -95,6 +103,7 @@ function getLambda (params) {
 module.exports = {
   events:     populateLambda.bind({}, 'events'),
   http:       populateLambda.bind({}, 'http'),
+  plugins:    populateLambda.bind({}, 'plugins'),
   queues:     populateLambda.bind({}, 'queues'),
   scheduled:  populateLambda.bind({}, 'scheduled'),
   streams:    populateLambda.bind({}, 'streams'),

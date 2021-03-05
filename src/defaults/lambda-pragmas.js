@@ -2,6 +2,7 @@
 module.exports = [
   'events',
   'http',
+  'plugins',
   'queues',
   'scheduled',
   'streams',

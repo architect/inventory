@@ -1,5 +1,5 @@
 let { join } = require('path')
-let getLambdaName = require('./get-lambda-name')
+let { getLambdaName } = require('@architect/utils')
 
 module.exports = function populateHTTP ({ item, dir, cwd }) {
   let methods = [ 'get', 'post', 'put', 'patch', 'delete', 'options', 'head', 'any' ]

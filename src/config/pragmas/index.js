@@ -8,7 +8,7 @@ let visitors = [
   require('./indexes'),   // @indexes
   require('./proxy'),     // @proxy
   require('./macros'),    // @macros
-  require('./plugins'),   // @plugins
+  require('./plugins'),   // @plugins - but only if they contain lambdas
   require('./queues'),    // @queues
   require('./scheduled'), // @scheduled
   require('./static'),    // @static

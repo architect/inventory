@@ -1,6 +1,7 @@
 let upsert = require('../_upsert')
 let prefs = require('./prefs')
 let is = require('../../lib/is')
+let plugins = require('./plugins')
 
 /**
  * Get the project-level configuration, overlaying arc.aws settings (if present)
@@ -22,6 +23,10 @@ module.exports = function getProjectConfig (params) {
     // TODO add manifestCreated once we determine we can get birthtime reliably
   }
 
+  // require project plugin modules
+  project.plugins = plugins(project)
+
+  // parse local and global arc preferences
   let scopes = [ 'global', 'local' ]
   for (let scope of scopes) {
     let p = prefs({ scope, inventory })
