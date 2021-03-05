@@ -11,7 +11,6 @@ let cwd = inventory._project.src = process.cwd()
 inventory._project.plugins = { plugin: {
   pluginFunctions: () => []
 } }
-let mockRequire = require('mock-require')
 
 test('Set up env', t => {
   t.plan(1)

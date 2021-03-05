@@ -4,7 +4,7 @@ module.exports = function populatePlugins ({ item: pluginName, cwd, inventory })
   if (inventory._project.plugins[pluginName]) {
     const pluginModule = inventory._project.plugins[pluginName]
     if (pluginModule.pluginFunctions) {
-      const lambdas = pluginModule.pluginFunctions(inventory._project.arc, { inv: inventory }).map(f => {
+      const lambdas = pluginModule.pluginFunctions({ arc: inventory._project.arc, inventory: { inv: inventory } }).map(f => {
         // strip leading `src/` from the path to the plugin function relative to project root
         let pathToCode = f.src.replace(cwd, '').replace(/^\.?\/?\\?/, '').replace(/^src\/?\\?/, '')
         let name = getLambdaName(pathToCode)
