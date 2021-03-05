@@ -68,8 +68,8 @@ test('Inventory a project with a plugin that registers lambdas', t => {
     if (err) t.fail(err)
     else {
       let { inv } = result
-      t.ok(inv.plugins['custom-pubsub'], 'plugin registered')
-      t.equals(typeof inv.plugins['custom-pubsub'], 'object', 'custom plugin module pulled into inventory')
+      t.ok(inv._project.plugins['custom-pubsub'], 'plugin registered')
+      t.equals(typeof inv._project.plugins['custom-pubsub'], 'object', 'custom plugin module pulled into inventory')
       t.ok(inv.lambdaSrcDirs.includes(channelOneDir), 'lambdaSrcDirs contains first of two plugin custom lambdae')
       t.ok(inv.lambdaSrcDirs.includes(channelTwoDir), 'lambdaSrcDirs contains second of two plugin custom lambdae')
       t.ok(inv.lambdasBySrcDir[channelOneDir], 'lambdasBySrcDir contains first of two plugin custom lambdae')

@@ -27,6 +27,7 @@ module.exports = function inventoryDefaults (params = {}) {
       globalPreferencesFile: null,  // Global preferences file path
       defaultFunctionConfig,        // Project-level function config
       rootHandler: null,            // null | configured | arcStaticAssetProxy | proxy
+      plugins: null,                // `require`d plugin modules as a map of plugin name to module
       arc: [],                      // Raw arc obj
       raw: '',                      // Raw arc string
       env: null,                    // Env vars pulled from SSM (if enabled)
@@ -51,7 +52,7 @@ module.exports = function inventoryDefaults (params = {}) {
     http: null,
     indexes: null,
     macros: null,
-    plugins: null,
+    plugins: null, // these are the lambdas created by plugins, not the plugin modules; modules are up under _project
     proxy: null,
     queues: null,
     scheduled: null,

@@ -3,11 +3,14 @@ let parse = require('@architect/parser')
 let test = require('tape')
 let sut = join(process.cwd(), 'src', 'config', 'pragmas', 'plugins')
 let populatePlugins = require(sut)
-let mockFs = require('mock-fs')
 let inventoryDefaultsPath = join(process.cwd(), 'src', 'defaults')
 let inventoryDefaults = require(inventoryDefaultsPath)
 let inventory = inventoryDefaults()
 let cwd = inventory._project.src = process.cwd()
+// fake method registering some list of plugin-created lambdas
+inventory._project.plugins = { plugin: {
+  pluginFunctions: () => []
+} }
 let mockRequire = require('mock-require')
 
 test('Set up env', t => {
@@ -20,65 +23,23 @@ test('No @plugins returns null', t => {
   t.equal(populatePlugins({ arc: {} }), null, 'Returned null')
 })
 
-test('@plugin via src/plugins/plugin.js', t => {
+test('missing @plugin throws', t => {
   t.plan(1)
-  let arc = parse('@plugins\nplugin')
-  mockFs({ 'src/plugins': {
-    'plugin.js': 'module.exports = {}'
-  } })
-  mockRequire(join(cwd, 'src', 'plugins', 'plugin.js'), {})
-  let plugins = populatePlugins({ arc, inventory })
-  mockFs.restore()
-  t.equal(typeof plugins['plugin'], 'object', 'Returned object for plugin by name in plugin map')
-  mockRequire.stopAll()
+  let arc = parse('@plugins\npoop')
+  t.throws(() => populatePlugins({ arc, inventory }))
 })
 
-test('@plugin via src/plugins/plugin/index.js', t => {
-  t.plan(1)
+test('plugin-registered lambdas should contain all arc-required internal inventory signature properties ', t => {
+  t.plan(3)
   let arc = parse('@plugins\nplugin')
-  mockFs({ 'src/plugins/plugin': {
-    'index.js': 'module.exports = {}'
-  } })
-  mockRequire(join(cwd, 'src', 'plugins', 'plugin'), {})
+  inventory._project.plugins = { plugin: {
+    pluginFunctions: () => [
+      { src: join(cwd, 'src', 'mahplugin', 'lambda1') },
+      { src: join(cwd, 'src', 'mahplugin', 'lambda2') }
+    ]
+  } }
   let plugins = populatePlugins({ arc, inventory })
-  mockFs.restore()
-  t.equal(typeof plugins['plugin'], 'object', 'Returned object for plugin by name in plugin map')
-  mockRequire.stopAll()
-})
-
-test('@plugin via node_modules/plugin/index.js', t => {
-  t.plan(1)
-  let arc = parse('@plugins\nplugin')
-  mockFs({ 'node_modules/plugin': {
-    'index.js': 'module.exports = {}'
-  } })
-  mockRequire(join(cwd, 'node_modules', 'plugin'), {})
-  let plugins = populatePlugins({ arc, inventory })
-  mockFs.restore()
-  t.equal(typeof plugins['plugin'], 'object', 'Returned object for plugin by name in plugin map')
-  mockRequire.stopAll()
-})
-
-test('@plugin via node_modules/@plugin/index.js', t => {
-  t.plan(1)
-  let arc = parse('@plugins\nplugin')
-  mockFs({ 'node_modules/@plugin': {
-    'index.js': 'module.exports = {}'
-  } })
-  mockRequire(join(cwd, 'node_modules', '@plugin'), {})
-  let plugins = populatePlugins({ arc, inventory })
-  mockFs.restore()
-  t.equal(typeof plugins['plugin'], 'object', 'Returned object for plugin by name in plugin map')
-  mockRequire.stopAll()
-})
-
-test('missing @plugin warns you', t => {
-  t.plan(1)
-  let arc = parse('@plugins\nplugin')
-  let origWarn = console.warn
-  let warning = ''
-  console.warn = (msg) => { warning = msg }
-  populatePlugins({ arc, inventory })
-  t.match(warning, /cannot find plugin plugin/i, 'Missing plugin raised a warning')
-  console.warn = origWarn
+  t.equal(plugins.length, 2, 'Returned 1 object for each registered lambda')
+  t.equal(plugins[0].name, 'mahplugin-lambda1', 'First lambda should have am AWS-compatible name')
+  t.ok(plugins[1].config, 'should have a config property')
 })
