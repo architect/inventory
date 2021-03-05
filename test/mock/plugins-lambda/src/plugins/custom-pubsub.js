@@ -1,7 +1,7 @@
 let { join } = require('path')
 
 module.exports = {
-  pluginFunctions: function (arc, inventory) {
+  pluginFunctions: function ({ inventory }) {
     let cwd = inventory.inv._project.src
     return inventory.inv._project.arc.pubsub.map((channel) => {
       return {
