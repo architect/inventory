@@ -2,6 +2,13 @@
 
 ---
 
+## [1.3.1] 2021-03-22
+
+### Changed
+
+- Bumped utils dependency to 2.0.5.
+
+---
 ## [1.3.0] 2021-02-08
 
 ### Added
