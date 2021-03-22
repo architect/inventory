@@ -6,7 +6,9 @@
 
 ### Added
 
-- Added `plugins` pragma, a map of plugin names to plugin modules
+- Added beta support for `plugins` pragma (see https://arc.codes/docs/en/guides/extend/architect-plugins)
+  - `inventory.inv.plugins` houses all Lambdas created by plugins
+  - `inventory._project.plugins` maps plugin names to plugin modules
 - Wired up plugin modules into `lambdasBySrcDir` and `lambdaSrcDirs`
   - First steps towards allowing plugin authors to add their own Lambdas to arc projects
 
