@@ -22,7 +22,7 @@
   "dependencies": {
     "@architect/asap": "~3.13.8",
     "@architect/parser": "~3.0.0",
-    "@architect/utils": "2.0.5-RC.0",
+    "@architect/utils": "2.0.5",
     "run-series": "~1.1.9"
   },
   "peerDependencies": {
