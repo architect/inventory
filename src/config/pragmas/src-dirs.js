@@ -10,9 +10,13 @@ module.exports = function collectSourceDirs ({ pragmas }) {
         if (item.arcStaticAssetProxy === true) return // Special exception for ASAP
         else if (typeof item.src === 'string') {
           lambdaSrcDirs.push(item.src)
-          unsortedBySrcDir[item.src] = unsortedBySrcDir[item.src]
-            ? [ unsortedBySrcDir[item.src], { ...item, pragma } ] // Multiple Lambdae may map to a single dir
-            : { ...item, pragma }
+          // Multiple Lambdae may map to a single dir
+          if (unsortedBySrcDir[item.src]) {
+            unsortedBySrcDir[item.src] = Array.isArray(unsortedBySrcDir[item.src])
+              ? [ ...unsortedBySrcDir[item.src], { ...item, pragma } ]
+              : [ unsortedBySrcDir[item.src], { ...item, pragma } ]
+          }
+          else unsortedBySrcDir[item.src] = { ...item, pragma }
         }
         else throw Error(`Lambda is missing source directory: ${JSON.stringify(item, null, 2)}`)
       })

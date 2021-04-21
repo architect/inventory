@@ -41,11 +41,12 @@ test('Lambda source dir population', t => {
 })
 
 test('Multiple Lambdas mapped to the same source dir', t => {
-  t.plan(8)
+  t.plan(9)
 
   let values = [ 'foo', 'bar', 'fiz' ]
   let pragmas = {
     http: [
+      { src: values[0] },
       { src: values[0] },
       { src: values[0] },
       { src: values[1] },
@@ -62,7 +63,7 @@ test('Multiple Lambdas mapped to the same source dir', t => {
   values.forEach(dir => {
     if (dir === values[0]) {
       t.ok(Array.isArray(lambdasBySrcDir[dir]), 'Got array of multitenant Lambdae back')
-      t.equal(lambdasBySrcDir[dir].length, 2, 'Got correct number of multitenant Lambdae back')
+      t.equal(lambdasBySrcDir[dir].length, 3, 'Got correct number of multitenant Lambdae back')
       lambdasBySrcDir[dir].forEach(l => {
         t.ok((l.src === values[0]) && (l.pragma === 'http'), 'Multitenant Lambda params identify the same dir')
       })
