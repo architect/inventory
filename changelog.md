@@ -2,6 +2,14 @@
 
 ---
 
+## [1.3.2] 2021-04-21
+
+### Fixed
+
+- Fix weird behavior in `lambdasBySrcDir` when >2 functions are mapped to the same folder
+
+---
+
 ## [1.3.1] 2021-03-22
 
 ### Changed
