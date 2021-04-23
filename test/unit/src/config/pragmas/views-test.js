@@ -1,4 +1,5 @@
 let { join } = require('path')
+let mockFs = require('mock-fs')
 let parse = require('@architect/parser')
 let test = require('tape')
 let populateHTTPPath = join(process.cwd(), 'src', 'config', 'pragmas', 'http')
@@ -8,7 +9,6 @@ let inventoryDefaults = require(inventoryDefaultsPath)
 let sut = join(process.cwd(), 'src', 'config', 'pragmas', 'views')
 let populateViews = require(sut)
 let inventory = inventoryDefaults()
-let mockFs = require('mock-fs')
 let cwd = inventory._project.src = process.cwd()
 
 test('Set up env', t => {
@@ -39,9 +39,9 @@ test('Default dir is src/views (if present)', t => {
   pragmas = { http: populateHTTP({ arc, inventory }) }
   mockFs({ 'src/views': {} })
   let views = populateViews({ arc, pragmas, inventory })
-  mockFs.restore()
   t.equal(views.src, join(cwd, 'src', 'views'), 'Returned correct default dir')
   t.deepEqual(views.views, [], 'Returned empty views array')
+  mockFs.restore()
 })
 
 test('Arc Static Asset Proxy is not included in @views', t => {
@@ -58,11 +58,11 @@ get /*`)
   pragmas = { http: populateHTTP({ arc, inventory }) }
   mockFs({ 'src/views': {} })
   let views = populateViews({ arc, pragmas, inventory })
-  mockFs.restore()
   t.deepEqual(views.views, [], 'Returned empty views array')
   let asap = pragmas.http.find(r => r.name === 'get /*')
   t.ok(asap.arcStaticAssetProxy, 'Got back ASAP')
   t.notOk(asap.config.views, `Views setting not enabled in ASAP`)
+  mockFs.restore()
 })
 
 test(`@views population: defaults only to 'get' + 'any' routes (without @views)`, t => {
@@ -75,7 +75,6 @@ test(`@views population: defaults only to 'get' + 'any' routes (without @views)`
 
   mockFs({ 'src/views': {} })
   let views = populateViews({ arc, pragmas, inventory })
-  mockFs.restore()
   t.equal(views.views.length, 2, 'Got correct number of routes with views back')
   values.forEach(val => {
     let route = pragmas.http.find(r => r.name === val)
@@ -87,6 +86,7 @@ test(`@views population: defaults only to 'get' + 'any' routes (without @views)`
       t.notOk(route.config.views, `Views setting not enabled in route: ${val}`)
     }
   })
+  mockFs.restore()
 })
 
 test(`@views population: defaults only to 'get' + 'any' routes (with empty @views)`, t => {
@@ -99,7 +99,6 @@ test(`@views population: defaults only to 'get' + 'any' routes (with empty @view
 
   mockFs({ 'src/views': {} })
   let views = populateViews({ arc, pragmas, inventory })
-  mockFs.restore()
   t.equal(views.views.length, 2, 'Got correct number of routes with views back')
   values.forEach(val => {
     let route = pragmas.http.find(r => r.name === val)
@@ -111,6 +110,7 @@ test(`@views population: defaults only to 'get' + 'any' routes (with empty @view
       t.notOk(route.config.views, `Views setting not enabled in route: ${val}`)
     }
   })
+  mockFs.restore()
 })
 
 test(`@views population: defaults only to 'get' + 'any' routes (with src setting)`, t => {
@@ -126,7 +126,6 @@ src foo/bar`)
 
   mockFs({ 'foo/bar': {} })
   let views = populateViews({ arc, pragmas, inventory })
-  mockFs.restore()
   t.equal(views.src, 'foo/bar', 'Got correct src dir back')
   t.equal(views.views.length, 2, 'Got correct number of routes with views back') // `POST /` is not a view
   values.forEach(val => {
@@ -139,6 +138,7 @@ src foo/bar`)
       t.notOk(route.config.views, `Views setting not enabled in route: ${val}`)
     }
   })
+  mockFs.restore()
 })
 
 test(`@views population: routes not explicitly defined have views disabled (with src setting)`, t => {
@@ -155,7 +155,6 @@ src foo/bar`)
 
   mockFs({ 'foo/bar': {} })
   let views = populateViews({ arc, pragmas, inventory })
-  mockFs.restore()
   t.equal(views.src, 'foo/bar', 'Got correct src dir back')
   t.equal(views.views.length, 1, 'Got correct number of routes with views back')
   values.forEach(val => {
@@ -168,6 +167,7 @@ src foo/bar`)
       t.notOk(route.config.views, `Views setting not enabled in route: ${val}`)
     }
   })
+  mockFs.restore()
 })
 
 test('@views errors', t => {

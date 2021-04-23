@@ -1,4 +1,5 @@
 let { join } = require('path')
+let mockFs = require('mock-fs')
 let parse = require('@architect/parser')
 let test = require('tape')
 let populateHTTPPath = join(process.cwd(), 'src', 'config', 'pragmas', 'http')
@@ -12,7 +13,6 @@ let inventoryDefaults = require(inventoryDefaultsPath)
 let sut = join(process.cwd(), 'src', 'config', 'pragmas', 'shared')
 let populateShared = require(sut)
 let inventory = inventoryDefaults()
-let mockFs = require('mock-fs')
 let cwd = inventory._project.src = process.cwd()
 let lambdaSrcDirs = [] // Only needs to be truthy to test code path
 
@@ -40,9 +40,9 @@ test('Default dir is: src/shared (if present)', t => {
   pragmas = { http: populateHTTP({ arc, inventory }), lambdaSrcDirs }
   mockFs({ 'src/shared': {} })
   let shared = populateShared({ arc, pragmas, inventory })
-  mockFs.restore()
   t.equal(shared.src, join(cwd, 'src', 'shared'), 'Returned correct default dir')
   t.deepEqual(shared.shared, [], 'Returned empty shared array')
+  mockFs.restore()
 })
 
 test('Arc Static Asset Proxy is not included in @shared', t => {
@@ -57,12 +57,12 @@ http
   pragmas = { http: populateHTTP({ arc, inventory }), lambdaSrcDirs }
   mockFs({ 'src/shared': {} })
   let shared = populateShared({ arc, pragmas, inventory })
-  mockFs.restore()
   t.equal(shared.src, join(cwd, 'src', 'shared'), 'Returned correct default dir')
   t.deepEqual(shared.shared, [], 'Returned empty shared array')
   let asap = pragmas.http.find(r => r.name === 'get /*')
   t.ok(asap.arcStaticAssetProxy, 'Got back ASAP')
   t.notOk(asap.config.shared, `Shared setting not enabled in ASAP`)
+  mockFs.restore()
 })
 
 test(`@shared population: defaults to enabled (without @shared)`, t => {
@@ -80,7 +80,6 @@ test(`@shared population: defaults to enabled (without @shared)`, t => {
 
   mockFs({ 'src/shared': {} })
   let shared = populateShared({ arc, pragmas, inventory })
-  mockFs.restore()
   t.equal(shared.src, join(cwd, 'src', 'shared'), 'Returned correct default dir')
   t.equal(shared.shared.length, 2, 'Got correct number of lambdae with shared back')
   let fn1 = pragmas.http.find(r => r.name === httpLambda)
@@ -89,6 +88,7 @@ test(`@shared population: defaults to enabled (without @shared)`, t => {
   t.ok(shared.shared.includes(fn2.src), `Got shared lambda: ${eventLambda}`)
   t.ok(fn1.config.shared, `Shared setting enabled in lambda: ${httpLambda}`)
   t.ok(fn2.config.shared, `Shared setting enabled in lambda: ${eventLambda}`)
+  mockFs.restore()
 })
 
 test(`@shared population: defaults to enabled (with empty @shared)`, t => {
@@ -106,7 +106,6 @@ test(`@shared population: defaults to enabled (with empty @shared)`, t => {
 
   mockFs({ 'src/shared': {} })
   let shared = populateShared({ arc, pragmas, inventory })
-  mockFs.restore()
   t.equal(shared.src, join(cwd, 'src', 'shared'), 'Returned correct default dir')
   t.equal(shared.shared.length, 2, 'Got correct number of lambdae with shared back')
   let fn1 = pragmas.http.find(r => r.name === httpLambda)
@@ -115,6 +114,7 @@ test(`@shared population: defaults to enabled (with empty @shared)`, t => {
   t.ok(shared.shared.includes(fn2.src), `Got shared lambda: ${eventLambda}`)
   t.ok(fn1.config.shared, `Shared setting enabled in lambda: ${httpLambda}`)
   t.ok(fn2.config.shared, `Shared setting enabled in lambda: ${eventLambda}`)
+  mockFs.restore()
 })
 
 test(`@shared population: defaults to enabled (with src setting)`, t => {
@@ -134,7 +134,6 @@ src foo/bar`)
 
   mockFs({ 'foo/bar': {} })
   let shared = populateShared({ arc, pragmas, inventory })
-  mockFs.restore()
   t.equal(shared.src, 'foo/bar', 'Got correct src dir back')
   t.equal(shared.shared.length, 2, 'Got correct number of lambdae with shared back')
   let fn1 = pragmas.http.find(r => r.name === httpLambda)
@@ -143,6 +142,7 @@ src foo/bar`)
   t.ok(shared.shared.includes(fn2.src), `Got shared lambda: ${eventLambda}`)
   t.ok(fn1.config.shared, `Shared setting enabled in lambda: ${httpLambda}`)
   t.ok(fn2.config.shared, `Shared setting enabled in lambda: ${eventLambda}`)
+  mockFs.restore()
 })
 
 test(`@shared population: lambdae not explicitly defined have shared disabled (with src setting)`, t => {
@@ -173,7 +173,6 @@ src foo/bar`)
 
   mockFs({ 'foo/bar': {} })
   let shared = populateShared({ arc, pragmas, inventory })
-  mockFs.restore()
   t.equal(shared.src, 'foo/bar', 'Got correct src dir back')
   t.equal(shared.shared.length, 2, 'Got correct number of lambdae with shared back')
   let fn1 = pragmas.http.find(r => r.name === httpLambda)
@@ -185,6 +184,7 @@ src foo/bar`)
   t.ok(fn1.config.shared, `Shared setting enabled in lambda: ${httpLambda}`)
   t.ok(fn2.config.shared, `Shared setting enabled in lambda: ${eventLambda}`)
   t.notOk(fn3.config.shared, `Shared setting not enabled in lambda: ${queueLambda}`)
+  mockFs.restore()
 })
 
 test('@shared errors', t => {
