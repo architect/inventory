@@ -1,8 +1,8 @@
 let { join } = require('path')
+let mockFs = require('mock-fs')
 let test = require('tape')
 let sut = join(process.cwd(), 'src', 'read')
 let read = require(sut)
-let mockFs = require('mock-fs')
 let cwd = process.cwd()
 
 // Mock data – super stripped down, this isn't to validate parser compat
@@ -17,14 +17,11 @@ function check (params, file) {
   let { t, text, obj, type, subset } = params
   mockFs({ [file]: text })
   let { arc, raw, filepath } = read({ type, cwd })
-  mockFs.restore()
   t.deepEqual(arc, obj, 'Returned Arc object:')
-  console.log(arc)
   // Subset used for extracting Arc from an existing manifest (like package.json)
   t.equal(raw, subset ? subset : text, 'Returned raw text:')
-  console.log(raw)
   t.equal(filepath, join(cwd, file), `Returned filepath:`)
-  console.log(filepath)
+  mockFs.restore()
 }
 
 test('Set up env', t => {
@@ -164,8 +161,10 @@ test('Graceful reader failures', t => {
       t.fail('Expected an error')
     }
     catch (err) {
-      mockFs.restore()
       t.pass(err, 'Threw error on invalid Architect manifest')
+    }
+    finally {
+      mockFs.restore()
     }
   }
 
