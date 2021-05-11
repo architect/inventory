@@ -24,20 +24,38 @@ test('No @plugins returns null', t => {
 
 test('missing @plugin throws', t => {
   t.plan(1)
+  let inv = JSON.parse(JSON.stringify(inventory))
   let arc = parse('@plugins\npoop')
-  t.throws(() => populatePlugins({ arc, inventory }))
+  t.throws(() => populatePlugins({ arc, inventory: inv }))
 })
 
-test('plugin-registered lambdas should contain all arc-required internal inventory signature properties ', t => {
+test('plugin-registered lambdas should contain all arc-required internal inventory signature properties (legacy pluginFunctions interface method)', t => {
   t.plan(3)
   let arc = parse('@plugins\nplugin')
-  inventory._project.plugins = { plugin: {
+  let inv = JSON.parse(JSON.stringify(inventory))
+  inv._project.plugins = { plugin: {
     pluginFunctions: () => [
       { src: join(cwd, 'src', 'mahplugin', 'lambda1') },
       { src: join(cwd, 'src', 'mahplugin', 'lambda2') }
     ]
   } }
-  let plugins = populatePlugins({ arc, inventory })
+  let plugins = populatePlugins({ arc, inventory: inv })
+  t.equal(plugins.length, 2, 'Returned 1 object for each registered lambda')
+  t.equal(plugins[0].name, 'mahplugin-lambda1', 'First lambda should have am AWS-compatible name')
+  t.ok(plugins[1].config, 'should have a config property')
+})
+
+test('plugin-registered lambdas should contain all arc-required internal inventory signature properties', t => {
+  t.plan(3)
+  let arc = parse('@plugins\nplugin')
+  let inv = JSON.parse(JSON.stringify(inventory))
+  inv._project.plugins = { plugin: {
+    functions: () => [
+      { src: join(cwd, 'src', 'mahplugin', 'lambda1') },
+      { src: join(cwd, 'src', 'mahplugin', 'lambda2') }
+    ]
+  } }
+  let plugins = populatePlugins({ arc, inventory: inv })
   t.equal(plugins.length, 2, 'Returned 1 object for each registered lambda')
   t.equal(plugins[0].name, 'mahplugin-lambda1', 'First lambda should have am AWS-compatible name')
   t.ok(plugins[1].config, 'should have a config property')
