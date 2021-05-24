@@ -2,6 +2,15 @@
 
 ---
 
+## [1.3.3] 2021-05-24
+
+### Added
+
+- Plugins may implement either `pluginFunctions` or `functions` interface
+    methods; both will be used.
+
+---
+
 ## [1.3.2] 2021-04-21
 
 ### Fixed
