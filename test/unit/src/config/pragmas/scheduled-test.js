@@ -136,13 +136,13 @@ ${complexValues.join('\n')}
   })
 })
 
-test('@scheduled population: invalid scheduled events throw', t => {
+test('@scheduled population: invalid scheduled events errors', t => {
   t.plan(1)
   let arc = parse(`
 @scheduled
 hi there
 `)
-  t.throws(() => {
-    populateScheduled({ arc, inventory })
-  }, 'Invalid scheduled event threw')
+  let errors = []
+  populateScheduled({ arc, inventory, errors })
+  t.ok(errors.length, 'Invalid scheduled event errored')
 })

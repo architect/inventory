@@ -77,13 +77,13 @@ string-keys
   t.equal(tables[0].delete, undefined, 'Skipped deprecated delete Lambda setting')
 })
 
-test('@tables population: invalid tables throw', t => {
+test('@tables population: invalid tables errors', t => {
   t.plan(1)
   let arc = parse(`
 @tables
 hi there
 `)
-  t.throws(() => {
-    populateTables({ arc })
-  }, 'Invalid table threw')
+  let errors = []
+  populateTables({ arc, errors })
+  t.ok(errors.length, 'Invalid table errored')
 })

@@ -1,6 +1,6 @@
 let { join } = require('path')
 
-module.exports = function populateEvents ({ item, dir, cwd }) {
+module.exports = function populateEvents ({ item, dir, cwd, errors }) {
   if (typeof item === 'string') {
     let name = item
     let src = join(cwd, dir, name)
@@ -13,5 +13,5 @@ module.exports = function populateEvents ({ item, dir, cwd }) {
       : join(cwd, dir, name)
     return { name, src }
   }
-  throw Error(`Invalid @events or @queues item: ${item}`)
+  errors.push(`Invalid @events or @queues item: ${item}`)
 }

@@ -2,12 +2,12 @@ let { join } = require('path')
 let populate = require('./populate-lambda')
 let asapSrc = require('../../lib/asap-src')
 
-module.exports = function configureHTTP ({ arc, inventory }) {
+module.exports = function configureHTTP ({ arc, inventory, errors }) {
   if (!arc.http) return null
 
   // Populate normally returns null on an empty Lambda pragma
   // However, @http is special because it gets the Architect Static Asset Proxy (ASAP), so fall back to an empty array
-  let http = populate.http(arc.http, inventory) || []
+  let http = populate.http(arc.http, inventory, errors) || []
 
   let findRoot = route => {
     let r = route.name.split(' ')

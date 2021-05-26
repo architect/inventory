@@ -1,5 +1,8 @@
-module.exports = function configureCDN ({ arc }) {
-  if (arc.cdn && !arc.http) throw Error('@cdn requires @http')
+module.exports = function configureCDN ({ arc, errors }) {
+  if (arc.cdn && !arc.http) {
+    errors.push('@cdn requires @http')
+    return null
+  }
   if (!arc.cdn || !arc.http) return null
 
   let cdn

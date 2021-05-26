@@ -113,31 +113,32 @@ ${defaults.join('\n')}
   t.notOk(process.env.DEPRECATED, 'Cleaned up deprecated status')
 })
 
-test('@ws population: invalid paths throw', t => {
+test('@ws population: invalid paths errors', t => {
   t.plan(3)
   let arc
+  let errors
 
   arc = parse(`
 @ws
 hi there
 `)
-  t.throws(() => {
-    populateWS({ arc, inventory })
-  }, 'Invalid route threw')
+  errors = []
+  populateWS({ arc, inventory, errors })
+  t.ok(errors.length, 'Invalid route errored')
 
   arc = parse(`
 @ws
   hi there
 `)
-  t.throws(() => {
-    populateWS({ arc, inventory })
-  }, 'Invalid simple route threw')
+  errors = []
+  populateWS({ arc, inventory, errors })
+  t.ok(errors.length, 'Invalid simple route errored')
 
   arc = parse(`
 @ws
 why hello there
 `)
-  t.throws(() => {
-    populateWS({ arc, inventory })
-  }, 'Invalid complex route threw')
+  errors = []
+  populateWS({ arc, inventory, errors })
+  t.ok(errors.length, 'Invalid complex route errored')
 })

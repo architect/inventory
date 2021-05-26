@@ -3,7 +3,7 @@ let validate = require('./validate')
 let is = require('../../lib/is')
 let lambdae = require('../../defaults/lambda-pragmas')
 
-module.exports = function configureShared ({ arc, pragmas, inventory }) {
+module.exports = function configureShared ({ arc, pragmas, inventory, errors }) {
   if (!pragmas.lambdaSrcDirs) return null
 
   let cwd = inventory._project.src
@@ -22,7 +22,7 @@ module.exports = function configureShared ({ arc, pragmas, inventory }) {
         if (key === 'src' && is.string(share[1])) {
           shared.src = share[1]
           foundSrc = true
-          validate.shared(shared.src, cwd)
+          validate.shared(shared.src, cwd, errors)
         }
       }
     }
@@ -42,12 +42,12 @@ module.exports = function configureShared ({ arc, pragmas, inventory }) {
       for (let pragma of arc.shared) {
         if (is.array(pragma)) continue // Bail on src setting
         if (!is.object(pragma)) {
-          throw Error(`@shared invalid setting: ${p}`)
+          return errors.push(`@shared invalid setting: ${pragma}`)
         }
 
         let p = Object.keys(pragma)[0]
         if (!lambdae.includes(p)) {
-          throw Error(`${p} is not a valid @shared pragma`)
+          return errors.push(`${p} is not a valid @shared pragma`)
         }
 
         let entries = is.object(pragma[p])
@@ -57,7 +57,7 @@ module.exports = function configureShared ({ arc, pragmas, inventory }) {
           let name = p === 'http' ? lambda.join(' ') : lambda
           let fn = pragmas[p].find(n => n.name === name)
           if (!fn) {
-            throw Error(`@shared ${name} not found in @${p} Lambdas`)
+            return errors.push(`@shared ${name} not found in @${p} Lambdas`)
           }
           // Ignore shared into ASAP
           if (!fn.arcStaticAssetProxy) fn.config.shared = true

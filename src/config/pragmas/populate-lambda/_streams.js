@@ -1,7 +1,7 @@
 let { join } = require('path')
 let { existsSync } = require('fs')
 
-module.exports = function populateStreams ({ type, item, dir, cwd }) {
+module.exports = function populateStreams ({ type, item, dir, cwd, errors }) {
   let isObj = typeof item === 'object' && !Array.isArray(item)
   if (type === 'tables' && isObj) {
     let name = Object.keys(item)[0]
@@ -28,5 +28,5 @@ module.exports = function populateStreams ({ type, item, dir, cwd }) {
       : name
     return { name, src, table }
   }
-  throw Error(`Invalid @${type} item: ${item}`)
+  errors.push(`Invalid @${type} item: ${item}`)
 }

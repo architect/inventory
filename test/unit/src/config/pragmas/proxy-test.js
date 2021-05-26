@@ -34,34 +34,45 @@ production ${production}
 })
 
 test('@proxy errors', t => {
-  t.plan(4)
-  t.throws(() => {
-    populateProxy({ arc: { proxy: [] } })
-  }, '@proxy without @http throws')
+  t.plan(5)
+  let errors
+
+  errors = []
+  populateProxy({ arc: { proxy: [] }, errors })
+  t.ok(errors.length, '@proxy without @http errored')
 
   let envs = [ 'testing', 'staging', 'production' ]
   let arc
   arc = parse(`@http
 @proxy
+${envs[1]} foo
+${envs[2]} foo`)
+  errors = []
+  populateProxy({ arc, errors })
+  t.ok(errors.length, `@proxy errors when ${envs[0]} isn't present`)
+
+  arc = parse(`@http
+@proxy
+${envs[0]} foo
+${envs[2]} foo`)
+  errors = []
+  populateProxy({ arc, errors })
+  t.ok(errors.length, `@proxy errors when ${envs[1]} isn't present`)
+
+  arc = parse(`@http
+@proxy
+${envs[0]} foo
+${envs[1]} foo`)
+  errors = []
+  populateProxy({ arc, errors })
+  t.ok(errors.length, `@proxy errors when ${envs[2]} isn't present`)
+
+  arc = parse(`@http
+@proxy
+${envs[0]} foo
 ${envs[1]}
-${envs[2]}`)
-  t.throws(() => {
-    populateProxy({ arc })
-  }, `@proxy throws when ${envs[0]} isn't present`)
-
-  arc = parse(`@http
-@proxy
-${envs[0]}
-${envs[2]}`)
-  t.throws(() => {
-    populateProxy({ arc })
-  }, `@proxy throws when ${envs[1]} isn't present`)
-
-  arc = parse(`@http
-@proxy
-${envs[0]}
-${envs[1]}`)
-  t.throws(() => {
-    populateProxy({ arc })
-  }, `@proxy throws when ${envs[2]} isn't present`)
+${envs[2]} foo`)
+  errors = []
+  populateProxy({ arc, errors })
+  t.ok(errors.length, `@proxy errors with invalid setting`)
 })

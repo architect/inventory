@@ -1,6 +1,6 @@
 let { join } = require('path')
 
-module.exports = function populateWebSockets ({ item, dir, cwd }) {
+module.exports = function populateWebSockets ({ item, dir, cwd, errors }) {
   if (typeof item === 'string') {
     let name = item
     let route = name // Same as name, just what AWS calls it
@@ -15,5 +15,5 @@ module.exports = function populateWebSockets ({ item, dir, cwd }) {
     let src = join(cwd, item[name].src)
     return { name, route, src }
   }
-  throw Error(`Invalid @ws item: ${item}`)
+  errors.push(`Invalid @ws item: ${item}`)
 }

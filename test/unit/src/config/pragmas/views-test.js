@@ -174,62 +174,63 @@ test('@views errors', t => {
   t.plan(7)
   let arc
   let pragmas
+  let errors
 
-  t.throws(() => {
-    populateViews({ arc: { views: [] } })
-  }, '@views without @http throws')
+  errors = []
+  populateViews({ arc: { views: [] }, errors })
+  t.ok(errors.length, '@views without @http errored')
 
   arc = parse(`@http
 get /foo
 @views
 put /bar`)
   pragmas = { http: populateHTTP({ arc, inventory }) }
-  t.throws(() => {
-    populateViews({ arc, pragmas, inventory })
-  }, '@views route not found in @http throws')
+  errors = []
+  populateViews({ arc, pragmas, inventory, errors })
+  t.ok(errors.length, '@views route not found in @http errored')
 
   arc = parse(`@http
 get /foo
 @views
 src src/index.js`)
   pragmas = { http: populateHTTP({ arc, inventory }) }
-  t.throws(() => {
-    populateViews({ arc, pragmas, inventory })
-  }, '@views src must be a directory')
+  errors = []
+  populateViews({ arc, pragmas, inventory, errors })
+  t.ok(errors.length, '@views src must be a directory')
 
   arc = parse(`@http
 get /foo
 @views
 src .`)
   pragmas = { http: populateHTTP({ arc, inventory }) }
-  t.throws(() => {
-    populateViews({ arc, pragmas, inventory })
-  }, '@views cannot be .')
+  errors = []
+  populateViews({ arc, pragmas, inventory, errors })
+  t.ok(errors.length, '@views cannot be .')
 
   arc = parse(`@http
 get /foo
 @views
 src ./`)
   pragmas = { http: populateHTTP({ arc, inventory }) }
-  t.throws(() => {
-    populateViews({ arc, pragmas, inventory })
-  }, '@views cannot be ./')
+  errors = []
+  populateViews({ arc, pragmas, inventory, errors })
+  t.ok(errors.length, '@views cannot be ./')
 
   arc = parse(`@http
 get /foo
 @views
 src ..`)
   pragmas = { http: populateHTTP({ arc, inventory }) }
-  t.throws(() => {
-    populateViews({ arc, pragmas, inventory })
-  }, '@views cannot be ..')
+  errors = []
+  populateViews({ arc, pragmas, inventory, errors })
+  t.ok(errors.length, '@views cannot be ..')
 
   arc = parse(`@http
 get /foo
 @views
 src ../`)
   pragmas = { http: populateHTTP({ arc, inventory }) }
-  t.throws(() => {
-    populateViews({ arc, pragmas, inventory })
-  }, '@views cannot be ../')
+  errors = []
+  populateViews({ arc, pragmas, inventory, errors })
+  t.ok(errors.length, '@views cannot be ../')
 })

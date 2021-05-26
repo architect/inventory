@@ -13,7 +13,7 @@ let getStreams = require('./_streams')
 /**
  * Build out the Lambda tree
  */
-function populateLambda (type, pragma, inventory) {
+function populateLambda (type, pragma, inventory, errors) {
   if (!pragma || !pragma.length) return null // Jic
 
   let createDefaultConfig = () => JSON.parse(JSON.stringify(inventory._project.defaultFunctionConfig))
@@ -24,7 +24,7 @@ function populateLambda (type, pragma, inventory) {
 
   for (let item of pragma) {
     // Get name, source dir, and any pragma-specific properties
-    let results = getLambda({ type, item, cwd, inventory })
+    let results = getLambda({ type, item, cwd, inventory, errors })
     // some lambda populators (e.g. plugins) may return empty results
     if (!results) continue
     // some lambda populators (e.g. plugins) may return multiple results
@@ -67,7 +67,7 @@ function populateLambda (type, pragma, inventory) {
       }
 
       // Now we know the final source dir + runtime + handler: assemble handler props
-      let { handlerFile, handlerFunction } = getHandler(config, src)
+      let { handlerFile, handlerFunction } = getHandler(config, src, errors)
 
       let lambda = {
         name,

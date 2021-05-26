@@ -1,6 +1,6 @@
 let populate = require('./populate-lambda')
 
-module.exports = function configureWS ({ arc, inventory }) {
+module.exports = function configureWS ({ arc, inventory, errors }) {
   if (!arc.ws) return null
 
   let ws = [ ...arc.ws ]
@@ -15,7 +15,7 @@ module.exports = function configureWS ({ arc, inventory }) {
     if (!found) ws.unshift(route)
   })
 
-  let websockets = populate.ws(ws, inventory)
+  let websockets = populate.ws(ws, inventory, errors)
 
   return websockets
 }

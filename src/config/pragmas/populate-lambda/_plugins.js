@@ -1,6 +1,6 @@
 let { getLambdaName } = require('@architect/utils')
 
-module.exports = function populatePlugins ({ item: pluginName, cwd, inventory }) {
+module.exports = function populatePlugins ({ item: pluginName, cwd, inventory, errors }) {
   if (inventory._project.plugins[pluginName]) {
     const pluginModule = inventory._project.plugins[pluginName]
     if (pluginModule.functions || pluginModule.pluginFunctions) {
@@ -18,5 +18,5 @@ module.exports = function populatePlugins ({ item: pluginName, cwd, inventory })
     }
     return null
   }
-  throw Error(`Invalid @plugins item: ${pluginName}`)
+  errors.push(`Invalid @plugins item: ${pluginName}`)
 }

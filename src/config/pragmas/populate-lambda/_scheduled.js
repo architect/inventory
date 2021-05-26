@@ -28,7 +28,7 @@ function getCron (expression) {
   }
 }
 
-module.exports = function populateScheduled ({ item, dir, cwd }) {
+module.exports = function populateScheduled ({ item, dir, cwd, errors }) {
   let rate = null
   let cron = null
   if (Array.isArray(item) && item.length >= 3) {
@@ -56,5 +56,5 @@ module.exports = function populateScheduled ({ item, dir, cwd }) {
       : join(cwd, dir, name)
     return { name, src, rate, cron }
   }
-  throw Error(`Invalid @scheduled item: ${item}`)
+  errors.push(`Invalid @scheduled item: ${item}`)
 }

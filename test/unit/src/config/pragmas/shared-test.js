@@ -191,6 +191,7 @@ test('@shared errors', t => {
   t.plan(8)
   let arc
   let pragmas
+  let errors
 
   arc = parse(`@http
 get /foo
@@ -200,9 +201,9 @@ http
   pragmas = {
     http: populateHTTP({ arc, inventory }), lambdaSrcDirs
   }
-  t.throws(() => {
-    populateShared({ arc, pragmas, inventory })
-  }, '@shared lambda not found in corresponding pragma throws')
+  errors = []
+  populateShared({ arc, pragmas, inventory, errors })
+  t.ok(errors.length, '@shared lambda not found in corresponding pragma errored')
 
   arc = parse(`@http
 get /foo
@@ -211,9 +212,9 @@ hi`)
   pragmas = {
     http: populateHTTP({ arc, inventory }), lambdaSrcDirs
   }
-  t.throws(() => {
-    populateShared({ arc, pragmas, inventory })
-  }, '@shared invalid entry throws')
+  errors = []
+  populateShared({ arc, pragmas, inventory, errors })
+  t.ok(errors.length, '@shared invalid entry errored')
 
   arc = parse(`@http
 get /foo
@@ -223,10 +224,9 @@ static
   pragmas = {
     http: populateHTTP({ arc, inventory }), lambdaSrcDirs
   }
-  t.throws(() => {
-    populateShared({ arc, pragmas, inventory })
-  }, '@shared invalid pragma throws')
-
+  errors = []
+  populateShared({ arc, pragmas, inventory, errors })
+  t.ok(errors.length, '@shared invalid pragma errored')
 
   arc = parse(`@http
 get /foo
@@ -236,9 +236,9 @@ src src/index.js`)
     http: populateHTTP({ arc, inventory }),
     lambdaSrcDirs
   }
-  t.throws(() => {
-    populateShared({ arc, pragmas, inventory })
-  }, '@shared src must be a directory')
+  errors = []
+  populateShared({ arc, pragmas, inventory, errors })
+  t.ok(errors.length, '@shared src must be a directory')
 
   arc = parse(`@http
 get /foo
@@ -248,9 +248,9 @@ src .`)
     http: populateHTTP({ arc, inventory }),
     lambdaSrcDirs
   }
-  t.throws(() => {
-    populateShared({ arc, pragmas, inventory })
-  }, '@shared cannot be .')
+  errors = []
+  populateShared({ arc, pragmas, inventory, errors })
+  t.ok(errors.length, '@shared cannot be .')
 
   arc = parse(`@http
 get /foo
@@ -260,9 +260,9 @@ src ./`)
     http: populateHTTP({ arc, inventory }),
     lambdaSrcDirs
   }
-  t.throws(() => {
-    populateShared({ arc, pragmas, inventory })
-  }, '@shared cannot be ./')
+  errors = []
+  populateShared({ arc, pragmas, inventory, errors })
+  t.ok(errors.length, '@shared cannot be ./')
 
   arc = parse(`@http
 get /foo
@@ -272,9 +272,9 @@ src ..`)
     http: populateHTTP({ arc, inventory }),
     lambdaSrcDirs
   }
-  t.throws(() => {
-    populateShared({ arc, pragmas, inventory })
-  }, '@shared cannot be ..')
+  errors = []
+  populateShared({ arc, pragmas, inventory, errors })
+  t.ok(errors.length, '@shared cannot be ..')
 
   arc = parse(`@http
 get /foo
@@ -284,7 +284,7 @@ src ../`)
     http: populateHTTP({ arc, inventory }),
     lambdaSrcDirs
   }
-  t.throws(() => {
-    populateShared({ arc, pragmas, inventory })
-  }, '@shared cannot be ../')
+  errors = []
+  populateShared({ arc, pragmas, inventory, errors })
+  t.ok(errors.length, '@shared cannot be ../')
 })

@@ -182,13 +182,13 @@ another-stream
   })
 })
 
-test('@streams population: invalid streams throw', t => {
+test('@streams population: invalid streams errors', t => {
   t.plan(1)
   let arc = parse(`
 @streams
 hi there
 `)
-  t.throws(() => {
-    populateStreams({ arc, inventory })
-  }, 'Invalid stream threw')
+  let errors = []
+  populateStreams({ arc, inventory, errors })
+  t.ok(errors.length, 'Invalid stream errored')
 })

@@ -91,15 +91,14 @@ test('HTTP Arc Static Asset Proxy handler', t => {
 })
 
 
-test('Lambdas missing src throw', t => {
+test('Lambdas missing src errors', t => {
   t.plan(1)
   let pragmas = {
     http: [
       { name: 'get /' }
     ]
   }
-
-  t.throws(() => {
-    populateSrcDirs({ pragmas })
-  }, 'Invalid pragma threw')
+  let errors = []
+  populateSrcDirs({ pragmas, errors })
+  t.ok(errors.length, 'Invalid pragma errored')
 })

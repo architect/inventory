@@ -91,13 +91,13 @@ ${complexValues.join('\n')}
   })
 })
 
-test('@events population: invalid events throw', t => {
+test('@events population: invalid events errors', t => {
   t.plan(1)
   let arc = parse(`
-@events
-hi there
-`)
-  t.throws(() => {
-    populateEvents({ arc, inventory })
-  }, 'Invalid event threw')
+  @events
+  hi there
+  `)
+  let errors = []
+  populateEvents({ arc, inventory, errors })
+  t.ok(errors.length, 'Invalid event errored')
 })
