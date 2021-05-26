@@ -265,49 +265,50 @@ ${complexValues.join('\n')}
   })
 })
 
-test('@http population: invalid paths throw', t => {
+test('@http population: invalid paths errors', t => {
   t.plan(5)
   let arc
+  let errors
 
   arc = parse(`
 @http
 hi /there
 `)
-  t.throws(() => {
-    populateHTTP({ arc, inventory })
-  }, 'Invalid simple route threw')
+  errors = []
+  populateHTTP({ arc, inventory, errors })
+  t.ok(errors.length, 'Invalid simple route errored')
 
   arc = parse(`
 @http
 get /hi-there!
 `)
-  t.throws(() => {
-    populateHTTP({ arc, inventory })
-  }, 'Invalid simple route threw')
+  errors = []
+  populateHTTP({ arc, inventory, errors })
+  t.ok(errors.length, 'Invalid simple route errored')
 
   arc = parse(`
 @http
 /there
   method hi
 `)
-  t.throws(() => {
-    populateHTTP({ arc, inventory })
-  }, 'Invalid complex route threw')
+  errors = []
+  populateHTTP({ arc, inventory, errors })
+  t.ok(errors.length, 'Invalid complex route errored')
 
   arc = parse(`
 @http
 /hi-there!
   method get
 `)
-  t.throws(() => {
-    populateHTTP({ arc, inventory })
-  }, 'Invalid complex route threw')
+  errors = []
+  populateHTTP({ arc, inventory, errors })
+  t.ok(errors.length, 'Invalid complex route errored')
 
   arc = parse(`
 @http
 get /hi there
 `)
-  t.throws(() => {
-    populateHTTP({ arc, inventory })
-  }, 'Invalid weird array route threw')
+  errors = []
+  populateHTTP({ arc, inventory, errors })
+  t.ok(errors.length, 'Invalid weird array route errored')
 })

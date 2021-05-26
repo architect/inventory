@@ -3,17 +3,15 @@ let patterns = {
   strictName: new RegExp(/^[a-z][a-z0-9-]+$/),
 }
 
-function regex (value, pattern, pragma) {
+function regex (value, pattern, pragma, errors) {
   let matching = typeof pattern === 'string' ? patterns[pattern] : pattern
-  if (!matching.test(value)) {
-    throw Error(`Invalid ${pragma} value: ${value} must match ${pattern}`)
-  }
+  if (!matching.test(value)) errors.push(`Invalid ${pragma} value: ${value} must match ${pattern}`)
 }
 
-function size (value, num, pragma) {
-  if (typeof value !== 'string') throw Error(`Value must be a string: ${value}`)
-  if (typeof num !== 'number') throw Error(`validate.size requires a number: ${num}`)
-  if (value.length > num) throw Error(`Invalid ${pragma} value: ${value} must less than ${num} characters`)
+function size (value, num, pragma, errors) {
+  if (typeof value !== 'string') errors.push(`Value must be a string: ${value}`)
+  if (typeof num !== 'number') errors.push(`validate.size requires a number: ${num}`)
+  if (value.length > num) errors.push(`Invalid ${pragma} value: ${value} must less than ${num} characters`)
 }
 
 module.exports = {

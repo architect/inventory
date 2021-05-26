@@ -1,6 +1,6 @@
 let lambdaPragmas = require('../../defaults/lambda-pragmas')
 
-module.exports = function collectSourceDirs ({ pragmas }) {
+module.exports = function collectSourceDirs ({ pragmas, errors }) {
   let lambdaSrcDirs = []
   let unsortedBySrcDir = {}
   Object.entries(pragmas).forEach(([ pragma, values ]) => {
@@ -18,7 +18,7 @@ module.exports = function collectSourceDirs ({ pragmas }) {
           }
           else unsortedBySrcDir[item.src] = { ...item, pragma }
         }
-        else throw Error(`Lambda is missing source directory: ${JSON.stringify(item, null, 2)}`)
+        else errors.push(`Lambda is missing source directory: ${JSON.stringify(item, null, 2)}`)
       })
     }
   })

@@ -1,4 +1,4 @@
-module.exports = function configureTables ({ arc }) {
+module.exports = function configureTables ({ arc, errors }) {
   if (!arc.tables || !arc.tables.length) return null
 
   let tables = arc.tables.map(t => {
@@ -35,7 +35,7 @@ module.exports = function configureTables ({ arc }) {
 
       return table
     }
-    throw Error(`Invalid @tables item: ${t}`)
+    errors.push(`Invalid @tables item: ${t}`)
   })
 
   return tables

@@ -49,15 +49,14 @@ timeout ${value}
   else delete process.env.AWS_REGION
 })
 
-test('@aws: invalid settings throw', t => {
+test('@aws: invalid settings errors', t => {
   t.plan(1)
   let arc
-
+  let errors = []
   arc = parse(`
 @aws
 apigateway idk
 `)
-  t.throws(() => {
-    populateAWS({ arc, inventory })
-  }, 'Invalid API Gateway setting threw')
+  populateAWS({ arc, inventory, errors })
+  t.ok(errors.length, 'Invalid API Gateway setting errored')
 })

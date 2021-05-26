@@ -22,11 +22,13 @@ test('No @plugins returns null', t => {
   t.equal(populatePlugins({ arc: {} }), null, 'Returned null')
 })
 
-test('missing @plugin throws', t => {
+test('missing @plugin errors', t => {
   t.plan(1)
   let inv = JSON.parse(JSON.stringify(inventory))
   let arc = parse('@plugins\npoop')
-  t.throws(() => populatePlugins({ arc, inventory: inv }))
+  let errors = []
+  populatePlugins({ arc, inventory: inv, errors })
+  t.ok(errors.length, 'Invalid plugin errored')
 })
 
 test('plugin-registered lambdas should contain all arc-required internal inventory signature properties (legacy pluginFunctions interface method)', t => {

@@ -2,8 +2,11 @@ let { join } = require('path')
 let validate = require('./validate')
 let is = require('../../lib/is')
 
-module.exports = function configureViews ({ arc, pragmas, inventory }) {
-  if (arc.views && !arc.http) throw Error('@views requires @http')
+module.exports = function configureViews ({ arc, pragmas, inventory, errors }) {
+  if (arc.views && !arc.http) {
+    errors.push('@views requires @http')
+    return null
+  }
   if (!arc.http) return null
 
   let cwd = inventory._project.src
@@ -22,7 +25,7 @@ module.exports = function configureViews ({ arc, pragmas, inventory }) {
       if (key === 'src' && is.string(view[1])) {
         views.src = view[1]
         foundSrc = true
-        validate.shared(views.src, cwd)
+        validate.shared(views.src, cwd, errors)
       }
     }
 
@@ -42,7 +45,7 @@ module.exports = function configureViews ({ arc, pragmas, inventory }) {
         let name = `${method} ${path}`
         let route = pragmas.http.find(n => n.name === name)
         if (!route) {
-          throw Error(`@views ${name} not found in @http routes`)
+          return errors.push(`@views ${name} not found in @http routes`)
         }
         // Ignore views into ASAP
         if (!route.arcStaticAssetProxy) route.config.views = true

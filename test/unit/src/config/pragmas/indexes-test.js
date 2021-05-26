@@ -71,24 +71,25 @@ number-keys # Second index on the same table
   t.equal(indexes[2].indexName, 'MyNumberIndex', 'Got correct indexName for third index')
 })
 
-test('@indexes population: invalid indexes throw', t => {
+test('@indexes population: invalid indexes errors', t => {
   t.plan(2)
   let arc
+  let errors
 
   arc = parse(`
 @indexes
 hi there
 `)
-  t.throws(() => {
-    populateIndexes({ arc })
-  }, 'Invalid index threw')
+  errors = []
+  populateIndexes({ arc, errors })
+  t.ok(errors.length, 'Invalid index errored')
 
   arc = parse(`
 @indexes
 an-index
   something invalid
 `)
-  t.throws(() => {
-    populateIndexes({ arc })
-  }, 'Invalid index threw')
+  errors = []
+  populateIndexes({ arc, errors })
+  t.ok(errors.length, 'Invalid index errored')
 })

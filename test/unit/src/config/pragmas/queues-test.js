@@ -125,14 +125,14 @@ ${complexValues.join('\n')}
   })
 })
 
-test('@queues population: invalid queues throw', t => {
+test('@queues population: invalid queues errors', t => {
   t.plan(1)
 
   let arc = parse(`
 @queues
 hi there
 `)
-  t.throws(() => {
-    populateQueues({ arc, inventory })
-  }, 'Invalid queue threw')
+  let errors = []
+  populateQueues({ arc, inventory, errors })
+  t.ok(errors.length, 'Invalid queue errored')
 })

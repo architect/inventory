@@ -1,15 +1,16 @@
-module.exports = function configureProxy ({ arc }) {
-  if (arc.proxy && !arc.http) throw Error('@proxy requires @http')
+module.exports = function configureProxy ({ arc, errors }) {
+  if (arc.proxy && !arc.http) {
+    errors.push('@proxy requires @http')
+    return null
+  }
   if (!arc.proxy || !arc.http) return null
 
   let proxy = {}
   let envs = [ 'testing', 'staging', 'production' ]
   envs.forEach(env => {
-    let setting = arc.proxy.find(s => {
-      return (s[0] && s[0] === env) && s[1]
-    })
-    if (!setting) throw Error(`@proxy ${env} environment not found`)
-    proxy[env] = setting[1]
+    let setting = arc.proxy.find(s => (s[0] && s[0] === env) && s[1])
+    if (!setting) errors.push(`@proxy ${env} environment not found or invalid`)
+    else proxy[env] = setting[1]
   })
   return proxy
 }

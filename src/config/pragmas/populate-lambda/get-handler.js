@@ -1,7 +1,7 @@
-module.exports = function getHandler (config, src) {
+module.exports = function getHandler (config, src, errors) {
   let { handler, runtime } = config
   let parts = handler.split('.')
-  if (parts.length !== 2) throw Error(`Invalid handler: ${handler}. Expected {file}.{function}, example: index.handler`)
+  if (parts.length !== 2) errors.push(`Invalid handler: ${handler}. Expected {file}.{function}, example: index.handler`)
   let ext
   if (runtime.startsWith('nodejs')) ext = 'js'
   if (runtime.startsWith('python')) ext = 'py'

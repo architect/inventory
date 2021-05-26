@@ -42,7 +42,7 @@ test('@cdn population', t => {
 
 test('@cdn errors', t => {
   t.plan(1)
-  t.throws(() => {
-    populateCDN({ arc: { cdn: true } })
-  }, '@cdn without @http throws')
+  let errors = []
+  populateCDN({ arc: { cdn: true }, errors })
+  t.ok(errors.length, '@cdn without @http errored')
 })

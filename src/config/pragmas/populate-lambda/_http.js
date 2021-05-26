@@ -1,7 +1,7 @@
 let { join } = require('path')
 let { getLambdaName } = require('@architect/utils')
 
-module.exports = function populateHTTP ({ item, dir, cwd }) {
+module.exports = function populateHTTP ({ item, dir, cwd, errors }) {
   let methods = [ 'get', 'post', 'put', 'patch', 'delete', 'options', 'head', 'any' ]
   let validMethod = str => methods.some(m => m === str.toLowerCase())
   let validPath = str => str.match(/^\/[a-zA-Z0-9/\-:._\*]*$/) // TODO add more validation
@@ -31,5 +31,5 @@ module.exports = function populateHTTP ({ item, dir, cwd }) {
       return route
     }
   }
-  throw Error(`Invalid @http item: ${item}`)
+  errors.push(`Invalid @http item: ${item}`)
 }

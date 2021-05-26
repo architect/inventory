@@ -1,10 +1,10 @@
-module.exports = function configureIndexes ({ arc }) {
+module.exports = function configureIndexes ({ arc, errors }) {
   if (!arc.indexes || !arc.indexes.length) return null
 
   let isPrimaryKey = val => val.startsWith('*String') || val.startsWith('*Number')
   let isSortKey = val => val.startsWith('**String') || val.startsWith('**Number')
   let isCustomName = key => key.toLowerCase() === 'name'
-  function error (item) { throw Error(`Invalid @indexes item: ${item}`) }
+  function error (item) { errors.push(`Invalid @indexes item: ${item}`) }
 
   let indexes = arc.indexes.map(index => {
     if (typeof index === 'object' && !Array.isArray(index)) {

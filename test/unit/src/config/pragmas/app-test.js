@@ -24,44 +24,45 @@ ${name}
 test('@app validation', t => {
   t.plan(5)
   let arc
+  let errors = []
 
   arc = parse(`
 @app
 hi there
 `)
-  t.throws(() => {
-    populateApp({ arc })
-  }, 'Invalid app name threw: >1 word')
+  errors = []
+  populateApp({ arc, errors })
+  t.ok(errors.length, 'Invalid app name errored: >1 word')
 
   arc = parse(`
-@app
-true
-`)
-  t.throws(() => {
-    populateApp({ arc })
-  }, 'Invalid app name threw: bool')
+  @app
+  true
+  `)
+  errors = []
+  populateApp({ arc, errors })
+  t.ok(errors.length, 'Invalid app name errored: bool')
 
   arc = parse(`
-@app
-0cool
-`)
-  t.throws(() => {
-    populateApp({ arc })
-  }, 'Invalid app name threw: non-lowercase alpha first char')
+  @app
+  0cool
+  `)
+  errors = []
+  populateApp({ arc, errors })
+  t.ok(errors.length, 'Invalid app name errored: non-lowercase alpha first char')
 
   arc = parse(`
 @app
 hello!
 `)
-  t.throws(() => {
-    populateApp({ arc })
-  }, 'Invalid app name threw: invalid char')
+  errors = []
+  populateApp({ arc, errors })
+  t.ok(errors.length, 'Invalid app name errored: invalid char')
 
   arc = parse(`
 @app
 abcdefghi-abcdefghi-abcdefghi-abcdefghi-abcdefghi-abcdefghi-abcdefghi-abcdefghi-abcdefghi-abcdefghi-a
 `)
-  t.throws(() => {
-    populateApp({ arc })
-  }, 'Invalid app name threw: too long')
+  errors = []
+  populateApp({ arc, errors })
+  t.ok(errors.length, 'Invalid app name errored: too long')
 })
