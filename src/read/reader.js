@@ -10,7 +10,7 @@ let read = p => readFileSync(p).toString()
  * @param {string} cwd - absolute path to current working directory
  * @returns {object} { arc, raw, filepath }
  */
-module.exports = function reader (reads, cwd) {
+module.exports = function reader (reads, cwd, errors) {
   let filepath = false
   let raw = null
   let arc = null
@@ -33,7 +33,7 @@ module.exports = function reader (reads, cwd) {
           if (type !== 'manifest') {
             filepath = file
             raw = read(file)
-            if (raw.trim() === '') throw Error('empty file')
+            if (raw.trim() === '') return errors.push(`Empty file: ${f}`)
             arc = type === 'arc'
               ? parse(raw)
               : parse[type](raw) // Parser has convenient json, yaml, toml methods!
@@ -49,7 +49,7 @@ module.exports = function reader (reads, cwd) {
           }
         }
         catch (err) {
-          throw Error(`Problem reading ${f}: ${err.message}`)
+          errors.push(`Problem reading ${f}: ${err.message}`)
         }
       })
     }
