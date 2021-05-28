@@ -265,50 +265,97 @@ ${complexValues.join('\n')}
   })
 })
 
-test('@http population: invalid paths errors', t => {
-  t.plan(5)
-  let arc
-  let errors
+test('@http population: validation errors', t => {
+  t.plan(23)
+  // Test assumes complex format is outputting the same data as simple, so we're only testing erros in the simple format
+  let errors = []
+  function run (str) {
+    let arc = parse(`@http\n${str}`)
+    populateHTTP({ arc, inventory, errors })
+  }
+  let check = str => {
+    t.equal(errors.length, 1, str)
+    console.log(errors[0])
+    // Run a bunch of control tests at the top by resetting errors after asserting
+    errors = []
+  }
 
-  arc = parse(`
-@http
-hi /there
-`)
-  errors = []
-  populateHTTP({ arc, inventory, errors })
-  t.ok(errors.length, 'Invalid simple route errored')
+  // Controls
+  run(`get /hi`)
+  run(`get /hi-there`)
+  run(`get /hi.there`)
+  run(`get /hi_there`)
+  run(`get /hi/:there`)
+  run(`get /hi/:there/*`)
+  run(`get /hi/:there/foo.Bar.baz_f1z-buz/*`)
+  t.equal(errors.length, 0, `Valid routes did not error`)
 
-  arc = parse(`
-@http
-get /hi-there!
-`)
-  errors = []
-  populateHTTP({ arc, inventory, errors })
-  t.ok(errors.length, 'Invalid simple route errored')
+  // Errors
+  run(`get /there\nget /there\nget /there`)
+  check(`Duplicate routes errored`)
 
-  arc = parse(`
-@http
+  run(`get /there
 /there
-  method hi
-`)
-  errors = []
-  populateHTTP({ arc, inventory, errors })
-  t.ok(errors.length, 'Invalid complex route errored')
+  method get`)
+  check(`Duplicate routes errored (simple + complex)`)
 
-  arc = parse(`
-@http
-/hi-there!
-  method get
-`)
-  errors = []
-  populateHTTP({ arc, inventory, errors })
-  t.ok(errors.length, 'Invalid complex route errored')
+  run(`hi /there`)
+  check(`Invalid method errored`)
 
-  arc = parse(`
-@http
-get /hi there
-`)
-  errors = []
-  populateHTTP({ arc, inventory, errors })
-  t.ok(errors.length, 'Invalid weird array route errored')
+  run(`get /hi-there!`)
+  check(`Invalid path errored`)
+
+  run(`get /hi^there!`)
+  check(`Invalid path errored`)
+
+  run(`get /hi there`)
+  check(`Invalid weird array route errored`)
+
+  run(`get hi-there`)
+  check(`Invalid path errored`)
+
+  run(`get /hi/there/`)
+  check(`Invalid path errored`)
+
+  run(`get //hi`)
+  check(`Invalid path errored`)
+
+  run(`get /hi//there`)
+  check(`Invalid path errored`)
+
+  run(`get /hi-/there`)
+  check(`Invalid path errored`)
+
+  run(`get /hi/there-`)
+  check(`Invalid path errored`)
+
+  run(`get /hi./there`)
+  check(`Invalid path errored`)
+
+  run(`get /hi/there.`)
+  check(`Invalid path errored`)
+
+  run(`get /hi_/there`)
+  check(`Invalid path errored`)
+
+  run(`get /hi/there_`)
+  check(`Invalid path errored`)
+
+  run(`get /hi/:/there`)
+  check(`Invalid param errored`)
+
+  run(`get /hi/:param_things/there`)
+  check(`Invalid param errored`)
+
+  run(`get /hi/param_things:/there`)
+  check(`Invalid param errored`)
+
+  run(`get /hi/param:things/there`)
+  check(`Invalid param errored`)
+
+  run(`get /hi/th*re`)
+  check(`Invalid catchall errored`)
+
+  run(`get /hi/there*`)
+  check(`Invalid catchall errored`)
 })
