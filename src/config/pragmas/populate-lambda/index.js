@@ -25,9 +25,9 @@ function populateLambda (type, pragma, inventory, errors) {
   for (let item of pragma) {
     // Get name, source dir, and any pragma-specific properties
     let results = getLambda({ type, item, cwd, inventory, errors })
-    // some lambda populators (e.g. plugins) may return empty results
+    // Some lambda populators (e.g. plugins) may return empty results
     if (!results) continue
-    // some lambda populators (e.g. plugins) may return multiple results
+    // Some lambda populators (e.g. plugins) may return multiple results
     if (!(Array.isArray(results))) results = [ results ]
 
     results.forEach(result => {
@@ -43,12 +43,8 @@ function populateLambda (type, pragma, inventory, errors) {
         if (name.startsWith('get ') || name.startsWith('any ')) config.views = true
       }
 
-      // Populate the handler before deferring to function config
-      if (item[name] && item[name].handler) config.handler = item[name].handler
-
       // Now let's check in on the function config
-      let { arc: arcConfig, filepath, errors } = read({ type: 'functionConfig', cwd: src })
-      if (errors) throw Error(errors)
+      let { arc: arcConfig, filepath } = read({ type: 'functionConfig', cwd: src, errors })
 
       // Set function config file path (if one is present)
       let configFile = filepath ? filepath : null
@@ -97,6 +93,7 @@ function getLambda (params) {
   if (type === 'scheduled') return getScheduled(params)
   if (type === 'streams')   return getStreams(params)
   if (type === 'tables')    return getStreams(params) // Shortcut for creating streams
+  /* istanbul ignore else */ /* Clearer to be explicit here */
   if (type === 'ws')        return getWS(params)
 }
 

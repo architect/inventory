@@ -27,7 +27,7 @@ let preferences = {
 let reads = { projectManifest, functionConfig, preferences }
 
 // Heads up: always put _default last!
-module.exports = function read ({ type, cwd }) {
-  if (reads[type]) return reader(reads[type], cwd)
+module.exports = function read ({ type, cwd, errors }) {
+  if (reads[type]) return reader(reads[type], cwd, errors)
   else throw Error('Unknown format read')
 }

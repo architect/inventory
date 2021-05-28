@@ -17,10 +17,10 @@ function check (params, file) {
   let { t, text, obj, type, subset } = params
   mockFs({ [file]: text })
   let { arc, raw, filepath } = read({ type, cwd })
-  t.deepEqual(arc, obj, 'Returned Arc object:')
+  t.deepEqual(arc, obj, 'Returned Arc object')
   // Subset used for extracting Arc from an existing manifest (like package.json)
-  t.equal(raw, subset ? subset : text, 'Returned raw text:')
-  t.equal(filepath, join(cwd, file), `Returned filepath:`)
+  t.equal(raw, subset ? subset : text, 'Returned raw text')
+  t.equal(filepath, join(cwd, file), `Returned filepath`)
   mockFs.restore()
 }
 
@@ -133,64 +133,94 @@ test('Read Architect TOML manifests', t => {
 
 test('Read Architect embedded in existing manifests', t => {
   let arcs = [ 'package.json' ]
-  t.plan(arcs.length * 3)
+  t.plan(arcs.length * 7)
   let text
   let type
   let subset
 
   let arc = { app: 'appname' }
-  text = JSON.stringify({
+  let proj = {
     name: 'some-project',
     version: '1.0.0',
     description: 'You know, just some project',
-    arc
-  })
-  subset = JSON.stringify(arc, null, 2)
+  }
   type = 'projectManifest'
+  subset = JSON.stringify(arc, null, 2)
 
+  text = JSON.stringify({ ...proj, arc })
   arcs.forEach(check.bind({}, { t, text, obj: basicArcObj, type, subset }))
+
+  text = JSON.stringify({ ...proj, architect: arc })
+  arcs.forEach(check.bind({}, { t, text, obj: basicArcObj, type, subset }))
+
+  text = JSON.stringify(proj)
+  mockFs({ [arcs[0]]: text })
+  let result = read({ type, cwd })
+  t.notEqual(result.arc.app, arc.app, 'Did not return arc')
+  mockFs.restore()
 })
 
 
-test('Graceful reader failures', t => {
-  t.plan(10)
+test('Reader errors', t => {
+  t.plan(11)
 
-  function thrower () {
-    try {
-      read({ type: 'projectManifest', cwd })
-      t.fail('Expected an error')
-    }
-    catch (err) {
-      t.pass(err, 'Threw error on invalid Architect manifest')
-    }
-    finally {
-      mockFs.restore()
-    }
+  let file
+  let type
+  function go () {
+    let errors = []
+    read({ type: 'projectManifest', cwd, errors })
+    t.equal(errors.length, 1, `Got reader error: ${type} ${file}`)
+    mockFs.restore()
   }
 
+  // Invalid reader type
+  t.throws(() => {
+    read({ type: 'idk', cwd, errors: [] })
+  }, 'Invalid reader type throws')
+
   // Invalid files
-  mockFs({ 'app.arc': 'lol' })
-  thrower()
-  mockFs({ 'arc.json': 'lol' })
-  thrower()
-  mockFs({ 'arc.yaml': `'lol` })
-  thrower()
-  mockFs({ 'arc.toml': 'lol' })
-  thrower()
-  mockFs({ 'package.json': 'lol' })
-  thrower()
+  type = 'invalid'
+  file = 'app.arc'
+  mockFs({ [file]: 'lol' })
+  go()
+
+  file = 'arc.json'
+  mockFs({ [file]: 'lol' })
+  go()
+
+  file = 'arc.yaml'
+  mockFs({ [file]: `'lol` })
+  go()
+
+  file = 'arc.toml'
+  mockFs({ [file]: 'lol' })
+  go()
+
+  file = 'package.json'
+  mockFs({ [file]: 'lol' })
+  go()
 
   // Empty files
+  type = 'empty'
+  file = 'app.arc'
   let empty = '\n \n'
-  mockFs({ 'app.arc': empty })
-  mockFs({ 'app.arc': empty })
-  thrower()
-  mockFs({ 'arc.json': empty })
-  thrower()
-  mockFs({ 'arc.yaml': empty })
-  thrower()
-  mockFs({ 'arc.toml': empty })
-  thrower()
-  mockFs({ 'package.json': empty })
-  thrower()
+  mockFs({ [file]: empty })
+  go()
+
+  file = 'arc.json'
+  mockFs({ [file]: empty })
+  go()
+
+  file = 'arc.yaml'
+  mockFs({ [file]: empty })
+  go()
+
+  file = 'arc.toml'
+  mockFs({ [file]: empty })
+  go()
+
+  file = 'package.json'
+  mockFs({ [file]: empty })
+  go()
+
 })
