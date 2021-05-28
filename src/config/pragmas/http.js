@@ -1,6 +1,7 @@
 let { join } = require('path')
 let populate = require('./populate-lambda')
 let asapSrc = require('../../lib/asap-src')
+let validate = require('./validate')
 
 module.exports = function configureHTTP ({ arc, inventory, errors }) {
   if (!arc.http) return null
@@ -43,6 +44,8 @@ module.exports = function configureHTTP ({ arc, inventory, errors }) {
 
   // Impure but it's way less complicated to just do this
   inventory._project.rootHandler = rootHandler
+
+  validate.http(http, errors)
 
   return http
 }

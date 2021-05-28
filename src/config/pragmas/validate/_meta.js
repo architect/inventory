@@ -14,8 +14,18 @@ function size (value, num, pragma, errors) {
   if (value.length > num) errors.push(`Invalid ${pragma} value: ${value} must less than ${num} characters`)
 }
 
+function unique (lambdas, pragma, errors) {
+  let names = []
+  if (lambdas.length) lambdas.forEach(({ name }) => {
+    let err = `Duplicate ${pragma}: ${name}`
+    if (names.includes(name) && !errors.includes(err)) errors.push(err)
+    names.push(name)
+  })
+}
+
 module.exports = {
   patterns,
   regex,
   size,
+  unique,
 }
