@@ -1,4 +1,3 @@
-
 /**
  * Read env vars out of SSM
  */
@@ -21,6 +20,7 @@ module.exports = function env (params, inventory, callback) {
       }
 
       // Check if we're paginating
+      /* istanbul ignore if */
       if (NextToken) query.NextToken = NextToken
 
       // Perform the query
@@ -38,6 +38,7 @@ module.exports = function env (params, inventory, callback) {
             }
           }))
           // Check for more data and, if so, recurse
+          /* istanbul ignore if */ // Sadly no way to easily mock this for testing
           if (data.NextToken) {
             getSomeEnvVars(name, data.NextToken, callback)
           }
