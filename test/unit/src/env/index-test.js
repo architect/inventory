@@ -11,18 +11,17 @@ let inventory = {
   aws: { region: 'us-west-1' },
 }
 let response = { Parameters: [] }
-let params = {}
 let reset = () => {
   response.Parameters = []
   inventory._project.env = null
-  params = {}
 }
 
 test('Set up env', t => {
   t.plan(1)
+  process.env.AWS_ACCESS_KEY_ID = 'blah'
+  process.env.AWS_SECRET_ACCESS_KEY = 'blah'
   t.ok(getEnv, 'Env var getter is present')
   awsMock.mock('SSM', 'getParametersByPath', function (p, callback) {
-    params[Date.now()] = p
     if (response instanceof Error) callback(response)
     else callback(null, response)
   })
@@ -103,5 +102,7 @@ test('Error handling', t => {
 test('Teardown', t => {
   t.plan(1)
   awsMock.restore()
+  delete process.env.AWS_ACCESS_KEY_ID
+  delete process.env.AWS_SECRET_ACCESS_KEY
   t.pass('All done')
 })
