@@ -59,7 +59,7 @@ module.exports = function upsertProps (config, newConfig) {
       if (Array.isArray(value)) policies = policies.concat(value)
       else policies.push(value)
     }
-    else if (typeof value !== 'undefined') {
+    else {
       props[name] = value
     }
   }

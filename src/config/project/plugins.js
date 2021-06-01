@@ -1,8 +1,8 @@
-const { join } = require('path')
-const { existsSync } = require('fs')
+let { join } = require('path')
+let { existsSync } = require('fs')
 
 module.exports = function getPluginModules (project) {
-  const arc = project.arc
+  let arc = project.arc
   if (!arc.plugins || !arc.plugins.length) return null
   let plugins = {}
   let cwd = project.src

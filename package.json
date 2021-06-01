@@ -21,8 +21,8 @@
   "license": "Apache-2.0",
   "dependencies": {
     "@architect/asap": "~3.13.8",
-    "@architect/parser": "~3.0.0",
-    "@architect/utils": "2.0.5",
+    "@architect/parser": "~3.0.1",
+    "@architect/utils": "2.1.0",
     "run-series": "~1.1.9"
   },
   "peerDependencies": {
@@ -31,14 +31,14 @@
   "devDependencies": {
     "@architect/eslint-config": "1.0.0",
     "aws-sdk": "2.712.0",
-    "codecov": "~3.8.1",
-    "cross-env": "~7.0.2",
-    "eslint": "~7.13.0",
+    "codecov": "~3.8.2",
+    "cross-env": "~7.0.3",
+    "eslint": "~7.27.0",
     "mock-fs": "~4.14.0",
     "mock-require": "~3.0.3",
     "nyc": "~15.1.0",
     "tap-spec": "^5.0.0",
-    "tape": "^5.0.1"
+    "tape": "^5.2.2"
   },
   "eslintConfig": {
     "extends": "@architect/eslint-config"
