@@ -36,15 +36,26 @@ module.exports = function architectInventory (params = {}, callback) {
 
   // Stateless inventory run
   if (rawArc) {
-    var arc = parser(rawArc)
-    var raw = rawArc
-    var filepath = false
+    try {
+      var arc = parser(rawArc)
+      var raw = rawArc
+      var filepath = false
+    }
+    catch (err) {
+      errors.push(`Problem reading rawArc: ${err.message}`)
+    }
   }
   // Get the Architect project manifest from the filesystem
   else {
-    var { arc, raw, filepath } = read({ type: 'projectManifest', cwd })
+    var { arc, raw, filepath } = read({ type: 'projectManifest', cwd, errors })
   }
 
+  // Exit early if supplied Arc is fundamentally broken
+  if (errors.length) {
+    let err = Error(`Project manifest error: ${errors[0]}`)
+    callback(err)
+    return promise
+  }
   // Start building out the inventory
   let inventory = inventoryDefaults(params)
 

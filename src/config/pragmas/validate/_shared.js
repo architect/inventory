@@ -5,8 +5,7 @@ module.exports = function validateShared (src, cwd, errors) {
   let path = src && resolve(join(cwd, src))
 
   if (!is.exists(path)) errors.push(`Directory not found: ${src}`)
-
-  if (!is.folder(path)) errors.push(`Must be a directory: ${src}`)
+  else if (!is.folder(path)) errors.push(`Must be a directory: ${src}`)
 
   let valid = path && path.startsWith(cwd) &&
               (cwd.split(sep) < path.split(sep))

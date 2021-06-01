@@ -6,7 +6,7 @@ let plugins = require('./plugins')
 /**
  * Get the project-level configuration, overlaying arc.aws settings (if present)
  */
-module.exports = function getProjectConfig (params) {
+module.exports = function getProjectConfig (params, errors) {
   let { arc, raw, filepath, inventory } = params
   let project = {
     ...inventory._project,
@@ -24,18 +24,19 @@ module.exports = function getProjectConfig (params) {
   }
 
   // require project plugin modules
-  project.plugins = plugins(project)
+  project.plugins = plugins(project, errors)
 
   // parse local and global arc preferences
   let scopes = [ 'global', 'local' ]
   for (let scope of scopes) {
-    let p = prefs({ scope, inventory })
+    let p = prefs({ scope, inventory, errors })
     if (p) {
       // Set up the scoped metadata
       project[`${scope}Preferences`] = p.preferences
       project[`${scope}PreferencesFile`] = p.preferencesFile
 
       // Build out the final preferences
+      /* istanbul ignore else */ // jic
       if (!project.preferences) project.preferences = {}
       Object.keys(p.preferences).forEach(pragma => {
         // Ignore the raw data
@@ -46,6 +47,7 @@ module.exports = function getProjectConfig (params) {
           return
         }
         // Traverse and merge individual settings
+        /* istanbul ignore else */ // jic
         if (!project.preferences[pragma]) project.preferences[pragma] = {}
         Object.entries(p.preferences[pragma]).forEach(([ setting, value ]) => {
           project.preferences[pragma][setting] = value

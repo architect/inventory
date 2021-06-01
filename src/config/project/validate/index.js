@@ -1,16 +1,13 @@
-module.exports = function validatePreferences (preferences) {
+let is = require('./../../../lib/is')
+
+module.exports = function validatePreferences (preferences, errors) {
   // Env checks
   let { env } = preferences
   if (!env) return
-  if (env && typeof env !== 'object') envErr(env)
+  if (env && !is.object(env)) errors.push(`Invalid preferences setting: @env ${env}`)
 
   let envs = [ 'testing', 'staging', 'production' ]
   envs.forEach(e => {
-    if (env[e] && typeof env[e] !== 'object') envErr(e)
-    if (env[e] && Array.isArray(env[e])) envErr(e)
+    if (env[e] && !is.object(env[e])) errors.push(`Invalid preferences setting: @env ${e}`)
   })
-}
-
-function envErr (e) {
-  throw ReferenceError(`Invalid preferences setting: @env ${e}`)
 }
