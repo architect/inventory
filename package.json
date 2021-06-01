@@ -23,6 +23,7 @@
     "@architect/asap": "~3.13.8",
     "@architect/parser": "~3.0.1",
     "@architect/utils": "2.1.0",
+    "aws-sdk-mock": "~5.1.0",
     "run-series": "~1.1.9"
   },
   "peerDependencies": {
