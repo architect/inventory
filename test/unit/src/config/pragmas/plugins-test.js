@@ -22,7 +22,7 @@ test('No @plugins returns null', t => {
   t.equal(populatePlugins({ arc: {} }), null, 'Returned null')
 })
 
-test('missing @plugin errors', t => {
+test('Missing @plugin errors', t => {
   t.plan(1)
   let inv = JSON.parse(JSON.stringify(inventory))
   let arc = parse('@plugins\npoop')
@@ -31,7 +31,7 @@ test('missing @plugin errors', t => {
   t.ok(errors.length, 'Invalid plugin errored')
 })
 
-test('plugin-registered lambdas should contain all arc-required internal inventory signature properties (legacy pluginFunctions interface method)', t => {
+test('Plugin-registered Lambdas should contain all arc-required internal inventory signature properties (legacy pluginFunctions interface method)', t => {
   t.plan(3)
   let arc = parse('@plugins\nplugin')
   let inv = JSON.parse(JSON.stringify(inventory))
@@ -42,12 +42,12 @@ test('plugin-registered lambdas should contain all arc-required internal invento
     ]
   } }
   let plugins = populatePlugins({ arc, inventory: inv })
-  t.equal(plugins.length, 2, 'Returned 1 object for each registered lambda')
-  t.equal(plugins[0].name, 'mahplugin-lambda1', 'First lambda should have am AWS-compatible name')
+  t.equal(plugins.length, 2, 'Returned 1 object for each registered Lambda')
+  t.equal(plugins[0].name, 'mahplugin-lambda1', 'First Lambda should have am AWS-compatible name')
   t.ok(plugins[1].config, 'should have a config property')
 })
 
-test('plugin-registered lambdas should contain all arc-required internal inventory signature properties', t => {
+test('Plugin-registered Lambdas should contain all arc-required internal inventory signature properties', t => {
   t.plan(3)
   let arc = parse('@plugins\nplugin')
   let inv = JSON.parse(JSON.stringify(inventory))
@@ -58,7 +58,18 @@ test('plugin-registered lambdas should contain all arc-required internal invento
     ]
   } }
   let plugins = populatePlugins({ arc, inventory: inv })
-  t.equal(plugins.length, 2, 'Returned 1 object for each registered lambda')
-  t.equal(plugins[0].name, 'mahplugin-lambda1', 'First lambda should have am AWS-compatible name')
+  t.equal(plugins.length, 2, 'Returned 1 object for each registered Lambda')
+  t.equal(plugins[0].name, 'mahplugin-lambda1', 'First Lambda should have am AWS-compatible name')
   t.ok(plugins[1].config, 'should have a config property')
+})
+
+test('No registered plugin Lambdas returns empty array', t => {
+  t.plan(1)
+  let arc = parse('@plugins\nplugin')
+  let inv = JSON.parse(JSON.stringify(inventory))
+  inv._project.plugins = { plugin: {
+    functions: () => []
+  } }
+  let plugins = populatePlugins({ arc, inventory: inv })
+  t.notOk(plugins.length, 'Returned no registered Lambdas')
 })

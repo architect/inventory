@@ -23,6 +23,10 @@ module.exports = function configureShared ({ arc, pragmas, inventory, errors }) 
           shared.src = share[1]
           foundSrc = true
           validate.shared(shared.src, cwd, errors)
+          continue
+        }
+        if (key === 'src' && !is.string(share[1])) {
+          errors.push(`@shared invalid setting: ${key}`)
         }
       }
     }

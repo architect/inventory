@@ -1,6 +1,7 @@
-let read = require('./read')
-let series = require('run-series')
+let { basename } = require('path')
 let parser = require('@architect/parser')
+let series = require('run-series')
+let read = require('./read')
 let inventoryDefaults = require('./defaults')
 let config = require('./config')
 let getEnv = require('./env')
@@ -27,62 +28,57 @@ module.exports = function architectInventory (params = {}, callback) {
     })
   }
 
-  let errors
-  let inventory
-  try {
-    // Always ensure we have a working dir
-    params.cwd = params.cwd || process.cwd()
-    let { cwd, rawArc } = params
+  let errors = []
 
-    // Stateless inventory run
-    if (rawArc) {
-      var arc = parser(rawArc)
-      var raw = rawArc
-      var filepath = false
-    }
-    // Get the Architect project manifest from the filesystem
-    else {
-      var { arc, raw, filepath } = read({ type: 'projectManifest', cwd })
-    }
+  // Always ensure we have a working dir
+  params.cwd = params.cwd || process.cwd()
+  let { cwd, rawArc } = params
 
-    // Start building out the inventory
-    inventory = inventoryDefaults(params)
-
-    // Set up project params for config
-    let project = { cwd, arc, raw, filepath, inventory }
-
-    // Populate inventory.arc
-    inventory._arc = config._arc(project)
-
-    // Establish default function config from project + Arc defaults
-    inventory._project = config._project(project)
-
-    // Userland: fill out the pragmas
-    inventory = {
-      ...inventory,
-      ...config.pragmas(project)
-    }
+  // Stateless inventory run
+  if (rawArc) {
+    var arc = parser(rawArc)
+    var raw = rawArc
+    var filepath = false
   }
-  catch (err) {
-    errors = err
+  // Get the Architect project manifest from the filesystem
+  else {
+    var { arc, raw, filepath } = read({ type: 'projectManifest', cwd })
   }
 
+  // Start building out the inventory
+  let inventory = inventoryDefaults(params)
+
+  // Set up project params for config
+  let project = { cwd, arc, raw, filepath, inventory }
+
+  // Populate inventory.arc
+  inventory._arc = config._arc(project)
+
+  // Establish default function config from project + Arc defaults
+  inventory._project = config._project(project, errors)
+
+  // Userland: fill out the pragmas
+  inventory = {
+    ...inventory,
+    ...config.pragmas(project, errors)
+  }
   series([
     // End here if first-pass pragma validation failed
     function _pragmaValidationFailed (callback) {
-      if (errors) callback(errors)
+      if (errors.length) {
+        let arcFile = inventory._project.manifest
+          ? ` in ${basename(inventory._project.manifest)}`
+          : ''
+        let output = errors.map(err => `- ${err}`).join('\n')
+        let err = Error(`Validation error${errors.length > 1 ? 's' : ''}${arcFile}\n${output}`)
+        callback(err)
+      }
       else callback()
     },
 
     // Populate environment variables
     function _getEnv (callback) {
-      getEnv(params, inventory, function done (err, env) {
-        if (err) callback(err)
-        else {
-          inventory._project.env = env
-          callback()
-        }
-      })
+      getEnv(params, inventory, callback)
     },
 
     // Final validation pass

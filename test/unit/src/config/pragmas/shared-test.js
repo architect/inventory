@@ -188,7 +188,7 @@ src foo/bar`)
 })
 
 test('@shared errors', t => {
-  t.plan(8)
+  t.plan(9)
   let arc
   let pragmas
   let errors
@@ -250,7 +250,7 @@ src .`)
   }
   errors = []
   populateShared({ arc, pragmas, inventory, errors })
-  t.ok(errors.length, '@shared cannot be .')
+  t.ok(errors.length, '@shared src cannot be .')
 
   arc = parse(`@http
 get /foo
@@ -262,7 +262,7 @@ src ./`)
   }
   errors = []
   populateShared({ arc, pragmas, inventory, errors })
-  t.ok(errors.length, '@shared cannot be ./')
+  t.ok(errors.length, '@shared src cannot be ./')
 
   arc = parse(`@http
 get /foo
@@ -274,7 +274,7 @@ src ..`)
   }
   errors = []
   populateShared({ arc, pragmas, inventory, errors })
-  t.ok(errors.length, '@shared cannot be ..')
+  t.ok(errors.length, '@shared src cannot be ..')
 
   arc = parse(`@http
 get /foo
@@ -286,5 +286,36 @@ src ../`)
   }
   errors = []
   populateShared({ arc, pragmas, inventory, errors })
-  t.ok(errors.length, '@shared cannot be ../')
+  t.ok(errors.length, '@shared src cannot be ../')
+
+  arc = parse(`@http
+get /foo
+@shared
+src true`)
+  pragmas = {
+    http: populateHTTP({ arc, inventory }),
+    lambdaSrcDirs
+  }
+  errors = []
+  populateShared({ arc, pragmas, inventory, errors })
+  t.ok(errors.length, '@shared src must be a string')
+})
+
+
+test('@shared other settings ignored', t => {
+  t.plan(1)
+  let arc
+  let pragmas
+  let errors
+
+  arc = parse(`@http
+get /foo
+@shared
+idk whatev`)
+  pragmas = {
+    http: populateHTTP({ arc, inventory }), lambdaSrcDirs
+  }
+  errors = []
+  populateShared({ arc, pragmas, inventory, errors })
+  t.notOk(errors.length, '@shared ignores unknown settings')
 })

@@ -49,7 +49,6 @@ module.exports = function env (params, inventory, callback) {
     getSomeEnvVars(name, false, function done (err, result) {
       if (err) callback(err)
       else {
-        let env = null
         if (result.length) {
           let testing = null
           let staging = null
@@ -59,9 +58,9 @@ module.exports = function env (params, inventory, callback) {
             if (r.env === 'staging') staging = Object.assign({}, staging, { [r.name]: r.value })
             if (r.env === 'production') production = Object.assign({}, production, { [r.name]: r.value })
           })
-          env = { testing, staging, production }
+          inventory._project.env = { testing, staging, production }
         }
-        callback(null, env)
+        callback()
       }
     })
   }

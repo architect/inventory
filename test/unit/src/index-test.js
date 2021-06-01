@@ -35,11 +35,22 @@ test('Inventory calls callback (manifest in params)', t => {
   })
 })
 
-test('Inventory returns errors', t => {
+test('Inventory returns single validation error', t => {
   t.plan(1)
   inv({ cwd: join(mock, 'fail') }, (err) => {
-    if (err) t.pass('Invalid Architect project manifest returned an inventory error')
-    else t.fail('Should have returned an error')
+    if (!err) t.fail('Should have returned an error')
+    let msg = err.message
+    t.ok(msg.includes('app.arc') && !msg.includes('errors'), 'Returned single validation error')
+  })
+})
+
+test('Inventory returns multiple validation errors', t => {
+  t.plan(1)
+  let rawArc = `@http\nwell hello there`
+  inv({ rawArc }, (err) => {
+    if (!err) t.fail('Should have returned an error')
+    let msg = err.message
+    t.ok(!msg.includes('app.arc') && msg.includes('errors'), 'Returned multiple validation errors')
   })
 })
 
@@ -77,5 +88,16 @@ test('Inventory throws async', async t => {
   }
   catch (err) {
     t.pass('Invalid Architect project manifest returned an inventory error')
+  }
+})
+
+test(`Inventory doesn't blow up without params`, async t => {
+  t.plan(1)
+  try {
+    await inv()
+    t.pass(`Shouldn't have returned an error`)
+  }
+  catch (err) {
+    t.fail(err)
   }
 })

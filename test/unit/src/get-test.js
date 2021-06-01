@@ -266,3 +266,10 @@ test('Get @ws', t => {
   t.ok(get.ws, 'Got @ws getter')
   t.notOk(get.ws('idk'), 'Did not get back nonexistent WebSocket route')
 })
+
+test('Return undefined', t => {
+  t.plan(1)
+  // FYI: this is kind of only for custom pragmas, which aren't implemented in inv
+  let get = getter({ foo: 12345 })
+  t.equal(get.foo(), undefined, 'Undefined pragma returns undefined')
+})
