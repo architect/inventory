@@ -1,4 +1,4 @@
-let { unique } = require('./_meta')
+let { unique } = require('./_lib')
 
 module.exports = function validateHTTP (http, errors) {
   if (http.length) {

@@ -1,14 +1,16 @@
+let errorFmt = require('../lib/error-fmt')
+
 /**
  * Ensure @tables children (@streams, @indexes) have parent tables present
  * - If not, configuration is invalid
  */
 module.exports = function validateTablesChildren (inventory, callback) {
   let { indexes, streams, tables } = inventory
-  let err = []
+  let errors = []
 
   function check (table, type) {
     if (!tables.some(t => t.name === table)) {
-      err.push(`@${type} item missing corresponding table: ${table}`)
+      errors.push(`@${type} ${table} missing corresponding table`)
     }
   }
   if (streams) {
@@ -18,6 +20,9 @@ module.exports = function validateTablesChildren (inventory, callback) {
     indexes.forEach(index => check(index.name, 'indexes'))
   }
 
-  if (err.length) callback(Error(err.join('\n')))
+  if (errors.length) {
+    let msg = errorFmt('Table configuration', errors)
+    callback(Error(msg))
+  }
   else callback()
 }
