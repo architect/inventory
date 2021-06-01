@@ -38,7 +38,7 @@ module.exports = function reader (reads, cwd, errors) {
               ? parse(raw)
               : parse[type](raw) // Parser has convenient json, yaml, toml methods!
           }
-          else if (f === 'package.json') {
+          else {
             let pkg = JSON.parse(read(file))
             let foundArc = pkg.arc || pkg.architect
             if (foundArc) {

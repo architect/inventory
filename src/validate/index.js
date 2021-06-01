@@ -8,7 +8,7 @@ let lambdaPragmas = require('../defaults/lambda-pragmas')
  */
 module.exports = function validate (params, inventory, callback) {
   let { region } = inventory.aws
-  let { cwd, validateLayers = true } = params
+  let { cwd } = params
 
   // Walk the tree of layer configs, starting with @aws
   let layerValidations = []
@@ -32,8 +32,7 @@ module.exports = function validate (params, inventory, callback) {
 
   let validations = layerValidations.map(params => {
     return function (callback) {
-      if (validateLayers) layers(params, callback)
-      else callback()
+      layers(params, callback)
     }
   })
 

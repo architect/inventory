@@ -1,19 +1,11 @@
-let aws = require('./_aws')
-let http = require('./_http')
-let shared = require('./_shared')
-let { patterns, regex, size } = require('./_meta')
+/* eslint-disable global-require */
 
 module.exports = {
   // Pragmas and project validation
-  aws,
-  http,
-  shared, // Also includes views
+  aws:      require('./_aws'),
+  http:     require('./_http'),
+  shared:   require('./_shared'), // Also includes @views
 
-  // TODO prime refactor candidate as we get deeper into validation:
-  // Meta
-  patterns,
-  validate: {
-    regex,
-    size
-  },
+  // Misc
+  validate: require('./_lib')
 }

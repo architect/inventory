@@ -7,6 +7,7 @@ let config = require('./config')
 let getEnv = require('./env')
 let validate = require('./validate')
 let get = require('./get')
+let errorFmt = require('./lib/error-fmt')
 
 /**
  * Architect Inventory
@@ -80,9 +81,8 @@ module.exports = function architectInventory (params = {}, callback) {
         let arcFile = inventory._project.manifest
           ? ` in ${basename(inventory._project.manifest)}`
           : ''
-        let output = errors.map(err => `- ${err}`).join('\n')
-        let err = Error(`Validation error${errors.length > 1 ? 's' : ''}${arcFile}\n${output}`)
-        callback(err)
+        let msg = errorFmt('Validation', errors, arcFile)
+        callback(Error(msg))
       }
       else callback()
     },
