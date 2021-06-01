@@ -5,7 +5,6 @@ let is = require(sut)
 let cwd = process.cwd()
 let mock = join(process.cwd(), 'test', 'mock', 'max')
 
-
 test('Set up env', t => {
   t.plan(1)
   process.chdir(mock)

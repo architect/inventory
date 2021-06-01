@@ -8,5 +8,5 @@ module.exports = {
   string: item => typeof item === 'string',
   // Filesystem
   exists: path => existsSync(path),
-  folder: path => lstatSync(path).isDirectory(),
+  folder: path => existsSync(path) && lstatSync(path).isDirectory(),
 }

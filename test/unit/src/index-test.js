@@ -37,11 +37,23 @@ test('Inventory calls callback (manifest in params)', t => {
 
 test('Inventory returns single validation error', t => {
   t.plan(1)
-  inv({ cwd: join(mock, 'fail') }, (err) => {
+  inv({ cwd: join(mock, 'fail', 'bad-pragma') }, (err) => {
     if (!err) t.fail('Should have returned an error')
     let msg = err.message
     t.ok(msg.includes('app.arc') && !msg.includes('errors'), 'Returned single validation error')
   })
+})
+
+test('Inventory returns single validation error (async)', async t => {
+  t.plan(1)
+  try {
+    await inv({ cwd: join(mock, 'fail', 'bad-pragma') })
+    t.fail('Should have returned an error')
+  }
+  catch (err) {
+    let msg = err.message
+    t.ok(msg.includes('app.arc') && !msg.includes('errors'), 'Returned single validation error')
+  }
 })
 
 test('Inventory returns multiple validation errors', t => {
@@ -80,17 +92,6 @@ test('Inventory invokes async (manifest in params)', async t => {
   }
 })
 
-test('Inventory throws async', async t => {
-  t.plan(1)
-  try {
-    await inv({ cwd: join(mock, 'fail') })
-    t.fail('Should have returned an error')
-  }
-  catch (err) {
-    t.pass('Invalid Architect project manifest returned an inventory error')
-  }
-})
-
 test(`Inventory doesn't blow up without params`, async t => {
   t.plan(1)
   try {
@@ -99,5 +100,35 @@ test(`Inventory doesn't blow up without params`, async t => {
   }
   catch (err) {
     t.fail(err)
+  }
+})
+
+test('Manifest error', t => {
+  t.plan(2)
+  inv({ cwd: join(mock, 'fail', 'bad-manifest') }, err => {
+    if (!err) t.fail('Should have returned an error')
+    t.ok(err.message.startsWith('Project manifest error'), 'Invalid Architect project manifest errored')
+  })
+  inv({ rawArc: '\n' }, err => {
+    if (!err) t.fail('Should have returned an error')
+    t.ok(err.message.startsWith('Project manifest error'), 'Invalid rawArc param errored')
+  })
+})
+
+test('Manifest error (async)', async t => {
+  t.plan(2)
+  try {
+    await inv({ cwd: join(mock, 'fail', 'bad-manifest') })
+    t.fail('Should have returned an error')
+  }
+  catch (err) {
+    t.ok(err.message.startsWith('Project manifest error'), 'Invalid Architect project manifest errored')
+  }
+  try {
+    await inv({ rawArc: '\n' })
+    t.fail('Should have returned an error')
+  }
+  catch (err) {
+    t.ok(err.message.startsWith('Project manifest error'), 'Invalid Architect project manifest errored')
   }
 })

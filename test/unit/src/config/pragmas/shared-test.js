@@ -188,7 +188,7 @@ src foo/bar`)
 })
 
 test('@shared errors', t => {
-  t.plan(9)
+  t.plan(11)
   let arc
   let pragmas
   let errors
@@ -203,7 +203,7 @@ http
   }
   errors = []
   populateShared({ arc, pragmas, inventory, errors })
-  t.ok(errors.length, '@shared lambda not found in corresponding pragma errored')
+  t.equal(errors.length, 1, '@shared lambda not found in corresponding pragma errored')
 
   arc = parse(`@http
 get /foo
@@ -214,7 +214,7 @@ hi`)
   }
   errors = []
   populateShared({ arc, pragmas, inventory, errors })
-  t.ok(errors.length, '@shared invalid entry errored')
+  t.equal(errors.length, 1, '@shared invalid entry errored')
 
   arc = parse(`@http
 get /foo
@@ -226,7 +226,7 @@ static
   }
   errors = []
   populateShared({ arc, pragmas, inventory, errors })
-  t.ok(errors.length, '@shared invalid pragma errored')
+  t.equal(errors.length, 1, '@shared invalid pragma errored')
 
   arc = parse(`@http
 get /foo
@@ -238,7 +238,7 @@ src src/index.js`)
   }
   errors = []
   populateShared({ arc, pragmas, inventory, errors })
-  t.ok(errors.length, '@shared src must be a directory')
+  t.equal(errors.length, 1, '@shared src must be a directory')
 
   arc = parse(`@http
 get /foo
@@ -250,7 +250,7 @@ src .`)
   }
   errors = []
   populateShared({ arc, pragmas, inventory, errors })
-  t.ok(errors.length, '@shared src cannot be .')
+  t.equal(errors.length, 1, '@shared src cannot be .')
 
   arc = parse(`@http
 get /foo
@@ -262,7 +262,7 @@ src ./`)
   }
   errors = []
   populateShared({ arc, pragmas, inventory, errors })
-  t.ok(errors.length, '@shared src cannot be ./')
+  t.equal(errors.length, 1, '@shared src cannot be ./')
 
   arc = parse(`@http
 get /foo
@@ -274,7 +274,7 @@ src ..`)
   }
   errors = []
   populateShared({ arc, pragmas, inventory, errors })
-  t.ok(errors.length, '@shared src cannot be ..')
+  t.equal(errors.length, 1, '@shared src cannot be ..')
 
   arc = parse(`@http
 get /foo
@@ -286,7 +286,7 @@ src ../`)
   }
   errors = []
   populateShared({ arc, pragmas, inventory, errors })
-  t.ok(errors.length, '@shared src cannot be ../')
+  t.equal(errors.length, 1, '@shared src cannot be ../')
 
   arc = parse(`@http
 get /foo
@@ -298,7 +298,35 @@ src true`)
   }
   errors = []
   populateShared({ arc, pragmas, inventory, errors })
-  t.ok(errors.length, '@shared src must be a string')
+  t.equal(errors.length, 1, '@shared src must be a string')
+
+  mockFs({})
+  arc = parse(`@http
+get /
+@shared
+src foo`)
+  pragmas = {
+    http: populateHTTP({ arc, inventory }),
+    lambdaSrcDirs
+  }
+  errors = []
+  populateShared({ arc, pragmas, inventory, errors })
+  t.equal(errors.length, 1, '@shared src dir must exist')
+
+  mockFs({ foo: 'hi!' })
+  arc = parse(`@http
+get /
+@shared
+src foo`)
+  pragmas = {
+    http: populateHTTP({ arc, inventory }),
+    lambdaSrcDirs
+  }
+  errors = []
+  populateShared({ arc, pragmas, inventory, errors })
+  t.equal(errors.length, 1, '@shared src must refer to a dir, not a file')
+
+  mockFs.restore()
 })
 
 

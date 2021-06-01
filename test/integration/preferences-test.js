@@ -7,7 +7,12 @@ let mockFs = require('mock-fs')
 
 let mock = join(process.cwd(), 'test', 'mock')
 let arc = '@app\nappname\n@events\nan-event' // Not using @http so we can skip ASAP filesystem checks
+let reset = () => mockFs.restore()
 
+/**
+ * Duplicates some unit tests as part of the larger whole integration test
+ * See: test/unit/src/config/project/preferences-test.js
+ */
 test('Set up env', t => {
   t.plan(1)
   t.ok(inv, 'Inventory entry is present')
@@ -72,6 +77,7 @@ testing
       delete inv._project.globalPreferences._raw
       t.deepEqual(inv._project.globalPreferences, prefs, 'Got correct global preferences')
       t.equal(inv._project.globalPreferencesFile, path, 'Got correct preferences file')
+      t.teardown(reset)
     }
   })
 })
@@ -116,6 +122,7 @@ test('Get local preferences', t => {
       delete inv._project.localPreferences._raw
       t.deepEqual(inv._project.localPreferences, prefs, 'Got correct local preferences')
       t.equal(inv._project.localPreferencesFile, join(cwd, 'preferences.arc'), 'Got correct preferences file')
+      t.teardown(reset)
     }
   })
 })
@@ -218,103 +225,28 @@ staging
       t.deepEqual(inv._project.localPreferences, localPrefs, 'Got correct local preferences')
       t.equal(inv._project.globalPreferencesFile, path, 'Got correct preferences file')
       t.equal(inv._project.localPreferencesFile, join(process.cwd(), 'preferences.arc'), 'Got correct preferences file')
-      t.end()
+      t.teardown(reset)
     }
   })
 })
 
-
-test('Get preferences (only unknown items)', t => {
-  t.plan(4)
-  let prefs = { idk: { userland: true } }
-  let prefsText = `
-@idk
-userland true
-`
-  mockFs({
-    'app.arc': arc,
-    'prefs.arc': prefsText
-  })
-  inv({}, (err, result) => {
-    if (err) t.fail(err)
-    else {
-      mockFs.restore()
-      let { inv, get } = result
-      t.ok(inv, 'Inventory returned inventory object')
-      t.ok(get, 'Inventory returned getter')
-      t.ok(inv._project.preferences, 'Got preferences')
-      t.deepEqual(inv._project.preferences, prefs, 'Got correct preferences')
-    }
-  })
-})
-
-test('Preferences validation', async t => {
-  t.plan(3)
-  let prefs
-  prefs = `
-@env
-testing
-  env-var-1 foo
-  env-var-2 bar
-
-staging
-`
-  mockFs({
-    'app.arc': arc,
-    'prefs.arc': prefs
-  })
-  try {
-    await inv({})
-    t.fail('Expected an error')
-  }
-  catch (err) {
-    mockFs.restore()
-    t.equal(err.message, 'Invalid preferences setting: @env staging', 'Got back error message for invalid preference shape')
-  }
-
-  prefs = `
-@env
-testing
-  env-var-1 foo
-  env-var-2 bar
-
-staging true
-
-production
-  env-var-1 foo
-  env-var-2 bar
-`
-  mockFs({ 'prefs.arc': prefs })
-  try {
-    await inv({})
-    t.fail('Expected an error')
-  }
-  catch (err) {
-    mockFs.restore()
-    t.equal(err.message, 'Invalid preferences setting: @env staging', 'Got back error message for invalid preference shape')
-  }
-
-  prefs = `
-@env
-testing foo
-
-staging
-  env-var-1 foo
-  env-var-2 bar
-`
-  mockFs({ 'prefs.arc': prefs })
-  try {
-    await inv({})
-    t.fail('Expected an error')
-  }
-  catch (err) {
-    mockFs.restore()
-    t.equal(err.message, 'Invalid preferences setting: @env testing', 'Got back error message for invalid preference shape')
-  }
-})
-
-test('Teardown', t => {
+test('Preferences validation errors', async t => {
   t.plan(1)
-  mockFs.restore()
-  t.pass('Restored fs')
+  let arc = `@app\nfoo`
+  let prefs = `
+@env
+foo
+`
+  mockFs({
+    'app.arc': arc,
+    'prefs.arc': prefs,
+  })
+  try {
+    await inv({})
+    t.fail('Expected an error')
+  }
+  catch (err) {
+    mockFs.restore()
+    t.ok(err.message.includes('Invalid preferences setting: @env foo'), 'Got back error message for invalid preferences')
+  }
 })

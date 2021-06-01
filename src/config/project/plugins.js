@@ -1,7 +1,7 @@
 let { join } = require('path')
 let { existsSync } = require('fs')
 
-module.exports = function getPluginModules (project) {
+module.exports = function getPluginModules (project, errors) {
   let arc = project.arc
   if (!arc.plugins || !arc.plugins.length) return null
   let plugins = {}
@@ -16,9 +16,16 @@ module.exports = function getPluginModules (project) {
     else if (existsSync(localPath1)) pluginPath = localPath1
     else if (existsSync(modulePath)) pluginPath = modulePath
     else if (existsSync(modulePath1)) pluginPath = modulePath1
-    // eslint-disable-next-line
-    if (pluginPath) plugins[name] = require(pluginPath)
-    else console.warn(`Cannot find plugin ${name}! Are you sure you have installed or created it correctly?`)
+    if (pluginPath) {
+      try {
+        // eslint-disable-next-line
+        plugins[name] = require(pluginPath)
+      }
+      catch (err) {
+        errors.push(`Unable to load plugin '${name}': ${err.message.split('\n')[0]}`)
+      }
+    }
+    else errors.push(`Cannot find plugin '${name}'! Are you sure you have installed or created it correctly?`)
   }
   return plugins
 }
