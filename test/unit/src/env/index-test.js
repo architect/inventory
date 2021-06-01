@@ -1,8 +1,8 @@
 let { join } = require('path')
 let test = require('tape')
-let awsMock = require('aws-sdk-mock')
 let sut = join(process.cwd(), 'src', 'env')
 let getEnv = require(sut)
+let awsMock = require('aws-sdk-mock')
 
 let app = 'an-app'
 let inventory = {
