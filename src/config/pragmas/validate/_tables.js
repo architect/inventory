@@ -1,0 +1,67 @@
+let { regex, size, unique } = require('./_lib')
+let { deepStrictEqual } = require('assert')
+
+/**
+ * Validate @tables + @indexes
+ *
+ * Where possible, attempts to follow DynamoDB validation
+ * See: https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/HowItWorks.NamingRulesDataTypes.html
+ */
+module.exports = function validateTablesAndIndexes (pragma, pragmaName, errors) {
+  // TODO ↓ remove me! ↓
+  // console.log(`indexes:`, indexes)
+  // if (!validIndex(name)) errors.push(`Invalid @indexes: ${name}`)
+  // if (!validIndex(indexName)) errors.push(`Invalid @indexes indexName: ${indexName}`)
+
+  if (pragma.length) {
+    pragma.forEach(table => {
+
+      let { name, indexName, partitionKey, sortKey } = table
+
+      size(name, 3, 255, pragmaName, errors)
+      regex(name, 'veryLooseName', pragmaName, errors)
+
+      if (!partitionKey) errors.push(`Invalid ${pragmaName} item (partition key required): '${name}'`)
+      if (indexName) {
+        size(indexName, 3, 255, pragmaName, errors)
+        regex(indexName, 'veryLooseName', pragmaName, errors)
+      }
+      if (partitionKey) {
+        size(partitionKey, 1, 255, pragmaName, errors)
+        regex(partitionKey, 'veryLooseName', pragmaName, errors)
+      }
+      if (sortKey) {
+        size(sortKey, 1, 255, pragmaName, errors)
+        regex(sortKey, 'veryLooseName', pragmaName, errors)
+      }
+    })
+
+    if (pragmaName === '@tables') {
+      unique(pragma, pragmaName, errors)
+    }
+    else {
+      let copy = JSON.parse(JSON.stringify(pragma))
+      copy.forEach((index, i) => {
+        copy.splice(i, 1)
+        let foundDupe = index && copy.some(expect => {
+          try {
+            deepStrictEqual(index, expect)
+            return true
+          }
+          catch (err) {
+            return false
+          }
+        })
+        if (foundDupe) {
+          let err = `Duplicate @indexes value: '${index.name}'`
+          if (!errors.includes(err)) errors.push(err)
+        }
+      })
+      // unique(indexes, '@indexes', errors)
+
+      // indexes.forEach(event => {
+      //   regex(event.name, 'looseName', '@indexes', errors)
+      // })
+    }
+  }
+}

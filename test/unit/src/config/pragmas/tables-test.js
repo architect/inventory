@@ -1,8 +1,12 @@
 let { join } = require('path')
 let parse = require('@architect/parser')
 let test = require('tape')
+let inventoryDefaultsPath = join(process.cwd(), 'src', 'defaults')
+let inventoryDefaults = require(inventoryDefaultsPath)
 let sut = join(process.cwd(), 'src', 'config', 'pragmas', 'tables')
 let populateTables = require(sut)
+
+let inventory = inventoryDefaults()
 
 test('Set up env', t => {
   t.plan(1)
@@ -77,13 +81,74 @@ string-keys
   t.equal(tables[0].delete, undefined, 'Skipped deprecated delete Lambda setting')
 })
 
-test('@tables population: invalid tables errors', t => {
-  t.plan(1)
-  let arc = parse(`
-@tables
-hi there
-`)
+test('@tables population: validation errors', t => {
+  t.plan(13)
   let errors = []
-  populateTables({ arc, errors })
-  t.ok(errors.length, 'Invalid table errored')
+  function run (str) {
+    let arc = parse(`@tables\n${str}`)
+    populateTables({ arc, inventory, errors })
+  }
+  function check (str = 'Invalid table errored', qty = 1) {
+    t.equal(errors.length, qty, str)
+    console.log(errors.join('\n'))
+    // Run a bunch of control tests at the top by resetting errors after asserting
+    errors = []
+  }
+
+  // Controls
+  let attr = `\n  id *String`
+  run(`hello${attr}`)
+  run(`hello-there${attr}`)
+  run(`hello.there${attr}`)
+  run(`helloThere${attr}`)
+  run(`h3llo_there${attr}`)
+  t.equal(errors.length, 0, `Valid tables did not error`)
+
+  // Errors
+  run(`hello${attr}\nhello${attr}\nhello${attr}`)
+  check(`Duplicate tables errored`)
+
+  run(`hello
+  id *String
+hello
+  data *String`)
+  check(`Similarly duplicate tables errored`)
+
+  run(`hi`)
+  check()
+
+  run(`hello
+  there`)
+  check()
+
+  run(`hello
+  there friend`)
+  check()
+
+  run(`hello
+  there **String`)
+  check(`Primary keys are required`)
+
+  run(`hello
+  there *string`)
+  check(`Primary key casing matters`)
+
+  run(`hi there`)
+  check()
+
+  run(`hi-there!`)
+  check()
+
+  let name = Array.from(Array(130), () => 'hi').join('')
+  run(`${name}${attr}`)
+  check()
+
+  run(`hello
+  ${name} *String`)
+  check()
+
+  run(`hello
+  data *String
+  ${name} **String`)
+  check()
 })

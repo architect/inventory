@@ -1,8 +1,12 @@
 let { join } = require('path')
 let parse = require('@architect/parser')
 let test = require('tape')
+let inventoryDefaultsPath = join(process.cwd(), 'src', 'defaults')
+let inventoryDefaults = require(inventoryDefaultsPath)
 let sut = join(process.cwd(), 'src', 'config', 'pragmas', 'indexes')
 let populateIndexes = require(sut)
+
+let inventory = inventoryDefaults()
 
 test('Set up env', t => {
   t.plan(1)
@@ -71,25 +75,69 @@ number-keys # Second index on the same table
   t.equal(indexes[2].indexName, 'MyNumberIndex', 'Got correct indexName for third index')
 })
 
-test('@indexes population: invalid indexes errors', t => {
-  t.plan(2)
-  let arc
-  let errors
+test('@indexes population: validation errors', t => {
+  t.plan(12)
+  let errors = []
+  function run (str) {
+    let arc = parse(`@indexes\n${str}`)
+    populateIndexes({ arc, inventory, errors })
+  }
+  function check (str = 'Invalid index errored', qty = 1) {
+    t.equal(errors.length, qty, str)
+    console.log(errors.join('\n'))
+    // Run a bunch of control tests at the top by resetting errors after asserting
+    errors = []
+  }
 
-  arc = parse(`
-@indexes
-hi there
-`)
-  errors = []
-  populateIndexes({ arc, errors })
-  t.ok(errors.length, 'Invalid index errored')
+  // Controls
+  let attr = `\n  id *String`
+  run(`hello${attr}`)
+  run(`hello${attr}\nhello\n  data *String`)
+  run(`hello-there${attr}`)
+  run(`hello.there${attr}`)
+  run(`helloThere${attr}`)
+  run(`h3llo_there${attr}`)
+  t.equal(errors.length, 0, `Valid indexes did not error`)
 
-  arc = parse(`
-@indexes
-an-index
-  something invalid
-`)
-  errors = []
-  populateIndexes({ arc, errors })
-  t.ok(errors.length, 'Invalid index errored')
+  // Errors
+  run(`hello${attr}\nhello${attr}\nhello${attr}`)
+  check(`Duplicate indexes errored`)
+
+  run(`hi`)
+  check()
+
+  run(`hello
+  there`)
+  check()
+
+  run(`hello
+  there friend`)
+  check()
+
+  run(`hello
+  there **String`)
+  check(`Primary keys are required`)
+
+  run(`hello
+  there *string`)
+  check(`Primary key casing matters`)
+
+  run(`hi there`)
+  check()
+
+  run(`hi-there!`)
+  check()
+
+  let name = Array.from(Array(130), () => 'hi').join('')
+  run(`${name}${attr}`)
+  check()
+
+  run(`hello
+  ${name} *String`)
+  check()
+
+  run(`hello
+  data *String
+  ${name} **String`)
+  check()
 })

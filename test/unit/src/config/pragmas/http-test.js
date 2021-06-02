@@ -267,15 +267,15 @@ ${complexValues.join('\n')}
 
 test('@http population: validation errors', t => {
   t.plan(23)
-  // Test assumes complex format is outputting the same data as simple, so we're only testing erros in the simple format
+  // Test assumes complex format is outputting the same data as simple, so we're only testing errors in the simple format
   let errors = []
   function run (str) {
     let arc = parse(`@http\n${str}`)
     populateHTTP({ arc, inventory, errors })
   }
-  let check = str => {
-    t.equal(errors.length, 1, str)
-    console.log(errors[0])
+  function check (str = 'Invalid path errored', qty = 1) {
+    t.equal(errors.length, qty, str)
+    console.log(errors.join('\n'))
     // Run a bunch of control tests at the top by resetting errors after asserting
     errors = []
   }
@@ -303,43 +303,43 @@ test('@http population: validation errors', t => {
   check(`Invalid method errored`)
 
   run(`get /hi-there!`)
-  check(`Invalid path errored`)
+  check()
 
   run(`get /hi^there!`)
-  check(`Invalid path errored`)
+  check()
 
   run(`get /hi there`)
   check(`Invalid weird array route errored`)
 
   run(`get hi-there`)
-  check(`Invalid path errored`)
+  check()
 
   run(`get /hi/there/`)
-  check(`Invalid path errored`)
+  check()
 
   run(`get //hi`)
-  check(`Invalid path errored`)
+  check()
 
   run(`get /hi//there`)
-  check(`Invalid path errored`)
+  check()
 
   run(`get /hi-/there`)
-  check(`Invalid path errored`)
+  check()
 
   run(`get /hi/there-`)
-  check(`Invalid path errored`)
+  check()
 
   run(`get /hi./there`)
-  check(`Invalid path errored`)
+  check()
 
   run(`get /hi/there.`)
-  check(`Invalid path errored`)
+  check()
 
   run(`get /hi_/there`)
-  check(`Invalid path errored`)
+  check()
 
   run(`get /hi/there_`)
-  check(`Invalid path errored`)
+  check()
 
   run(`get /hi/:/there`)
   check(`Invalid param errored`)

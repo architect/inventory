@@ -3,24 +3,35 @@ let is = require('../../../lib/is')
 let patterns = {
   looseName: new RegExp(/^[a-z][a-zA-Z0-9-_]+$/),
   strictName: new RegExp(/^[a-z][a-z0-9-]+$/),
+  // DynamoDB, SNS, SQS
+  veryLooseName: new RegExp(/^[a-zA-Z0-9/\-._]*$/),
 }
 
-function regex (value, pattern, pragma, errors) {
+function regex (value, pattern, pragmaName, errors) {
   if (!patterns[pattern]) throw ReferenceError(`Invalid validation pattern specified: ${pattern}`)
-  if (!patterns[pattern].test(value)) errors.push(`Invalid ${pragma} value: '${value}' must match ${patterns[pattern]}`)
+  if (!patterns[pattern].test(value)) errors.push(`Invalid ${pragmaName} item: '${value}' must match ${patterns[pattern]}`)
 }
 
-function size (value, num, pragma, errors) {
-  if (typeof value !== 'string') errors.push(`Invalid ${pragma} value: '${value}' must be a string`)
-  if (typeof num !== 'number') throw ReferenceError('Invalid size specified')
-  if (value.length > num) errors.push(`Invalid ${pragma} value: '${value}' must less than ${num} characters`)
+function size (value, min, max, pragmaName, errors) {
+  if (typeof value !== 'string') {
+    errors.push(`Invalid ${pragmaName} item: '${value}' must be a string`)
+  }
+  if (typeof min !== 'number' || typeof max !== 'number') {
+    throw ReferenceError('Invalid size specified')
+  }
+  if (value.length < min) {
+    errors.push(`Invalid ${pragmaName} item: '${value}' must be greater than ${min} characters`)
+  }
+  if (value.length > max) {
+    errors.push(`Invalid ${pragmaName} item: '${value}' must be less than ${max} characters`)
+  }
 }
 
-function unique (lambdas, pragma, errors) {
+function unique (lambdas, pragmaName, errors) {
   if (!is.array(lambdas)) throw ReferenceError(`Invalid Lambda array: ${lambdas}`)
   let names = []
   if (lambdas.length) lambdas.forEach(({ name }) => {
-    let err = `Duplicate ${pragma}: ${name}`
+    let err = `Duplicate ${pragmaName} item: ${name}`
     if (names.includes(name) && !errors.includes(err)) errors.push(err)
     names.push(name)
   })

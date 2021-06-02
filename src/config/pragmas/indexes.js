@@ -1,3 +1,6 @@
+let is = require('../../lib/is')
+let validate = require('./validate')
+
 module.exports = function configureIndexes ({ arc, errors }) {
   if (!arc.indexes || !arc.indexes.length) return null
 
@@ -7,7 +10,7 @@ module.exports = function configureIndexes ({ arc, errors }) {
   function error (item) { errors.push(`Invalid @indexes item: ${item}`) }
 
   let indexes = arc.indexes.map(index => {
-    if (typeof index === 'object' && !Array.isArray(index)) {
+    if (is.object(index)) {
       let name = Object.keys(index)[0]
       let partitionKey = null
       let partitionKeyType = null
@@ -27,7 +30,6 @@ module.exports = function configureIndexes ({ arc, errors }) {
         else if (isStr && isCustomName(key)) {
           indexName = value
         }
-        else error(index)
       })
       return {
         indexName,
@@ -39,7 +41,9 @@ module.exports = function configureIndexes ({ arc, errors }) {
       }
     }
     error(index)
-  })
+  }).filter(Boolean) // Invalid indexes may create undefined entries in the map
+
+  validate.indexes(indexes, '@indexes', errors)
 
   return indexes
 }
