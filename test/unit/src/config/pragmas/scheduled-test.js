@@ -136,13 +136,114 @@ ${complexValues.join('\n')}
   })
 })
 
-test('@scheduled population: invalid scheduled events errors', t => {
-  t.plan(1)
-  let arc = parse(`
-@scheduled
-hi there
-`)
+test('@scheduled population: validation errors', t => {
+  t.plan(24)
   let errors = []
-  populateScheduled({ arc, inventory, errors })
-  t.ok(errors.length, 'Invalid scheduled event errored')
+  function run (str) {
+    let arc = parse(`@scheduled\n${str}`)
+    populateScheduled({ arc, inventory, errors })
+  }
+  function check (str = 'Invalid schedule errored', qty = 1) {
+    t.equal(errors.length, qty, str)
+    console.log(errors.join('\n'))
+    // Run a bunch of control tests at the top by resetting errors after asserting
+    errors = []
+  }
+
+  // Controls
+  let rate = `rate(1 day)`
+  run(`hello ${rate}`)
+  run(`hello-there ${rate}`)
+  run(`hello.there ${rate}`)
+  run(`helloThere ${rate}`)
+  run(`h3llo_there ${rate}`)
+  run(`hello
+  rate 1 day`)
+  run(`hello rate(2 days)`)
+  run(`hi cron(* * * * * *)`)
+  run(`hi cron(1 2 3 4 5 6)`)
+  run(`hi
+  cron * * * * * *`)
+  // These aren't actually valid AWS expressions!
+  // Just check regex patterns until the validator improves...
+  run(`hi cron(1 2 3 a b 4)`)
+  run(`hi cron(, , , , , ,)`)
+  run(`hi cron(- - - - - -)`)
+  run(`hi cron(/ / / / * /)`)
+  run(`hi cron(* * L * L *)`)
+  run(`hi cron(* * W * "#" *)`)
+  t.equal(errors.length, 0, `Valid scheduled did not error`)
+
+  // Errors
+  run(`hello ${rate}\nhello ${rate}`)
+  check(`Duplicate scheduled errored`)
+
+  run(`hello rate(1 day)\nhello rate(2 days)`)
+  check(`Similarly duplicate scheduled errored`)
+
+  run(`hi there`)
+  check()
+
+  run(`hi there rate(1 day)`)
+  check()
+
+  run(`hi-there! rate(1 day)`)
+  check()
+
+  let name = Array.from(Array(130), () => 'hi').join('')
+  run(`${name} rate(1 day)`)
+  check()
+
+  run(`hi rate(1 day) cron(* * * * * *)`)
+  check()
+
+  run(`hi cron(* * * * * *) rate(1 day)`)
+  check()
+
+  run(`hi
+  rate 1 day
+  cron * * * * * *`)
+  check()
+
+  run(`hi cron(1 day)`)
+  check()
+
+  run(`hi cron(* * * * *)`)
+  check()
+
+  run(`hi cron(* * * * * * *)`)
+  check()
+
+  run(`hi cron(. . . . . .)`)
+  check(undefined, 6)
+
+  run(`hi rate(* * * * *)`)
+  check()
+
+  run(`hi rate(0 1 day)`)
+  check()
+
+  run(`hi rate(-1 days)`)
+  check()
+
+  run(`hi rate(0 days)`)
+  check()
+
+  run(`hi rate(1.2 days)`)
+  check()
+
+  run(`hi rate(a day)`)
+  check()
+
+  run(`hi rate(1 days)`)
+  check()
+
+  run(`hi rate(2 day)`)
+  check()
+
+  run(`hi rate(1,000 days)`)
+  check()
+
+  run(`hi rate(1 fortnight)`)
+  check()
 })

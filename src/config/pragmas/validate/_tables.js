@@ -8,11 +8,6 @@ let { deepStrictEqual } = require('assert')
  * See: https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/HowItWorks.NamingRulesDataTypes.html
  */
 module.exports = function validateTablesAndIndexes (pragma, pragmaName, errors) {
-  // TODO ↓ remove me! ↓
-  // console.log(`indexes:`, indexes)
-  // if (!validIndex(name)) errors.push(`Invalid @indexes: ${name}`)
-  // if (!validIndex(indexName)) errors.push(`Invalid @indexes indexName: ${indexName}`)
-
   if (pragma.length) {
     pragma.forEach(table => {
 
@@ -57,11 +52,6 @@ module.exports = function validateTablesAndIndexes (pragma, pragmaName, errors) 
           if (!errors.includes(err)) errors.push(err)
         }
       })
-      // unique(indexes, '@indexes', errors)
-
-      // indexes.forEach(event => {
-      //   regex(event.name, 'looseName', '@indexes', errors)
-      // })
     }
   }
 }

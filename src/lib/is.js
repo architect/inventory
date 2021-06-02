@@ -4,6 +4,7 @@ module.exports = {
   // Types
   array: item => Array.isArray(item),
   bool: item => typeof item === 'boolean',
+  number: item => typeof item === 'number',
   object: item => typeof item === 'object' && !Array.isArray(item),
   string: item => typeof item === 'string',
   // Filesystem
