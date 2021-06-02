@@ -19,9 +19,9 @@ module.exports = function configureTables ({ arc, errors }) {
       let encrypt = null
       let PointInTimeRecovery = null
       let legacy
+      let pitr = 'PointInTimeRecovery' // It's just so long
       Object.entries(table[name]).forEach(([ key, value ]) => {
         let isStr = typeof value === 'string'
-        let pitr = 'PointInTimeRecovery' // It's just so long
         if (isStr && isSortKey(value)) {
           sortKey = key
           sortKeyType = value.replace('**', '')
