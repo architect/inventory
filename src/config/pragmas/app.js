@@ -12,7 +12,7 @@ module.exports = function configureApp ({ arc, errors }) {
 
   // Validation
   validate.regex(appName, 'looseName', '@app', errors)
-  validate.size(appName, 100, '@app', errors)
+  validate.size(appName, 1, 100, '@app', errors)
 
   return appName
 }

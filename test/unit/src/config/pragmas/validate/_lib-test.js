@@ -24,17 +24,21 @@ test('Regex method', t => {
 })
 
 test('Size method', t => {
-  t.plan(4)
+  t.plan(5)
   let errors = []
 
-  validate.size('hi', 10, '@meh', errors)
+  validate.size('hi', 1, 10, '@meh', errors)
   t.notOk(errors.length, 'Size check did not error')
 
-  validate.size(true, 10, '@meh', errors)
+  validate.size(true, 1, 10, '@meh', errors)
   t.equal(errors.length, 1, `Size check errored: ${errors[0]}`)
   errors = []
 
-  validate.size('hello', 2, '@meh', errors)
+  validate.size('hello', 1, 2, '@meh', errors)
+  t.equal(errors.length, 1, `Size check errored: ${errors[0]}`)
+  errors = []
+
+  validate.size('hello', 6, 10, '@meh', errors)
   t.equal(errors.length, 1, `Size check errored: ${errors[0]}`)
   errors = []
 

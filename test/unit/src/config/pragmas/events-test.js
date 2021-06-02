@@ -91,13 +91,67 @@ ${complexValues.join('\n')}
   })
 })
 
-test('@events population: invalid events errors', t => {
-  t.plan(1)
-  let arc = parse(`
-  @events
-  hi there
-  `)
+test('@events population: validation errors', t => {
+  t.plan(13)
+  // Test assumes complex format is outputting the same data as simple, so we're only testing errors in the simple format
   let errors = []
-  populateEvents({ arc, inventory, errors })
-  t.ok(errors.length, 'Invalid event errored')
+  function run (str) {
+    let arc = parse(`@events\n${str}`)
+    populateEvents({ arc, inventory, errors })
+  }
+  function check (str = 'Invalid event errored', qty = 1) {
+    t.equal(errors.length, qty, str)
+    console.log(errors.join('\n'))
+    // Run a bunch of control tests at the top by resetting errors after asserting
+    errors = []
+  }
+
+  // Controls
+  run(`hi`)
+  run(`hi-there`)
+  run(`hithere\nhiThere`) // Case-sensitive!
+  run(`hiThere`)
+  run(`hi.there`)
+  run(`h1_there`)
+  t.equal(errors.length, 0, `Valid events did not error`)
+
+  // Errors
+  run(`hi\nhi\nhi`)
+  check(`Duplicate events errored`)
+
+  run(`hi
+hi
+  src foo`)
+  check(`Duplicate events errored (simple + complex)`)
+
+  run(`hi there`)
+  check()
+
+  run(`hi-there!`)
+  check()
+
+  let name = Array.from(Array(125), () => 'hi').join('')
+  run(name)
+  check()
+
+  run(`.hi-there`)
+  check()
+
+  run(`hi-there.`)
+  check()
+
+  run(`hi..there`)
+  check()
+
+  run(`aws.hi-there`)
+  check()
+
+  run(`AWS.hi-there`)
+  check()
+
+  run(`amazon.hi-there`)
+  check()
+
+  run(`Amazon.hi-there`)
+  check()
 })

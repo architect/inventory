@@ -125,14 +125,67 @@ ${complexValues.join('\n')}
   })
 })
 
-test('@queues population: invalid queues errors', t => {
-  t.plan(1)
-
-  let arc = parse(`
-@queues
-hi there
-`)
+test('@queues population: validation errors', t => {
+  t.plan(13)
+  // Test assumes complex format is outputting the same data as simple, so we're only testing errors in the simple format
   let errors = []
-  populateQueues({ arc, inventory, errors })
-  t.ok(errors.length, 'Invalid queue errored')
+  function run (str) {
+    let arc = parse(`@queues\n${str}`)
+    populateQueues({ arc, inventory, errors })
+  }
+  function check (str = 'Invalid queue errored') {
+    t.equal(errors.length, 1, str)
+    console.log(errors[0])
+    // Run a bunch of control tests at the top by resetting errors after asserting
+    errors = []
+  }
+
+  // Controls
+  run(`hi`)
+  run(`hi-there`)
+  run(`hithere\nhiThere`) // Case-sensitive!
+  run(`hiThere`)
+  run(`hi.there`)
+  run(`h1_there`)
+  t.equal(errors.length, 0, `Valid queues did not error`)
+
+  // Errors
+  run(`hi\nhi\nhi`)
+  check(`Duplicate queues errored`)
+
+  run(`hi
+hi
+  src foo`)
+  check(`Duplicate queues errored (simple + complex)`)
+
+  run(`hi there`)
+  check()
+
+  run(`hi-there!`)
+  check()
+
+  let name = Array.from(Array(125), () => 'hi').join('')
+  run(name)
+  check()
+
+  run(`.hi-there`)
+  check()
+
+  run(`hi-there.`)
+  check()
+
+  run(`hi..there`)
+  check()
+
+  run(`aws.hi-there`)
+  check()
+
+  run(`AWS.hi-there`)
+  check()
+
+  run(`amazon.hi-there`)
+  check()
+
+  run(`Amazon.hi-there`)
+  check()
 })
