@@ -1,4 +1,5 @@
 let populate = require('./populate-lambda')
+let validate = require('./validate')
 
 /**
  * `@streams` (formerly `@tables`)
@@ -22,8 +23,15 @@ module.exports = function configureStreams ({ arc, inventory, errors }) {
   if (tables && streams) {
     let uniqueTables = tables.filter(t => !streams.some(s => s.table === t.table))
     let merged = streams.concat(uniqueTables)
+    validate.streams(merged, errors)
     return merged
   }
-  else if (streams) return streams
-  return tables
+  else if (streams) {
+    validate.streams(streams, errors)
+    return streams
+  }
+  else {
+    validate.streams(tables, errors)
+    return tables
+  }
 }

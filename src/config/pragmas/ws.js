@@ -1,4 +1,5 @@
 let populate = require('./populate-lambda')
+let validate = require('./validate')
 
 module.exports = function configureWS ({ arc, inventory, errors }) {
   if (!arc.ws) return null
@@ -16,6 +17,14 @@ module.exports = function configureWS ({ arc, inventory, errors }) {
   })
 
   let websockets = populate.ws(ws, inventory, errors)
+
+  // Forgive and normalize userland use of '$default', '$connect', '$disconnect'
+  websockets.forEach(({ name }, i) => {
+    let trunc = name.substr(1)
+    if (name.startsWith('$') && defaults.includes(trunc)) websockets[i].name = trunc
+  })
+
+  validate.websockets(websockets, errors)
 
   return websockets
 }

@@ -182,13 +182,70 @@ another-stream
   })
 })
 
-test('@streams population: invalid streams errors', t => {
-  t.plan(1)
-  let arc = parse(`
-@streams
-hi there
-`)
+test('@streams population: validation errors', t => {
+  t.plan(8)
   let errors = []
-  populateStreams({ arc, inventory, errors })
-  t.ok(errors.length, 'Invalid stream errored')
+  function run (str) {
+    let arc = parse(str)
+    populateStreams({ arc, inventory, errors })
+  }
+  function check (str = 'Invalid stream errored', qty = 1) {
+    t.equal(errors.length, qty, str)
+    console.log(errors.join('\n'))
+    // Run a bunch of control tests at the top by resetting errors after asserting
+    errors = []
+  }
+  let streams = `@streams\n`
+  let tables = `@tables\n`
+
+  // Controls
+  run(`${streams}hello`)
+  run(`${tables}hello\n  stream true`)
+  run(`${streams}hello-there`)
+  run(`${tables}hello-there\n  stream true`)
+  run(`${streams}hello.there`)
+  run(`${tables}hello.there\n  stream true`)
+  run(`${streams}helloThere`)
+  run(`${tables}helloThere\n  stream true`)
+  run(`${streams}h3llo_there`)
+  run(`${tables}h3llo_there\n  stream true`)
+  // Overlapping but ultimately the same, so we'll allow it I guess?
+  run(`@tables
+hello
+  stream true
+@streams
+hello`)
+  // These two are funky, but not specifying table in complex format defaults to the stream name
+  run(`${streams}hello\n  there`)
+  run(`${streams}hello\n  friend table`)
+  t.equal(errors.length, 0, `Valid tables did not error`)
+
+  // Errors
+  run(`${streams}hello\nhello`)
+  check(`Duplicate streams errored`)
+
+  run(`${tables}hello
+  stream true
+hello
+  stream true`)
+  check(`Duplicate streams errored`)
+
+  run(`${streams}hello
+  table foo
+hello
+  table bar`)
+  check(`Similarly duplicate streams errored`)
+
+  run(`${streams}hi`)
+  check()
+
+  run(`${streams}hi there`)
+  check()
+
+  run(`${streams}hi-there!`)
+  check()
+
+  let name = Array.from(Array(130), () => 'hi').join('')
+  run(`${streams}${name}`)
+  check()
 })
