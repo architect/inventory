@@ -67,23 +67,27 @@ function validateRate (schedule, errors) {
     errors.push(`Invalid @scheduled item (${description}, value: ${value}): ${name} rate(${expression})`)
   }
 
-  // Must be a >0 number
+  // Value must be a >0 number
   if (!is.number(value) || !(value > 0)) {
     expErr('rate value must be a number greater than 0', value)
   }
-  // Must be a whole number
+  // Value must be a whole number
   else if (!value.toString().match(/^\d+$/)) {
     expErr('rate value must be a whole number', value)
   }
-  // Must be use the singular/plural values above
+  // Interval must be a string
+  if (!is.string(interval)) {
+    return expErr(`rate interval must be 'minute', 'minutes', 'hour', 'hours', 'day', or 'days'`, interval)
+  }
+  // Interval must be use the singular/plural values above
   if (!singular.concat(plural).some(i => i === interval)) {
     expErr(`rate interval must be 'minute', 'minutes', 'hour', 'hours', 'day', or 'days'`, interval)
   }
-  // 1 must use singular units
+  // Value of 1 must use singular interval
   if (value === 1 && plural.some(i => i === interval)) {
     expErr(`rate value of 1 must use a singular interval, e.g. 'minute', 'hour', 'day'`, interval)
   }
-  // >1 must use plural units
+  // Value >1 must use plural interval
   if (value > 1 && singular.some(i => i === interval)) {
     expErr(`rate values greater than 1 must use plural intervals, e.g. 'minutes', 'hours', 'days'`, interval)
   }
