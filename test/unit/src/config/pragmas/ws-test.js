@@ -142,3 +142,57 @@ why hello there
   populateWS({ arc, inventory, errors })
   t.ok(errors.length, 'Invalid complex route errored')
 })
+
+
+test('@ws population: validation errors', t => {
+  t.plan(7)
+  // Test assumes complex format is outputting the same data as simple, so we're only testing errors in the simple format
+  let errors = []
+  function run (str) {
+    let arc = parse(`@ws\n${str}`)
+    populateWS({ arc, inventory, errors })
+  }
+  function check (str = 'Invalid WebSocket errored', qty = 1) {
+    t.equal(errors.length, qty, str)
+    console.log(errors.join('\n'))
+    // Run a bunch of control tests at the top by resetting errors after asserting
+    errors = []
+  }
+
+  // Controls
+  run(`hi`)
+  run(`hi-there`)
+  run(`hithere\nhiThere`) // Case-sensitive!
+  run(`hiThere`)
+  run(`hi.there`)
+  run(`h1_there`)
+  run(`_hi`)
+  run(`.hi`)
+  run(`-hi`)
+  run(`hi_`)
+  run(`hi.`)
+  run(`hi-`)
+  t.equal(errors.length, 0, `Valid WebSocket did not error`)
+
+  // Errors
+  run(`hi\nhi\nhi`)
+  check(`Duplicate WebSocket errored`)
+
+  run(`$default\ndefault`)
+  check(`Similarly duplicate (default) WebSockets errored`)
+
+  run(`hi
+hi
+  src foo`)
+  check(`Duplicate WebSocket errored (simple + complex)`)
+
+  run(`hi there`)
+  check()
+
+  run(`hi-there!`)
+  check()
+
+  let name = Array.from(Array(130), () => 'hi').join('')
+  run(name)
+  check()
+})

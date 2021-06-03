@@ -10,7 +10,6 @@ let { deepStrictEqual } = require('assert')
 module.exports = function validateTablesAndIndexes (pragma, pragmaName, errors) {
   if (pragma.length) {
     pragma.forEach(table => {
-
       let { name, indexName, partitionKey, sortKey } = table
 
       size(name, 3, 255, pragmaName, errors)

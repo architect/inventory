@@ -9,6 +9,8 @@ module.exports = {
   queues:     require('./_events'), // Same ruleset as @events
   scheduled:  require('./_scheduled'),
   shared:     require('./_shared'), // Also includes @views
+  streams:    require('./_streams'),
+  websockets: require('./_websockets'),
 
   // Misc
   validate: require('./_lib')

@@ -9,11 +9,11 @@ let { regex, size, unique } = require('./_lib')
  * See: https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-events-rule.html
  * See: https://docs.aws.amazon.com/eventbridge/latest/userguide/eb-create-rule-schedule.html
  */
-module.exports = function validateScheduled (pragma, errors) {
-  if (pragma.length) {
-    unique(pragma, '@scheduled', errors)
+module.exports = function validateScheduled (scheduled, errors) {
+  if (scheduled.length) {
+    unique(scheduled, '@scheduled', errors)
 
-    pragma.forEach(schedule => {
+    scheduled.forEach(schedule => {
       let { name, rate, cron } = schedule
       regex(name, 'veryLooseName', '@scheduled', errors)
 
