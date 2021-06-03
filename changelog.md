@@ -2,6 +2,25 @@
 
 ---
 
+## [1.4.0] 2021-06-03
+
+### Added
+
+- Adds comprehensive pragma-level validation
+
+
+### Changed
+
+- Refactors error handling to support aggregation of multiple validation errors (instead of just one at a time, as before)
+- 💯% unit test coverage
+
+
+### Fixed
+
+- Fixed a bunch of smol bugs
+
+---
+
 ## [1.3.3] 2021-05-24
 
 ### Added
