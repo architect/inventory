@@ -1,4 +1,5 @@
 let { join } = require('path')
+let is = require('../../../lib/is')
 
 let coerceNumbers = str => !isNaN(Number(str)) ? Number(str) : str
 
@@ -7,10 +8,11 @@ let get = {
   rate (expression) {
     let bits = expression.split(' ')
     bits = bits.map(coerceNumbers)
+    let interval = is.string(bits[1]) ? bits[1].toLowerCase() : bits[1]
     return {
       expression,
       value: bits[0],
-      interval: bits[1]
+      interval,
     }
   },
   cron (expression) {
