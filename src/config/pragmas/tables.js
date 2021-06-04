@@ -4,7 +4,7 @@ let validate = require('./validate')
 module.exports = function configureTables ({ arc, errors }) {
   if (!arc.tables || !arc.tables.length) return null
 
-  let pitr = 'PointInTimeRecovery' // It's just so long
+  let pitrLong = 'PointInTimeRecovery' // It's just so long
 
   let tables = arc.tables.map(table => {
     if (is.object(table)) {
@@ -16,8 +16,9 @@ module.exports = function configureTables ({ arc, errors }) {
       let stream = null
       let ttl = null
       let encrypt = null
-      let PointInTimeRecovery = null
-      let legacy
+      let pitr = null
+      let pitrOld // Old opt, remove in some future breaking change
+      let legacy // Arc v5 to v8+ compat flag
       Object.entries(table[name]).forEach(([ key, value ]) => {
         if (is.sortKey(value)) {
           sortKey = key
@@ -30,8 +31,9 @@ module.exports = function configureTables ({ arc, errors }) {
         if (key === 'stream')   stream = value
         if (value === 'TTL')    ttl = key
         if (key === 'encrypt')  encrypt = value
-        if (key === pitr)       PointInTimeRecovery = value
-        if (key === 'legacy')   legacy = value // Arc v5 to v8+ compat
+        if (key === 'pitr')     pitr = value
+        if (key === pitrLong)   pitrOld = value
+        if (key === 'legacy')   legacy = value
       })
       let t = {
         name,
@@ -42,9 +44,10 @@ module.exports = function configureTables ({ arc, errors }) {
         stream,
         ttl,
         encrypt,
-        PointInTimeRecovery,
+        pitr,
       }
       if (legacy !== undefined) t.legacy = legacy
+      if (pitrOld !== undefined) t.PointInTimeRecovery = pitrOld
       return t
     }
     errors.push(`Invalid @tables item: ${table}`)
