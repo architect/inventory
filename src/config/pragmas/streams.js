@@ -9,10 +9,14 @@ let validate = require('./validate')
  */
 module.exports = function configureStreams ({ arc, inventory, errors }) {
   if (!arc.streams && !arc.tables) return null
+  if (arc.streams && !arc.tables) {
+    errors.push(`Specifying @streams requires specifying corresponding @tables`)
+    return null
+  }
 
   // Populate @tables
-  let tables = arc.tables && arc.tables.filter(t => typeof t === 'object' && t[Object.keys(t)[0]].stream === true)
-  if (tables && tables.length) {
+  let tables = arc.tables.filter(t => typeof t === 'object' && t[Object.keys(t)[0]].stream === true)
+  if (tables.length) {
     tables = populate.tables(tables, inventory, errors)
   }
   else tables = null

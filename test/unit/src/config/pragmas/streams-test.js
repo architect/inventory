@@ -70,6 +70,8 @@ test('Presence of @tables legacy dir does not impact @streams', t => {
   })
 
   let arc = parse(`
+@tables
+${tableNames[0]}
 @streams
 ${tableNames[0]}
 `)
@@ -85,6 +87,9 @@ test('@streams population: simple format', t => {
   t.plan(7)
 
   let arc = parse(`
+@tables
+${tableNames[0]}
+${tableNames[1]}
 @streams
 ${tableNames[0]}
 ${tableNames[1]}
@@ -112,6 +117,9 @@ test('@streams population: complex format', t => {
   src ${streamNames[1]}/path`
   ]
   let arc = parse(`
+@tables
+${tableNames[0]}
+${tableNames[1]}
 @streams
 ${complextableNames.join('\n')}
 `)
@@ -138,6 +146,9 @@ test('@streams population: complex format (default table name)', t => {
   src ${streamNames[1]}/path`
   ]
   let arc = parse(`
+@tables
+${tableNames[0]}
+${tableNames[1]}
 @streams
 ${complextableNames.join('\n')}
 `)
@@ -183,7 +194,7 @@ another-stream
 })
 
 test('@streams population: validation errors', t => {
-  t.plan(8)
+  t.plan(9)
   let errors = []
   function run (str) {
     let arc = parse(str)
@@ -199,15 +210,15 @@ test('@streams population: validation errors', t => {
   let tables = `@tables\n`
 
   // Controls
-  run(`${streams}hello`)
+  run(`${tables}hello\n${streams}hello`)
   run(`${tables}hello\n  stream true`)
-  run(`${streams}hello-there`)
+  run(`${tables}hello-there\n${streams}hello-there`)
   run(`${tables}hello-there\n  stream true`)
-  run(`${streams}hello.there`)
+  run(`${tables}hello.there\n${streams}hello.there`)
   run(`${tables}hello.there\n  stream true`)
-  run(`${streams}helloThere`)
+  run(`${tables}helloThere\n${streams}helloThere`)
   run(`${tables}helloThere\n  stream true`)
-  run(`${streams}h3llo_there`)
+  run(`${tables}h3llo_there\n${streams}h3llo_there`)
   run(`${tables}h3llo_there\n  stream true`)
   // Overlapping but ultimately the same, so we'll allow it I guess?
   run(`@tables
@@ -216,12 +227,15 @@ hello
 @streams
 hello`)
   // These two are funky, but not specifying table in complex format defaults to the stream name
-  run(`${streams}hello\n  there`)
-  run(`${streams}hello\n  friend table`)
+  run(`${tables}hello\n${streams}hello\n  there`)
+  run(`${tables}hello\n${streams}hello\n  friend table`)
   t.equal(errors.length, 0, `Valid tables did not error`)
 
   // Errors
-  run(`${streams}hello\nhello`)
+  run(`${streams}hi`)
+  check(`Streams require tables`)
+
+  run(`${tables}hello\n${streams}hello\nhello`)
   check(`Duplicate streams errored`)
 
   run(`${tables}hello
@@ -230,22 +244,23 @@ hello
   stream true`)
   check(`Duplicate streams errored`)
 
-  run(`${streams}hello
+  run(`${tables}hello
+${streams}hello
   table foo
 hello
   table bar`)
   check(`Similarly duplicate streams errored`)
 
-  run(`${streams}hi`)
+  run(`${tables}hello\n${streams}hi`)
   check()
 
-  run(`${streams}hi there`)
+  run(`${tables}hello\n${streams}hi there`)
   check()
 
-  run(`${streams}hi-there!`)
+  run(`${tables}hello\n${streams}hi-there!`)
   check()
 
   let name = Array.from(Array(130), () => 'hi').join('')
-  run(`${streams}${name}`)
+  run(`${tables}${name}\n${streams}${name}`)
   check()
 })
