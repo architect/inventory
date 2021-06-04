@@ -10,4 +10,7 @@ module.exports = {
   // Filesystem
   exists: path => existsSync(path),
   folder: path => existsSync(path) && lstatSync(path).isDirectory(),
+  // Pragma-specific stuff
+  primaryKey: val => typeof val === 'string' && (val.startsWith('*String') || val.startsWith('*Number')),
+  sortKey: val => typeof val === 'string' && (val.startsWith('**String') || val.startsWith('**Number')),
 }
