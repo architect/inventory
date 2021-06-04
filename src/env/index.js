@@ -3,8 +3,15 @@
  */
 module.exports = function env (params, inventory, callback) {
   if (params.env) {
-    // eslint-disable-next-line
-    let aws = require('aws-sdk')
+    /* istanbul ignore next */
+    try {
+      // eslint-disable-next-line
+      var aws = require('aws-sdk')
+    }
+    catch (err) {
+      let msg = `'aws-sdk' not found, please install locally or globally (see also readme#aws-sdk-caveat)`
+      return callback(Error(msg))
+    }
     let name = inventory.app
     let { region } = inventory.aws
     let ssm = new aws.SSM({ region })

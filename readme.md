@@ -87,3 +87,12 @@ get.events('event')   // Returns `event` resource data
 
 get.tables('data')    // Returns undefined
 ```
+
+
+### `aws-sdk` caveat
+
+Inventory conditionally requires `aws-sdk` if being used with the `env` param (e.g. `await inventory({ env: true })`). Early versions of Inventory included `aws-sdk` in `peerDependencies`, which prior to npm 7 would not automatically install `aws-sdk`. This is because Architect assumes you already have `aws-sdk` installed via Architect, or that it's available at runtime if you're using Inventory in a Lambda.
+
+However, npm 7 (once again) changed the behavior of `peerDependencies`, now automatically installing all `peerDependencies` (instead of merely printing a reminder). This means any Lambdas that use Inventory would get a >50MB dependency payload if deployed on a machine with npm 7.
+
+As such, Inventory now errors if the `env` param is set, and  `aws-sdk` is not installed. We are sorry to make this a userland issue, but we feel this is preferable to unnecessarily and invisibly causing `aws-sdk` to be installed in Lambdas.

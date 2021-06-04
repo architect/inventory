@@ -25,9 +25,6 @@
     "@architect/utils": "2.1.0",
     "run-series": "~1.1.9"
   },
-  "peerDependencies": {
-    "aws-sdk": "2.712.0"
-  },
   "devDependencies": {
     "@architect/eslint-config": "1.0.0",
     "aws-sdk": "2.712.0",
