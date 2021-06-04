@@ -13,6 +13,7 @@
 
 - Refactors error handling to support aggregation of multiple validation errors (instead of just one at a time, as before)
 - 💯% unit test coverage
+- Add support for @tables `pitr` option, start phasing out `PointInTimeRecovery` option (which is still supported for a while); fixes #1155
 
 
 ### Fixed

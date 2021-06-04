@@ -48,7 +48,7 @@ number-keys
 })
 
 test('@tables population (extra params)', t => {
-  t.plan(14)
+  t.plan(11)
 
   let arc = parse(`
 @tables
@@ -57,12 +57,9 @@ string-keys
   strSort **String
   stream true
   _ttl TTL
-  PointInTimeRecovery true
+  pitr true
   encrypt true
   legacy true
-  insert Lambda # Legacy param (ignored)
-  update Lambda # Legacy param (ignored)
-  delete Lambda # Legacy param (ignored)
 `)
   let tables = populateTables({ arc })
   t.ok(tables.length === 1, 'Got correct number of tables back')
@@ -73,9 +70,28 @@ string-keys
   t.equal(tables[0].sortKeyType, 'String', 'Got back correct sort key type')
   t.equal(tables[0].stream, true, 'Got back correct stream value')
   t.equal(tables[0].ttl, '_ttl', 'Got back correct TTL value')
-  t.equal(tables[0].PointInTimeRecovery, true, 'Got back correct PointInTimeRecovery value')
+  t.equal(tables[0].pitr, true, 'Got back correct pitr value')
   t.equal(tables[0].encrypt, true, 'Got back correct encrypt value')
   t.equal(tables[0].legacy, true, 'Got back correct legacy value')
+})
+
+test('@tables population (legacy params)', t => {
+  t.plan(7)
+
+  let arc = parse(`
+@tables
+string-keys
+  strID *String
+  PointInTimeRecovery true
+  insert Lambda # Legacy param (ignored)
+  update Lambda # Legacy param (ignored)
+  delete Lambda # Legacy param (ignored)
+`)
+  let tables = populateTables({ arc })
+  t.ok(tables.length === 1, 'Got correct number of tables back')
+  t.equal(tables[0].name, 'string-keys', 'Got back correct name')
+  t.equal(tables[0].partitionKey, 'strID', 'Got back correct partition key')
+  t.equal(tables[0].PointInTimeRecovery, true, 'Got back correct pitr value')
   t.equal(tables[0].insert, undefined, 'Skipped deprecated insert Lambda setting')
   t.equal(tables[0].update, undefined, 'Skipped deprecated update Lambda setting')
   t.equal(tables[0].delete, undefined, 'Skipped deprecated delete Lambda setting')
