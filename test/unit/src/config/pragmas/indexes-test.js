@@ -22,6 +22,9 @@ test('@indexes population', t => {
   t.plan(16)
 
   let arc = parse(`
+@tables
+whatever
+
 @indexes
 string-keys
   strID *String
@@ -55,6 +58,9 @@ test('@indexes parses custom indexName', t => {
   t.plan(4)
 
   let arc = parse(`
+@tables
+whatever
+
 @indexes
 string-keys
   strID *String
@@ -76,10 +82,10 @@ number-keys # Second index on the same table
 })
 
 test('@indexes population: validation errors', t => {
-  t.plan(12)
+  t.plan(13)
   let errors = []
   function run (str) {
-    let arc = parse(`@indexes\n${str}`)
+    let arc = parse(str)
     populateIndexes({ arc, inventory, errors })
   }
   function check (str = 'Invalid index errored', qty = 1) {
@@ -88,55 +94,60 @@ test('@indexes population: validation errors', t => {
     // Run a bunch of control tests at the top by resetting errors after asserting
     errors = []
   }
+  let indexes = `@indexes\n`
+  let tables = `@tables\n`
 
   // Controls
   let attr = `\n  id *String`
-  run(`hello${attr}`)
-  run(`hello${attr}\nhello\n  data *String`)
-  run(`hello-there${attr}`)
-  run(`hello.there${attr}`)
-  run(`helloThere${attr}`)
-  run(`h3llo_there${attr}`)
+  run(`${tables}${indexes}hello${attr}`)
+  run(`${tables}${indexes}hello${attr}\nhello\n  data *String`)
+  run(`${tables}${indexes}hello-there${attr}`)
+  run(`${tables}${indexes}hello.there${attr}`)
+  run(`${tables}${indexes}helloThere${attr}`)
+  run(`${tables}${indexes}h3llo_there${attr}`)
   t.equal(errors.length, 0, `Valid indexes did not error`)
 
   // Errors
-  run(`hello${attr}\nhello${attr}\nhello${attr}`)
+  run(`${indexes}hi`)
+  check(`Indexes require tables`)
+
+  run(`${tables}${indexes}hello${attr}\nhello${attr}\nhello${attr}`)
   check(`Duplicate indexes errored`)
 
-  run(`hi`)
+  run(`${tables}${indexes}hi`)
   check()
 
-  run(`hello
+  run(`${tables}${indexes}hello
   there`)
   check()
 
-  run(`hello
+  run(`${tables}${indexes}hello
   there friend`)
   check()
 
-  run(`hello
+  run(`${tables}${indexes}hello
   there **String`)
   check(`Primary keys are required`)
 
-  run(`hello
+  run(`${tables}${indexes}hello
   there *string`)
   check(`Primary key casing matters`)
 
-  run(`hi there`)
+  run(`${tables}${indexes}hi there`)
   check()
 
-  run(`hi-there!`)
+  run(`${tables}${indexes}hi-there!`)
   check()
 
   let name = Array.from(Array(130), () => 'hi').join('')
-  run(`${name}${attr}`)
+  run(`${tables}${indexes}${name}${attr}`)
   check()
 
-  run(`hello
+  run(`${tables}${indexes}hello
   ${name} *String`)
   check()
 
-  run(`hello
+  run(`${tables}${indexes}hello
   data *String
   ${name} **String`)
   check()

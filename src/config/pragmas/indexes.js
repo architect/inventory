@@ -3,6 +3,10 @@ let validate = require('./validate')
 
 module.exports = function configureIndexes ({ arc, errors }) {
   if (!arc.indexes || !arc.indexes.length) return null
+  if (arc.indexes && !arc.tables) {
+    errors.push(`Specifying @indexes requires specifying corresponding @tables`)
+    return null
+  }
 
   let isCustomName = key => is.string(key) && key.toLowerCase() === 'name'
   function error (item) { errors.push(`Invalid @indexes item: ${item}`) }
