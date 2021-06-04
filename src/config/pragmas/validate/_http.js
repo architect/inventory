@@ -11,11 +11,6 @@ module.exports = function validateHTTP (http, errors) {
       let { name, method, path } = route
       if (!validMethod(method)) errors.push(`Invalid @http method: ${name}`)
       if (!validPath(path)) {
-        // Can only have letters, numbers, dashes, slashes and/or :params
-        function bads (c) {
-          let allowed = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789/-:._*'.split('')
-          return !allowed.includes(c)
-        }
         let bad = path.slice().split('').filter(bads)
         let uniq = {}
         bad.forEach(b => { uniq[b] = true })
@@ -38,7 +33,7 @@ module.exports = function validateHTTP (http, errors) {
           errors.push(`Invalid @http path (cannot end with '/'): ${name}`)
         }
 
-        // Contains double shashes, i.e. //
+        // Contains double slashes, i.e. //
         if (path.match('//')) {
           errors.push(`Invalid @http path (must have parts between two slashes): ${name}`)
         }
@@ -71,4 +66,10 @@ module.exports = function validateHTTP (http, errors) {
       }
     })
   }
+}
+
+// Paths can only have letters, numbers, dashes, slashes and/or :params
+function bads (c) {
+  let allowed = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789/-:._*'.split('')
+  return !allowed.includes(c)
 }

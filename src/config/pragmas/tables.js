@@ -4,8 +4,7 @@ let validate = require('./validate')
 module.exports = function configureTables ({ arc, errors }) {
   if (!arc.tables || !arc.tables.length) return null
 
-  let isPrimaryKey = val => val.startsWith('*String') || val.startsWith('*Number')
-  let isSortKey = val => val.startsWith('**String') || val.startsWith('**Number')
+  let pitr = 'PointInTimeRecovery' // It's just so long
 
   let tables = arc.tables.map(table => {
     if (is.object(table)) {
@@ -19,14 +18,12 @@ module.exports = function configureTables ({ arc, errors }) {
       let encrypt = null
       let PointInTimeRecovery = null
       let legacy
-      let pitr = 'PointInTimeRecovery' // It's just so long
       Object.entries(table[name]).forEach(([ key, value ]) => {
-        let isStr = typeof value === 'string'
-        if (isStr && isSortKey(value)) {
+        if (is.sortKey(value)) {
           sortKey = key
           sortKeyType = value.replace('**', '')
         }
-        else if (isStr && isPrimaryKey(value)) {
+        else if (is.primaryKey(value)) {
           partitionKey = key
           partitionKeyType = value.replace('*', '')
         }

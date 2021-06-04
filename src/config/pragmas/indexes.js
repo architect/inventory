@@ -4,9 +4,7 @@ let validate = require('./validate')
 module.exports = function configureIndexes ({ arc, errors }) {
   if (!arc.indexes || !arc.indexes.length) return null
 
-  let isPrimaryKey = val => val.startsWith('*String') || val.startsWith('*Number')
-  let isSortKey = val => val.startsWith('**String') || val.startsWith('**Number')
-  let isCustomName = key => key.toLowerCase() === 'name'
+  let isCustomName = key => is.string(key) && key.toLowerCase() === 'name'
   function error (item) { errors.push(`Invalid @indexes item: ${item}`) }
 
   let indexes = arc.indexes.map(index => {
@@ -18,16 +16,15 @@ module.exports = function configureIndexes ({ arc, errors }) {
       let sortKeyType = null
       let indexName = null
       Object.entries(index[name]).forEach(([ key, value ]) => {
-        let isStr = typeof value === 'string'
-        if (isStr && isSortKey(value)) {
+        if (is.sortKey(value)) {
           sortKey = key
           sortKeyType = value.replace('**', '')
         }
-        else if (isStr && isPrimaryKey(value)) {
+        else if (is.primaryKey(value)) {
           partitionKey = key
           partitionKeyType = value.replace('*', '')
         }
-        else if (isStr && isCustomName(key)) {
+        else if (isCustomName(key)) {
           indexName = value
         }
       })
