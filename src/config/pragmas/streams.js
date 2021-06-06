@@ -34,8 +34,9 @@ module.exports = function configureStreams ({ arc, inventory, errors }) {
     validate.streams(streams, errors)
     return streams
   }
-  else {
+  else if (tables) {
     validate.streams(tables, errors)
     return tables
   }
+  return null
 }

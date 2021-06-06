@@ -26,6 +26,11 @@ test('No @streams returns null', t => {
   t.equal(populateStreams({ arc: {}, inventory }), null, 'Returned null')
 })
 
+test('@tables without @streams returns null', t => {
+  t.plan(1)
+  t.equal(populateStreams({ arc: { tables: [ 'a-table' ] }, inventory }), null, 'Returned null')
+})
+
 test('@tables populates @streams: legacy + current source paths', t => {
   t.plan(7)
 

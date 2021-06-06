@@ -1,21 +1,12 @@
-/* eslint-disable global-require */
-let visitors = [
-  require('./app'),       // @app
-  require('./aws'),       // @aws
-  require('./cdn'),       // @cdn
-  require('./events'),    // @events
-  require('./http'),      // @http
-  require('./indexes'),   // @indexes
-  require('./macros'),    // @macros
-  require('./proxy'),     // @proxy
-  require('./plugins'),   // @plugins - but only if they contain lambdas
-  require('./queues'),    // @queues
-  require('./scheduled'), // @scheduled
-  require('./static'),    // @static
-  require('./streams'),   // @streams
-  require('./tables'),    // @tables
-  require('./ws'),        // @ws
-]
+let pragmas = require('../../lib/arc-pragmas')
+
+// Get all pragmas except special cases
+let isSpecial = p => p === 'shared' || p === 'views'
+let visitors = pragmas.map(p => {
+  // eslint-disable-next-line
+  if (!isSpecial(p)) return require(`./${p}`)
+}).filter(Boolean)
+
 // Special order-dependent visitors that run in a second pass
 let srcDirs = require('./src-dirs')
 let shared = require('./shared')
