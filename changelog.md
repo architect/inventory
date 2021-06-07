@@ -7,6 +7,7 @@
 ### Added
 
 - Adds comprehensive pragma-level validation
+- Added structured `ARC_ERRORS` property to returned Inventory errors
 
 
 ### Changed
