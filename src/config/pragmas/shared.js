@@ -1,7 +1,7 @@
 let { join } = require('path')
 let validate = require('./validate')
 let is = require('../../lib/is')
-let lambdae = require('../../defaults/lambda-pragmas')
+let { lambdas } = require('../../lib/pragmas')
 
 module.exports = function configureShared ({ arc, pragmas, inventory, errors }) {
   if (!pragmas.lambdaSrcDirs) return null
@@ -35,7 +35,7 @@ module.exports = function configureShared ({ arc, pragmas, inventory, errors }) 
     let some = !(arc.shared.length === 1 && foundSrc)
     if (some) {
       // Reset shared settings
-      for (let pragma of lambdae) {
+      for (let pragma of lambdas) {
         if (!pragmas[pragma]) continue
         for (let { config } of pragmas[pragma]) {
           config.shared = false
@@ -50,7 +50,7 @@ module.exports = function configureShared ({ arc, pragmas, inventory, errors }) 
         }
 
         let p = Object.keys(pragma)[0]
-        if (!lambdae.includes(p)) {
+        if (!lambdas.includes(p)) {
           return errors.push(`${p} is not a valid @shared pragma`)
         }
 
@@ -74,7 +74,7 @@ module.exports = function configureShared ({ arc, pragmas, inventory, errors }) 
   if (!is.exists(shared.src)) return null
 
   // lambda.config.shared was added by function config defaults, or added above
-  for (let pragma of lambdae) {
+  for (let pragma of lambdas) {
     if (!pragmas[pragma]) continue
     for (let { src, config } of pragmas[pragma]) {
       if (config.shared === true && !shared.shared.includes(src)) {

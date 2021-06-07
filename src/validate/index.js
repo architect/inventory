@@ -1,45 +1,42 @@
-let series = require('run-series')
 let layers = require('./layers')
 let tablesChildren = require('./tables-children')
-let lambdaPragmas = require('../defaults/lambda-pragmas')
+let errorFmt = require('../lib/error-fmt')
 
 /**
  * Final inventory validation
  */
-module.exports = function validate (params, inventory, callback) {
-  let { region } = inventory.aws
-  let { cwd } = params
+module.exports = function finalValidation (params, inventory) {
+  let errors = []
 
-  // Walk the tree of layer configs, starting with @aws
-  let layerValidations = []
-  Object.entries(inventory).forEach(([ i ]) => {
-    let item = inventory[i]
-    if (i === 'aws') {
-      let location = inventory._project.manifest &&
-                     inventory._project.manifest.replace(cwd, '')
-      let layers = item.layers
-      layerValidations.push({ layers, region, location })
-    }
-    else if (lambdaPragmas.some(p => p === i) && item) {
-      item.forEach(entry => {
-        // Probably unnecessary if no configFile is present but why not, let's be extra safe
-        let location = entry.configFile && entry.configFile.replace(cwd, '')
-        let layers = entry.config.layers
-        layerValidations.push({ layers, region, location })
-      })
-    }
-  })
+  /**
+   * Deal with vendor configuration errors
+   */
 
-  let validations = layerValidations.map(params => {
-    return function (callback) {
-      layers(params, callback)
-    }
-  })
+  // Ensure layer configuration will work, AWS blows up with awful errors on this
+  layers(params, inventory, errors)
+
+  // TODO add deeper policy validation here
+
+  if (errors.length) {
+    return errorFmt({
+      type: 'configuration',
+      errors,
+      inventory,
+    })
+  }
+
+  /**
+   * Deal with project validation errors
+   */
 
   // Ensure @tables children (@streams, @indexes) have parent tables present
-  validations.push(function (callback) {
-    tablesChildren(inventory, callback)
-  })
+  tablesChildren(inventory, errors)
 
-  series(validations, callback)
+  if (errors.length) {
+    return errorFmt({
+      type: 'validation',
+      errors,
+      inventory,
+    })
+  }
 }

@@ -1,10 +1,10 @@
-let lambdaPragmas = require('../../defaults/lambda-pragmas')
+let { lambdas } = require('../../lib/pragmas')
 
 module.exports = function collectSourceDirs ({ pragmas, errors }) {
   let lambdaSrcDirs = []
   let unsortedBySrcDir = {}
   Object.entries(pragmas).forEach(([ pragma, values ]) => {
-    let mayHaveSrcDirs = lambdaPragmas.some(p => p === pragma)
+    let mayHaveSrcDirs = lambdas.some(p => p === pragma)
     if (mayHaveSrcDirs && Array.isArray(values)) {
       pragmas[pragma].forEach(item => {
         if (item.arcStaticAssetProxy === true) return // Special exception for ASAP
