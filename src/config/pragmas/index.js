@@ -1,8 +1,8 @@
-let pragmas = require('../../lib/arc-pragmas')
+let { all: allPragmas } = require('../../lib/pragmas')
 
 // Get all pragmas except special cases
 let isSpecial = p => p === 'shared' || p === 'views'
-let visitors = pragmas.map(p => {
+let visitors = allPragmas.map(p => {
   // eslint-disable-next-line
   if (!isSpecial(p)) return require(`./${p}`)
 }).filter(Boolean)

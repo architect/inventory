@@ -1,6 +1,4 @@
-let { basename } = require('path')
 let parser = require('@architect/parser')
-let series = require('run-series')
 let read = require('./read')
 let inventoryDefaults = require('./defaults')
 let config = require('./config')
@@ -53,10 +51,13 @@ module.exports = function architectInventory (params = {}, callback) {
 
   // Exit early if supplied Arc is fundamentally broken
   if (errors.length) {
-    let err = Error(`Project manifest error: ${errors[0]}`)
-    callback(err)
+    callback(errorFmt({
+      type: 'manifest',
+      errors,
+    }))
     return promise
   }
+
   // Start building out the inventory
   let inventory = inventoryDefaults(params)
 
@@ -74,30 +75,27 @@ module.exports = function architectInventory (params = {}, callback) {
     ...inventory,
     ...config.pragmas(project, errors)
   }
-  series([
-    // End here if first-pass pragma validation failed
-    function _pragmaValidationFailed (callback) {
-      if (errors.length) {
-        let arcFile = inventory._project.manifest
-          ? ` in ${basename(inventory._project.manifest)}`
-          : ''
-        let msg = errorFmt('Validation', errors, arcFile)
-        callback(Error(msg))
-      }
-      else callback()
-    },
 
-    // Populate environment variables
-    function _getEnv (callback) {
-      getEnv(params, inventory, callback)
-    },
+  // End here if first-pass pragma validation failed
+  if (errors.length) {
+    callback(errorFmt({
+      type: 'validation',
+      errors,
+      inventory,
+    }))
+    return promise
+  }
 
-    // Final validation pass
-    function _validate (callback) {
-      validate(params, inventory, callback)
-    }
-  ],
-  function done (err) {
+  // Final validation pass
+  let err = validate(params, inventory)
+  if (err) {
+    callback(err)
+    return promise
+  }
+
+  // Maybe get env vars
+  getEnv(params, inventory, function done (err) {
+    /* istanbul ignore next: yeah we know what happens here */
     if (err) callback(err)
     else {
       callback(null, {
@@ -106,6 +104,6 @@ module.exports = function architectInventory (params = {}, callback) {
       })
     }
   })
-
   return promise
+
 }

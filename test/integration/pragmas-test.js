@@ -2,7 +2,7 @@ let { readdirSync } = require('fs')
 let { join } = require('path')
 let test = require('tape')
 let inventory = require(process.cwd())
-let pragmas = require(join(process.cwd(), 'src', 'lib', 'arc-pragmas'))
+let { all: pragmas } = require(join(process.cwd(), 'src', 'lib', 'pragmas'))
 let visitorDir = join(process.cwd(), 'src', 'config', 'pragmas')
 
 test('Each registered pragma has a visitor', t => {
