@@ -21,6 +21,6 @@ module.exports = function format (params) {
   let output = errors.map(err => `- ${err}`).join('\n')
   let errType = type[0].toUpperCase() + type.substr(1)
   let err = Error(`${errType} error${errors.length > 1 ? 's' : ''}${meta ? meta : ''}:\n${output}`)
-  err.ARC_ERRORS = params
+  err.ARC_ERRORS = { type, errors }
   return err
 }

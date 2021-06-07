@@ -16,7 +16,6 @@ let errorFmt = require('./lib/error-fmt')
  * @returns {object} - Inventory object (including Arc & project defaults and enumerated pragmas) & config getter
  */
 module.exports = function architectInventory (params = {}, callback) {
-
   // Set up promise if there's no callback
   let promise
   if (!callback) {
@@ -105,5 +104,4 @@ module.exports = function architectInventory (params = {}, callback) {
     }
   })
   return promise
-
 }
