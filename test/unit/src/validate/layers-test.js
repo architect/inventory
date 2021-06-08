@@ -123,6 +123,17 @@ test('Invalid layers', t => {
   t.teardown(reset)
 })
 
+
+test('Skip layer validation', t => {
+  t.plan(1)
+  let errors = []
+  defaults.aws.layers = [ true ]
+  validateLayers({ ...params, validateLayers: false }, defaults, errors)
+  t.equal(errors.length, 0, `No errors reported`)
+
+  t.teardown(reset)
+})
+
 test('Blow up if no region is supplied', t => {
   t.plan(1)
   t.throws(() => {
