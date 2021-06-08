@@ -5,12 +5,15 @@ let validateARN = require('./arn')
 /**
  * Layer validator
  */
-module.exports = function validateLayers (params, inventory, errors) {
+module.exports = function layerValidator (params, inventory, errors) {
   let { region } = inventory.aws
-  let { cwd } = params
+  let { cwd, validateLayers = true } = params
 
   // Shouldn't be possible because we backfill region, but jic
   if (!region) throw ReferenceError('Region not found')
+
+  // Allow for manual opt-out of layer validation
+  if (!validateLayers) return
 
   // Walk the tree of layer configs, starting with @aws
   Object.entries(inventory).forEach(([ i ]) => {
