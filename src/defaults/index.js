@@ -42,7 +42,7 @@ module.exports = function inventoryDefaults (params = {}) {
       memory: null,
       policies: null,
       profile: null,
-      region,                 // AWS always requires a region, so we provide a default
+      region, // AWS always requires a region, so we provide a default
       runtime: null,
       timeout: null,
     },
@@ -52,7 +52,7 @@ module.exports = function inventoryDefaults (params = {}) {
     http: null,
     indexes: null,
     macros: null,
-    plugins: null, // these are the lambdas created by plugins, not the plugin modules; modules are up under _project
+    plugins: null, // These are the Lambdas created by plugins, not the plugin modules, which are in _project.plugins
     proxy: null,
     queues: null,
     scheduled: null,
@@ -62,7 +62,7 @@ module.exports = function inventoryDefaults (params = {}) {
     tables: null,
     views: null,
     ws: null,
-    // Collection of all Function paths
+    // Collection of all Lambda paths
     lambdaSrcDirs: null,
     // Lambda lookup by source directory
     lambdasBySrcDir: null,

@@ -1,3 +1,5 @@
+let validate = require('./validate')
+
 module.exports = function configureProxy ({ arc, errors }) {
   if (arc.proxy && !arc.http) {
     errors.push('@proxy requires @http')
@@ -12,5 +14,8 @@ module.exports = function configureProxy ({ arc, errors }) {
     if (!setting) errors.push(`@proxy ${env} environment not found or invalid`)
     else proxy[env] = setting[1]
   })
+
+  validate.proxy(proxy, errors)
+
   return proxy
 }

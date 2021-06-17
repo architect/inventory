@@ -137,7 +137,7 @@ ${complexValues.join('\n')}
 })
 
 test('@scheduled population: validation errors', t => {
-  t.plan(25)
+  t.plan(26)
   let errors = []
   function run (str) {
     let arc = parse(`@scheduled\n${str}`)
@@ -234,6 +234,9 @@ test('@scheduled population: validation errors', t => {
   check()
 
   run(`hi rate(1.2 days)`)
+  check()
+
+  run(`hi rate('1' day)`)
   check()
 
   run(`hi rate(a day)`)
