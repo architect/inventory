@@ -14,5 +14,10 @@ module.exports = function asapSrc () {
   let local = join(__dirname, '..', '..', 'node_modules', '@architect', 'asap', 'dist')
   if (existsSync(local)) return local
 
+  try {
+    return require.resolve('@architect/asap')
+  }
+  catch (err) { /* Swallow */ }
+
   throw Error('Cannot find ASAP module!')
 }

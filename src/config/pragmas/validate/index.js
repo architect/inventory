@@ -5,6 +5,7 @@ module.exports = {
   events:     require('./_events'),
   http:       require('./_http'),
   indexes:    require('./_tables'), // Same ruleset as @tables (more or less)
+  proxy:      require('./_proxy'),
   tables:     require('./_tables'),
   queues:     require('./_events'), // Same ruleset as @events
   scheduled:  require('./_scheduled'),

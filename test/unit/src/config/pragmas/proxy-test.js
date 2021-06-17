@@ -34,7 +34,7 @@ production ${production}
 })
 
 test('@proxy errors', t => {
-  t.plan(5)
+  t.plan(6)
   let errors
 
   errors = []
@@ -72,6 +72,15 @@ ${envs[1]} foo`)
 ${envs[0]} foo
 ${envs[1]}
 ${envs[2]} foo`)
+  errors = []
+  populateProxy({ arc, errors })
+  t.ok(errors.length, `@proxy errors with invalid setting`)
+
+  arc = parse(`@http
+@proxy
+${envs[0]} http://foo
+${envs[1]} https://bar
+${envs[2]} ftp://lol`)
   errors = []
   populateProxy({ arc, errors })
   t.ok(errors.length, `@proxy errors with invalid setting`)
