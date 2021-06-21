@@ -1,6 +1,7 @@
 let { join } = require('path')
 let { readdirSync } = require('fs')
 let test = require('tape')
+let pragmas = require(join(process.cwd(), 'src', 'lib', 'pragmas'))
 let sut = join(process.cwd(), 'src', 'defaults')
 let inventoryDefaults = require(sut)
 let defaultFunctionConfig = require(join(sut, 'function-config'))
@@ -42,9 +43,36 @@ test('Architect project defaults are pre-populated', t => {
   t.equal(result.aws.region, 'us-west-2', 'Region set by dfeault to us-west-2')
 })
 
+test('Inventory got pragma registry', t => {
+  t.plan(1)
+  t.deepEqual(result._arc.pragmas, pragmas, 'Got full pragma registry')
+})
+
 test('Inventory got default function config', t => {
   t.plan(2)
   let defaultConfig = defaultFunctionConfig()
   t.equal(str(result._arc.defaultFunctionConfig), str(defaultConfig), 'Arc got default function config')
   t.equal(str(result._project.defaultFunctionConfig), str(defaultConfig), 'Project got default function config')
+})
+
+test('Inventory got proper project keys', t => {
+  t.plan(1)
+  let keys = [
+    'type',
+    'src',
+    'manifest',
+    'preferences',
+    'localPreferences',
+    'localPreferencesFile',
+    'globalPreferences',
+    'globalPreferencesFile',
+    'defaultFunctionConfig',
+    'rootHandler',
+    'plugins',
+    'arc',
+    'raw',
+    'env',
+  ]
+  let project = Object.keys(result._project)
+  t.deepEqual(keys.sort(), project.sort(), 'Found all project keys')
 })
