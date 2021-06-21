@@ -25,7 +25,7 @@ module.exports = function configureArcPragmas ({ arc, inventory }, errors) {
   })
 
   // Lambda source directory list
-  let dirs = srcDirs({ arc, inventory, pragmas })
+  let dirs = srcDirs({ pragmas, errors })
   pragmas.lambdaSrcDirs = dirs.lambdaSrcDirs
   pragmas.lambdasBySrcDir = dirs.lambdasBySrcDir
 

@@ -2,11 +2,16 @@
 
 ---
 
-## [1.4.2] 2021-06-20
+## [1.4.2 - 1.4.3] 2021-06-20
 
 ### Added
 
 - Include registry of all Architect pragmas + Lambda pragmas in `inventory.inv._arc.pragmas` metadata
+
+
+### Fixed
+
+- Fixed error reporting for missing function dirs
 
 ---
 
