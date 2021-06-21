@@ -5,12 +5,13 @@ module.exports = {
   events:     require('./_events'),
   http:       require('./_http'),
   indexes:    require('./_tables'), // Same ruleset as @tables (more or less)
+  plugins:    require('./_plugins'),
   proxy:      require('./_proxy'),
-  tables:     require('./_tables'),
   queues:     require('./_events'), // Same ruleset as @events
   scheduled:  require('./_scheduled'),
   shared:     require('./_shared'), // Also includes @views
   streams:    require('./_streams'),
+  tables:     require('./_tables'),
   websockets: require('./_websockets'),
 
   // Misc
