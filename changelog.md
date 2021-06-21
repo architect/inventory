@@ -2,6 +2,15 @@
 
 ---
 
+## [1.4.0] 2021-06-20
+
+### Fixed
+
+- De-dupe `@shared` + `@views` items
+- Fixed `@shared` + `@views` errors
+
+---
+
 ## [1.4.0] 2021-06-03
 
 ### Added
