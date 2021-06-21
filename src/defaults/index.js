@@ -1,4 +1,5 @@
 let fnConfig = require('./function-config')
+let pragmas = require('../lib/pragmas')
 
 /**
  * Returns a default stub inventory object
@@ -14,6 +15,7 @@ module.exports = function inventoryDefaults (params = {}) {
     _arc: {
       version: 'Unknown',     // @architect/architect semver (if installed)
       defaultFunctionConfig,  // Architect's default function config
+      pragmas,                // Registry of all + Lambda pragmas
     },
     _project: {
       type: 'aws',
