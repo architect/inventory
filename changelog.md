@@ -2,6 +2,15 @@
 
 ---
 
+## [1.4.3] 2021-06-21
+
+### Added
+
+- Added ability to set custom names in `plugins.functions`
+- Added `plugins.functions` validation
+
+---
+
 ## [1.4.2] 2021-06-20
 
 ### Added

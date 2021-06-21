@@ -8,15 +8,19 @@ module.exports = function populatePlugins ({ item: pluginName, cwd, inventory, e
       let lambdas = funk({
         arc: inventory._project.arc,
         inventory: { inv: inventory }
-      }).map(f => {
+      }).map(fn => {
+        let { name, src } = fn
+        if (!src) {
+          errors.push(`Invalid @plugins function, must define src directory: ${pluginName}`)
+          return
+        }
         // strip leading `src/` from the path to the plugin function relative to project root
-        let pathToCode = f.src.replace(cwd, '').replace(/^\.?\/?\\?/, '').replace(/^src\/?\\?/, '')
-        let name = getLambdaName(pathToCode)
-        f.name = name
-        return f
+        let pathToCode = src.replace(cwd, '').replace(/^\.?\/?\\?/, '').replace(/^src\/?\\?/, '')
+        fn.name = name ? name : getLambdaName(pathToCode)
+        return fn
       })
       if (lambdas.length) {
-        return lambdas
+        return lambdas.filter(Boolean)
       }
     }
     return null
