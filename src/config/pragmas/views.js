@@ -63,5 +63,8 @@ module.exports = function configureViews ({ arc, pragmas, inventory, errors }) {
     }
   }
 
+  // De-dupe (in case multiple functions live at the same src path)
+  views.views = [ ...new Set(views.views) ]
+
   return views
 }

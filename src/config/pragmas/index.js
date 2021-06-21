@@ -30,10 +30,10 @@ module.exports = function configureArcPragmas ({ arc, inventory }, errors) {
   pragmas.lambdasBySrcDir = dirs.lambdasBySrcDir
 
   // @shared (which needs all Lambdae pragmas + srcDirs to validate)
-  pragmas.shared = shared({ arc, pragmas, inventory })
+  pragmas.shared = shared({ arc, pragmas, inventory, errors })
 
   // @views (which needs @http to validate)
-  pragmas.views = views({ arc, pragmas, inventory })
+  pragmas.views = views({ arc, pragmas, inventory, errors })
 
   return pragmas
 }
