@@ -4,8 +4,7 @@ module.exports = function populateWebSockets ({ item, dir, cwd, errors }) {
   if (typeof item === 'string') {
     let name = item
     let route = name // Same as name, just what AWS calls it
-    let folder = process.env.DEPRECATED ? `ws-${name}` : name
-    let src = join(cwd, dir, folder)
+    let src = join(cwd, dir, name)
     return { name, route, src }
   }
   else if (typeof item === 'object' && !Array.isArray(item)) {

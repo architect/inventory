@@ -5,7 +5,7 @@ module.exports = function createDefaultFunctionConfig () {
   return {
     timeout: 5,
     memory: 1152,
-    runtime: 'nodejs12.x', // TODO add runtime validation
+    runtime: 'nodejs14.x', // TODO add runtime validation
     handler: 'index.handler',
     state: 'n/a',
     concurrency: 'unthrottled',

@@ -22,7 +22,7 @@
   "dependencies": {
     "@architect/asap": "~3.13.8",
     "@architect/parser": "~4.0.0",
-    "@architect/utils": "~3.0.0"
+    "@architect/utils": "~3.0.1"
   },
   "devDependencies": {
     "@architect/eslint-config": "~1.0.0",
