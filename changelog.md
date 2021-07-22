@@ -6,7 +6,7 @@
 
 ### Changed
 
-- Default runtime is now `nodejs14.x`
+- Default runtime is now `nodejs14.x`, fixes #1164
 - Breaking change: removed support for Node.js 10.x (now EOL, and no longer available to created in AWS Lambda)
 - Breaking change: removed support for Architect 5 WebSocket folder paths (prepended by `ws-`)
 - Updated dependencies
