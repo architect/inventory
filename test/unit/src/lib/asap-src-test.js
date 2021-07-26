@@ -23,13 +23,13 @@ test('Get ASAP', t => {
     asapSrc()
   }, 'Throw if unable to find ASAP module')
 
-  let localPath = join(cwd, 'node_modules', '@architect', 'asap', 'dist')
+  let localPath = join(cwd, 'node_modules', '@architect', 'asap', 'src')
   mockFs({ [localPath]: 'ok' })
   asap = asapSrc()
   t.equal(asap, localPath, `Got ASAP module in local dev mode: ${asap}`)
 
   process.chdir(cwd)
-  let globalPath = join(cwd, '..', 'asap', 'dist')
+  let globalPath = join(cwd, '..', 'asap', 'src')
   mockFs({ [globalPath]: 'ok' })
   asap = asapSrc()
   t.equal(asap, globalPath, `Got ASAP module in global mode: ${asap}`)
