@@ -31,7 +31,7 @@ module.exports = function upsertProps (config, newConfig) {
       if (setting[0] === 'policy') setting[0] = 'policies'
       if (setting[0] === 'layer') setting[0] = 'layers'
       name = setting[0]
-      value = setting[1]
+      value = setting.slice(1)
     }
     else if (typeof setting === 'object') {
       // Normalize singular to AWS equivalents
@@ -46,21 +46,19 @@ module.exports = function upsertProps (config, newConfig) {
       name = Object.keys(setting)[0]
       value = setting[name]
     }
-    else continue // Technically invalid and should have been caught by parser
+    else continue
 
     /**
      * Populate default config with new properties
      */
     if (name === 'layers' && !!(value)) {
-      if (Array.isArray(value)) layers = layers.concat(value)
-      else layers.push(value)
+      layers = layers.concat(value)
     }
     else if (name === 'policies' && !!(value)) {
-      if (Array.isArray(value)) policies = policies.concat(value)
-      else policies.push(value)
+      policies = policies.concat(value)
     }
     else {
-      props[name] = value
+      props[name] = value[0]
     }
   }
 
