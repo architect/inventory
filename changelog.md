@@ -2,6 +2,14 @@
 
 ---
 
+## [2.0.5] 2021-09-03
+
+### Fixed
+
+- Fix `@aws` `policies` + `layers` where multiple policies or layers listed in one line would ignore all but the first
+
+---
+
 ## [2.0.0 - 2.0.4] 2021-07-22
 
 ### Changed

@@ -123,7 +123,7 @@ concurrency ${value}
 })
 
 test('Individual setting upsert: layers', t => {
-  t.plan(20)
+  t.plan(28)
   let value
   let layers
   let result
@@ -133,6 +133,7 @@ test('Individual setting upsert: layers', t => {
   /**
    * layer
    */
+  // Single inline
   value = [ 'layer-1' ]
   layers = parse(`@aws
 layer ${value}
@@ -141,6 +142,16 @@ layer ${value}
   t.notEqual(str(defaults.layers), str(value), 'Testing value is not already the default')
   t.equal(str(result.layers), str(value), 'Properly upserted single layer')
 
+  // Multiple inline
+  value = [ 'layer-1', 'layer-2' ]
+  layers = parse(`@aws
+layer ${value.join(' ')}
+`).aws
+  result = upsert(defaults, layers)
+  t.notEqual(str(defaults.layers), str(value), 'Testing value is not already the default')
+  t.equal(str(result.layers), str(value), 'Properly upserted layers')
+
+  // Single in array
   value = [ 'layer-1' ]
   layers = parse(`@aws
 layer
@@ -150,6 +161,17 @@ layer
   t.notEqual(str(defaults.layers), str(value), 'Testing value is not already the default')
   t.equal(str(result.layers), str(value), 'Properly upserted single layer')
 
+  // Multiple in array
+  value = [ 'layer-1', 'layer-2' ]
+  layers = parse(`@aws
+layer
+  ${value.join('\n  ')}
+`).aws
+  result = upsert(defaults, layers)
+  t.notEqual(str(defaults.layers), str(value), 'Testing value is not already the default')
+  t.equal(str(result.layers), str(value), 'Properly upserted layers')
+
+  // Multiple in array de-duped
   layersDefaults = defaultFunctionConfig()
   layersDefaults.layers = [ 'layer-1', 'layer-2' ]
   value = [ 'layer-2', 'layer-3', 'layer-3' ]
@@ -165,6 +187,7 @@ layer
   /**
    * layers
    */
+  // Single inline
   value = [ 'layer-1' ]
   layers = parse(`@aws
 layers ${value}
@@ -173,6 +196,16 @@ layers ${value}
   t.notEqual(str(defaults.layers), str(value), 'Testing value is not already the default')
   t.equal(str(result.layers), str(value), 'Properly upserted single layer')
 
+  // Multiple inline
+  value = [ 'layer-1', 'layer-2' ]
+  layers = parse(`@aws
+layers ${value.join(' ')}
+`).aws
+  result = upsert(defaults, layers)
+  t.notEqual(str(defaults.layers), str(value), 'Testing value is not already the default')
+  t.equal(str(result.layers), str(value), 'Properly upserted layers')
+
+  // Single in array
   value = [ 'layer-1' ]
   layers = parse(`@aws
 layers
@@ -182,6 +215,17 @@ layers
   t.notEqual(str(defaults.layers), str(value), 'Testing value is not already the default')
   t.equal(str(result.layers), str(value), 'Properly upserted single layer')
 
+  // Multiple in array
+  value = [ 'layer-1', 'layer-2' ]
+  layers = parse(`@aws
+layers
+  ${value.join('\n  ')}
+`).aws
+  result = upsert(defaults, layers)
+  t.notEqual(str(defaults.layers), str(value), 'Testing value is not already the default')
+  t.equal(str(result.layers), str(value), 'Properly upserted layers')
+
+  // Multiple in array de-duped
   layersDefaults = defaultFunctionConfig()
   layersDefaults.layers = [ 'layer-1', 'layer-2' ]
   value = [ 'layer-2', 'layer-3', 'layer-3' ]
@@ -243,7 +287,7 @@ runtime 10
 })
 
 test('Individual setting upsert: policies', t => {
-  t.plan(20)
+  t.plan(28)
   let value
   let policies
   let result
@@ -253,6 +297,7 @@ test('Individual setting upsert: policies', t => {
   /**
    * policy
    */
+  // Single inline
   value = [ 'policy-1' ]
   policies = parse(`@aws
 policy ${value}
@@ -261,6 +306,16 @@ policy ${value}
   t.notEqual(str(defaults.policies), str(value), 'Testing value is not already the default')
   t.equal(str(result.policies), str(value), 'Properly upserted single policy')
 
+  // Multiple inline
+  value = [ 'policy-1', 'policy-2' ]
+  policies = parse(`@aws
+policy ${value.join(' ')}
+`).aws
+  result = upsert(defaults, policies)
+  t.notEqual(str(defaults.policies), str(value), 'Testing value is not already the default')
+  t.equal(str(result.policies), str(value), 'Properly upserted policies')
+
+  // Single in array
   value = [ 'policy-1' ]
   policies = parse(`@aws
 policy
@@ -270,6 +325,17 @@ policy
   t.notEqual(str(defaults.policies), str(value), 'Testing value is not already the default')
   t.equal(str(result.policies), str(value), 'Properly upserted single policy')
 
+  // Multiple in array
+  value = [ 'policy-1', 'policy-2' ]
+  policies = parse(`@aws
+policy
+  ${value.join('\n  ')}
+`).aws
+  result = upsert(defaults, policies)
+  t.notEqual(str(defaults.policies), str(value), 'Testing value is not already the default')
+  t.equal(str(result.policies), str(value), 'Properly upserted policies')
+
+  // Multiple in array de-duped
   policiesDefaults = defaultFunctionConfig()
   policiesDefaults.policies = [ 'policy-1', 'policy-2' ]
   value = [ 'policy-2', 'policy-3', 'policy-3' ]
@@ -285,6 +351,7 @@ policy
   /**
    * policies
    */
+  // Single inline
   value = [ 'policy-1' ]
   policies = parse(`@aws
 policies ${value}
@@ -293,6 +360,16 @@ policies ${value}
   t.notEqual(str(defaults.policies), str(value), 'Testing value is not already the default')
   t.equal(str(result.policies), str(value), 'Properly upserted single policy')
 
+  // Multiple inline
+  value = [ 'policy-1', 'policy-2' ]
+  policies = parse(`@aws
+policies ${value.join(' ')}
+`).aws
+  result = upsert(defaults, policies)
+  t.notEqual(str(defaults.policies), str(value), 'Testing value is not already the default')
+  t.equal(str(result.policies), str(value), 'Properly upserted single policy')
+
+  // Single in array
   value = [ 'policy-1' ]
   policies = parse(`@aws
 policies
@@ -302,6 +379,17 @@ policies
   t.notEqual(str(defaults.policies), str(value), 'Testing value is not already the default')
   t.equal(str(result.policies), str(value), 'Properly upserted single policy')
 
+  // Multiple in array
+  value = [ 'policy-1', 'policy-2' ]
+  policies = parse(`@aws
+  policies
+    ${value.join('\n  ')}
+  `).aws
+  result = upsert(defaults, policies)
+  t.notEqual(str(defaults.policies), str(value), 'Testing value is not already the default')
+  t.equal(str(result.policies), str(value), 'Properly upserted single policy')
+
+  // Multiple in array de-duped
   policiesDefaults = defaultFunctionConfig()
   policiesDefaults.policies = [ 'policy-1', 'policy-2' ]
   value = [ 'policy-2', 'policy-3', 'policy-3' ]
