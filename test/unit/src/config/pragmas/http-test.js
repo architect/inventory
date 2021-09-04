@@ -23,7 +23,7 @@ test('No @http returns null', t => {
 })
 
 test('@http population via @static: implicit get /* (Arc Static Asset Proxy)', t => {
-  t.plan(55)
+  t.plan(67)
   let arc
 
   function check (arc, expected, expectedRootHandler) {
@@ -75,30 +75,60 @@ test('@http population via @static: implicit get /* (Arc Static Asset Proxy)', t
 post /`)
   check(arc, 2, 'arcStaticAssetProxy')
 
+  // Find the root user-configured handler
   arc = parse(`@http
 get /`)
-  check(arc, 1, 'configured')
+  check(arc, 1, 'get /')
 
   arc = parse(`@http
 get /*`)
-  check(arc, 1, 'configured')
+  check(arc, 1, 'get /*')
 
   arc = parse(`@http
 get /:param`)
-  check(arc, 1, 'configured')
+  check(arc, 1, 'get /:param')
 
   arc = parse(`@http
 any /`)
-  check(arc, 1, 'configured')
+  check(arc, 1, 'any /')
 
   arc = parse(`@http
 any /*`)
-  check(arc, 1, 'configured')
+  check(arc, 1, 'any /*')
 
   arc = parse(`@http
 any /:param`)
-  check(arc, 1, 'configured')
+  check(arc, 1, 'any /:param')
 
+  // `get /` always wins
+  arc = parse(`@http
+any /*
+get /
+any /`)
+  check(arc, 3, 'get /')
+
+  // root wins over method
+  arc = parse(`@http
+any /:foo
+get /*
+any /`)
+  check(arc, 3, 'any /')
+
+  // `get` wins over `any`
+  arc = parse(`@http
+any /*
+get /*
+get /whatev`)
+  check(arc, 3, 'get /*')
+
+  // `get` wins over `any` even with diff kinds of greedy route
+  arc = parse(`@http
+any /*
+get /:foo
+get /whatev`)
+  check(arc, 3, 'get /:foo')
+
+  // Proxy
   arc = parse(`@http
 @proxy
 testing https://some.site

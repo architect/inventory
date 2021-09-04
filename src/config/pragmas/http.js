@@ -10,21 +10,43 @@ module.exports = function configureHTTP ({ arc, inventory, errors }) {
   // However, @http is special because it gets the Architect Static Asset Proxy (ASAP), so fall back to an empty array
   let http = populate.http(arc.http, inventory, errors) || []
 
-  let findRoot = route => {
-    let r = route.name.split(' ')
-    let method = r[0]
-    let path = r[1]
-    let rootParam = path.startsWith('/:') && path.split('/').length === 2
-    let isRootMethod = method === 'get' || method === 'any'
-    let isRootPath = path === '/' || path === '/*' || rootParam
-    return isRootMethod && isRootPath
+  // Attempt to determine specifically what is handling requests to the root
+  // This should probably just be replaced by proper route ordering
+  let rootHandler
+  if (arc.proxy) {
+    rootHandler = 'proxy'
   }
-  let rootHandler = http.some(findRoot) ? 'configured' : 'arcStaticAssetProxy'
-  if (arc.proxy) rootHandler = 'proxy'
-  if (rootHandler === 'arcStaticAssetProxy') {
-    let src = asapSrc()
+  else {
+    let foundHandler
+    for (let route of http) {
+      let { method, path } = route
+      let rootParam = path.startsWith('/:') && path.split('/').length === 2
+      let isRootMethod = method === 'get' || method === 'any'
+      let isRootPath = path === '/' || path === '/*' || rootParam
+      // Prefer `/` to `/*` or `/:foo`; then prefer `get` to `any`
+      if (isRootMethod && isRootPath) {
+        if (!foundHandler) foundHandler = route
+        else {
+          let pathLen = path.startsWith('/:') ? 2 : path.length
+          let handLen = foundHandler.path.startsWith('/:') ? 2 : foundHandler.path.length
+          // root wins over params / catchall
+          if (pathLen < handLen) {
+            foundHandler = route
+          }
+          // `get` wins over `any`
+          else if (method === 'get' && (pathLen <= handLen)) {
+            foundHandler = route
+          }
+        }
+      }
+    }
+    if (foundHandler) rootHandler = foundHandler.name
+  }
 
-    // Inject ASAP
+  // Inject ASAP
+  if (!rootHandler) {
+    rootHandler = 'arcStaticAssetProxy'
+    let src = asapSrc()
     let asap = {
       name: 'get /*',
       config: { ...inventory._arc.defaultFunctionConfig },
