@@ -4,6 +4,12 @@
 
 ## [2.0.5] 2021-09-03
 
+### Changed
+
+- When a valid root handler is configured by the user, `inv._project.rootHandler` is no longer `configured`, and is instead the specific root handler's `name` property
+  - Example: `@http get /` would result in `inventory._project.rootHandler` being `get /`
+
+
 ### Fixed
 
 - Fix `@aws` `policies` + `layers` where multiple policies or layers listed in one line would ignore all but the first
