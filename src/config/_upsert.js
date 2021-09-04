@@ -1,3 +1,5 @@
+let is = require('../lib/is')
+
 /**
  * Overlay / append properties onto an existing config object
  *
@@ -26,14 +28,14 @@ module.exports = function upsertProps (config, newConfig) {
      *   foobar
      * → arc.aws: [{ policies: [ 'foobar' ] }]
      */
-    if (Array.isArray(setting)) {
+    if (is.array(setting)) {
       // Normalize singular to AWS equivalents
       if (setting[0] === 'policy') setting[0] = 'policies'
       if (setting[0] === 'layer') setting[0] = 'layers'
       name = setting[0]
       value = setting.slice(1)
     }
-    else if (typeof setting === 'object') {
+    else if (is.object(setting)) {
       // Normalize singular to AWS equivalents
       if (setting.policy) {
         setting.policies = setting.policy

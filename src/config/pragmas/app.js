@@ -1,9 +1,10 @@
 let { validate } =  require('./validate')
+let is = require('../../lib/is')
 
 module.exports = function configureApp ({ arc, errors }) {
-  if (!Array.isArray(arc.app) ||
+  if (!is.array(arc.app) ||
       arc.app.length !== 1 ||
-      typeof arc.app[0] !== 'string') {
+      !is.string(arc.app[0])) {
     errors.push('@app name not found or invalid')
     return null
   }

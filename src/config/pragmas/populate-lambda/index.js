@@ -1,6 +1,7 @@
 let read = require('../../../read')
 let getHandler = require('./get-handler')
 let upsert = require('../../_upsert')
+let is = require('../../../lib/is')
 
 // Pragma-specific Lambda constructors
 let getHTTP = require('./_http')
@@ -28,7 +29,7 @@ function populateLambda (type, pragma, inventory, errors) {
     // Some lambda populators (e.g. plugins) may return empty results
     if (!results) continue
     // Some lambda populators (e.g. plugins) may return multiple results
-    if (!(Array.isArray(results))) results = [ results ]
+    if (!is.array(results)) results = [ results ]
 
     results.forEach(result => {
       let { name, src } = result

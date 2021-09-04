@@ -1,8 +1,9 @@
 let { join } = require('path')
 let { getLambdaName } = require('@architect/utils')
+let is = require('../../../lib/is')
 
 module.exports = function populateHTTP ({ item, dir, cwd, errors }) {
-  if (Array.isArray(item) && item.length === 2) {
+  if (is.array(item) && item.length === 2) {
     let method = item[0].toLowerCase()
     let path = item[1]
     let name = `${method} ${path}`
@@ -11,7 +12,7 @@ module.exports = function populateHTTP ({ item, dir, cwd, errors }) {
     let route = { name, method, path, src }
     return route
   }
-  else if (typeof item === 'object' && !Array.isArray(item)) {
+  else if (is.object(item)) {
     let path = Object.keys(item)[0]
     let method = item[path].method.toLowerCase()
     let name = `${method} ${path}`

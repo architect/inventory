@@ -1,6 +1,7 @@
 let parse = require('@architect/parser')
-let { existsSync: exists, readFileSync } = require('fs')
+let { existsSync, readFileSync } = require('fs')
 let { join } = require('path')
+let is = require('../lib/is')
 let read = p => readFileSync(p).toString()
 
 /**
@@ -20,7 +21,7 @@ module.exports = function reader (reads, cwd, errors) {
     if (filepath) return
 
     // Crawl the specified files; _default assumes a string
-    if (Array.isArray(value)) {
+    if (is.array(value)) {
       value.forEach(f => {
         // Again, bail if we found something
         if (filepath) return
@@ -28,7 +29,7 @@ module.exports = function reader (reads, cwd, errors) {
         try {
           // Bail if file doesn't exist
           let file = join(cwd, f)
-          if (!exists(file)) return
+          if (!existsSync(file)) return
 
           if (type !== 'manifest') {
             filepath = file

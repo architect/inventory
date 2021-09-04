@@ -1,18 +1,19 @@
 let { lambdas } = require('../../lib/pragmas')
+let is = require('../../lib/is')
 
 module.exports = function collectSourceDirs ({ pragmas, errors }) {
   let lambdaSrcDirs = []
   let unsortedBySrcDir = {}
   Object.entries(pragmas).forEach(([ pragma, values ]) => {
     let mayHaveSrcDirs = lambdas.some(p => p === pragma)
-    if (mayHaveSrcDirs && Array.isArray(values)) {
+    if (mayHaveSrcDirs && is.array(values)) {
       pragmas[pragma].forEach(item => {
         if (item.arcStaticAssetProxy === true) return // Special exception for ASAP
-        else if (typeof item.src === 'string') {
+        else if (is.string(item.src)) {
           lambdaSrcDirs.push(item.src)
           // Multiple Lambdae may map to a single dir
           if (unsortedBySrcDir[item.src]) {
-            unsortedBySrcDir[item.src] = Array.isArray(unsortedBySrcDir[item.src])
+            unsortedBySrcDir[item.src] = is.array(unsortedBySrcDir[item.src])
               ? [ ...unsortedBySrcDir[item.src], { ...item, pragma } ]
               : [ unsortedBySrcDir[item.src], { ...item, pragma } ]
           }

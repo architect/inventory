@@ -1,9 +1,9 @@
 let { join } = require('path')
 let { existsSync } = require('fs')
+let is = require('../../../lib/is')
 
 module.exports = function populateStreams ({ type, item, dir, cwd, errors }) {
-  let isObj = typeof item === 'object' && !Array.isArray(item)
-  if (type === 'tables' && isObj) {
+  if (type === 'tables' && is.object(item)) {
     let name = Object.keys(item)[0]
     // Check for the legacy dir from before `@tables tablename stream true` generated an @streams item
     let legacySrc = join(cwd, dir, name)
@@ -12,13 +12,13 @@ module.exports = function populateStreams ({ type, item, dir, cwd, errors }) {
     let table = name
     return { name, src, table }
   }
-  else if (type === 'streams' && typeof item === 'string') {
+  else if (type === 'streams' && is.string(item)) {
     let name = item
     let src = join(cwd, dir, name)
     let table = name
     return { name, src, table }
   }
-  else if (type === 'streams' && isObj) {
+  else if (type === 'streams' && is.object(item)) {
     let name = Object.keys(item)[0]
     let src = item[name].src
       ? join(cwd, item[name].src)

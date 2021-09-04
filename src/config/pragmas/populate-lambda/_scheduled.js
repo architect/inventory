@@ -33,7 +33,7 @@ let get = {
 module.exports = function populateScheduled ({ item, dir, cwd, errors }) {
   let rate = null
   let cron = null
-  if (Array.isArray(item) && item.length >= 3) {
+  if (is.array(item) && item.length >= 3) {
     let name = item[0]
 
     // Hacky but it works
@@ -49,7 +49,7 @@ module.exports = function populateScheduled ({ item, dir, cwd, errors }) {
     let src = join(cwd, dir, name)
     return { name, src, rate, cron }
   }
-  else if (typeof item === 'object' && !Array.isArray(item)) {
+  else if (is.object(item)) {
     let name = Object.keys(item)[0]
 
     // Handle rate + cron
