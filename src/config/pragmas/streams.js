@@ -1,5 +1,6 @@
 let populate = require('./populate-lambda')
 let validate = require('./validate')
+let is = require('../../lib/is')
 
 /**
  * `@streams` (formerly `@tables`)
@@ -15,7 +16,7 @@ module.exports = function configureStreams ({ arc, inventory, errors }) {
   }
 
   // Populate @tables
-  let tables = arc.tables.filter(t => typeof t === 'object' && t[Object.keys(t)[0]].stream === true)
+  let tables = arc.tables.filter(t => is.object(t) && t[Object.keys(t)[0]].stream === true)
   if (tables.length) {
     tables = populate.tables(tables, inventory, errors)
   }

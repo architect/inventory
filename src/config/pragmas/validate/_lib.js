@@ -13,10 +13,10 @@ function regex (value, pattern, pragmaName, errors) {
 }
 
 function size (value, min, max, pragmaName, errors) {
-  if (typeof value !== 'string') {
+  if (!is.string(value)) {
     errors.push(`Invalid ${pragmaName} item: '${value}' must be a string`)
   }
-  if (typeof min !== 'number' || typeof max !== 'number') {
+  if (!is.number(min) || !is.number(max)) {
     throw ReferenceError('Invalid size specified')
   }
   if (value.length < min) {

@@ -1,5 +1,6 @@
 let read = require('../../read')
 let validate = require('./validate')
+let is = require('../../lib/is')
 let { homedir } = require('os')
 
 module.exports = function getPrefs ({ scope, inventory, errors }) {
@@ -20,20 +21,19 @@ module.exports = function getPrefs ({ scope, inventory, errors }) {
       /* istanbul ignore else */ // Parser should get this, but jic
       if (!preferences[key]) preferences[key] = {}
       /* istanbul ignore else */ // Parser should only produce arrays, but jic
-      if (Array.isArray(val)) {
+      if (is.array(val)) {
         val.forEach(v => {
-          if (Array.isArray(v)) {
+          if (is.array(v)) {
             /* istanbul ignore if */ // Single vals should be strings, but jic
-            if (v.length === 1)       preferences[key] = v[0]
-            else if (v.length === 2)  preferences[key][v[0]] = v[1]
-            /* istanbul ignore else */ // Should be cornered, but jic
-            else if (v.length > 2)    preferences[key][v[0]] = [ ...v.slice(1) ]
+            if (v.length === 1) preferences[key] = v[0]
+            if (v.length === 2) preferences[key][v[0]] = v[1]
+            if (v.length > 2)   preferences[key][v[0]] = [ ...v.slice(1) ]
           }
-          else if (typeof v === 'object' && Object.keys(v).length) {
+          else if (is.object(v)) {
             Object.keys(v).forEach(k => preferences[key][k] = v[k])
           }
-          /* istanbul ignore else */ // Should be cornered, but jic
-          else if (!Array.isArray(v)) preferences[key] = v
+          // Should be cornered, but jic
+          else preferences[key] = v
         })
       }
       // Turn env vars with spaces into strings
@@ -42,7 +42,7 @@ module.exports = function getPrefs ({ scope, inventory, errors }) {
           /* istanbul ignore else */ // Yet another jic
           if (preferences.env[e]) {
             Object.entries(preferences.env[e]).forEach(([ key, val ]) => {
-              if (Array.isArray(val)) preferences.env[e][key] = val.join(' ')
+              if (is.array(val)) preferences.env[e][key] = val.join(' ')
             })
           }
         })
@@ -50,9 +50,9 @@ module.exports = function getPrefs ({ scope, inventory, errors }) {
       // Turn Sandbox scripts into commands
       if (key === 'sandbox-startup') {
         preferences[key] = val.map(v => {
-          if (typeof v === 'string') return v
+          if (is.string(v)) return v
           /* istanbul ignore else */ // Yet another jic
-          if (Array.isArray(v)) return v.join(' ')
+          if (is.array(v)) return v.join(' ')
         })
       }
     })

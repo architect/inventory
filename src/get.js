@@ -6,7 +6,7 @@ module.exports = function _get (inventory) {
 
     // Getters
     if (pragma === null) return null
-    if (Array.isArray(pragma)) {
+    if (is.array(pragma)) {
       // Handle arrays of named entities or string values
       let finder = i => i && i.name && i.name === name || i === name
       if (multipleResults.includes(prag)) {

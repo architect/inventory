@@ -1,6 +1,8 @@
+let is = require('../lib/is')
+
 // Validates Lambda layer / policy ARNs, prob can't be used for other kinds of ARN
 module.exports = function validateARN ({ arn, region, loc }) {
-  if (typeof arn !== 'string' ||
+  if (!is.string(arn) ||
       !arn.startsWith('arn:') ||
       arn.split(':').length !== 8) {
     /* istanbul ignore next */

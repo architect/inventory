@@ -1,4 +1,5 @@
 let asapSrc = require('../../lib/asap-src')
+let is = require('../../lib/is')
 
 module.exports = function configureStatic ({ arc, inventory }) {
   // @static is inferred by @http
@@ -16,7 +17,7 @@ module.exports = function configureStatic ({ arc, inventory }) {
     production: null,
   }
 
-  if (Array.isArray(arc.static)) {
+  if (is.array(arc.static)) {
     let disabled = [ false, 'disable', 'disabled' ]
     let isDisabled = disabled.some(s => s === arc.static[0])
     if (isDisabled) return false
@@ -28,7 +29,7 @@ module.exports = function configureStatic ({ arc, inventory }) {
     if (setting.ignore) {
       _static.ignore = setting.ignore
     }
-    else if (Array.isArray(setting) &&
+    else if (is.array(setting) &&
              setting.length === 2 &&
              validSetting(setting[0])) {
       let isIgnore = setting[0] === 'ignore'
