@@ -9,6 +9,7 @@ module.exports = function configureIndexes ({ arc, errors }) {
   }
 
   let isCustomName = key => is.string(key) && key.toLowerCase() === 'name'
+  let isProjection = key => is.string(key) && key.toLowerCase() === 'projection'
   function error (item) { errors.push(`Invalid @indexes item: ${item}`) }
 
   let indexes = arc.indexes.map(index => {
@@ -19,6 +20,8 @@ module.exports = function configureIndexes ({ arc, errors }) {
       let sortKey = null
       let sortKeyType = null
       let indexName = null
+      let projectionType = 'ALL'
+      let projectionAttributes = null
       Object.entries(index[name]).forEach(([ key, value ]) => {
         if (is.sortKey(value)) {
           sortKey = key
@@ -31,6 +34,23 @@ module.exports = function configureIndexes ({ arc, errors }) {
         else if (isCustomName(key)) {
           indexName = value
         }
+        else if (isProjection(key)) {
+          if (value === 'all') {
+            projectionType = 'ALL'
+          }
+          else if (value === 'keys') {
+            projectionType = 'KEYS_ONLY'
+          }
+          else {
+            projectionType = 'INCLUDE'
+            if (Array.isArray(value)) {
+              projectionAttributes = value
+            }
+            else {
+              projectionAttributes = [ value ]
+            }
+          }
+        }
       })
       return {
         indexName,
@@ -39,6 +59,8 @@ module.exports = function configureIndexes ({ arc, errors }) {
         partitionKeyType,
         sortKey,
         sortKeyType,
+        projectionType,
+        projectionAttributes
       }
     }
     error(index)

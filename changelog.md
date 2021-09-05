@@ -2,6 +2,14 @@
 
 ---
 
+## [2.2.0] 2021-10-12
+
+### Added
+
+- Added support for specifying DynamoDB index projection attributes; incremental support for [#1083](https://github.com/architect/architect/issues/1083)
+
+---
+
 ## [2.1.0] 2021-10-11
 
 ### Added
@@ -36,8 +44,6 @@
 ### Changed
 
 - Internal: Updated Architect Parser to v5
-
----
 
 ## [2.0.5] 2021-09-03
 
