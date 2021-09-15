@@ -28,7 +28,7 @@ test('Get global preferences', t => {
       'echo hello',
       'echo hello there',
       `echo hi there`,
-      `echo 'hi there'`,
+      `echo hi there`,
       `echo hi #here`,
     ],
     env: {
@@ -93,7 +93,7 @@ test('Get local preferences', t => {
       'echo hello',
       'echo hello there',
       `echo hi there`,
-      `echo 'hi there'`,
+      `echo hi there`,
       `echo hi #here`,
     ],
     create: { autocreate: true },

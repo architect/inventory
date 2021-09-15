@@ -24,7 +24,7 @@ test('Get preferences', t => {
       'echo hello',
       'echo hello there',
       `echo hi there`,
-      `echo 'hi there'`,
+      `echo hi there`,
       `echo hi #here`,
     ],
     env: {
