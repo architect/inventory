@@ -1,4 +1,4 @@
-let parser = require('@architect/parser')
+let parse = require('@architect/parser')
 let read = require('./read')
 let inventoryDefaults = require('./defaults')
 let config = require('./config')
@@ -35,7 +35,7 @@ module.exports = function architectInventory (params = {}, callback) {
   // Stateless inventory run
   if (rawArc) {
     try {
-      var arc = parser(rawArc)
+      var arc = parse(rawArc)
       var raw = rawArc
       var filepath = false
     }
