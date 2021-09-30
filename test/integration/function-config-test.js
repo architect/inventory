@@ -27,6 +27,7 @@ test('Inventory and compare functions with / without function config', t => {
       let def = inv._project.defaultFunctionConfig
       let custom = {
         runtime: 'nodejs8.10',
+        architecture: 'arm64',
         timeout: 10,
         memory: 128,
         layers: [ 'arn:a:b:us-west-1:c:d:e:f' ],
