@@ -18,7 +18,6 @@ module.exports = function configureTables ({ arc, errors }) {
       let encrypt = null
       let pitr = null
       let pitrOld // Old opt, remove in some future breaking change
-      let legacy // Arc v5 to v8+ compat flag
       Object.entries(table[name]).forEach(([ key, value ]) => {
         if (is.sortKey(value)) {
           sortKey = key
@@ -33,7 +32,6 @@ module.exports = function configureTables ({ arc, errors }) {
         if (key === 'encrypt')  encrypt = value
         if (key === 'pitr')     pitr = value
         if (key === pitrLong)   pitrOld = value
-        if (key === 'legacy')   legacy = value
       })
       let t = {
         name,
@@ -46,7 +44,6 @@ module.exports = function configureTables ({ arc, errors }) {
         encrypt,
         pitr,
       }
-      if (legacy !== undefined) t.legacy = legacy
       if (pitrOld !== undefined) t.PointInTimeRecovery = pitrOld
       return t
     }

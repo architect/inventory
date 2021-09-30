@@ -48,7 +48,7 @@ number-keys
 })
 
 test('@tables population (extra params)', t => {
-  t.plan(11)
+  t.plan(10)
 
   let arc = parse(`
 @tables
@@ -59,7 +59,6 @@ string-keys
   _ttl TTL
   pitr true
   encrypt true
-  legacy true
 `)
   let tables = populateTables({ arc })
   t.ok(tables.length === 1, 'Got correct number of tables back')
@@ -72,7 +71,6 @@ string-keys
   t.equal(tables[0].ttl, '_ttl', 'Got back correct TTL value')
   t.equal(tables[0].pitr, true, 'Got back correct pitr value')
   t.equal(tables[0].encrypt, true, 'Got back correct encrypt value')
-  t.equal(tables[0].legacy, true, 'Got back correct legacy value')
 })
 
 test('@tables population (legacy params)', t => {

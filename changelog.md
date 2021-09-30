@@ -2,6 +2,14 @@
 
 ---
 
+## [next] 2021-09-30
+
+### Changed
+
+- Internal: removed unused `@tables` flag
+
+---
+
 ## [2.0.6] 2021-09-14
 
 ### Changed
