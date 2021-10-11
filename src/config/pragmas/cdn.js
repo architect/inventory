@@ -8,7 +8,7 @@ module.exports = function configureCDN ({ arc, errors }) {
   let cdn = true
   arc.cdn.forEach(setting => {
     let disabled = [ false, 'disable', 'disabled' ]
-    let isDisabled = disabled.some(s => s === setting)
+    let isDisabled = disabled.includes(setting)
     if (isDisabled) cdn = false
   })
 

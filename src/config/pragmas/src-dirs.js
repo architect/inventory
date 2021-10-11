@@ -5,7 +5,7 @@ module.exports = function collectSourceDirs ({ pragmas, errors }) {
   let lambdaSrcDirs = []
   let unsortedBySrcDir = {}
   Object.entries(pragmas).forEach(([ pragma, values ]) => {
-    let mayHaveSrcDirs = lambdas.some(p => p === pragma)
+    let mayHaveSrcDirs = lambdas.includes(pragma)
     if (mayHaveSrcDirs && is.array(values)) {
       pragmas[pragma].forEach(item => {
         if (item.arcStaticAssetProxy === true) return // Special exception for ASAP

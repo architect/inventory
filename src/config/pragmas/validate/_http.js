@@ -5,7 +5,7 @@ module.exports = function validateHTTP (http, errors) {
     unique(http, '@http routes', errors)
 
     let methods = [ 'get', 'post', 'put', 'patch', 'delete', 'options', 'head', 'any' ]
-    let validMethod = str => methods.some(m => m === str.toLowerCase())
+    let validMethod = str => methods.includes(str.toLowerCase())
     let validPath = str => str.match(/^\/[a-zA-Z0-9/\-:._\*]*$/)
     http.forEach(route => {
       let { name, method, path } = route
