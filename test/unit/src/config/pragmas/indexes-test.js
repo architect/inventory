@@ -72,7 +72,7 @@ number-keys
 number-keys # Second index on the same table
   numID *Number
   name MyNumberIndex
-  `)
+`)
 
   let indexes = populateIndexes({ arc })
   t.ok(indexes.length === 3, 'Got correct number of indexes back')

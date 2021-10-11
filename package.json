@@ -20,9 +20,9 @@
   },
   "license": "Apache-2.0",
   "dependencies": {
-    "@architect/asap": "~4.0.0",
-    "@architect/parser": "~5.0.0",
-    "@architect/utils": "~3.0.2"
+    "@architect/asap": "~4.1.0",
+    "@architect/parser": "~5.0.1",
+    "@architect/utils": "~3.0.3"
   },
   "devDependencies": {
     "@architect/eslint-config": "~2.0.0",
