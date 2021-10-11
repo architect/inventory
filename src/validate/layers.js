@@ -24,7 +24,7 @@ module.exports = function layerValidator (params, inventory, errors) {
       let layers = item.layers
       validateLayer({ layers, region, location })
     }
-    else if (lambdas.some(p => p === i) && item) {
+    else if (lambdas.includes(i) && item) {
       item.forEach(entry => {
         // Probably unnecessary if no configFile is present but why not, let's be extra safe
         let location = entry.configFile && entry.configFile.replace(cwd, '')

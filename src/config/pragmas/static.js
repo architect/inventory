@@ -19,13 +19,13 @@ module.exports = function configureStatic ({ arc, inventory }) {
 
   if (is.array(arc.static)) {
     let disabled = [ false, 'disable', 'disabled' ]
-    let isDisabled = disabled.some(s => s === arc.static[0])
+    let isDisabled = disabled.includes(arc.static[0])
     if (isDisabled) return false
   }
 
   let settings = Object.entries(_static).map(([ setting ]) => setting)
   for (let setting of staticPragma) {
-    let validSetting = key => settings.some(s => s === key)
+    let validSetting = key => settings.includes(key)
     if (setting.ignore) {
       _static.ignore = setting.ignore
     }

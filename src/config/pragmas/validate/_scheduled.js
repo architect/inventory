@@ -80,15 +80,15 @@ function validateRate (schedule, errors) {
     return expErr(`rate interval must be 'minute', 'minutes', 'hour', 'hours', 'day', or 'days'`, interval)
   }
   // Interval must be use the singular/plural values above
-  if (!singular.concat(plural).some(i => i === interval)) {
+  if (!singular.concat(plural).includes(interval)) {
     expErr(`rate interval must be 'minute', 'minutes', 'hour', 'hours', 'day', or 'days'`, interval)
   }
   // Value of 1 must use singular interval
-  if (value === 1 && plural.some(i => i === interval)) {
+  if (value === 1 && plural.includes(interval)) {
     expErr(`rate value of 1 must use a singular interval, e.g. 'minute', 'hour', 'day'`, interval)
   }
   // Value >1 must use plural interval
-  if (value > 1 && singular.some(i => i === interval)) {
+  if (value > 1 && singular.includes(interval)) {
     expErr(`rate values greater than 1 must use plural intervals, e.g. 'minutes', 'hours', 'days'`, interval)
   }
 }
