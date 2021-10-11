@@ -280,7 +280,7 @@ layers
   layersDefaults = defaultFunctionConfig()
   layersDefaults.layers = [ 'layer-1', 'layer-2' ]
   layers = parse(`@aws
-runtime 10
+runtime python
 `).aws
   result = upsert(layersDefaults, layers)
   t.notEqual(str(layersDefaults.layers), str(layers.layers), 'Testing value is not already the default')
@@ -444,7 +444,7 @@ policies
   policiesDefaults = defaultFunctionConfig()
   policiesDefaults.policies = [ 'policy-1', 'policy-2' ]
   policies = parse(`@aws
-runtime 10
+runtime python
 `).aws
   result = upsert(policiesDefaults, policies)
   t.notEqual(str(policiesDefaults.policies), str(policies.policies), 'Testing value is not already the default')

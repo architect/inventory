@@ -2,6 +2,17 @@
 
 ---
 
+## [2.1.0] 2021-10-11
+
+### Added
+
+- Added latest-runtime version pinning
+  - Example: if you always want your app to run the latest Lambda version of Python, instead of specifying `python3.9` (and changing it every time a new version of Python is released), instead simply specify `python` or `py`
+  - Valid shortcuts: Node.js: `node`, `nodejs`, `node.js`; Python: `python`, `py`; Ruby: `ruby`, `rb`; Java: `java`; Go: `go`, `golang`; .NET: `dotnet`, `.net`; and custom runtimes: `custom`
+- Added runtime validation
+
+---
+
 ## [2.0.7] 2021-09-30
 
 ### Added

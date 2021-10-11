@@ -26,7 +26,7 @@ test('Inventory and compare functions with / without function config', t => {
       t.ok(get, 'Inventory returned getter')
       let def = inv._project.defaultFunctionConfig
       let custom = {
-        runtime: 'nodejs8.10',
+        runtime: 'nodejs14.x',
         architecture: 'arm64',
         timeout: 10,
         memory: 128,
