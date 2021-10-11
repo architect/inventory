@@ -1,6 +1,6 @@
 # Non-defaults all around
 @aws
-runtime nodejs8.10 # No longer supported
+runtime node
 timeout 10
 memory 128
 layers

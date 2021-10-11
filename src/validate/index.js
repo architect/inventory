@@ -1,3 +1,4 @@
+let runtimes = require('./runtimes')
 let layers = require('./layers')
 let tablesChildren = require('./tables-children')
 let errorFmt = require('../lib/error-fmt')
@@ -11,6 +12,9 @@ module.exports = function finalValidation (params, inventory) {
   /**
    * Deal with vendor configuration errors
    */
+
+  // Blow up on any non-matching runtimes
+  runtimes(params, inventory, errors)
 
   // Ensure layer configuration will work, AWS blows up with awful errors on this
   layers(params, inventory, errors)
