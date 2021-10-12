@@ -3,6 +3,8 @@ let test = require('tape')
 let sut = join(process.cwd(), 'src', 'env')
 let getEnv = require(sut)
 let awsMock = require('aws-sdk-mock')
+let aws = require('aws-sdk')
+awsMock.setSDKInstance(aws)
 
 let app = 'an-app'
 let inventory = {
@@ -18,8 +20,6 @@ let reset = () => {
 
 test('Set up env', t => {
   t.plan(1)
-  process.env.AWS_ACCESS_KEY_ID = 'blah'
-  process.env.AWS_SECRET_ACCESS_KEY = 'blah'
   t.ok(getEnv, 'Env var getter is present')
   awsMock.mock('SSM', 'getParametersByPath', function (p, callback) {
     if (response instanceof Error) callback(response)
@@ -102,7 +102,5 @@ test('Error handling', t => {
 test('Teardown', t => {
   t.plan(1)
   awsMock.restore()
-  delete process.env.AWS_ACCESS_KEY_ID
-  delete process.env.AWS_SECRET_ACCESS_KEY
   t.pass('All done')
 })
