@@ -11,6 +11,11 @@
   - Valid shortcuts: Node.js: `node`, `nodejs`, `node.js`; Python: `python`, `py`; Ruby: `ruby`, `rb`; Java: `java`; Go: `go`, `golang`; .NET: `dotnet`, `.net`; and custom runtimes: `custom`
 - Added runtime validation
 
+
+### Changed
+
+- Updated dependencies
+
 ---
 
 ## [2.0.7] 2021-09-30
