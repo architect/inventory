@@ -32,7 +32,11 @@ let runtimes = {
   custom: [
     'provided.al2',
     'provided',
-  ]
+  ],
+  // Arc specific
+  deno: [
+    'deno'
+  ],
 }
 
 // Human friendly shortcuts
@@ -69,6 +73,8 @@ function getRuntime (name) {
 
     if (customs.includes(name))           return runtimes.custom[0]
     if (runtimes.custom.includes(name))   return name
+
+    if (runtimes.deno.includes(name))     return name
 
     return name // Will be validated later
   }

@@ -35,7 +35,7 @@ test('Friendly runtime names', t => {
 })
 
 test('Exact runtime names', t => {
-  t.plan(7)
+  t.plan(8)
   let name
   let result
 
@@ -64,6 +64,10 @@ test('Exact runtime names', t => {
   t.equal(result, name, `Returned correct runtime string: ${name}`)
 
   name = 'provided.al2'
+  result = runtimes(name)
+  t.equal(result, name, `Returned correct runtime string: ${name}`)
+
+  name = 'deno'
   result = runtimes(name)
   t.equal(result, name, `Returned correct runtime string: ${name}`)
 })
