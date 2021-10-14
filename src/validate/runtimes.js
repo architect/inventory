@@ -1,12 +1,12 @@
 let { lambdas } = require('../lib/pragmas')
-let { runtimes } = require('../lib/runtimes')
+let { runtimeList } = require('lambda-runtimes')
 
 /**
  * Runtime validator
  */
 module.exports = function runtimeValidator (params, inventory, errors) {
 
-  let allRuntimes = Object.keys(runtimes).reduce((a, k) => a.concat(runtimes[k]), [])
+  let allRuntimes = runtimeList.concat([ 'deno' ])
   let globalRuntime = inventory.aws?.runtime
   if (globalRuntime && !allRuntimes.includes(globalRuntime)) {
     errors.push(`Invalid project-level runtime: ${globalRuntime}`)

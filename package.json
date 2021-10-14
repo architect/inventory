@@ -22,7 +22,8 @@
   "dependencies": {
     "@architect/asap": "~4.1.0",
     "@architect/parser": "~5.0.2",
-    "@architect/utils": "~3.0.3"
+    "@architect/utils": "~3.0.3",
+    "lambda-runtimes": "0.0.1"
   },
   "devDependencies": {
     "@architect/eslint-config": "~2.0.1",
