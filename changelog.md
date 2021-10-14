@@ -10,6 +10,14 @@
 
 ---
 
+## [2.1.1] 2021-10-13
+
+### Changed
+
+- Internal change: implement [Lambda runtimes module](https://www.npmjs.com/package/lambda-runtimes) instead of maintaining valid runtime list in Inventory
+
+---
+
 ## [2.1.0] 2021-10-11
 
 ### Added
