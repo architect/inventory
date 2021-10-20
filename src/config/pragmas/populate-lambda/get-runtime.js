@@ -1,0 +1,22 @@
+let { aliases, runtimes, runtimeList } = require('lambda-runtimes')
+
+// Runtime interpolater
+module.exports = function getRuntime (config) {
+  let { runtime } = config
+
+  if (runtimeList.includes(runtime) || runtime === 'deno') {
+    return config
+  }
+
+  if (typeof runtime === 'string') {
+    runtime = runtime.toLowerCase()
+
+    // Runtime is not actually an AWS value, but a shorthand/aliased name
+    if (aliases[runtime]) {
+      let aliased = aliases[runtime]
+      config.runtime = runtimes[aliased][0]
+      config.runtimeAlias = runtime
+    }
+  }
+  return config
+}

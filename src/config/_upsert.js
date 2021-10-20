@@ -1,5 +1,4 @@
 let is = require('../lib/is')
-let runtimes = require('../lib/runtimes')
 
 /**
  * Overlay / append properties onto an existing config object
@@ -59,9 +58,6 @@ module.exports = function upsertProps (config, newConfig) {
     }
     else if (name === 'policies' && !!(value)) {
       policies = policies.concat(value)
-    }
-    else if (name === 'runtime' && !!(value)) {
-      props.runtime = runtimes(value[0])
     }
     else {
       props[name] = value[0]

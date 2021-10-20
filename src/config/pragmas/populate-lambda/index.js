@@ -1,4 +1,5 @@
 let read = require('../../../read')
+let getRuntime = require('./get-runtime')
 let getHandler = require('./get-handler')
 let upsert = require('../../_upsert')
 let is = require('../../../lib/is')
@@ -57,6 +58,9 @@ function populateLambda (type, pragma, inventory, errors) {
       if (arcConfig && arcConfig.arc) {
         config = upsert(config, arcConfig.arc)
       }
+
+      // Interpolate runtimes
+      config = getRuntime(config)
 
       // Tidy up any irrelevant params
       if (type !== 'http') {
