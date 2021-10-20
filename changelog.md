@@ -12,6 +12,11 @@
 
 ## [2.1.1] 2021-10-13
 
+### Added
+
+- Added `config.runtimeAlias` property to Lambdas whose `config.runtime` is interpolated by way of latest-runtime aliasing (e.g. `node` or `py`)
+
+
 ### Changed
 
 - Internal change: implement [Lambda runtimes module](https://www.npmjs.com/package/lambda-runtimes) instead of maintaining valid runtime list in Inventory
@@ -22,8 +27,8 @@
 
 ### Added
 
-- Added latest-runtime version pinning
-  - Example: if you always want your app to run the latest Lambda version of Python, instead of specifying `python3.9` (and changing it every time a new version of Python is released), instead simply specify `python` or `py`
+- Added latest-runtime version aliasing
+  - Example: you want your app to always run the latest Lambda version of Python (instead of specifying `python3.9`(and changing it every time a new version of Python is released); now you can specify `python` or `py`
   - Valid shortcuts: Node.js: `node`, `nodejs`, `node.js`; Python: `python`, `py`; Ruby: `ruby`, `rb`; Java: `java`; Go: `go`, `golang`; .NET: `dotnet`, `.net`; and custom runtimes: `custom`
 - Added runtime validation
 
