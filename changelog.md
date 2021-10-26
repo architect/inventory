@@ -21,6 +21,11 @@
 
 - Internal change: implement [Lambda runtimes module](https://www.npmjs.com/package/lambda-runtimes) instead of maintaining valid runtime list in Inventory
 
+
+### Fixed
+
+- Fixed `@scheduled` parsing in `app.json` + `package.json` > `arc.scheduled`
+
 ---
 
 ## [2.1.0] 2021-10-11

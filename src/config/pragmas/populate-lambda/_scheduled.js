@@ -33,7 +33,7 @@ let get = {
 module.exports = function populateScheduled ({ item, dir, cwd, errors }) {
   let rate = null
   let cron = null
-  if (is.array(item) && item.length >= 3) {
+  if (is.array(item)) {
     let name = item[0]
 
     // Hacky but it works
@@ -52,9 +52,17 @@ module.exports = function populateScheduled ({ item, dir, cwd, errors }) {
   else if (is.object(item)) {
     let name = Object.keys(item)[0]
 
-    // Handle rate + cron
-    if (item[name].rate) rate = get.rate(item[name].rate.join(' '))
-    if (item[name].cron) cron = get.cron(item[name].cron.join(' '))
+    // Handle rate + cron props
+    if (item[name].rate) {
+      let itemRate = item[name].rate
+      let exp = is.array(itemRate) ? itemRate.join(' ') : itemRate
+      rate = get.rate(exp)
+    }
+    if (item[name].cron) {
+      let itemCron = item[name].cron
+      let exp = is.array(itemCron) ? itemCron.join(' ') : itemCron
+      cron = get.cron(exp)
+    }
 
     let src = item[name].src
       ? join(cwd, item[name].src)
