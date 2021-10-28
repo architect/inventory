@@ -53,7 +53,6 @@ function validateCron (schedule, errors) {
   if (!year.toString().match(minHrYr))    expErr('year', year)
 }
 
-
 let singular = [ 'minute', 'hour', 'day' ]
 let plural = [ 'minutes', 'hours', 'days' ]
 function validateRate (schedule, errors) {
@@ -69,11 +68,7 @@ function validateRate (schedule, errors) {
 
   // Value must be a >0 number
   if (!is.number(value) || !(value > 0)) {
-    expErr('rate value must be a number greater than 0', value)
-  }
-  // Value must be a whole number
-  else if (!value.toString().match(/^\d+$/)) {
-    expErr('rate value must be a whole number', value)
+    expErr('rate value must be a whole number greater than 0', value)
   }
   // Interval must be a string
   if (!is.string(interval)) {
