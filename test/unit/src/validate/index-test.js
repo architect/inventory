@@ -8,6 +8,7 @@ let finalValidation = require(sut)
 let defaults = inventoryDefaults()
 let params = { cwd: '/foo' }
 let reset = () => defaults = inventoryDefaults()
+let config = { memory: 1000, timeout: 30 }
 
 test('Set up env', t => {
   t.plan(1)
@@ -23,57 +24,34 @@ test('All good', t => {
   t.teardown(reset)
 })
 
-test('Runtime errors', t => {
-  t.plan(5)
-  let err
-
-  defaults.aws.runtime = 'fail'
-  err = finalValidation(params, defaults)
-  if (!err) t.fail('Expected an error')
-  else {
-    t.ok(err.message.includes('Configuration error'), `Got a configuration error`)
-    console.log(err.message)
-  }
-  reset()
-
-  defaults.aws.runtime = 'fail'
-  let name = 'an-event'
-  defaults.events = [ {
-    name,
-    config: {
-      runtime: 'fail'
-    }
-  } ]
-  err = finalValidation(params, defaults)
-  if (!err) t.fail('Expected an error')
-  else {
-    t.ok(err.message.includes('Configuration error'), `Got a configuration error`)
-    t.ok(!err.message.includes(name), `Configuration error is not Lambda-specific`)
-    console.log(err.message)
-  }
-  reset()
-
-  defaults.events = [ {
-    name,
-    config: {
-      runtime: 'fail'
-    }
-  } ]
-  err = finalValidation(params, defaults)
-  if (!err) t.fail('Expected an error')
-  else {
-    t.ok(err.message.includes('Configuration error'), `Got a configuration error`)
-    t.ok(err.message.includes(`@events ${name}`), `Configuration error is Lambda-specific`)
-    console.log(err.message)
-  }
-
-  t.teardown(reset)
-})
-
 test('Configuration errors', t => {
-  t.plan(1)
+  t.plan(4)
   defaults.aws.layers = [ true ]
   let err = finalValidation(params, defaults)
+  if (!err) t.fail('Expected an error')
+  else {
+    t.ok(err.message.includes('Configuration error'), `Got a configuration error`)
+    console.log(err.message)
+  }
+
+  defaults.aws.memory = 0
+  err = finalValidation(params, defaults)
+  if (!err) t.fail('Expected an error')
+  else {
+    t.ok(err.message.includes('Configuration error'), `Got a configuration error`)
+    console.log(err.message)
+  }
+
+  defaults.aws.runtime = 'fail'
+  err = finalValidation(params, defaults)
+  if (!err) t.fail('Expected an error')
+  else {
+    t.ok(err.message.includes('Configuration error'), `Got a configuration error`)
+    console.log(err.message)
+  }
+
+  defaults.aws.timeout = 0
+  err = finalValidation(params, defaults)
   if (!err) t.fail('Expected an error')
   else {
     t.ok(err.message.includes('Configuration error'), `Got a configuration error`)
@@ -86,7 +64,7 @@ test('Configuration errors', t => {
 test('Validation errors', t => {
   t.plan(1)
   let tables = [ { name: 'table' } ]
-  let streams = [ { name: 'foo', table: 'foo', config: { runtime: 'nodejs14.x' } } ]
+  let streams = [ { name: 'foo', table: 'foo', config: { runtime: 'nodejs14.x', ...config } } ]
   let inventory = { ...defaults, tables, streams }
   let err = finalValidation(params, inventory)
   if (!err) t.fail('Expected an error')
