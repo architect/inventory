@@ -5,10 +5,15 @@ let inventoryDefaults = require(inventoryDefaultsPath)
 let sut = join(process.cwd(), 'src', 'validate', 'layers')
 let validateLayers = require(sut)
 
+let errors = []
 let defaults = inventoryDefaults()
 let region = 'us-west-2'
 let params = { cwd: '/foo' }
-let reset = () => defaults = inventoryDefaults()
+let reset = () => {
+  if (errors[0]) console.log(errors[0])
+  defaults = inventoryDefaults()
+  errors = []
+}
 
 test('Set up env', t => {
   t.plan(1)
@@ -17,12 +22,10 @@ test('Set up env', t => {
 
 test('Do nothing', t => {
   t.plan(2)
-  let errors
-  errors = []
   validateLayers(params, defaults, errors)
   t.equal(errors.length, 0, `No errors reported`)
+  reset()
 
-  errors = []
   defaults.aws.layers = []
   validateLayers(params, defaults, errors)
   t.equal(errors.length, 0, `No errors reported`)
@@ -32,7 +35,6 @@ test('Do nothing', t => {
 
 test('Valid layer', t => {
   t.plan(1)
-  let errors = []
   defaults.aws.layers = [
     `arn:aws:lambda:${region}:123456789012:layer:layer-name:version`
   ]
@@ -44,7 +46,6 @@ test('Valid layer', t => {
 
 test('Maximum of 5 layers', t => {
   t.plan(1)
-  let errors = []
   defaults.aws.layers = [
     `arn:aws:lambda:${region}:123456789012:layer:layer-name:1`,
     `arn:aws:lambda:${region}:123456789012:layer:layer-name:2`,
@@ -60,7 +61,6 @@ test('Maximum of 5 layers', t => {
 
 test('Too many layers', t => {
   t.plan(2)
-  let errors = []
   defaults.aws.layers = [
     `arn:aws:lambda:${region}:123456789012:layer:layer-name:1`,
     `arn:aws:lambda:${region}:123456789012:layer:layer-name:2`,
@@ -71,54 +71,43 @@ test('Too many layers', t => {
   ]
   validateLayers(params, defaults, errors)
   t.equal(errors.length, 1, `Got back an error`)
-  t.ok(errors[0].includes('Lambda can only be configured with up to 5 layers'), `Too many layers returned an error:`)
-  console.log(errors)
+  t.ok(errors[0].includes('Lambdas can only be configured with up to 5 layers'), `Too many layers returned an error:`)
 
   t.teardown(reset)
 })
 
 test('Invalid layers', t => {
   t.plan(8)
-  let errors
-
-  errors = []
   defaults.aws.layers = [
     `arn:aws:lambda:us-east-1:123456789012:layer:layer-name:version`
   ]
   validateLayers(params, defaults, errors)
   t.equal(errors.length, 1, `Got back an error`)
-  t.ok(errors[0].includes('Lambda layers must be in the same region as app'), `Wrong layer region returned an error:`)
-  console.log(errors)
+  t.ok(errors[0].includes(`Layer not in app's region of`), `Wrong layer region returned an error:`)
   reset()
 
-  errors = []
   defaults.aws.layers = [
     `arn:aws:lambda:${region}:123456789012:layer`
   ]
   validateLayers(params, defaults, errors)
   t.equal(errors.length, 1, `Got back an error`)
   t.ok(errors[0].includes('Invalid ARN'), `Invalid ARN returned an error:`)
-  console.log(errors)
   reset()
 
-  errors = []
   defaults.aws.layers = [ true ]
   validateLayers(params, defaults, errors)
   t.equal(errors.length, 1, `Got back an error`)
   t.ok(errors[0].includes('Invalid ARN'), `Invalid ARN returned an error:`)
-  console.log(errors)
   reset()
 
-  errors = []
   defaults.aws.layers = [
     `arn:aws:lambda:${region}:123456789012:layer`,
     true
   ]
   let layers = defaults.aws.layers
   validateLayers(params, defaults, errors)
-  t.equal(errors.length, 2, `Got back errors`)
-  t.ok(errors[0].includes(layers[0]) && errors[1].includes(layers[1]), `Invalid ARNs returned multiple errors:`)
-  console.log(errors)
+  t.equal(errors.length, 1, `Got back errors`)
+  t.ok(errors[0].includes(layers[0]) && errors[0].includes(layers[1]), `Invalid ARNs returned error:`)
 
   t.teardown(reset)
 })
@@ -126,7 +115,6 @@ test('Invalid layers', t => {
 
 test('Skip layer validation', t => {
   t.plan(1)
-  let errors = []
   defaults.aws.layers = [ true ]
   validateLayers({ ...params, validateLayers: false }, defaults, errors)
   t.equal(errors.length, 0, `No errors reported`)

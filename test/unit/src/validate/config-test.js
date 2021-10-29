@@ -9,7 +9,7 @@ let errors = []
 let defaults = inventoryDefaults()
 let params = { cwd: '/foo' }
 let reset = () => {
-  console.log(errors[0])
+  if (errors[0]) console.log(errors[0])
   defaults = inventoryDefaults()
   errors = []
 }

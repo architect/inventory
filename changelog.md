@@ -10,6 +10,19 @@
 
 ---
 
+## [2.1.2] 2021-10-28
+
+### Added
+
+- Added memory / timeout configuration validation
+
+
+### Changed
+
+- Improved layer validation error formatting
+
+---
+
 ## [2.1.1] 2021-10-13
 
 ### Added
