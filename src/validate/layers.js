@@ -1,12 +1,14 @@
 let { sep } = require('path')
 let { lambdas } = require('../lib/pragmas')
-let validateARN = require('./arn')
+let is = require('../lib/is')
+let plural = arr => arr.length > 1 ? 's' : ''
 
 /**
  * Layer validator
  */
 module.exports = function layerValidator (params, inventory, errors) {
-  let { region } = inventory.aws
+  let { _project } = inventory
+  let { region, layers: globalLayers } = inventory.aws
   let { cwd, validateLayers = true } = params
 
   // Shouldn't be possible because we backfill region, but jic
@@ -15,39 +17,69 @@ module.exports = function layerValidator (params, inventory, errors) {
   // Allow for manual opt-out of layer validation
   if (!validateLayers) return
 
-  // Walk the tree of layer configs, starting with @aws
-  Object.entries(inventory).forEach(([ i ]) => {
-    let item = inventory[i]
-    if (i === 'aws') {
-      let location = inventory._project.manifest &&
-                     inventory._project.manifest.replace(cwd, '')
-      let layers = item.layers
-      validateLayer({ layers, region, location })
+  /**
+   * Global config
+   */
+  let location = _project?.manifest?.replace(cwd, '')
+  validateLayer({ layers: globalLayers, region, location, errors })
+
+  /**
+   * Lambda config
+   */
+  lambdas.forEach(p => {
+    let pragma = inventory[p]
+    if (pragma) pragma.forEach(({ config, configFile }) => {
+      let location = configFile?.replace(cwd, '')
+      validateLayer({ layers: config.layers, region, location, errors })
+    })
+  })
+}
+
+function validateLayer ({ layers, region, location, errors }) {
+  let loc = location && location.startsWith(sep) ? location.substr(1) : location
+  let config = loc ? ` (${loc})` : ''
+  if (!layers || !layers.length) return
+  else {
+    if (layers.length > 5) {
+      let list = `${layers.map(l => `  - ${l}`).join('\n')}`
+      errors.push(`Lambdas can only be configured with up to 5 layers, got ${layers.length} layers${config}:\n${list}`)
     }
-    else if (lambdas.includes(i) && item) {
-      item.forEach(entry => {
-        // Probably unnecessary if no configFile is present but why not, let's be extra safe
-        let location = entry.configFile && entry.configFile.replace(cwd, '')
-        let layers = entry.config.layers
-        validateLayer({ layers, region, location })
-      })
+    // CloudFormation fails without a helpful error if any layers aren't in the same region as the app because CloudFormation
+    let arnErrors = validateARN({ layers, region, config })
+    if (arnErrors) errors.push(arnErrors)
+  }
+}
+
+// Validates Lambda layer / policy ARNs, prob can't be used for other kinds of ARN
+function validateARN ({ layers, region, config }) {
+  let invalidArns = []
+  let badRegions = []
+  layers.forEach(arn => {
+    let parts = is.string(arn) && arn.split(':')
+    // Invalid
+    if (!is.string(arn) ||
+        !arn.startsWith('arn:') ||
+        parts.length !== 8) {
+      return invalidArns.push(`  - ${arn}`)
+    }
+    // Bad region
+    let layerRegion = parts[3]
+    if (region !== layerRegion) {
+      badRegions.push(
+        `  - Layer ARN: ${arn}\n` +
+        `  - Layer region: ${layerRegion}`
+      )
     }
   })
-
-  function validateLayer ({ layers, region, location }) {
-    let loc = location && location.startsWith(sep) ? location.substr(1) : location
-    let lambda = loc ? `  - Lambda: ${loc}\n` : ''
-    if (!layers || !layers.length) return
-    else {
-      if (layers.length > 5) {
-        let list = `  - Layers:\n ${layers.map(l => `    - ${l}`).join('\n')}`
-        errors.push(`Lambda can only be configured with up to 5 layers\n${lambda}${list}`)
-      }
-      // CloudFormation fails without a helpful error if any layers aren't in the same region as the app because CloudFormation
-      for (let arn of layers) {
-        let arnError = validateARN({ arn, region, loc })
-        if (arnError) errors.push(arnError)
-      }
-    }
+  let err = ''
+  if (invalidArns.length) {
+    err +=  `Invalid ARN${plural(invalidArns)}${config}:\n` +
+            invalidArns.join('\n')
   }
+  if (badRegions.length) {
+    err +=  `Layer${plural(badRegions)} ` +
+            `not in app's region of ${region}${config}:\n` +
+            badRegions.join('\n')
+  }
+  if (err) return err
 }
