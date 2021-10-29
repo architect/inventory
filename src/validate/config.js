@@ -7,9 +7,7 @@ let allRuntimes = runtimeList.concat([ 'deno' ])
  * Configuration validator
  */
 module.exports = function configValidator (params, inventory, errors) {
-  let globalRuntime = inventory.aws?.runtime
-  let globalMemory = inventory.aws?.memory
-  let globalTimeout = inventory.aws?.timeout
+  let { runtime: globalRuntime, memory: globalMemory, timeout: globalTimeout } = inventory.aws
 
   /**
    * Global config
