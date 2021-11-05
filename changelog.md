@@ -2,6 +2,14 @@
 
 ---
 
+## [2.1.3] 2021-11-04
+
+### Fixed
+
+- Hardened runtime validation by ensuring non-string values will fail gracefully
+
+---
+
 ## [2.1.2] 2021-10-28
 
 ### Added
