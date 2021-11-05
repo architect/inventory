@@ -1,3 +1,4 @@
+let is = require('../../../lib/is')
 let { aliases, runtimes, runtimeList } = require('lambda-runtimes')
 
 // Runtime interpolater
@@ -17,6 +18,10 @@ module.exports = function getRuntime (config) {
       config.runtime = runtimes[aliased][0]
       config.runtimeAlias = runtime
     }
+  }
+  else if (is.defined(runtime)) {
+    // Someone did something funky like specify a number or bool, so coerce and let it fail validation
+    config.runtime = `${config.runtime}`
   }
   return config
 }
