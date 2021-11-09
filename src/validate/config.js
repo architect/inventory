@@ -17,9 +17,9 @@ module.exports = function configValidator (params, inventory, errors) {
     errors.push(invalidMemoryMsg(`${globalMemory} MB (@aws)`))
   }
   // Runtime
-  if (globalRuntime &&
-      !allRuntimes.includes(globalRuntime) &&
-      !aliases[globalRuntime]) {
+  if ((globalRuntime && !is.string(globalRuntime)) ||
+      (globalRuntime && !allRuntimes.includes(globalRuntime) &&
+       !aliases[globalRuntime] && !aliases[globalRuntime.toLowerCase()])) {
     errors.push(`Invalid project-level runtime: ${globalRuntime}`)
   }
   // Timeout

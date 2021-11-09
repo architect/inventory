@@ -39,10 +39,22 @@ test('Do nothing', t => {
 })
 
 test('Valid config', t => {
-  t.plan(2)
+  t.plan(5)
   defaults.aws.runtime = okRuntime
   defaults.aws.memory = okMemory
   defaults.aws.timeout = okTimeout
+  validateConfig(params, defaults, errors)
+  t.equal(errors.length, 0, `No errors reported (global config)`)
+
+  defaults.aws.runtime = 'node'
+  validateConfig(params, defaults, errors)
+  t.equal(errors.length, 0, `No errors reported (global config)`)
+
+  defaults.aws.runtime = 'node.js'
+  validateConfig(params, defaults, errors)
+  t.equal(errors.length, 0, `No errors reported (global config)`)
+
+  defaults.aws.runtime = 'Node.js'
   validateConfig(params, defaults, errors)
   t.equal(errors.length, 0, `No errors reported (global config)`)
   reset()
