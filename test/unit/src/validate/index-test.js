@@ -25,7 +25,7 @@ test('All good', t => {
 })
 
 test('Configuration errors', t => {
-  t.plan(4)
+  t.plan(6)
   defaults.aws.layers = [ true ]
   let err = finalValidation(params, defaults)
   if (!err) t.fail('Expected an error')
@@ -43,6 +43,22 @@ test('Configuration errors', t => {
   }
 
   defaults.aws.runtime = 'fail'
+  err = finalValidation(params, defaults)
+  if (!err) t.fail('Expected an error')
+  else {
+    t.ok(err.message.includes('Configuration error'), `Got a configuration error`)
+    console.log(err.message)
+  }
+
+  defaults.aws.runtime = true
+  err = finalValidation(params, defaults)
+  if (!err) t.fail('Expected an error')
+  else {
+    t.ok(err.message.includes('Configuration error'), `Got a configuration error`)
+    console.log(err.message)
+  }
+
+  defaults.aws.runtime = 0
   err = finalValidation(params, defaults)
   if (!err) t.fail('Expected an error')
   else {
