@@ -6,7 +6,7 @@ module.exports = {
     'cdn',
     'events',
     'http',
-    'indexes',
+    'indexes', // -> transitioning to @tables-indexes
     'macros',
     'plugins',
     'proxy',
@@ -15,6 +15,7 @@ module.exports = {
     'shared',
     'static',
     'tables',
+    'tables-indexes',
     'tables-streams',
     'views',
     'ws',
