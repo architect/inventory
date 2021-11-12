@@ -10,6 +10,14 @@
 
 ---
 
+## [2.2.0] 2021-11-11
+
+### Added
+
+- Finally formalized `@tables-streams`, the fully customizable successor to `@tables` with `stream true`
+
+---
+
 ## [2.1.3] 2021-11-04
 
 ### Fixed

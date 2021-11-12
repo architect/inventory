@@ -28,15 +28,15 @@ test('Valid table children configuration', t => {
 })
 
 
-test('Streams missing a table', t => {
+test('Tables streams missing a table', t => {
   t.plan(2)
   let errors = []
   let tables = [ { name: 'table' } ]
   let streams = [ { name: 'foo', table: 'foo' } ]
-  let inventory = { tables, streams }
+  let inventory = { tables, 'tables-streams': streams }
   validateTablesChildren(inventory, errors)
   t.equal(errors.length, 1, `Got back an error`)
-  t.ok(errors[0].includes('@streams foo missing corresponding table'), `Stream missing table returned an error`)
+  t.ok(errors[0].includes('@tables-streams foo missing corresponding table'), `Stream missing table returned an error`)
   console.log(errors)
 })
 
@@ -58,10 +58,10 @@ test('Streams + indexes both missing a table', t => {
   let tables = [ { name: 'table' } ]
   let streams = [ { name: 'foo', table: 'foo' } ]
   let indexes = [ { name: 'foo' } ]
-  let inventory = { tables, streams, indexes }
+  let inventory = { tables, 'tables-streams': streams, indexes }
   validateTablesChildren(inventory, errors)
   t.equal(errors.length, 2, `Got back errors`)
-  t.ok(errors[0].includes('@streams foo missing corresponding table'), `Stream missing table returned an error`)
+  t.ok(errors[0].includes('@tables-streams foo missing corresponding table'), `Stream missing table returned an error`)
   t.ok(errors[1].includes('@indexes foo missing corresponding table'), `Index missing table returned an error`)
   console.log(errors)
 })
