@@ -5,5 +5,5 @@ an-app
 some-table
   data *String
 
-@streams
+@tables-streams
 some-table

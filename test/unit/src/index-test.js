@@ -98,7 +98,7 @@ test('Inventory returns second-pass validation error', t => {
 my-app
 @tables
 foo
-@streams
+@tables-streams
 bar`
   inv({ rawArc }, (err) => {
     if (!err) t.fail('Should have returned an error')
@@ -117,7 +117,7 @@ test('Inventory returns second-pass validation error (async)', async t => {
 my-app
 @tables
 foo
-@streams
+@tables-streams
 bar`
   try {
     await inv({ rawArc })

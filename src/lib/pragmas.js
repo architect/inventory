@@ -14,8 +14,8 @@ module.exports = {
     'scheduled',
     'shared',
     'static',
-    'streams',
     'tables',
+    'tables-streams',
     'views',
     'ws',
   ],
@@ -26,7 +26,7 @@ module.exports = {
     'plugins',
     'queues',
     'scheduled',
-    'streams',
+    'tables-streams',
     'ws',
   ],
 }

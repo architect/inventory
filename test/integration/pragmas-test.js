@@ -9,7 +9,7 @@ test('Each registered pragma has a visitor', t => {
   t.plan(1)
   let ignore = [ 'src-dirs.js', 'index.js' ]
   let isPragma = f => f.endsWith('.js') && !ignore.includes(f)
-  let visitors = readdirSync(visitorDir).filter(isPragma).map(p => p.replace('.js', ''))
+  let visitors = readdirSync(visitorDir).filter(isPragma).map(p => p.replace('.js', '')).sort()
   t.deepEqual(pragmas, visitors, `Got a visitor for each registered pragma:`)
   console.log(visitors.map(v => `- @${v}`).join('\n'))
 })

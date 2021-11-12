@@ -59,19 +59,19 @@ prefix some-prefix
 queues
   a-queue
 
-@streams
-a-stream
-  table another-table
-another-stream
-  src another-stream
-  table another-table
-
 @tables
 a-table
   id *String
   stream true
 another-table
   id *Number
+
+@tables-streams
+a-stream
+  table another-table
+another-stream
+  src another-stream
+  table another-table
 
 @views
 put /some-put

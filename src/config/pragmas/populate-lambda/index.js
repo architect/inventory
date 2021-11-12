@@ -10,7 +10,7 @@ let getEvents = require('./_events')
 let getPlugins = require('./_plugins')
 let getScheduled = require('./_scheduled')
 let getWS = require('./_websockets')
-let getStreams = require('./_streams')
+let getTablesStreams = require('./_tables-streams')
 
 /**
  * Build out the Lambda tree
@@ -87,6 +87,8 @@ function populateLambda (type, pragma, inventory, errors) {
   return lambdas
 }
 
+let ts = 'tables-streams'
+
 function getLambda (params) {
   let { type } = params
   params.dir = `src/${type}/`
@@ -96,8 +98,8 @@ function getLambda (params) {
   if (type === 'plugins')   return getPlugins(params)
   if (type === 'queues')    return getEvents(params) // Effectively the same as events
   if (type === 'scheduled') return getScheduled(params)
-  if (type === 'streams')   return getStreams(params)
-  if (type === 'tables')    return getStreams(params) // Shortcut for creating streams
+  if (type === ts)          return getTablesStreams(params)
+  if (type === 'tables')    return getTablesStreams(params) // Shortcut for creating streams
   /* istanbul ignore else */ /* Clearer to be explicit here */
   if (type === 'ws')        return getWS(params)
 }
@@ -108,7 +110,7 @@ module.exports = {
   plugins:    populateLambda.bind({}, 'plugins'),
   queues:     populateLambda.bind({}, 'queues'),
   scheduled:  populateLambda.bind({}, 'scheduled'),
-  streams:    populateLambda.bind({}, 'streams'),
   tables:     populateLambda.bind({}, 'tables'),
+  [ts]:       populateLambda.bind({}, ts),
   ws:         populateLambda.bind({}, 'ws'),
 }

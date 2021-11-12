@@ -2,23 +2,29 @@ let { join } = require('path')
 let { existsSync } = require('fs')
 let is = require('../../../lib/is')
 
-module.exports = function populateStreams ({ type, item, dir, cwd, errors }) {
+module.exports = function populateTablesStreams ({ type, item, dir, cwd, errors }) {
   if (type === 'tables' && is.object(item)) {
     let name = Object.keys(item)[0]
-    // Check for the legacy dir from before `@tables tablename stream true` generated an @streams item
+    // Check for the legacy dir from before `@tables tablename stream true` generated an @tables-streams item
     let legacySrc = join(cwd, dir, name)
     let streamSrc = join(cwd, 'src', 'streams', name)
-    let src = existsSync(legacySrc) ? legacySrc : streamSrc
+    let tablesStreamsSrc = join(cwd, 'src', 'tables-streams', name)
+
+    let src
+    if      (existsSync(legacySrc)) src = legacySrc
+    else if (existsSync(streamSrc)) src = streamSrc
+    else                            src = tablesStreamsSrc
+
     let table = name
     return { name, src, table }
   }
-  else if (type === 'streams' && is.string(item)) {
+  else if (type === 'tables-streams' && is.string(item)) {
     let name = item
     let src = join(cwd, dir, name)
     let table = name
     return { name, src, table }
   }
-  else if (type === 'streams' && is.object(item)) {
+  else if (type === 'tables-streams' && is.object(item)) {
     let name = Object.keys(item)[0]
     let src = item[name].src
       ? join(cwd, item[name].src)

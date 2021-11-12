@@ -123,20 +123,20 @@ test('Get @static', t => {
   t.notOk(get.static('idk'), 'Did not get back nonexistent setting')
 })
 
-test('Get @streams', t => {
-  t.plan(4)
-  t.ok(get.streams, 'Got @streams getter')
-  t.ok(get.streams('a-stream'), 'Got back correct value: a-stream')
-  t.ok(get.streams('another-stream'), 'Got back correct value: another-stream')
-  t.notOk(get.streams('idk'), 'Did not get back nonexistent stream')
-})
-
 test('Get @tables', t => {
   t.plan(4)
   t.ok(get.tables, 'Got @tables getter')
   t.ok(get.tables('a-table'), 'Got back correct value: a-table')
   t.ok(get.tables('another-table'), 'Got back correct value: another-table')
   t.notOk(get.tables('idk'), 'Did not get back nonexistent stream')
+})
+
+test('Get @tables-streams', t => {
+  t.plan(4)
+  t.ok(get['tables-streams'], 'Got @tables-streams getter')
+  t.ok(get['tables-streams']('a-stream'), 'Got back correct value: a-stream')
+  t.ok(get['tables-streams']('another-stream'), 'Got back correct value: another-stream')
+  t.notOk(get['tables-streams']('idk'), 'Did not get back nonexistent stream')
 })
 
 test('Get @views', t => {
@@ -243,16 +243,16 @@ test('Get @static', t => {
   t.notOk(get.static('idk'), 'Did not get back nonexistent setting')
 })
 
-test('Get @streams', t => {
-  t.plan(2)
-  t.ok(get.streams, 'Got @streams getter')
-  t.notOk(get.streams('idk'), 'Did not get back nonexistent stream')
-})
-
 test('Get @tables', t => {
   t.plan(2)
   t.ok(get.tables, 'Got @tables getter')
   t.notOk(get.tables('idk'), 'Did not get back nonexistent stream')
+})
+
+test('Get @tables-streams', t => {
+  t.plan(2)
+  t.ok(get['tables-streams'], 'Got @tables-streams getter')
+  t.notOk(get['tables-streams']('idk'), 'Did not get back nonexistent stream')
 })
 
 test('Get @views', t => {
