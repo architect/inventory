@@ -1,7 +1,7 @@
 let { all: allPragmas } = require('../../lib/pragmas')
 
 // Get all pragmas except special cases
-let isSpecial = p => p === 'shared' || p === 'views'
+let isSpecial = p => [ 'shared', 'views' ].includes(p)
 let visitors = allPragmas.map(p => {
   // eslint-disable-next-line
   if (!isSpecial(p)) return require(`./${p}`)
@@ -21,6 +21,7 @@ module.exports = function configureArcPragmas ({ arc, inventory }, errors) {
   visitors.forEach(visitor => {
     // Expects pragma visitors to have function name of: `configure${pragma}`
     let name = visitor.name.replace('configure', '').toLowerCase()
+    if (name === 'tablesstreams') name = 'tables-streams'
     pragmas[name] = visitor({ arc, inventory, errors })
   })
 

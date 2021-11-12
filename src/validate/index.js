@@ -31,8 +31,7 @@ module.exports = function finalValidation (params, inventory) {
   /**
    * Deal with project validation errors
    */
-
-  // Ensure @tables children (@streams, @indexes) have parent tables present
+  // Ensure @tables children (@tables-streams, @indexes) have parent tables present
   tablesChildren(inventory, errors)
 
   if (errors.length) {

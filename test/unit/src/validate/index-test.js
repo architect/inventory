@@ -81,7 +81,7 @@ test('Validation errors', t => {
   t.plan(1)
   let tables = [ { name: 'table' } ]
   let streams = [ { name: 'foo', table: 'foo', config: { runtime: 'nodejs14.x', ...config } } ]
-  let inventory = { ...defaults, tables, streams }
+  let inventory = { ...defaults, tables, 'tables-streams': streams }
   let err = finalValidation(params, inventory)
   if (!err) t.fail('Expected an error')
   else {

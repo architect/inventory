@@ -60,8 +60,8 @@ module.exports = function inventoryDefaults (params = {}) {
     scheduled: null,
     shared: null,
     static: null,
-    streams: null,
     tables: null,
+    'tables-streams': null,
     views: null,
     ws: null,
     // Collection of all Lambda paths
