@@ -8,7 +8,7 @@ module.exports = function _get (inventory) {
     if (pragma === null) return null
     if (is.array(pragma)) {
       // Handle arrays of named entities or string values
-      let finder = i => i && i.name && i.name === name || i === name
+      let finder = i => i?.name === name || i === name
       if (multipleResults.includes(prag)) {
         let results = pragma.filter(finder)
         return results.length ? results : undefined
@@ -37,5 +37,6 @@ module.exports = function _get (inventory) {
 // Everything is uniquely named except in certain special-case pragmas
 // These refer to other pragmas, and thus may allow multiple same/same-named entities
 let multipleResults = [
-  'indexes'
+  'tables-indexes',
+  'indexes',
 ]

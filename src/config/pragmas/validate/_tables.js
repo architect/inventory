@@ -47,7 +47,7 @@ module.exports = function validateTablesAndIndexes (pragma, pragmaName, errors) 
           }
         })
         if (foundDupe) {
-          let err = `Duplicate @indexes value: '${index.name}'`
+          let err = `Duplicate ${pragmaName} value: '${index.name}'`
           if (!errors.includes(err)) errors.push(err)
         }
       })

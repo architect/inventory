@@ -8,6 +8,7 @@ let inv = require(sut)
 let dir = process.cwd()
 let defaults = inventoryDefaults()
 let mock = join(process.cwd(), 'test', 'mock')
+let invAndGet = 1 + 1
 function reset () {
   process.chdir(dir)
 }
@@ -19,7 +20,7 @@ test('Set up env', t => {
 
 test('Inventory an empty project', t => {
   let keys = Object.keys(defaults)
-  t.plan((keys.length * 2) + 2)
+  t.plan((keys.length * 2) + invAndGet)
   let cwd = join(mock, 'empty')
   inv({ cwd }, (err, result) => {
     if (err) t.fail(err)
@@ -40,7 +41,7 @@ test('Inventory an empty project', t => {
 
 test('Inventory a maxed-out project', t => {
   let keys = Object.keys(defaults)
-  t.plan((keys.length * 2) + 2)
+  t.plan((keys.length * 2) + invAndGet)
   let cwd = join(mock, 'max')
   inv({ cwd }, (err, result) => {
     if (err) t.fail(err)
@@ -49,6 +50,11 @@ test('Inventory a maxed-out project', t => {
       t.ok(inv, 'Inventory returned inventory object')
       t.ok(get, 'Inventory returned getter')
       keys.forEach(key => {
+        if (key === 'indexes') {
+          t.equal(inv[key], null, `${key} is null if @tables-indexes is present`)
+          t.ok(get[key], `Getter still has entry for: ${key}`)
+          return
+        }
         let invFound = inv[key]
         let getFound = get[key]
         t.ok(invFound, `Inventory has entry for: ${key}`)
