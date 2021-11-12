@@ -21,6 +21,8 @@ module.exports = function configureArcPragmas ({ arc, inventory }, errors) {
   visitors.forEach(visitor => {
     // Expects pragma visitors to have function name of: `configure${pragma}`
     let name = visitor.name.replace('configure', '').toLowerCase()
+    // Special cases for dasherization
+    if (name === 'tablesindexes') name = 'tables-indexes'
     if (name === 'tablesstreams') name = 'tables-streams'
     pragmas[name] = visitor({ arc, inventory, errors })
   })

@@ -61,6 +61,7 @@ module.exports = function inventoryDefaults (params = {}) {
     shared: null,
     static: null,
     tables: null,
+    'tables-indexes': null,
     'tables-streams': null,
     views: null,
     ws: null,

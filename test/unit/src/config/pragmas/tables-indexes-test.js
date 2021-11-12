@@ -3,29 +3,29 @@ let parse = require('@architect/parser')
 let test = require('tape')
 let inventoryDefaultsPath = join(process.cwd(), 'src', 'defaults')
 let inventoryDefaults = require(inventoryDefaultsPath)
-let sut = join(process.cwd(), 'src', 'config', 'pragmas', 'indexes')
-let populateIndexes = require(sut)
+let sut = join(process.cwd(), 'src', 'config', 'pragmas', 'tables-indexes')
+let populateTablesIndexes = require(sut)
 
 let inventory = inventoryDefaults()
 
 test('Set up env', t => {
   t.plan(1)
-  t.ok(populateIndexes, '@indexes populator is present')
+  t.ok(populateTablesIndexes, '@tables-indexes populator is present')
 })
 
-test('No @indexes returns null', t => {
+test('No @tables-indexes returns null', t => {
   t.plan(1)
-  t.equal(populateIndexes({ arc: {} }), null, 'Returned null')
+  t.equal(populateTablesIndexes({ arc: {} }), null, 'Returned null')
 })
 
-test('@indexes population', t => {
+test('@tables-indexes population', t => {
   t.plan(16)
 
   let arc = parse(`
 @tables
 whatever
 
-@indexes
+@tables-indexes
 string-keys
   strID *String
   strSort **String
@@ -35,7 +35,7 @@ number-keys
 number-keys # Second index on the same table
   numID *Number
 `)
-  let indexes = populateIndexes({ arc })
+  let indexes = populateTablesIndexes({ arc })
   t.ok(indexes.length === 3, 'Got correct number of indexes back')
   t.equal(indexes[0].name, 'string-keys', 'Got back correct name for first index')
   t.equal(indexes[0].partitionKey, 'strID', 'Got back correct partition key for first index')
@@ -54,14 +54,14 @@ number-keys # Second index on the same table
   t.equal(indexes[2].sortKeyType, null, 'Got back correct sort key type for second index')
 })
 
-test('@indexes parses custom indexName', t => {
+test('@tables-indexes parses custom indexName', t => {
   t.plan(4)
 
   let arc = parse(`
 @tables
 whatever
 
-@indexes
+@tables-indexes
 string-keys
   strID *String
   strSort **String
@@ -74,19 +74,19 @@ number-keys # Second index on the same table
   name MyNumberIndex
 `)
 
-  let indexes = populateIndexes({ arc })
+  let indexes = populateTablesIndexes({ arc })
   t.ok(indexes.length === 3, 'Got correct number of indexes back')
   t.equal(indexes[0].indexName, 'CustomIndex', 'Got back custom index name for first index')
   t.equal(indexes[1].indexName, null, 'Got correct indexName for second index')
   t.equal(indexes[2].indexName, 'MyNumberIndex', 'Got correct indexName for third index')
 })
 
-test('@indexes population: validation errors', t => {
+test('@tables-indexes population: validation errors', t => {
   t.plan(14)
   let errors = []
   function run (str) {
     let arc = parse(str)
-    populateIndexes({ arc, inventory, errors })
+    populateTablesIndexes({ arc, inventory, errors })
   }
   function check (str = 'Invalid index errored', qty = 1) {
     t.equal(errors.length, qty, str)
@@ -94,7 +94,7 @@ test('@indexes population: validation errors', t => {
     // Run a bunch of control tests at the top by resetting errors after asserting
     errors = []
   }
-  let indexes = `@indexes\n`
+  let indexes = `@tables-indexes\n`
   let tables = `@tables\n`
 
   // Controls
@@ -108,8 +108,8 @@ test('@indexes population: validation errors', t => {
   t.equal(errors.length, 0, `Valid indexes did not error`)
 
   // Errors
-  run(`${tables}@tables-indexes\nhello${attr}\n${indexes}hello${attr}`)
-  check(`Cannot specify @tables-indexes and @indexes`)
+  run(`${tables}@indexes\nhello${attr}\n${indexes}hello${attr}`)
+  check(`Cannot specify @ndexes and @tables-indexes`)
 
   run(`${indexes}hi`)
   check(`Indexes require tables`)

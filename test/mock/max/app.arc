@@ -17,14 +17,6 @@ get /
   src some-put
   method put
 
-@indexes
-a-table
-  idk *String
-a-table
-  irdk *String
-another-table
-  idk *String
-
 @macros
 prune
 
@@ -65,6 +57,14 @@ a-table
   stream true
 another-table
   id *Number
+
+@tables-indexes
+a-table
+  idk *String
+a-table
+  irdk *String
+another-table
+  idk *String
 
 @tables-streams
 a-stream

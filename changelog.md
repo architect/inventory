@@ -7,6 +7,9 @@
 ### Added
 
 - Finally formalized `@tables-streams`, the fully customizable successor to `@tables` with `stream true`
+- Added `@tables-indexes` pragma
+  - `@tables-indexes` has identical semantics as (and will eventually supersede) `@indexes`
+  - Until Arc 10.0 + Inventory 3.0, consumers should now check both `inv.indexes` AND `inv.tables-indexes`
 
 ---
 
