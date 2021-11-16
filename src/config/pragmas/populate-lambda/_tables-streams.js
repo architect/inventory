@@ -5,14 +5,14 @@ let is = require('../../../lib/is')
 module.exports = function populateTablesStreams ({ type, item, dir, cwd, errors }) {
   if (type === 'tables' && is.object(item)) {
     let name = Object.keys(item)[0]
-    // Check for the legacy dir from before `@tables tablename stream true` generated an @tables-streams item
+    // Check for the legacy dir from before `@tables tablename stream true` generated a @tables-streams item
     let legacySrc = join(cwd, dir, name)
     let streamSrc = join(cwd, 'src', 'streams', name)
     let tablesStreamsSrc = join(cwd, 'src', 'tables-streams', name)
 
     let src
     if      (existsSync(legacySrc)) src = legacySrc
-    else if (existsSync(streamSrc)) src = streamSrc
+    else if (existsSync(streamSrc)) src = streamSrc // TODO [remove] in 10.0
     else                            src = tablesStreamsSrc
 
     let table = name
