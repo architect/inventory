@@ -355,7 +355,7 @@ test('@http population: route sorting', t => {
 })
 
 test('@http population: validation errors', t => {
-  t.plan(23)
+  t.plan(22)
   // Test assumes complex format is outputting the same data as simple, so we're only testing errors in the simple format
   let errors = []
   function run (str) {
@@ -376,6 +376,9 @@ test('@http population: validation errors', t => {
   run(`get /hi_there`)
   run(`get /hi/:there`)
   run(`get /hi/:there/*`)
+  run(`get /hi/:there.friend/*`)
+  run(`get /hi/:there_friend/*`)
+  run(`get /hi/:there-friend/*`)
   run(`get /hi/:there/foo.Bar.baz_f1z-buz/*`)
   t.equal(errors.length, 0, `Valid routes did not error`)
 
@@ -431,9 +434,6 @@ test('@http population: validation errors', t => {
   check()
 
   run(`get /hi/:/there`)
-  check(`Invalid param errored`)
-
-  run(`get /hi/:param_things/there`)
   check(`Invalid param errored`)
 
   run(`get /hi/param_things:/there`)
