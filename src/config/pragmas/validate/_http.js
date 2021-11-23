@@ -1,10 +1,10 @@
 let { unique } = require('./_lib')
+let methods = require('../../../lib/http-methods')
 
 module.exports = function validateHTTP (http, errors) {
   if (http.length) {
     unique(http, '@http routes', errors)
 
-    let methods = [ 'get', 'post', 'put', 'patch', 'delete', 'options', 'head', 'any' ]
     let validMethod = str => methods.includes(str.toLowerCase())
     let validPath = str => str.match(/^\/[a-zA-Z0-9/\-:._\*]*$/)
     http.forEach(route => {

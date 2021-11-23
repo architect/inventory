@@ -2,6 +2,7 @@ let { join } = require('path')
 let populate = require('./populate-lambda')
 let asapSrc = require('../../lib/asap-src')
 let validate = require('./validate')
+let sort = require('./sort/http')
 
 module.exports = function configureHTTP ({ arc, inventory, errors }) {
   if (!arc.http) return null
@@ -67,7 +68,9 @@ module.exports = function configureHTTP ({ arc, inventory, errors }) {
   // Impure but it's way less complicated to just do this
   inventory._project.rootHandler = rootHandler
 
+  // Final steps: validate, then ensure the route order works as API Gateway would
   validate.http(http, errors)
+  http = sort(http)
 
   return http
 }
