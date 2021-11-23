@@ -10,6 +10,14 @@
 
 ---
 
+## [2.2.1] 2021-11-22
+
+### Fixed
+
+- Adds HTTP route sorting, which should ensure Sandbox behaves much more like API Gateway despite how you've organized your `@http` pragma; fixes #977
+
+---
+
 ## [2.2.0] 2021-11-16
 
 ### Added

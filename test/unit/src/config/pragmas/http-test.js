@@ -295,6 +295,65 @@ ${complexValues.join('\n')}
   })
 })
 
+test('@http population: route sorting', t => {
+  t.plan(2)
+  let desiredOrder = [
+    'get /api/items/widget/v1/prop',
+    'get /api/items/widget/v1',
+    'get /api/items/:item/propA',
+    'get /api/items/:item/propB',
+    'get /api/:item/items/propB',
+    'get /api/items/item/:item',
+    'get /api/items/*',
+    'get /api/items',
+    'get /api/stuff',
+    'get /idk/foo',
+    'get /api',
+    'get /',
+    'get /*',
+    'post /api/items/widget/v1/prop',
+    'post /api/items/:item/prop1',
+    'post /api/items/:item/prop2',
+    'post /api/items/:stuff',
+    'post /api/items',
+    'post /api',
+    'post /',
+    'post /:idk',
+    'put /api/items/widget/v1/prop',
+    'put /api/items/:item/prop-a',
+    'put /api/items/:item/prop-b',
+    'put /api/*',
+    'put /api',
+    'put /',
+    'put /:idk',
+    'patch /api/items/widget/v1/prop',
+    'patch /api/items/:item/prop_a',
+    'patch /api/items/:item/prop_b',
+    'patch /api',
+    'patch /',
+    'patch /:idk',
+    'options /api/items/widget/v1/prop',
+    'options /api',
+    'options /',
+    'options /:idk',
+    'head /api/items/widget/v1/prop',
+    'head /api',
+    'head /',
+    'head /:idk',
+    'any /api/items/widget/v1/prop',
+    'any /api',
+    'any /',
+    'any /*',
+  ]
+  let shuffled = [ ...desiredOrder ].sort(() => Math.random() - 0.5)
+  t.notDeepEqual(shuffled, desiredOrder, 'Routes were indeed shuffled')
+
+  let arc = parse(`@http\n${shuffled.join('\n')}`)
+  let http = populateHTTP({ arc, inventory })
+  let resultingOrder = http.map(({ name }) => name)
+  t.deepEqual(resultingOrder, desiredOrder, 'Sorted correctly')
+})
+
 test('@http population: validation errors', t => {
   t.plan(23)
   // Test assumes complex format is outputting the same data as simple, so we're only testing errors in the simple format
