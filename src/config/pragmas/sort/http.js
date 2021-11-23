@@ -55,6 +55,7 @@ module.exports = function sortHTTP (http) {
         if (a.path < b.path) return -1
         if (a.path > b.path) return 1
       })
+      // Trailing capture sort
       .sort((a, b) => {
         if (!a.depth && b.depth === 1 && b.trailingCapture) return -1
         if (a.depth - b.depth < 0) return
