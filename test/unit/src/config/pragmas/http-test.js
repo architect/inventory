@@ -311,6 +311,7 @@ test('@http population: route sorting', t => {
     'get /api',
     'get /',
     'get /*',
+    'get /:idk',
     'post /api/items/widget/v1/prop',
     'post /api/items/:item/prop1',
     'post /api/items/:item/prop2',
