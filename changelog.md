@@ -15,6 +15,7 @@
 ### Fixed
 
 - Adds HTTP route sorting, which should ensure Sandbox behaves much more like API Gateway despite how you've organized your `@http` pragma; fixes #977
+- Fixed overly strict path parameter validation; allow `_`, `.`, `-`; thanks @jkarsrud!
 
 ---
 
