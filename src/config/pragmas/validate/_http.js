@@ -49,7 +49,7 @@ module.exports = function validateHTTP (http, errors) {
       let params = path.match(/\/:/g)
       if (params) {
         // Params cannot have non-alphanumeric characters
-        let match = path.match(/\/:[a-zA-Z0-9]+(\/|$)/g)
+        let match = path.match(/\/:[\w.-]+(\/|$)/g)
         if (!match) errors.push(`Invalid @http path (parameters must have only alphanumeric characters): ${name}`)
       }
 
