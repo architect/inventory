@@ -10,7 +10,7 @@ let { regex, size, unique } = require('./_lib')
  * See: https://docs.aws.amazon.com/eventbridge/latest/userguide/eb-create-rule-schedule.html
  */
 module.exports = function validateScheduled (scheduled, errors) {
-  if (scheduled.length) {
+  if (scheduled?.length) {
     unique(scheduled, '@scheduled', errors)
 
     scheduled.forEach(schedule => {

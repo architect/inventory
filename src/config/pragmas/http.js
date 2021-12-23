@@ -5,11 +5,12 @@ let validate = require('./validate')
 let sort = require('./sort/http')
 
 module.exports = function configureHTTP ({ arc, inventory, errors }) {
-  if (!arc.http) return null
+  let httpPlugins = inventory._project.plugins?._methods?.set?.http
+  if (!arc.http && !httpPlugins?.length) return null
 
   // Populate normally returns null on an empty Lambda pragma
   // However, @http is special because it gets the Architect Static Asset Proxy (ASAP), so fall back to an empty array
-  let http = populate.http(arc.http, inventory, errors) || []
+  let http = populate.http({ arc, inventory, errors }) || []
 
   // Attempt to determine specifically what is handling requests to the root
   // This should probably just be replaced by proper route ordering

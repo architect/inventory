@@ -8,7 +8,7 @@ let { regex, size, unique } = require('./_lib')
  * See: https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-message-metadata.html
  */
 module.exports = function validateEventsAndQueues (pragma, pragmaName, errors) {
-  if (pragma.length) {
+  if (pragma?.length) {
     unique(pragma, pragmaName, errors)
 
     pragma.forEach(event => {

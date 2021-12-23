@@ -52,9 +52,7 @@ module.exports = function inventoryDefaults (params = {}) {
     cdn: null,
     events: null,
     http: null,
-    indexes: null,
     macros: null,
-    plugins: null, // These are the Lambdas created by plugins, not the plugin modules, which are in _project.plugins
     proxy: null,
     queues: null,
     scheduled: null,

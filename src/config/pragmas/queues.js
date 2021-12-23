@@ -2,9 +2,10 @@ let populate = require('./populate-lambda')
 let validate = require('./validate')
 
 module.exports = function configureQueues ({ arc, inventory, errors }) {
-  if (!arc.queues || !arc.queues.length) return null
+  let queuesPlugins = inventory._project.plugins?._methods?.set?.queues
+  if (!arc?.queues?.length && !queuesPlugins?.length) return null
 
-  let queues = populate.queues(arc.queues, inventory, errors)
+  let queues = populate.queues({ arc, inventory, errors })
 
   validate.queues(queues, '@queues', errors)
 

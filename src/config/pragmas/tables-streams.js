@@ -1,6 +1,7 @@
 let populate = require('./populate-lambda')
 let validate = require('./validate')
 let is = require('../../lib/is')
+let ts = 'tables-streams'
 
 /**
  * `@tables-streams`
@@ -9,8 +10,9 @@ let is = require('../../lib/is')
  *   - If a project has an existing `@tables` Lambda, we'll continue using that so long as the directory exists
  */
 module.exports = function configureTablesStreams ({ arc, inventory, errors }) {
-  if (!arc['tables-streams'] && !arc.tables) return null
-  if (arc['tables-streams'] && !arc.tables) {
+  let tablesStreamsPlugins = inventory._project.plugins?._methods?.set?.[ts]
+  if (!arc[ts]?.length && !tablesStreamsPlugins?.length && !arc.tables?.length) return null
+  if ((arc[ts] || tablesStreamsPlugins) && !arc.tables) {
     errors.push(`Specifying @tables-streams requires specifying corresponding @tables`)
     return null
   }
@@ -18,12 +20,12 @@ module.exports = function configureTablesStreams ({ arc, inventory, errors }) {
   // Populate @tables
   let tables = arc.tables.filter(t => is.object(t) && t[Object.keys(t)[0]].stream === true)
   if (tables.length) {
-    tables = populate.tables(tables, inventory, errors)
+    tables = populate.tables({ arc, inventory, errors, pragma: tables })
   }
   else tables = null
 
   // Populate @tables-streams
-  let streams = populate['tables-streams'](arc['tables-streams'], inventory, errors)
+  let streams = populate[ts]({ arc, inventory, errors })
 
   if (tables && streams) {
     let uniqueTables = tables.filter(t => !streams.some(s => s.table === t.table))

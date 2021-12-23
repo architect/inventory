@@ -2,13 +2,13 @@ let { regex, size, unique } = require('./_lib')
 let { deepStrictEqual } = require('assert')
 
 /**
- * Validate @tables + @indexes
+ * Validate @tables + @tables-indexes
  *
  * Where possible, attempts to follow DynamoDB validation
  * See: https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/HowItWorks.NamingRulesDataTypes.html
  */
 module.exports = function validateTablesAndIndexes (pragma, pragmaName, errors) {
-  if (pragma.length) {
+  if (pragma?.length) {
     pragma.forEach(table => {
       let { name, indexName, partitionKey, sortKey } = table
 

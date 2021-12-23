@@ -38,5 +38,4 @@ module.exports = function _get (inventory) {
 // These refer to other pragmas, and thus may allow multiple same/same-named entities
 let multipleResults = [
   'tables-indexes',
-  'indexes',
 ]

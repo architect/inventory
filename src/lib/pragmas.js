@@ -6,9 +6,7 @@ module.exports = {
     'cdn',
     'events',
     'http',
-    'indexes', // -> transitioning to @tables-indexes
     'macros',
-    'plugins',
     'proxy',
     'queues',
     'scheduled',
@@ -24,7 +22,6 @@ module.exports = {
   lambdas: [
     'events',
     'http',
-    'plugins',
     'queues',
     'scheduled',
     'tables-streams',
