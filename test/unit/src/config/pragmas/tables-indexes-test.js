@@ -82,7 +82,7 @@ number-keys # Second index on the same table
 })
 
 test('@tables-indexes population: validation errors', t => {
-  t.plan(14)
+  t.plan(13)
   let errors = []
   function run (str) {
     let arc = parse(str)
@@ -108,9 +108,6 @@ test('@tables-indexes population: validation errors', t => {
   t.equal(errors.length, 0, `Valid indexes did not error`)
 
   // Errors
-  run(`${tables}@indexes\nhello${attr}\n${indexes}hello${attr}`)
-  check(`Cannot specify @ndexes and @tables-indexes`)
-
   run(`${indexes}hi`)
   check(`Indexes require tables`)
 

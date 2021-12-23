@@ -4,12 +4,12 @@ module.exports = {
   aws:            require('./_aws'),
   events:         require('./_events'),
   http:           require('./_http'),
-  indexes:        require('./_tables'), // Same ruleset as @tables (more or less)
   proxy:          require('./_proxy'),
-  tables:         require('./_tables'),
   queues:         require('./_events'), // Same ruleset as @events
   scheduled:      require('./_scheduled'),
   shared:         require('./_shared'), // Also includes @views
+  tables:         require('./_tables'),
+  tablesIndexes:  require('./_tables'), // Same ruleset as @tables (more or less)
   tablesStreams:  require('./_tables-streams'),
   websockets:     require('./_websockets'),
 

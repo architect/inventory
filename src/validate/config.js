@@ -13,7 +13,7 @@ module.exports = function configValidator (params, inventory, errors) {
    * Global config
    */
   // Memory
-  if (is.defined(globalMemory) && invalidMemory(globalMemory)) {
+  if (is.notNullish(globalMemory) && invalidMemory(globalMemory)) {
     errors.push(invalidMemoryMsg(`${globalMemory} MB (@aws)`))
   }
   // Runtime
@@ -23,7 +23,7 @@ module.exports = function configValidator (params, inventory, errors) {
     errors.push(`Invalid project-level runtime: ${globalRuntime}`)
   }
   // Timeout
-  if (is.defined(globalTimeout) && invalidTimeout(globalTimeout)) {
+  if (is.notNullish(globalTimeout) && invalidTimeout(globalTimeout)) {
     errors.push(invalidTimeoutMsg(`${globalTimeout} seconds (@aws)`))
   }
 

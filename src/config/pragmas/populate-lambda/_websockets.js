@@ -1,8 +1,14 @@
 let { join } = require('path')
 let is = require('../../../lib/is')
 
-module.exports = function populateWebSockets ({ item, dir, cwd, errors }) {
-  if (is.string(item)) {
+module.exports = function populateWebSockets ({ item, dir, cwd, errors, plugin }) {
+  if (plugin) {
+    let { name, src } = item
+    if (name && src) return { ...item, route: name }
+    errors.push(`Invalid plugin-generated @ws item: name: ${name}, src: ${src}`)
+    return
+  }
+  else if (is.string(item)) {
     let name = item
     let route = name // Same as name, just what AWS calls it
     let src = join(cwd, dir, name)

@@ -1,19 +1,19 @@
 /**
- * Ensure @tables children (@tables-streams, @indexes) have parent tables present
+ * Ensure @tables children (@tables-streams, @tables-indexes) have parent tables present
  * - If not, configuration is invalid
  */
 module.exports = function validateTablesChildren (inventory, errors) {
-  let { indexes, 'tables-streams': tablesStreams, tables } = inventory
+  let { 'tables-indexes': indexes, 'tables-streams': streams, tables } = inventory
 
   function check (table, type) {
     if (!tables.some(t => t.name === table)) {
       errors.push(`@${type} ${table} missing corresponding table`)
     }
   }
-  if (tablesStreams) {
-    tablesStreams.forEach(stream => check(stream.table, 'tables-streams'))
+  if (streams) {
+    streams.forEach(stream => check(stream.table, 'tables-streams'))
   }
   if (indexes) {
-    indexes.forEach(index => check(index.name, 'indexes'))
+    indexes.forEach(index => check(index.name, 'tables-indexes'))
   }
 }

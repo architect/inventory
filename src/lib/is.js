@@ -7,7 +7,8 @@ module.exports = {
   number: item => Number.isInteger(item),
   object: item => typeof item === 'object' && !Array.isArray(item),
   string: item => typeof item === 'string',
-  defined: item => typeof item !== 'undefined' && item !== null,
+  defined: item => typeof item !== 'undefined',
+  notNullish: item => typeof item !== 'undefined' && item !== null,
   // Filesystem
   exists: path => existsSync(path),
   folder: path => existsSync(path) && lstatSync(path).isDirectory(),

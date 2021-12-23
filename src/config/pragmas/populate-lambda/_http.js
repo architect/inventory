@@ -2,8 +2,18 @@ let { join } = require('path')
 let { getLambdaName } = require('@architect/utils')
 let is = require('../../../lib/is')
 
-module.exports = function populateHTTP ({ item, dir, cwd, errors }) {
-  if (is.array(item) && item.length === 2) {
+module.exports = function populateHTTP ({ item, dir, cwd, errors, plugin }) {
+  if (plugin) {
+    let { method, path, src } = item
+    if (method && path && src) {
+      let name = `${method} ${path}`
+      let route = { name, ...item }
+      return route
+    }
+    errors.push(`Invalid plugin-generated @http route: method: ${method}, path: ${path}, src: ${src}`)
+    return
+  }
+  else if (is.array(item) && item.length === 2) {
     let method = item[0].toLowerCase()
     let path = item[1]
     let name = `${method} ${path}`

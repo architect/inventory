@@ -30,10 +30,20 @@ let get = {
   }
 }
 
-module.exports = function populateScheduled ({ item, dir, cwd, errors }) {
+module.exports = function populateScheduled ({ item, dir, cwd, errors, plugin }) {
   let rate = null
   let cron = null
-  if (is.array(item)) {
+  if (plugin) {
+    let { name, src } = item
+    if (name && src && (item.rate || item.cron)) {
+      if (item.rate) rate = get.rate(item.rate)
+      if (item.cron) cron = get.cron(item.cron)
+      return { ...item, rate, cron }
+    }
+    errors.push(`Invalid plugin-generated @scheduled item: name: ${name}, rate: ${item.rate}, cron: ${item.cron}, src: ${src}`)
+    return
+  }
+  else if (is.array(item)) {
     let name = item[0]
 
     // Hacky but it works

@@ -1,3 +1,4 @@
+/*
 let { join } = require('path')
 let parse = require('@architect/parser')
 let test = require('tape')
@@ -73,3 +74,4 @@ test('No registered plugin Lambdas returns empty array', t => {
   let plugins = populatePlugins({ arc, inventory: inv })
   t.notOk(plugins.length, 'Returned no registered Lambdas')
 })
+ */

@@ -40,7 +40,7 @@
   "eslintConfig": {
     "extends": "@architect/eslint-config"
   },
-  "nyc": {
+  "_nyc": {
     "check-coverage": true,
     "branches": 100,
     "lines": 100,
