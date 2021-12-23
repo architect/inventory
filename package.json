@@ -23,14 +23,14 @@
     "@architect/asap": "~4.1.0",
     "@architect/parser": "~5.0.2",
     "@architect/utils": "~3.0.4",
-    "lambda-runtimes": "~1.1.0"
+    "lambda-runtimes": "~1.1.1"
   },
   "devDependencies": {
     "@architect/eslint-config": "~2.0.1",
     "aws-sdk": "2.880.0",
-    "aws-sdk-mock": "~5.4.0",
+    "aws-sdk-mock": "~5.5.0",
     "cross-env": "~7.0.3",
-    "eslint": "~8.2.0",
+    "eslint": "~8.5.0",
     "mock-fs": "~5.1.2",
     "mock-require": "~3.0.3",
     "nyc": "~15.1.0",
