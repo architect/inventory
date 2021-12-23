@@ -2,6 +2,7 @@ let { join } = require('path')
 let test = require('tape')
 let sut = join(process.cwd(), 'src', 'validate', 'tables-children')
 let validateTablesChildren = require(sut)
+let ti = 'tables-indexes'
 
 test('Set up env', t => {
   t.plan(1)
@@ -20,9 +21,8 @@ test('Valid table children configuration', t => {
   t.plan(1)
   let errors = []
   let tables = [ { name: 'table' } ]
-  let indexes = tables
   let streams = tables.map(({ name }) => ({ name, table: name }))
-  let inventory = { tables, streams, indexes }
+  let inventory = { tables, streams, [ti]: tables }
   validateTablesChildren(inventory, errors)
   t.equal(errors.length, 0, `No errors reported`)
 })
@@ -45,10 +45,10 @@ test('Indexes missing a table', t => {
   let errors = []
   let tables = [ { name: 'table' } ]
   let indexes = [ { name: 'foo' } ]
-  let inventory = { tables, indexes }
+  let inventory = { tables, [ti]: indexes }
   validateTablesChildren(inventory, errors)
   t.equal(errors.length, 1, `Got back an error`)
-  t.ok(errors[0].includes('@indexes foo missing corresponding table'), `Index missing table returned an error`)
+  t.ok(errors[0].includes('@tables-indexes foo missing corresponding table'), `Index missing table returned an error`)
   console.log(errors)
 })
 
@@ -58,10 +58,10 @@ test('Streams + indexes both missing a table', t => {
   let tables = [ { name: 'table' } ]
   let streams = [ { name: 'foo', table: 'foo' } ]
   let indexes = [ { name: 'foo' } ]
-  let inventory = { tables, 'tables-streams': streams, indexes }
+  let inventory = { tables, 'tables-streams': streams, [ti]: indexes }
   validateTablesChildren(inventory, errors)
   t.equal(errors.length, 2, `Got back errors`)
   t.ok(errors[0].includes('@tables-streams foo missing corresponding table'), `Stream missing table returned an error`)
-  t.ok(errors[1].includes('@indexes foo missing corresponding table'), `Index missing table returned an error`)
+  t.ok(errors[1].includes('@tables-indexes foo missing corresponding table'), `Index missing table returned an error`)
   console.log(errors)
 })

@@ -1,24 +1,34 @@
 let read = require('../../../read')
+let getLambda = require('./get-lambda')
 let getRuntime = require('./get-runtime')
 let getHandler = require('./get-handler')
 let upsert = require('../../_upsert')
+let defaultFunctionConfig = require('../../../defaults/function-config')
 let is = require('../../../lib/is')
 
-// Pragma-specific Lambda constructors
-let getHTTP = require('./_http')
-let getEvents = require('./_events')
-let getPlugins = require('./_plugins')
-let getScheduled = require('./_scheduled')
-let getWS = require('./_websockets')
-let getTablesStreams = require('./_tables-streams')
-
 /**
- * Build out the Lambda tree
+ * Build out the Lambda tree from the Arc manifest or a passed pragma, and plugins
  */
-function populateLambda (type, pragma, inventory, errors) {
-  if (!pragma || !pragma.length) return null // Jic
+function populateLambda (type, { arc, inventory, errors, pragma }) {
+  let plugins = inventory._project.plugins?._methods?.set?.[type]
+  let pluginLambda = []
+  if (plugins) {
+    let pluginResults = plugins.flatMap(fn => {
+      let result = fn({ arc, inventory })
+      result.plugin = fn.plugin
+      return result
+    })
+    pluginLambda = populate(type, pluginResults, inventory, errors, true) || []
+  }
+  let pragmaLambda = populate(type, pragma || arc[type], inventory, errors) || []
+  let aggregate = [ ...pluginLambda, ...pragmaLambda ]
+  return aggregate.length ? aggregate : null
+}
 
-  let createDefaultConfig = () => JSON.parse(JSON.stringify(inventory._project.defaultFunctionConfig))
+function populate (type, pragma, inventory, errors, plugin) {
+  if (!pragma || !pragma.length) return
+
+  let defaultProjectConfig = () => JSON.parse(JSON.stringify(inventory._project.defaultFunctionConfig))
   let cwd = inventory._project.src
 
   // Fill er up
@@ -26,7 +36,7 @@ function populateLambda (type, pragma, inventory, errors) {
 
   for (let item of pragma) {
     // Get name, source dir, and any pragma-specific properties
-    let results = getLambda({ type, item, cwd, inventory, errors })
+    let results = getLambda({ type, item, cwd, inventory, errors, plugin })
     // Some lambda populators (e.g. plugins) may return empty results
     if (!results) continue
     // Some lambda populators (e.g. plugins) may return multiple results
@@ -34,8 +44,9 @@ function populateLambda (type, pragma, inventory, errors) {
 
     results.forEach(result => {
       let { name, src } = result
-      // Set up fresh config
-      let config = createDefaultConfig()
+      // Set up fresh config, then overlay plugin config
+      let config = defaultProjectConfig()
+      config = { ...config, ...getKnownProps(configProps, result.config) }
 
       // Knock out any pragma-specific early
       if (type === 'queues') {
@@ -62,7 +73,7 @@ function populateLambda (type, pragma, inventory, errors) {
       // Interpolate runtimes
       config = getRuntime(config)
 
-      // Tidy up any irrelevant params
+      // Tidy up any irrelevant properties
       if (type !== 'http') {
         delete config.apigateway
       }
@@ -77,7 +88,7 @@ function populateLambda (type, pragma, inventory, errors) {
         handlerFile,
         handlerFunction,
         configFile,
-        ...result, // Any other pragma-specific stuff
+        ...getKnownProps(lambdaProps, result), // Any other pragma-specific stuff
       }
 
       lambdas.push(lambda)
@@ -87,22 +98,15 @@ function populateLambda (type, pragma, inventory, errors) {
   return lambdas
 }
 
-let ts = 'tables-streams'
-
-function getLambda (params) {
-  let { type } = params
-  params.dir = `src/${type}/`
-
-  if (type === 'http')      return getHTTP(params)
-  if (type === 'events')    return getEvents(params)
-  if (type === 'plugins')   return getPlugins(params)
-  if (type === 'queues')    return getEvents(params) // Effectively the same as events
-  if (type === 'scheduled') return getScheduled(params)
-  if (type === ts)          return getTablesStreams(params)
-  if (type === 'tables')    return getTablesStreams(params) // Shortcut for creating streams
-  /* istanbul ignore else: clearer to be explicit here */
-  if (type === 'ws')        return getWS(params)
+// Lambda setter plugins can technically return anything, so this ensures everything is tidy
+let lambdaProps = [ 'cron', 'method', 'path', 'plugin', 'rate', 'route', 'table' ]
+let configProps = [ ...Object.keys(defaultFunctionConfig()), 'fifo', 'views' ]
+let getKnownProps = (knownProps, raw = {}) => {
+  let props = knownProps.flatMap(prop => is.defined(raw[prop]) ? [ [ prop, raw[prop] ] ] : [])
+  return Object.fromEntries(props)
 }
+
+let ts = 'tables-streams'
 
 module.exports = {
   events:     populateLambda.bind({}, 'events'),

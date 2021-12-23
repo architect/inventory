@@ -30,8 +30,9 @@ custom setting
     'unconfigured-event',
     'configured-event',
   ]
+  let arc = { events: inventory.events }
   let errors = []
-  let lambdas = populateLambda.events(inventory.events, inventory, errors)
+  let lambdas = populateLambda.events({ arc, inventory, errors })
   t.deepEqual(lambdas[0].config, inventory._project.defaultFunctionConfig, 'Config was unmodified')
   let modified = {
     timeout: 10,
@@ -46,7 +47,7 @@ custom setting
   // Now return a Lambda config error
   config = `lolidk`
   mockFs({ [configPath]: config })
-  lambdas = populateLambda.events(inventory.events, inventory, errors)
+  lambdas = populateLambda.events({ arc, inventory, errors })
   t.equal(errors.length, 1, `Invalid Lambda config returned error: ${errors[0]}`)
   mockFs.restore()
 })

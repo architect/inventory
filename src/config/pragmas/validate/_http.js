@@ -2,7 +2,7 @@ let { unique } = require('./_lib')
 let methods = require('../../../lib/http-methods')
 
 module.exports = function validateHTTP (http, errors) {
-  if (http.length) {
+  if (http?.length) {
     unique(http, '@http routes', errors)
 
     let validMethod = str => methods.includes(str.toLowerCase())

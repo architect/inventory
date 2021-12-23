@@ -1,3 +1,4 @@
+/*
 let { getLambdaName } = require('@architect/utils')
 
 module.exports = function populatePlugins ({ item: pluginName, cwd, inventory, errors }) {
@@ -23,3 +24,4 @@ module.exports = function populatePlugins ({ item: pluginName, cwd, inventory, e
   }
   errors.push(`Invalid @plugins item: ${pluginName}`)
 }
+ */

@@ -1,19 +1,15 @@
 let is = require('../../lib/is')
 let validate = require('./validate')
 
-function configureTablesIndexes ({ arc, errors }) {
+module.exports = function configureTablesIndexes ({ arc, errors }) {
   if (!arc['tables-indexes'] || !arc['tables-indexes'].length) return null
   if (arc['tables-indexes'] && !arc.tables) {
     errors.push(`Specifying @tables-indexes requires specifying corresponding @tables`)
     return null
   }
-  if (arc['tables-indexes']?.length && arc.indexes?.length) {
-    errors.push(`Either @tables-indexes or @indexes can be specified, but not both`)
-    return null
-  }
 
   let indexes = getIndexes(arc, 'tables-indexes', errors)
-  validate.indexes(indexes, '@tables-indexes', errors)
+  validate.tablesIndexes(indexes, '@tables-indexes', errors)
 
   return indexes
 }
@@ -54,6 +50,3 @@ let getIndexes = (arc, pragma, errors) => {
     error(index)
   }).filter(Boolean) // Invalid indexes may create undefined entries in the map
 }
-
-configureTablesIndexes.getIndexes = getIndexes
-module.exports = configureTablesIndexes

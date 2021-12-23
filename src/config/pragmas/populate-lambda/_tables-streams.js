@@ -2,7 +2,7 @@ let { join } = require('path')
 let { existsSync } = require('fs')
 let is = require('../../../lib/is')
 
-module.exports = function populateTablesStreams ({ type, item, dir, cwd, errors }) {
+module.exports = function populateTablesStreams ({ type, item, dir, cwd, errors, plugin }) {
   if (type === 'tables' && is.object(item)) {
     let name = Object.keys(item)[0]
     // Check for the legacy dir from before `@tables tablename stream true` generated a @tables-streams item
@@ -17,6 +17,12 @@ module.exports = function populateTablesStreams ({ type, item, dir, cwd, errors 
 
     let table = name
     return { name, src, table }
+  }
+  else if (type === 'tables-streams' && plugin) {
+    let { name, src, table } = item
+    if (name && src && table) return { ...item }
+    errors.push(`Invalid plugin-generated @${type} item: name: ${name}, table: ${table}, src: ${src}`)
+    return
   }
   else if (type === 'tables-streams' && is.string(item)) {
     let name = item

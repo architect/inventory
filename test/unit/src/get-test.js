@@ -204,12 +204,6 @@ test('Get @http', t => {
   t.notOk(get.http('put /some-put'), 'Did not get back nonexistent route')
 })
 
-test('Get @indexes', t => {
-  t.plan(2)
-  t.ok(get.indexes, 'Got @indexes getter')
-  t.notOk(get.indexes('another-table'), 'Did not get back nonexistent index')
-})
-
 test('Get @macros', t => {
   t.plan(2)
   t.ok(get.macros, 'Got @macros getter')
