@@ -6,7 +6,7 @@ module.exports = {
     'cdn',
     'events',
     'http',
-    'macros',
+    'plugins',
     'proxy',
     'queues',
     'scheduled',
@@ -27,4 +27,22 @@ module.exports = {
     'tables-streams',
     'ws',
   ],
+  // Reserved pragma names that map to internal Inventory properties
+  reserved: [
+    'custom-lambdas',
+  ],
+  // Retired pragmas no longer in active use
+  retired: [
+    'indexes',
+    'macros',
+    'slack',
+    // Static types
+    'css',
+    'html',
+    'js',
+    'json',
+    'jsonapi',
+    'text',
+    'xml',
+  ]
 }

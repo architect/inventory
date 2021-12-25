@@ -1,6 +1,6 @@
 let { join } = require('path')
 let test = require('tape')
-let sut = join(process.cwd(), 'src', 'config', 'pragmas', 'src-dirs')
+let sut = join(process.cwd(), 'src', 'config', 'pragmas', 'meta', 'src-dirs')
 let populateSrcDirs = require(sut)
 
 let str = s => JSON.stringify(s)

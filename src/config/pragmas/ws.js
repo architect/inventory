@@ -2,7 +2,7 @@ let populate = require('./populate-lambda')
 let validate = require('./validate')
 
 module.exports = function configureWS ({ arc, inventory, errors }) {
-  let wsPlugins = inventory._project.plugins?._methods?.set?.ws
+  let wsPlugins = inventory.plugins?._methods?.set?.ws
   if (!arc.ws && !wsPlugins?.length) return null
 
   let ws = [ ]

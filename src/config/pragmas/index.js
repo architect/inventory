@@ -1,23 +1,26 @@
 let { all: allPragmas } = require('../../lib/pragmas')
 
 // Get all pragmas except special cases
-let isSpecial = p => [ 'shared', 'views' ].includes(p)
+let isSpecial = p => [ 'plugins', 'shared', 'views' ].includes(p)
 let visitors = allPragmas.map(p => {
   // eslint-disable-next-line
   if (!isSpecial(p)) return require(`./${p}`)
 }).filter(Boolean)
 
-// Special order-dependent visitors that run in a second pass
-let srcDirs = require('./src-dirs')
+// Special order-dependent visitors
+let customLambdas = require('./meta/custom-lambdas')
+let srcDirs = require('./meta/src-dirs')
 let shared = require('./shared')
 let views = require('./views')
 
-module.exports = function configureArcPragmas ({ arc, inventory }, errors) {
+function configureArcPragmas ({ arc, inventory, errors }) {
   if (inventory._project.type !== 'aws') {
     throw ReferenceError('Inventory can only configure pragmas for AWS projects')
   }
 
   let pragmas = {}
+
+  // All the main pragma visitors
   visitors.forEach(visitor => {
     // Expects pragma visitors to have function name of: `configure${pragma}`
     let name = visitor.name.replace('configure', '').toLowerCase()
@@ -26,6 +29,9 @@ module.exports = function configureArcPragmas ({ arc, inventory }, errors) {
     if (name === 'tablesstreams') name = 'tables-streams'
     pragmas[name] = visitor({ arc, inventory, errors })
   })
+
+  // Custom Lambdas from @plugins
+  pragmas['custom-lambdas'] = customLambdas({ arc, inventory, errors })
 
   // Lambda source directory list
   let dirs = srcDirs({ pragmas, errors })
@@ -40,3 +46,7 @@ module.exports = function configureArcPragmas ({ arc, inventory }, errors) {
 
   return pragmas
 }
+
+// Plugins get run early so visitors can rely on the plugin method tree
+configureArcPragmas.plugins = require('./plugins')
+module.exports = configureArcPragmas

@@ -61,18 +61,21 @@ module.exports = function architectInventory (params = {}, callback) {
   let inventory = inventoryDefaults(params)
 
   // Set up project params for config
-  let project = { cwd, arc, raw, filepath, inventory }
+  let project = { arc, cwd, errors, filepath, inventory, raw }
 
   // Populate inventory.arc
   inventory._arc = config._arc(project)
 
   // Establish default function config from project + Arc defaults
-  inventory._project = config._project(project, errors)
+  inventory._project = config._project(project)
 
-  // Userland: fill out the pragmas
+  // Prepare @plugins for proper pragma population
+  inventory.plugins = config.pragmas.plugins(project)
+
+  // Userland: fill out the pragmas, starting with @plugins
   inventory = {
     ...inventory,
-    ...config.pragmas(project, errors)
+    ...config.pragmas(project)
   }
 
   // End here if first-pass pragma validation failed

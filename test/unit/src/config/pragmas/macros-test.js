@@ -1,4 +1,4 @@
-let { join } = require('path')
+/* let { join } = require('path')
 let parse = require('@architect/parser')
 let test = require('tape')
 let sut = join(process.cwd(), 'src', 'config', 'pragmas', 'macros')
@@ -31,3 +31,4 @@ ${values.join('\n')}
   t.equal(macros[0], values[0], `Got correct macro back: ${macros[0]}`)
   t.equal(macros[1], values[1], `Got correct macro back: ${macros[1]}`)
 })
+ */

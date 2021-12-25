@@ -20,11 +20,11 @@ test('Inventory defaults returns correct default inventory object', t => {
   let pragmas = readdirSync(pragmaDir)
     .filter(f => f.endsWith('.js') && (f !== 'index.js' && f !== 'src-dirs.js'))
     .map(f => f.replace('.js', ''))
-  let inventoryParamSize = pragmas.length + 4 // arc + project + (lambdaSrcDirs + lambdasBySrcDir)
+  let inventoryPropSize = pragmas.length + 5 // arc + project + meta (custom-lambdas + lambdaSrcDirs + lambdasBySrcDir)
 
-  t.plan(inventoryParamSize + 1)
+  t.plan(inventoryPropSize)
 
-  t.equal(Object.keys(result).length, inventoryParamSize, 'Got correct number of params')
+  t.equal(Object.keys(result).length, inventoryPropSize, 'Got correct number of properties')
   t.ok(result._arc, 'Got _arc')
   t.ok(result._project, 'Got _project')
 
@@ -68,7 +68,6 @@ test('Inventory got proper project keys', t => {
     'globalPreferencesFile',
     'defaultFunctionConfig',
     'rootHandler',
-    'plugins',
     'arc',
     'raw',
     'env',

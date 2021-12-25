@@ -66,12 +66,14 @@ test('Get @http', t => {
   t.notOk(get.http('get /nope'), 'Did not get back nonexistent route')
 })
 
-test('Get @macros', t => {
+/* test('Get @macros', t => {
   t.plan(3)
   t.ok(get.macros, 'Got @macros getter')
   t.ok(get.macros('prune'), 'Got back correct value: prune')
   t.notOk(get.macros('idk'), 'Did not get back nonexistent macro')
-})
+}) */
+
+// TODO add @plugins
 
 test('Get @proxy', t => {
   t.plan(4)
@@ -204,11 +206,13 @@ test('Get @http', t => {
   t.notOk(get.http('put /some-put'), 'Did not get back nonexistent route')
 })
 
-test('Get @macros', t => {
+/* test('Get @macros', t => {
   t.plan(2)
   t.ok(get.macros, 'Got @macros getter')
   t.notOk(get.macros('idk'), 'Did not get back nonexistent macro')
-})
+}) */
+
+// TODO add @plugins
 
 test('Get @proxy', t => {
   t.plan(2)
