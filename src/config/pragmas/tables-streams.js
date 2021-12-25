@@ -10,7 +10,7 @@ let ts = 'tables-streams'
  *   - If a project has an existing `@tables` Lambda, we'll continue using that so long as the directory exists
  */
 module.exports = function configureTablesStreams ({ arc, inventory, errors }) {
-  let tablesStreamsPlugins = inventory._project.plugins?._methods?.set?.[ts]
+  let tablesStreamsPlugins = inventory.plugins?._methods?.set?.[ts]
   if (!arc[ts]?.length && !tablesStreamsPlugins?.length && !arc.tables?.length) return null
   if ((arc[ts] || tablesStreamsPlugins) && !arc.tables) {
     errors.push(`Specifying @tables-streams requires specifying corresponding @tables`)

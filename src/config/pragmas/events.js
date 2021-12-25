@@ -2,7 +2,7 @@ let populate = require('./populate-lambda')
 let validate = require('./validate')
 
 module.exports = function configureEvents ({ arc, inventory, errors }) {
-  let eventsPlugins = inventory._project.plugins?._methods?.set?.events
+  let eventsPlugins = inventory.plugins?._methods?.set?.events
   if (!arc?.events?.length && !eventsPlugins?.length) return null
 
   let events = populate.events({ arc, inventory, errors })

@@ -1,13 +1,15 @@
 let { join } = require('path')
 
 module.exports = {
-  pluginFunctions: function ({ inventory }) {
-    let cwd = inventory.inv._project.src
-    return inventory.inv._project.arc.pubsub.map((channel) => {
-      return {
-        src: join(cwd, 'src', 'pubsub', channel),
-        name: channel
-      }
-    })
+  set: {
+    'custom-lambdas': function ({ inventory }) {
+      let cwd = inventory._project.src
+      return inventory._project.arc.pubsub.map((channel) => {
+        return {
+          name: channel,
+          src: join(cwd, 'src', 'pubsub', channel),
+        }
+      })
+    }
   }
 }
