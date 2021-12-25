@@ -10,12 +10,13 @@ let is = require('../../../lib/is')
  * Build out the Lambda tree from the Arc manifest or a passed pragma, and plugins
  */
 function populateLambda (type, { arc, inventory, errors, pragma }) {
-  let plugins = inventory._project.plugins?._methods?.set?.[type]
+  let plugins = inventory.plugins?._methods?.set?.[type]
   let pluginLambda = []
   if (plugins) {
     let pluginResults = plugins.flatMap(fn => {
       let result = fn({ arc, inventory })
       result.plugin = fn.plugin
+      result.type = fn.type
       return result
     })
     pluginLambda = populate(type, pluginResults, inventory, errors, true) || []
@@ -106,12 +107,13 @@ let getKnownProps = (knownProps, raw = {}) => {
   return Object.fromEntries(props)
 }
 
+let cl = 'custom-lambdas'
 let ts = 'tables-streams'
 
 module.exports = {
   events:     populateLambda.bind({}, 'events'),
   http:       populateLambda.bind({}, 'http'),
-  plugins:    populateLambda.bind({}, 'plugins'),
+  [cl]:       populateLambda.bind({}, cl),
   queues:     populateLambda.bind({}, 'queues'),
   scheduled:  populateLambda.bind({}, 'scheduled'),
   tables:     populateLambda.bind({}, 'tables'),

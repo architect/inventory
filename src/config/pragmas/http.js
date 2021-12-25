@@ -5,7 +5,7 @@ let validate = require('./validate')
 let sort = require('./sort/http')
 
 module.exports = function configureHTTP ({ arc, inventory, errors }) {
-  let httpPlugins = inventory._project.plugins?._methods?.set?.http
+  let httpPlugins = inventory.plugins?._methods?.set?.http
   if (!arc.http && !httpPlugins?.length) return null
 
   // Populate normally returns null on an empty Lambda pragma

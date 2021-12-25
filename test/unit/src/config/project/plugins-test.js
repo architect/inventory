@@ -1,4 +1,4 @@
-let { join, sep } = require('path')
+/* let { join, sep } = require('path')
 let test = require('tape')
 let mockFs = require('mock-fs')
 let mockRequire = require('mock-require')
@@ -91,3 +91,4 @@ test('Plugin load failure', t => {
 
   mockFs.restore()
 })
+ */

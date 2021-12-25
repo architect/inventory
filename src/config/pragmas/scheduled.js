@@ -2,7 +2,7 @@ let populate = require('./populate-lambda')
 let validate = require('./validate')
 
 module.exports = function configureScheduled ({ arc, inventory, errors }) {
-  let scheduledPlugins = inventory._project.plugins?._methods?.set?.scheduled
+  let scheduledPlugins = inventory.plugins?._methods?.set?.scheduled
   if (!arc?.scheduled?.length && !scheduledPlugins?.length) return null
 
   let scheduled = populate.scheduled({ arc, inventory, errors })

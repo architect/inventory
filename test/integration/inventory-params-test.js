@@ -52,16 +52,22 @@ test('Inventory a maxed-out project', t => {
       keys.forEach(key => {
         let invFound = inv[key]
         let getFound = get[key]
-        t.ok(invFound, `Inventory has entry for: ${key}`)
+        if (key === 'custom-lambdas') {
+          t.notOk(invFound, `Inventory has no entry for: ${key}`)
+        }
+        else {
+          t.ok(invFound, `Inventory has entry for: ${key}`)
+        }
         t.ok(getFound, `Getter has entry for: ${key}`)
       })
       reset()
     }
   })
 })
-/*
+
 test('Inventory a project with a plugin that registers lambdas', t => {
-  t.plan(6)
+  t.plan(9)
+
   let cwd = join(mock, 'plugins-lambda')
   let channelOneDir = join(cwd, 'src', 'pubsub', 'channel-one')
   let channelTwoDir = join(cwd, 'src', 'pubsub', 'channel-two')
@@ -69,8 +75,11 @@ test('Inventory a project with a plugin that registers lambdas', t => {
     if (err) t.fail(err)
     else {
       let { inv } = result
-      t.ok(inv._project.plugins['custom-pubsub'], 'plugin registered')
-      t.equals(typeof inv._project.plugins['custom-pubsub'], 'object', 'custom plugin module pulled into inventory')
+      t.ok(inv.plugins['custom-pubsub'], 'plugin registered')
+      t.equals(typeof inv.plugins['custom-pubsub'], 'object', 'custom plugin module pulled into inventory')
+      t.equal(inv['custom-lambdas'].length, 2, `inv['custom-lambdas'] contains two plugin custom lambdae`)
+      t.equal(inv['custom-lambdas'][0].src, channelOneDir, `inv['custom-lambdas'] contains first of two plugin custom lambdae`)
+      t.equal(inv['custom-lambdas'][1].src, channelTwoDir, `inv['custom-lambdas'] contains second of two plugin custom lambdae`)
       t.ok(inv.lambdaSrcDirs.includes(channelOneDir), 'lambdaSrcDirs contains first of two plugin custom lambdae')
       t.ok(inv.lambdaSrcDirs.includes(channelTwoDir), 'lambdaSrcDirs contains second of two plugin custom lambdae')
       t.ok(inv.lambdasBySrcDir[channelOneDir], 'lambdasBySrcDir contains first of two plugin custom lambdae')
@@ -79,4 +88,3 @@ test('Inventory a project with a plugin that registers lambdas', t => {
     }
   })
 })
- */
