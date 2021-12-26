@@ -1,12 +1,14 @@
 let { join } = require('path')
 let parse = require('@architect/parser')
 let test = require('tape')
-let inventoryDefaultsPath = join(process.cwd(), 'src', 'defaults')
+let cwd = process.cwd()
+let inventoryDefaultsPath = join(cwd, 'src', 'defaults')
 let inventoryDefaults = require(inventoryDefaultsPath)
-let sut = join(process.cwd(), 'src', 'config', 'pragmas', 'scheduled')
+let testLibPath = join(cwd, 'test', 'lib')
+let testLib = require(testLibPath)
+let sut = join(cwd, 'src', 'config', 'pragmas', 'scheduled')
 let populateScheduled = require(sut)
 
-let cwd = process.cwd()
 let inventory = inventoryDefaults()
 inventory._project.src = cwd
 let scheduledDir = join(cwd, 'src', 'scheduled')
@@ -28,6 +30,7 @@ let cron = {
 let names = [ 'foo', 'bar' ]
 let expressions = [ `rate(${rate.expression})`, `cron(${cron.expression})` ]
 let values = [ `${names[0]} ${expressions[0]}`, `${names[1]} ${expressions[1]}` ]
+let setterPluginSetup = testLib.setterPluginSetup.bind({}, 'scheduled')
 
 test('Set up env', t => {
   t.plan(1)
@@ -201,6 +204,37 @@ ${complexValues.join('\n')}
   })
 })
 
+test('@scheduled population: plugin setter', t => {
+  t.plan(11)
+
+  let inventory = inventoryDefaults()
+  inventory._project.src = cwd
+  let setter = () => [
+    { name: names[0], rate: rate.expression, src: join(scheduledDir, names[0]) },
+    { name: names[1], cron: cron.expression, src: join(scheduledDir, names[1]) },
+  ]
+  inventory.plugins = setterPluginSetup(setter)
+
+  let scheduled = populateScheduled({ arc: {}, inventory })
+  t.equal(scheduled.length, values.length, 'Got correct number of scheduled events back')
+  names.forEach(name => {
+    t.ok(scheduled.some(sched => sched.name === name), `Got scheduled event: ${name}`)
+  })
+  scheduled.forEach(sched => {
+    t.equal(sched.src, join(scheduledDir, sched.name), `Scheduled event configured with correct source dir: ${sched.src}`)
+    t.ok(sched.handlerFile.startsWith(sched.src), `Handler file is in the correct source dir`)
+    if (sched.rate) {
+      t.equal(str(rate), str(sched.rate), `Got back correct rate object: ${str(rate)}`)
+      t.equal(sched.cron, null, `Got back null cron param`)
+    }
+    else if (sched.cron) {
+      t.equal(str(cron), str(sched.cron), `Got back correct cron object: ${str(cron)}`)
+      t.equal(sched.rate, null, `Got back null rate param`)
+    }
+    else t.fail('Could not find rate or cron expression')
+  })
+})
+
 test('@scheduled population: validation errors', t => {
   t.plan(27)
   let errors = []
@@ -320,5 +354,42 @@ test('@scheduled population: validation errors', t => {
   check()
 
   run(`hi`)
+  check()
+})
+
+test('@scheduled population: plugin errors', t => {
+  t.plan(6)
+  let errors = []
+  function run (returning) {
+    let inventory = inventoryDefaults()
+    inventory._project.src = cwd
+    inventory.plugins = setterPluginSetup(() => returning)
+    populateScheduled({ arc: {}, inventory, errors })
+  }
+  function check (str = 'Invalid setter return', qty = 1) {
+    t.equal(errors.length, qty, str)
+    console.log(errors.join('\n'))
+    // Run a bunch of control tests at the top by resetting errors after asserting
+    errors = []
+  }
+
+  // Control
+  run({ name: 'hi', rate: '1 day', src: 'hi' })
+  t.equal(errors.length, 0, `Valid routes did not error`)
+
+  // Errors
+  run()
+  check()
+
+  run({})
+  check()
+
+  run({ name: 'hi' })
+  check()
+
+  run({ src: 'hi' })
+  check()
+
+  run({ name: 'hi', src: 'hi' })
   check()
 })

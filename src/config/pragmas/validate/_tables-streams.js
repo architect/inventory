@@ -7,13 +7,11 @@ let { regex, size, unique } = require('./_lib')
  * See: https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/HowItWorks.NamingRulesDataTypes.html
  */
 module.exports = function validateTablesStreams (tablesStreams, errors) {
-  if (tablesStreams?.length) {
-    unique(tablesStreams, '@tables-streams', errors)
+  unique(tablesStreams, '@tables-streams', errors)
 
-    tablesStreams.forEach(stream => {
-      let { name } = stream
-      size(name, 3, 255, '@tables-streams', errors)
-      regex(name, 'veryLooseName', '@tables-streams', errors)
-    })
-  }
+  tablesStreams.forEach(stream => {
+    let { name } = stream
+    size(name, 3, 255, '@tables-streams', errors)
+    regex(name, 'veryLooseName', '@tables-streams', errors)
+  })
 }

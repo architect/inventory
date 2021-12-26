@@ -1,10 +1,13 @@
 let { join } = require('path')
-let is = require('../../../lib/is')
+let { is, normalizeSrc } = require('../../../lib')
 
 module.exports = function populateWebSockets ({ item, dir, cwd, errors, plugin }) {
   if (plugin) {
     let { name, src } = item
-    if (name && src) return { ...item, route: name }
+    if (name && src) {
+      item.src = normalizeSrc(cwd, src)
+      return { ...item, route: name }
+    }
     errors.push(`Invalid plugin-generated @ws item: name: ${name}, src: ${src}`)
     return
   }

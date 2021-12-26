@@ -31,7 +31,7 @@ function configureArcPragmas ({ arc, inventory, errors }) {
   })
 
   // Custom Lambdas from @plugins
-  pragmas['custom-lambdas'] = customLambdas({ arc, inventory, errors })
+  pragmas.customLambdas = customLambdas({ arc, inventory, errors })
 
   // Lambda source directory list
   let dirs = srcDirs({ pragmas, errors })

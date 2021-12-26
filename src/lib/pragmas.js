@@ -29,7 +29,7 @@ module.exports = {
   ],
   // Reserved pragma names that map to internal Inventory properties
   reserved: [
-    'custom-lambdas',
+    'customLambdas',
   ],
   // Retired pragmas no longer in active use
   retired: [

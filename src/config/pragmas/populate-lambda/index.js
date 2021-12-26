@@ -15,6 +15,10 @@ function populateLambda (type, { arc, inventory, errors, pragma }) {
   if (plugins) {
     let pluginResults = plugins.flatMap(fn => {
       let result = fn({ arc, inventory })
+      if (!result) {
+        errors.push(`Setter plugins must return a valid response: plugin: ${fn.plugin}, method: set.${type}`)
+        return []
+      }
       result.plugin = fn.plugin
       result.type = fn.type
       return result
@@ -37,63 +41,59 @@ function populate (type, pragma, inventory, errors, plugin) {
 
   for (let item of pragma) {
     // Get name, source dir, and any pragma-specific properties
-    let results = getLambda({ type, item, cwd, inventory, errors, plugin })
-    // Some lambda populators (e.g. plugins) may return empty results
-    if (!results) continue
-    // Some lambda populators (e.g. plugins) may return multiple results
-    if (!is.array(results)) results = [ results ]
+    let result = getLambda({ type, item, cwd, inventory, errors, plugin })
+    // Some lambda populators (e.g. plugins) may return empty result
+    if (!result) continue
 
-    results.forEach(result => {
-      let { name, src } = result
-      // Set up fresh config, then overlay plugin config
-      let config = defaultProjectConfig()
-      config = { ...config, ...getKnownProps(configProps, result.config) }
+    let { name, src } = result
+    // Set up fresh config, then overlay plugin config
+    let config = defaultProjectConfig()
+    config = { ...config, ...getKnownProps(configProps, result.config) }
 
-      // Knock out any pragma-specific early
-      if (type === 'queues') {
-        config.fifo = config.fifo === undefined ? true : config.fifo
-      }
-      if (type === 'http') {
-        if (name.startsWith('get ') || name.startsWith('any ')) config.views = true
-      }
+    // Knock out any pragma-specific early
+    if (type === 'queues') {
+      config.fifo = config.fifo === undefined ? true : config.fifo
+    }
+    if (type === 'http') {
+      if (name.startsWith('get ') || name.startsWith('any ')) config.views = true
+    }
 
-      // Now let's check in on the function config
-      let { arc: arcConfig, filepath } = read({ type: 'functionConfig', cwd: src, errors })
+    // Now let's check in on the function config
+    let { arc: arcConfig, filepath } = read({ type: 'functionConfig', cwd: src, errors })
 
-      // Set function config file path (if one is present)
-      let configFile = filepath ? filepath : null
+    // Set function config file path (if one is present)
+    let configFile = filepath ? filepath : null
 
-      // Layer any function config over Arc / project defaults
-      if (arcConfig && arcConfig.aws) {
-        config = upsert(config, arcConfig.aws)
-      }
-      if (arcConfig && arcConfig.arc) {
-        config = upsert(config, arcConfig.arc)
-      }
+    // Layer any function config over Arc / project defaults
+    if (arcConfig && arcConfig.aws) {
+      config = upsert(config, arcConfig.aws)
+    }
+    if (arcConfig && arcConfig.arc) {
+      config = upsert(config, arcConfig.arc)
+    }
 
-      // Interpolate runtimes
-      config = getRuntime(config)
+    // Interpolate runtimes
+    config = getRuntime(config)
 
-      // Tidy up any irrelevant properties
-      if (type !== 'http') {
-        delete config.apigateway
-      }
+    // Tidy up any irrelevant properties
+    if (type !== 'http') {
+      delete config.apigateway
+    }
 
-      // Now we know the final source dir + runtime + handler: assemble handler props
-      let { handlerFile, handlerFunction } = getHandler(config, src, errors)
+    // Now we know the final source dir + runtime + handler: assemble handler props
+    let { handlerFile, handlerFunction } = getHandler(config, src, errors)
 
-      let lambda = {
-        name,
-        config,
-        src,
-        handlerFile,
-        handlerFunction,
-        configFile,
-        ...getKnownProps(lambdaProps, result), // Any other pragma-specific stuff
-      }
+    let lambda = {
+      name,
+      config,
+      src,
+      handlerFile,
+      handlerFunction,
+      configFile,
+      ...getKnownProps(lambdaProps, result), // Any other pragma-specific stuff
+    }
 
-      lambdas.push(lambda)
-    })
+    lambdas.push(lambda)
   }
 
   return lambdas
@@ -107,7 +107,7 @@ let getKnownProps = (knownProps, raw = {}) => {
   return Object.fromEntries(props)
 }
 
-let cl = 'custom-lambdas'
+let cl = 'customLambdas'
 let ts = 'tables-streams'
 
 module.exports = {

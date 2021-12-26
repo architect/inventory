@@ -1,16 +1,19 @@
 let { join } = require('path')
 let parse = require('@architect/parser')
 let test = require('tape')
+let cwd = process.cwd()
 let { getLambdaName } = require('@architect/utils')
-let inventoryDefaultsPath = join(process.cwd(), 'src', 'defaults')
+let inventoryDefaultsPath = join(cwd, 'src', 'defaults')
 let inventoryDefaults = require(inventoryDefaultsPath)
-let sut = join(process.cwd(), 'src', 'config', 'pragmas', 'http')
+let testLibPath = join(cwd, 'test', 'lib')
+let testLib = require(testLibPath)
+let sut = join(cwd, 'src', 'config', 'pragmas', 'http')
 let populateHTTP = require(sut)
 
-let cwd = process.cwd()
 let inventory = inventoryDefaults()
 inventory._project.src = cwd
 let httpDir = join(cwd, 'src', 'http')
+let setterPluginSetup = testLib.setterPluginSetup.bind({}, 'http')
 
 test('Set up env', t => {
   t.plan(1)
@@ -147,13 +150,14 @@ proxuction https://some.site`)
 
 test('@http population: simple format + implicit get /*', t => {
   t.plan(8)
+
   let values = [ 'get /foo', 'put /bar' ]
   let arc = parse(`
 @http
 ${values.join('\n')}
 `)
   let http = populateHTTP({ arc, inventory })
-  t.equal(http.length, values.length + 1, 'Got correct number of routes back (including default get /)')
+  t.equal(http.length, values.length + 1, 'Got correct number of routes back (including default get /*)')
   values.forEach(val => {
     t.ok(http.some(route => route.name === val), `Got route: ${val}`)
   })
@@ -171,6 +175,7 @@ ${values.join('\n')}
 
 test('@http population: simple format + explicit get /*', t => {
   t.plan(11)
+
   let values = [ 'get /*', 'get /foo', 'put /bar' ]
   let arc = parse(`
 @http
@@ -193,6 +198,7 @@ ${values.join('\n')}
 
 test('@http population: complex format + implicit get /*', t => {
   t.plan(11)
+
   let values = [ 'foo', 'bar', 'baz' ]
   let complexValues = [
     `/${values[0]}
@@ -227,6 +233,7 @@ ${complexValues.join('\n')}
 
 test('@http population: complex format + explicit get /*', t => {
   t.plan(13)
+
   let values = [ 'foo', 'bar', 'baz', '/*' ]
   let complexValues = [
     `/*
@@ -265,6 +272,7 @@ ${complexValues.join('\n')}
 
 test('@http population: complex format + implicit get /* + fallback to default paths', t => {
   t.plan(11)
+
   let values = [ 'foo', 'bar', 'baz' ]
   let complexValues = [
     `/${values[0]}
@@ -290,6 +298,38 @@ ${complexValues.join('\n')}
     }
     else {
       t.equal(route.src, join(httpDir, name), `Complex HTTP entry fell back to correct default source dir: ${route.src}`)
+      t.ok(route.handlerFile.startsWith(route.src), `Handler file is in the correct source dir`)
+    }
+  })
+})
+
+test('@http population: plugin setter', t => {
+  t.plan(8)
+
+  let values = [ 'get /foo', 'put /bar' ]
+  let inventory = inventoryDefaults()
+  inventory._project.src = cwd
+  let setter = () => values.map(v => {
+    let bits = v.split(' ')
+    let method = bits[0]
+    let path = bits[1]
+    let folder = `${method}${getLambdaName(path)}`
+    return { method, path, src: join(httpDir, folder) }
+  })
+  inventory.plugins = setterPluginSetup(setter)
+  let http = populateHTTP({ arc: {}, inventory })
+
+  t.equal(http.length, values.length + 1, 'Got correct number of routes back (including default get /*)')
+  values.forEach(val => {
+    t.ok(http.some(route => route.name === val), `Got route: ${val}`)
+  })
+  http.forEach(route => {
+    let name = `${route.method}${getLambdaName(route.path)}`
+    if (route.name === 'get /*') {
+      t.equal(route.arcStaticAssetProxy, true, 'Implicit get /* (ASAP) found')
+    }
+    else {
+      t.equal(route.src, join(httpDir, name), `Route configured with correct source dir: ${route.src}`)
       t.ok(route.handlerFile.startsWith(route.src), `Handler file is in the correct source dir`)
     }
   })
@@ -448,4 +488,44 @@ test('@http population: validation errors', t => {
 
   run(`get /hi/there*`)
   check(`Invalid catchall errored`)
+})
+
+test('@plugin population: plugin errors', t => {
+  t.plan(7)
+  let errors = []
+  function run (returning) {
+    let inventory = inventoryDefaults()
+    inventory._project.src = cwd
+    inventory.plugins = setterPluginSetup(() => returning)
+    populateHTTP({ arc: {}, inventory, errors })
+  }
+  function check (str = 'Invalid setter return', qty = 1) {
+    t.equal(errors.length, qty, str)
+    console.log(errors.join('\n'))
+    // Run a bunch of control tests at the top by resetting errors after asserting
+    errors = []
+  }
+
+  // Control
+  run({ method: 'get', path: '/hi', src: 'hi' })
+  t.equal(errors.length, 0, `Valid routes did not error`)
+
+  // Errors
+  run()
+  check()
+
+  run({})
+  check()
+
+  run({ name: 'get /hi' })
+  check()
+
+  run({ method: 'get' })
+  check()
+
+  run({ path: 'hi' })
+  check()
+
+  run({ src: 'hi' })
+  check()
 })
