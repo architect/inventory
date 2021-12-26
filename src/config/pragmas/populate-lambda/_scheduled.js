@@ -1,5 +1,5 @@
 let { join } = require('path')
-let is = require('../../../lib/is')
+let { is, normalizeSrc } = require('../../../lib')
 
 let coerceNumbers = str => !isNaN(Number(str)) ? Number(str) : str
 
@@ -38,6 +38,7 @@ module.exports = function populateScheduled ({ item, dir, cwd, errors, plugin })
     if (name && src && (item.rate || item.cron)) {
       if (item.rate) rate = get.rate(item.rate)
       if (item.cron) cron = get.cron(item.cron)
+      item.src = normalizeSrc(cwd, src)
       return { ...item, rate, cron }
     }
     errors.push(`Invalid plugin-generated @scheduled item: name: ${name}, rate: ${item.rate}, cron: ${item.cron}, src: ${src}`)

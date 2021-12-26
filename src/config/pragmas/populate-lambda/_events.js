@@ -1,10 +1,13 @@
 let { join } = require('path')
-let is = require('../../../lib/is')
+let { is, normalizeSrc } = require('../../../lib')
 
 module.exports = function populateEvents ({ type, item, dir, cwd, errors, plugin }) {
   if (plugin) {
     let { name, src } = item
-    if (name && src) return item
+    if (name && src) {
+      item.src = normalizeSrc(cwd, src)
+      return item
+    }
     errors.push(`Invalid plugin-generated @${type} item: name: ${name}, src: ${src}`)
     return
   }

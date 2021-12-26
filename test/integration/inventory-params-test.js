@@ -52,7 +52,7 @@ test('Inventory a maxed-out project', t => {
       keys.forEach(key => {
         let invFound = inv[key]
         let getFound = get[key]
-        if (key === 'custom-lambdas') {
+        if (key === 'customLambdas') {
           t.notOk(invFound, `Inventory has no entry for: ${key}`)
         }
         else {
@@ -77,9 +77,9 @@ test('Inventory a project with a plugin that registers lambdas', t => {
       let { inv } = result
       t.ok(inv.plugins['custom-pubsub'], 'plugin registered')
       t.equals(typeof inv.plugins['custom-pubsub'], 'object', 'custom plugin module pulled into inventory')
-      t.equal(inv['custom-lambdas'].length, 2, `inv['custom-lambdas'] contains two plugin custom lambdae`)
-      t.equal(inv['custom-lambdas'][0].src, channelOneDir, `inv['custom-lambdas'] contains first of two plugin custom lambdae`)
-      t.equal(inv['custom-lambdas'][1].src, channelTwoDir, `inv['custom-lambdas'] contains second of two plugin custom lambdae`)
+      t.equal(inv['customLambdas'].length, 2, `inv['customLambdas'] contains two plugin custom lambdae`)
+      t.equal(inv['customLambdas'][0].src, channelOneDir, `inv['customLambdas'] contains first of two plugin custom lambdae`)
+      t.equal(inv['customLambdas'][1].src, channelTwoDir, `inv['customLambdas'] contains second of two plugin custom lambdae`)
       t.ok(inv.lambdaSrcDirs.includes(channelOneDir), 'lambdaSrcDirs contains first of two plugin custom lambdae')
       t.ok(inv.lambdaSrcDirs.includes(channelTwoDir), 'lambdaSrcDirs contains second of two plugin custom lambdae')
       t.ok(inv.lambdasBySrcDir[channelOneDir], 'lambdasBySrcDir contains first of two plugin custom lambdae')
