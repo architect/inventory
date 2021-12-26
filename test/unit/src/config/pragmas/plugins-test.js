@@ -131,8 +131,8 @@ test('Check plugin file paths', t => {
 
   // Verbose
   arc = parse(`@plugins
-  proj1
-  src ${pluginPaths[4]}`)
+proj1
+  src '${pluginPaths[4]}'`)
   setup(path)
   mockFs({ [pluginPaths[4]]: null })
   errors = []
@@ -144,7 +144,7 @@ test('Check plugin file paths', t => {
 
   // Verbose that does not include src property
   arc = parse(`@plugins
-  proj1
+proj1
   idk whatever`)
   setup(path)
   errors = []
