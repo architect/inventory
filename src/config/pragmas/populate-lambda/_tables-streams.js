@@ -1,6 +1,6 @@
 let { join } = require('path')
 let { existsSync } = require('fs')
-let is = require('../../../lib/is')
+let { is, normalizeSrc } = require('../../../lib')
 
 module.exports = function populateTablesStreams ({ type, item, dir, cwd, errors, plugin }) {
   if (type === 'tables' && is.object(item)) {
@@ -20,7 +20,10 @@ module.exports = function populateTablesStreams ({ type, item, dir, cwd, errors,
   }
   else if (type === 'tables-streams' && plugin) {
     let { name, src, table } = item
-    if (name && src && table) return { ...item }
+    if (name && src && table) {
+      item.src = normalizeSrc(cwd, src)
+      return item
+    }
     errors.push(`Invalid plugin-generated @${type} item: name: ${name}, table: ${table}, src: ${src}`)
     return
   }

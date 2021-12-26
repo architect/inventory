@@ -1,16 +1,19 @@
 let { join } = require('path')
 let parse = require('@architect/parser')
 let test = require('tape')
-let inventoryDefaultsPath = join(process.cwd(), 'src', 'defaults')
+let cwd = process.cwd()
+let inventoryDefaultsPath = join(cwd, 'src', 'defaults')
 let inventoryDefaults = require(inventoryDefaultsPath)
-let sut = join(process.cwd(), 'src', 'config', 'pragmas', 'events')
+let testLibPath = join(cwd, 'test', 'lib')
+let testLib = require(testLibPath)
+let sut = join(cwd, 'src', 'config', 'pragmas', 'events')
 let populateEvents = require(sut)
 
-let cwd = process.cwd()
 let inventory = inventoryDefaults()
 inventory._project.src = cwd
 let eventsDir = join(cwd, 'src', 'events')
 let values = [ 'foo', 'bar' ]
+let setterPluginSetup = testLib.setterPluginSetup.bind({}, 'events')
 
 test('Set up env', t => {
   t.plan(1)
@@ -91,6 +94,26 @@ ${complexValues.join('\n')}
   })
 })
 
+test('@events population: plugin setter', t => {
+  t.plan(7)
+
+  let inventory = inventoryDefaults()
+  inventory._project.src = cwd
+  let setter = () => values.map(v => ({ name: v, src: join(eventsDir, v) }))
+  inventory.plugins = setterPluginSetup(setter)
+
+  let events = populateEvents({ arc: {}, inventory })
+  t.equal(events.length, values.length, 'Got correct number of events back')
+  values.forEach(val => {
+    t.ok(events.some(event => event.name === val), `Got event: ${val}`)
+  })
+  events.forEach(event => {
+    let { handlerFile, name, src } = event
+    t.equal(src, join(eventsDir, name), `Event configured with correct source dir: ${src}`)
+    t.ok(handlerFile.startsWith(src), `Handler file is in the correct source dir`)
+  })
+})
+
 test('@events population: validation errors', t => {
   t.plan(13)
   // Test assumes complex format is outputting the same data as simple, so we're only testing errors in the simple format
@@ -153,5 +176,39 @@ hi
   check()
 
   run(`Amazon.hi-there`)
+  check()
+})
+
+test('@events population: plugin errors', t => {
+  t.plan(5)
+  let errors = []
+  function run (returning) {
+    let inventory = inventoryDefaults()
+    inventory._project.src = cwd
+    inventory.plugins = setterPluginSetup(() => returning)
+    populateEvents({ arc: {}, inventory, errors })
+  }
+  function check (str = 'Invalid setter return', qty = 1) {
+    t.equal(errors.length, qty, str)
+    console.log(errors.join('\n'))
+    // Run a bunch of control tests at the top by resetting errors after asserting
+    errors = []
+  }
+
+  // Control
+  run({ name: 'hi', src: 'hi' })
+  t.equal(errors.length, 0, `Valid routes did not error`)
+
+  // Errors
+  run()
+  check()
+
+  run({})
+  check()
+
+  run({ name: 'hi' })
+  check()
+
+  run({ src: 'hi' })
   check()
 })

@@ -63,7 +63,7 @@ module.exports = function inventoryDefaults (params = {}) {
     views: null,
     ws: null,
     // Unclassified / non-pragma custom Lambdas created by plugins
-    'custom-lambdas': null,
+    customLambdas: null,
     // Collection of all Lambda paths
     lambdaSrcDirs: null,
     // Lambda lookup by source directory

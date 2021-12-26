@@ -1,11 +1,12 @@
 let { join } = require('path')
 let { getLambdaName } = require('@architect/utils')
-let is = require('../../../lib/is')
+let { is, normalizeSrc } = require('../../../lib')
 
 module.exports = function populateHTTP ({ item, dir, cwd, errors, plugin }) {
   if (plugin) {
     let { method, path, src } = item
     if (method && path && src) {
+      item.src = normalizeSrc(cwd, src)
       let name = `${method} ${path}`
       let route = { name, ...item }
       return route

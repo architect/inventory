@@ -1,8 +1,8 @@
 let { join } = require('path')
 let { existsSync } = require('fs')
-let { is } = require('../../lib')
+let { is, normalizeSrc } = require('../../lib')
 let { lambdas } = require('../../lib/pragmas')
-let nonLambdaSetters = [ 'env', 'custom-lambdas' ]
+let nonLambdaSetters = [ 'env', 'customLambdas' ]
 let setters = [ ...lambdas, ...nonLambdaSetters ]
 let pluginMethods = [ 'deploy', 'sandbox' ] // TODO add more!
 
@@ -29,7 +29,7 @@ module.exports = function getPluginModules ({ arc, inventory, errors }) {
     else if (is.object(plugin)) {
       name = Object.keys(plugin)[0]
       pluginPath = plugin[name].src
-        ? join(cwd, plugin[name].src)
+        ? normalizeSrc(cwd, plugin[name].src)
         : join(cwd, 'src', type + 's', name)
     }
 
@@ -89,7 +89,7 @@ module.exports = function getPluginModules ({ arc, inventory, errors }) {
         errors.push(`Unable to load plugin '${name}': ${err.message.split('\n')[0]}`)
       }
     }
-    else errors.push(`Cannot find plugin '${name}'! Are you sure you have installed or created it correctly?`)
+    else errors.push(`Cannot find plugin '${name || plugin}'! Are you sure you have installed or created it correctly?`)
   }
   plugins._methods = methods
   return plugins

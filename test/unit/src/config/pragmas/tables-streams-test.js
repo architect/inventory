@@ -2,14 +2,18 @@ let { join } = require('path')
 let mockFs = require('mock-fs')
 let parse = require('@architect/parser')
 let test = require('tape')
-let inventoryDefaultsPath = join(process.cwd(), 'src', 'defaults')
+let cwd = process.cwd()
+let inventoryDefaultsPath = join(cwd, 'src', 'defaults')
 let inventoryDefaults = require(inventoryDefaultsPath)
-let sut = join(process.cwd(), 'src', 'config', 'pragmas', 'tables-streams')
+let testLibPath = join(cwd, 'test', 'lib')
+let testLib = require(testLibPath)
+let sut = join(cwd, 'src', 'config', 'pragmas', 'tables-streams')
 let populateTablesStreams = require(sut)
 
-let cwd = process.cwd()
 let inventory = inventoryDefaults()
 inventory._project.src = cwd
+let setterPluginSetup = testLib.setterPluginSetup.bind({}, 'tables-streams')
+
 let tablesDir = join(cwd, 'src', 'tables')
 let streamsDir = join(cwd, 'src', 'streams')
 let tablesStreamsDir = join(cwd, 'src', 'tables-streams')
@@ -218,6 +222,32 @@ yet-another-stream
   })
 })
 
+test('@tables-streams population: plugin setter', t => {
+  t.plan(10)
+
+  let arc = parse(`
+@tables
+${tableNames[0]}
+${tableNames[1]}
+${tableNames[2]}
+`)
+  let inventory = inventoryDefaults()
+  inventory._project.src = cwd
+  let setter = () => tableNames.map(v => ({ name: v, table: v, src: join(tablesStreamsDir, v) }))
+  inventory.plugins = setterPluginSetup(setter)
+
+  let streams = populateTablesStreams({ arc, inventory })
+  t.equal(streams.length, tableNames.length, 'Got correct number of tables-streams back')
+  tableNames.forEach(val => {
+    t.ok(streams.some(stream => stream.name === val), `Got stream: ${val}`)
+  })
+  streams.forEach(stream => {
+    let { name, handlerFile, src } = stream
+    t.equal(src, join(tablesStreamsDir, name), `Stream configured with correct source dir: ${src}`)
+    t.ok(handlerFile.startsWith(src), `Handler file is in the correct source dir`)
+  })
+})
+
 test('@tables-streams population: validation errors', t => {
   t.plan(9)
   let errors = []
@@ -287,5 +317,49 @@ hello
 
   let name = Array.from(Array(130), () => 'hi').join('')
   run(`${tables}${name}\n${tablesStreams}${name}`)
+  check()
+})
+
+test('@tables-streams population: plugin errors', t => {
+  t.plan(8)
+  let errors = []
+  function run (returning) {
+    let inventory = inventoryDefaults()
+    inventory._project.src = cwd
+    inventory.plugins = setterPluginSetup(() => returning)
+    let arc = { tables: [ { hi: {} } ] }
+    populateTablesStreams({ arc, inventory, errors })
+  }
+  function check (str = 'Invalid setter return', qty = 1) {
+    t.equal(errors.length, qty, str)
+    console.log(errors.join('\n'))
+    // Run a bunch of control tests at the top by resetting errors after asserting
+    errors = []
+  }
+
+  // Control
+  run({ name: 'hello', table: 'hello', src: 'hi' })
+  t.equal(errors.length, 0, `Valid routes did not error`)
+
+  // Errors
+  run()
+  check()
+
+  run({})
+  check()
+
+  run({ name: 'hello' })
+  check()
+
+  run({ table: 'hello' })
+  check()
+
+  run({ src: 'hi' })
+  check()
+
+  run({ name: 'hello', src: 'hi' })
+  check()
+
+  run({ table: 'hello', src: 'hi' })
   check()
 })

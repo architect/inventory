@@ -1,15 +1,19 @@
 let { join } = require('path')
 let parse = require('@architect/parser')
 let test = require('tape')
-let inventoryDefaultsPath = join(process.cwd(), 'src', 'defaults')
+let cwd = process.cwd()
+let inventoryDefaultsPath = join(cwd, 'src', 'defaults')
 let inventoryDefaults = require(inventoryDefaultsPath)
-let sut = join(process.cwd(), 'src', 'config', 'pragmas', 'ws')
+let testLibPath = join(cwd, 'test', 'lib')
+let testLib = require(testLibPath)
+let sut = join(cwd, 'src', 'config', 'pragmas', 'ws')
 let populateWS = require(sut)
 
-let cwd = process.cwd()
 let inventory = inventoryDefaults()
 inventory._project.src = cwd
+let defaults = [ 'connect', 'default', 'disconnect' ]
 let wsDir = join(cwd, 'src', 'ws')
+let setterPluginSetup = testLib.setterPluginSetup.bind({}, 'ws')
 
 test('Set up env', t => {
   t.plan(1)
@@ -23,7 +27,6 @@ test('No @ws returns null', t => {
 
 test('@ws population: simple format + defaults', t => {
   t.plan(10)
-  let defaults = [ 'connect', 'default', 'disconnect' ]
   let arc = parse(`@ws`)
   let ws = populateWS({ arc, inventory })
   t.equal(ws.length, defaults.length, 'Got correct number of routes back')
@@ -39,7 +42,6 @@ test('@ws population: simple format + defaults', t => {
 
 test('@ws population: simple format + defaults + additional action', t => {
   t.plan(16)
-  let defaults = [ 'connect', 'default', 'disconnect' ]
   let values = [ 'some-action', 'some-other-action' ]
   let arc = parse(`
 @ws
@@ -60,7 +62,6 @@ ${values.join('\n')}
 
 test('@ws population: complex format + defaults + additional action', t => {
   t.plan(16)
-  let defaults = [ 'connect', 'default', 'disconnect' ]
   let values = [ 'some-action', 'some-other-action' ]
   let complexValues = [
     `${defaults[0]}
@@ -86,6 +87,27 @@ ${complexValues.join('\n')}
   ws.forEach(route => {
     let { name, handlerFile, src } = route
     t.equal(src, join(cwd, `${name}/path`), `Route configured with correct source dir: ${src}`)
+    t.ok(handlerFile.startsWith(src), `Handler file is in the correct source dir`)
+  })
+})
+
+test('@ws population: plugin setter', t => {
+  t.plan(16)
+
+  let values = [ 'some-action', 'some-other-action' ]
+  let inventory = inventoryDefaults()
+  inventory._project.src = cwd
+  let setter = () => values.map(v => ({ name: v, src: join(wsDir, v) }))
+  inventory.plugins = setterPluginSetup(setter)
+
+  let ws = populateWS({ arc: {}, inventory })
+  t.equal(ws.length, defaults.length + values.length, 'Got correct number of routes back')
+  defaults.concat(values).forEach(val => {
+    t.ok(ws.some(route => route.name === val), `Got route: ${val}`)
+  })
+  ws.forEach(route => {
+    let { name, handlerFile, src } = route
+    t.equal(src, join(wsDir, name), `Route configured with correct source dir: ${src}`)
     t.ok(handlerFile.startsWith(src), `Handler file is in the correct source dir`)
   })
 })
@@ -171,5 +193,40 @@ hi
 
   let name = Array.from(Array(130), () => 'hi').join('')
   run(name)
+  check()
+})
+
+
+test('@ws population: plugin errors', t => {
+  t.plan(5)
+  let errors = []
+  function run (returning) {
+    let inventory = inventoryDefaults()
+    inventory._project.src = cwd
+    inventory.plugins = setterPluginSetup(() => returning)
+    populateWS({ arc: {}, inventory, errors })
+  }
+  function check (str = 'Invalid setter return', qty = 1) {
+    t.equal(errors.length, qty, str)
+    console.log(errors.join('\n'))
+    // Run a bunch of control tests at the top by resetting errors after asserting
+    errors = []
+  }
+
+  // Control
+  run({ name: 'hi', src: 'hi' })
+  t.equal(errors.length, 0, `Valid routes did not error`)
+
+  // Errors
+  run()
+  check()
+
+  run({})
+  check()
+
+  run({ name: 'hi' })
+  check()
+
+  run({ src: 'hi' })
   check()
 })

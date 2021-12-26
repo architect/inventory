@@ -3,10 +3,10 @@ let getHTTP = require('./_http')
 let getEvents = require('./_events')
 let getCustomLambdas = require('./_custom-lambdas')
 let getScheduled = require('./_scheduled')
-let getWS = require('./_websockets')
+let getWS = require('./_ws')
 let getTablesStreams = require('./_tables-streams')
 
-let cl = 'custom-lambdas'
+let cl = 'customLambdas'
 let ts = 'tables-streams'
 
 module.exports = function getLambda (params) {
