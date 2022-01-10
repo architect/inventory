@@ -50,10 +50,7 @@ module.exports = function architectInventory (params = {}, callback) {
 
   // Exit early if supplied Arc is fundamentally broken
   if (errors.length) {
-    callback(errorFmt({
-      type: 'manifest',
-      errors,
-    }))
+    callback(errorFmt({ type: 'manifest', errors }))
     return promise
   }
 
@@ -66,11 +63,17 @@ module.exports = function architectInventory (params = {}, callback) {
   // Populate inventory.arc
   inventory._arc = config._arc(project)
 
+  // @plugins come first, as they register hooks all around the project
+  inventory.plugins = config.pragmas.plugins(project)
+
   // Establish default function config from project + Arc defaults
   inventory._project = config._project(project)
 
-  // Prepare @plugins for proper pragma population
-  inventory.plugins = config.pragmas.plugins(project)
+  // End here if plugins failed
+  if (errors.length) {
+    callback(errorFmt({ type: 'plugin', errors }))
+    return promise
+  }
 
   // Userland: fill out the pragmas, starting with @plugins
   inventory = {
@@ -78,13 +81,9 @@ module.exports = function architectInventory (params = {}, callback) {
     ...config.pragmas(project)
   }
 
-  // End here if first-pass pragma validation failed
+  // End here if first-pass validation failed
   if (errors.length) {
-    callback(errorFmt({
-      type: 'validation',
-      errors,
-      inventory,
-    }))
+    callback(errorFmt({ type: 'validation', errors }))
     return promise
   }
 

@@ -10,7 +10,6 @@ let sut = join(cwd, 'src', 'config', 'pragmas', 'ws')
 let populateWS = require(sut)
 
 let inventory = inventoryDefaults()
-inventory._project.src = cwd
 let defaults = [ 'connect', 'default', 'disconnect' ]
 let wsDir = join(cwd, 'src', 'ws')
 let setterPluginSetup = testLib.setterPluginSetup.bind({}, 'ws')
@@ -96,7 +95,6 @@ test('@ws population: plugin setter', t => {
 
   let values = [ 'some-action', 'some-other-action' ]
   let inventory = inventoryDefaults()
-  inventory._project.src = cwd
   let setter = () => values.map(v => ({ name: v, src: join(wsDir, v) }))
   inventory.plugins = setterPluginSetup(setter)
 
@@ -202,7 +200,6 @@ test('@ws population: plugin errors', t => {
   let errors = []
   function run (returning) {
     let inventory = inventoryDefaults()
-    inventory._project.src = cwd
     inventory.plugins = setterPluginSetup(() => returning)
     populateWS({ arc: {}, inventory, errors })
   }

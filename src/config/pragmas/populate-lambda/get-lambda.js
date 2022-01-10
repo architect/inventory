@@ -11,8 +11,6 @@ let ts = 'tables-streams'
 
 module.exports = function getLambda (params) {
   let { type } = params
-  params.dir = `src/${type}/`
-
   if (type === 'http')      return getHTTP(params)
   if (type === 'events')    return getEvents(params)
   if (type === cl)          return getCustomLambdas(params)

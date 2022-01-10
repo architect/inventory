@@ -2,6 +2,31 @@
 
 ---
 
+## [3.0.0] 2022-01-04
+
+### Added
+
+- Added `inv|get.plugins` tree + methods
+  - What used to be `plugins` in the plugins beta is now `customLambdas` (see next item)
+- Added `inv|get.customLambdas`
+  - Formerly `inv|get.plugins`
+- Added `inv._project.customRuntimes`
+- Added the concept of a `build` destination (currently only available via plugin)
+
+
+### Changed
+
+- Breaking change: changed `_project.src`, added `_project.cwd`, making both the pair significantly more literal and descriptive
+  - `_project.src` is now the default source tree folder (eg `$cwd/src`)
+  - `_project.cwd` refers to the current working directory of the project
+- Breaking change: AWS region prioritizes a region passed via param over `AWS_REGION` env var; this should realistically have little or no effect in practice
+- Breaking change: legacy `@tables-streams` folders (`src/tables/...` and `src/streams/...`) are now deprecated
+  - Existing functions can be simply moved to `src/tables-streams/{name}` (or use a custom `src` property)
+- Breaking change: renamed `lambda.handlerFunction` to `lambda.handlerMethod`
+- Internal change: performance improvements to building `inv.shared` + `inv.views`
+
+---
+
 ## [2.2.1] 2021-11-22
 
 ### Fixed

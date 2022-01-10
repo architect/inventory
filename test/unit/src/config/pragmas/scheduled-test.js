@@ -10,7 +10,6 @@ let sut = join(cwd, 'src', 'config', 'pragmas', 'scheduled')
 let populateScheduled = require(sut)
 
 let inventory = inventoryDefaults()
-inventory._project.src = cwd
 let scheduledDir = join(cwd, 'src', 'scheduled')
 let str = s => JSON.stringify(s)
 let rate = {
@@ -208,7 +207,6 @@ test('@scheduled population: plugin setter', t => {
   t.plan(11)
 
   let inventory = inventoryDefaults()
-  inventory._project.src = cwd
   let setter = () => [
     { name: names[0], rate: rate.expression, src: join(scheduledDir, names[0]) },
     { name: names[1], cron: cron.expression, src: join(scheduledDir, names[1]) },
@@ -362,7 +360,6 @@ test('@scheduled population: plugin errors', t => {
   let errors = []
   function run (returning) {
     let inventory = inventoryDefaults()
-    inventory._project.src = cwd
     inventory.plugins = setterPluginSetup(() => returning)
     populateScheduled({ arc: {}, inventory, errors })
   }

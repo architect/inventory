@@ -1,5 +1,4 @@
 let { join } = require('path')
-let mockFs = require('mock-fs')
 let parse = require('@architect/parser')
 let test = require('tape')
 let cwd = process.cwd()
@@ -11,15 +10,11 @@ let sut = join(cwd, 'src', 'config', 'pragmas', 'tables-streams')
 let populateTablesStreams = require(sut)
 
 let inventory = inventoryDefaults()
-inventory._project.src = cwd
 let setterPluginSetup = testLib.setterPluginSetup.bind({}, 'tables-streams')
-
-let tablesDir = join(cwd, 'src', 'tables')
-let streamsDir = join(cwd, 'src', 'streams')
-let tablesStreamsDir = join(cwd, 'src', 'tables-streams')
 
 let tableNames = [ 'a-table', 'another-table', 'yet-another-table' ]
 let streamNames = [ 'a-stream', 'another-stream', 'yet-another-stream' ]
+let tablesStreamsDir = join(cwd, 'src', 'tables-streams')
 
 test('Set up env', t => {
   t.plan(1)
@@ -38,12 +33,6 @@ test('@tables without @tables-streams returns null', t => {
 
 test('@tables populates @tables-streams: legacy + current source paths', t => {
   t.plan(10)
-
-  mockFs({
-    [join(tablesDir, tableNames[0])]: {},
-    [join(streamsDir, tableNames[1])]: {},
-    [join(tablesStreamsDir, tableNames[2])]: {},
-  })
 
   let arc = parse(`
 @tables
@@ -69,21 +58,14 @@ ${tableNames[2]}
   })
   streams.forEach(stream => {
     let { name, handlerFile, src } = stream
-    let dir = name === tableNames[0] && join(tablesDir, name) ||
-              name === tableNames[1] && join(streamsDir, name) ||
-              name === tableNames[2] && join(tablesStreamsDir, name)
+    let dir = join(tablesStreamsDir, name)
     t.equal(src, dir, `Stream configured with correct source dir: ${src}`)
     t.ok(handlerFile.startsWith(src), `Handler file is in the correct source dir`)
   })
-  mockFs.restore()
 })
 
 test('Presence of @tables legacy dir does not impact @tables-streams', t => {
   t.plan(1)
-
-  mockFs({
-    [join(tablesDir, 'a-table')]: {}
-  })
 
   let arc = parse(`
 @tables
@@ -96,7 +78,6 @@ ${tableNames[0]}
     let { name, src } = stream
     t.equal(src, join(tablesStreamsDir, name), `Stream configured with correct source dir: ${src}`)
   })
-  mockFs.restore()
 })
 
 test('@tables-streams population: simple format', t => {
@@ -232,7 +213,6 @@ ${tableNames[1]}
 ${tableNames[2]}
 `)
   let inventory = inventoryDefaults()
-  inventory._project.src = cwd
   let setter = () => tableNames.map(v => ({ name: v, table: v, src: join(tablesStreamsDir, v) }))
   inventory.plugins = setterPluginSetup(setter)
 
@@ -325,7 +305,6 @@ test('@tables-streams population: plugin errors', t => {
   let errors = []
   function run (returning) {
     let inventory = inventoryDefaults()
-    inventory._project.src = cwd
     inventory.plugins = setterPluginSetup(() => returning)
     let arc = { tables: [ { hi: {} } ] }
     populateTablesStreams({ arc, inventory, errors })

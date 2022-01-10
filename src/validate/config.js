@@ -1,19 +1,25 @@
 let is = require('../lib/is')
 let { lambdas } = require('../lib/pragmas')
 let { aliases, runtimeList } = require('lambda-runtimes')
-let allRuntimes = runtimeList.concat([ 'deno' ])
 
 /**
  * Configuration validator
  */
 module.exports = function configValidator (params, inventory, errors) {
-  let { runtime: globalRuntime, memory: globalMemory, timeout: globalTimeout } = inventory.aws
+  let {
+    runtime: globalRuntime,
+    memory: globalMemory,
+    timeout: globalTimeout
+  } = inventory.aws
+
+  let customRuntimes = inventory._project?.customRuntimes?.runtimes || []
+  let allRuntimes = runtimeList.concat([ 'deno', ...customRuntimes ])
 
   /**
    * Global config
    */
   // Memory
-  if (is.notNullish(globalMemory) && invalidMemory(globalMemory)) {
+  if (!is.nullish(globalMemory) && invalidMemory(globalMemory)) {
     errors.push(invalidMemoryMsg(`${globalMemory} MB (@aws)`))
   }
   // Runtime
@@ -23,7 +29,7 @@ module.exports = function configValidator (params, inventory, errors) {
     errors.push(`Invalid project-level runtime: ${globalRuntime}`)
   }
   // Timeout
-  if (is.notNullish(globalTimeout) && invalidTimeout(globalTimeout)) {
+  if (!is.nullish(globalTimeout) && invalidTimeout(globalTimeout)) {
     errors.push(invalidTimeoutMsg(`${globalTimeout} seconds (@aws)`))
   }
 
