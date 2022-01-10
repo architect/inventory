@@ -41,10 +41,9 @@ test('Inventory returns single first-pass validation error', t => {
     if (!err) t.fail('Should have returned an error')
     else {
       let { message, ARC_ERRORS } = err
-      t.ok(message.startsWith('Validation error in app.arc'), 'Returned validation error message')
+      t.ok(message.startsWith('Validation error'), 'Returned validation error message')
       t.equal(ARC_ERRORS.type, 'validation', 'Returned validation error type')
       t.equal(ARC_ERRORS.errors.length, 1, 'Returned validation error array')
-      console.log(err)
     }
   })
 })
@@ -57,7 +56,7 @@ test('Inventory returns single first-pass validation error (async)', async t => 
   }
   catch (err) {
     let { message, ARC_ERRORS } = err
-    t.ok(message.startsWith('Validation error in app.arc:'), 'Returned validation error message')
+    t.ok(message.startsWith('Validation error:'), 'Returned validation error message')
     t.equal(ARC_ERRORS.type, 'validation', 'Returned validation error type')
     t.equal(ARC_ERRORS.errors.length, 1, 'Returned validation error array')
   }

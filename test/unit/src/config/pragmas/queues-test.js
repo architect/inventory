@@ -1,14 +1,13 @@
 let { join } = require('path')
 let parse = require('@architect/parser')
 let test = require('tape')
-let inventoryDefaultsPath = join(process.cwd(), 'src', 'defaults')
+let cwd = process.cwd()
+let inventoryDefaultsPath = join(cwd, 'src', 'defaults')
 let inventoryDefaults = require(inventoryDefaultsPath)
-let sut = join(process.cwd(), 'src', 'config', 'pragmas', 'queues')
+let sut = join(cwd, 'src', 'config', 'pragmas', 'queues')
 let populateQueues = require(sut)
 
-let cwd = process.cwd()
 let inventory = inventoryDefaults()
-inventory._project.src = cwd
 let queuesDir = join(cwd, 'src', 'queues')
 let values = [ 'foo', 'bar' ]
 
@@ -40,7 +39,7 @@ ${values[0]}
   // A bit jank, but `@aws config fifo` is populated in a diff code path
   // Thus, we have to manually mock it here to test the project-level function config for fifo
   let inv = inventoryDefaults()
-  inv._project.src = cwd
+  inv._project.cwd = cwd
   inv._project.defaultFunctionConfig.fifo = false
 
   arc = parse(`

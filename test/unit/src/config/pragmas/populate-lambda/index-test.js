@@ -15,8 +15,9 @@ test('Set up env', t => {
 test('Per-function AWS/ARC config', t => {
   t.plan(4)
   let inventory = defaultConfig()
-  inventory._project.src = '/nada'
-  let configPath = `${inventory._project.src}/src/events/configured-event/config.arc`
+  inventory._project.cwd = '/nada'
+  inventory._project.src = '/nada/src'
+  let configPath = `${inventory._project.cwd}/src/events/configured-event/config.arc`
   let config = `@aws
 timeout 10
 memory 128

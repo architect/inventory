@@ -10,7 +10,6 @@ let sut = join(cwd, 'src', 'config', 'pragmas', 'events')
 let populateEvents = require(sut)
 
 let inventory = inventoryDefaults()
-inventory._project.src = cwd
 let eventsDir = join(cwd, 'src', 'events')
 let values = [ 'foo', 'bar' ]
 let setterPluginSetup = testLib.setterPluginSetup.bind({}, 'events')
@@ -98,7 +97,6 @@ test('@events population: plugin setter', t => {
   t.plan(7)
 
   let inventory = inventoryDefaults()
-  inventory._project.src = cwd
   let setter = () => values.map(v => ({ name: v, src: join(eventsDir, v) }))
   inventory.plugins = setterPluginSetup(setter)
 
@@ -184,7 +182,6 @@ test('@events population: plugin errors', t => {
   let errors = []
   function run (returning) {
     let inventory = inventoryDefaults()
-    inventory._project.src = cwd
     inventory.plugins = setterPluginSetup(() => returning)
     populateEvents({ arc: {}, inventory, errors })
   }

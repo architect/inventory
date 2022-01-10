@@ -6,7 +6,7 @@ let { homedir } = require('os')
 module.exports = function getPrefs ({ scope, inventory, errors }) {
   let cwd = scope === 'global'
     ? homedir()
-    : inventory._project.src
+    : inventory._project.cwd
 
   // Populate preferences
   let prefs = read({ type: 'preferences', cwd, errors })

@@ -1,5 +1,4 @@
-let { join } = require('path')
-let { is, normalizeSrc } = require('../../../lib')
+let { is, getLambdaDirs } = require('../../../lib')
 
 let coerceNumbers = str => !isNaN(Number(str)) ? Number(str) : str
 
@@ -30,7 +29,8 @@ let get = {
   }
 }
 
-module.exports = function populateScheduled ({ item, dir, cwd, errors, plugin }) {
+module.exports = function populateScheduled (params) {
+  let { item, errors, plugin } = params
   let rate = null
   let cron = null
   if (plugin) {
@@ -38,8 +38,7 @@ module.exports = function populateScheduled ({ item, dir, cwd, errors, plugin })
     if (name && src && (item.rate || item.cron)) {
       if (item.rate) rate = get.rate(item.rate)
       if (item.cron) cron = get.cron(item.cron)
-      item.src = normalizeSrc(cwd, src)
-      return { ...item, rate, cron }
+      return { ...item, rate, cron, ...getLambdaDirs(params, { plugin }) }
     }
     errors.push(`Invalid plugin-generated @scheduled item: name: ${name}, rate: ${item.rate}, cron: ${item.cron}, src: ${src}`)
     return
@@ -57,8 +56,8 @@ module.exports = function populateScheduled ({ item, dir, cwd, errors, plugin })
     if (isRate) rate = get.rate(clean(isRate))
     if (isCron) cron = get.cron(clean(isCron))
 
-    let src = join(cwd, dir, name)
-    return { name, src, rate, cron }
+    let dirs = getLambdaDirs(params, { name })
+    return { name, rate, cron, ...dirs }
   }
   else if (is.object(item)) {
     let name = Object.keys(item)[0]
@@ -75,10 +74,8 @@ module.exports = function populateScheduled ({ item, dir, cwd, errors, plugin })
       cron = get.cron(exp)
     }
 
-    let src = item[name].src
-      ? join(cwd, item[name].src)
-      : join(cwd, dir, name)
-    return { name, src, rate, cron }
+    let dirs = getLambdaDirs(params, { name, customSrc: item[name].src })
+    return { name, rate, cron, ...dirs }
   }
   errors.push(`Invalid @scheduled item: ${item}`)
 }

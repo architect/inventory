@@ -9,7 +9,7 @@ let populateStatic = require(sut)
 let inventory
 function reset () {
   inventory = inventoryDefaults()
-  inventory._project.src = process.cwd()
+  inventory._project.cwd = process.cwd()
 }
 let str = s => JSON.stringify(s)
 

@@ -2,14 +2,14 @@ let { join } = require('path')
 let mockFs = require('mock-fs')
 let parse = require('@architect/parser')
 let test = require('tape')
-let populateHTTPPath = join(process.cwd(), 'src', 'config', 'pragmas', 'http')
+let cwd = process.cwd()
+let populateHTTPPath = join(cwd, 'src', 'config', 'pragmas', 'http')
 let populateHTTP = require(populateHTTPPath)
-let inventoryDefaultsPath = join(process.cwd(), 'src', 'defaults')
+let inventoryDefaultsPath = join(cwd, 'src', 'defaults')
 let inventoryDefaults = require(inventoryDefaultsPath)
-let sut = join(process.cwd(), 'src', 'config', 'pragmas', 'views')
+let sut = join(cwd, 'src', 'config', 'pragmas', 'views')
 let populateViews = require(sut)
 let inventory = inventoryDefaults()
-let cwd = inventory._project.src = process.cwd()
 
 test('Set up env', t => {
   t.plan(1)
@@ -176,18 +176,21 @@ test('@views errors', t => {
   let pragmas
   let errors
 
-  errors = []
-  populateViews({ arc: { views: [] }, errors })
-  t.ok(errors.length, '@views without @http errored')
-
   arc = parse(`@http
 get /foo
 @views
 put /bar`)
   pragmas = { http: populateHTTP({ arc, inventory }) }
   errors = []
+  mockFs({ 'src/views': {} })
   populateViews({ arc, pragmas, inventory, errors })
   t.ok(errors.length, '@views route not found in @http errored')
+  mockFs.restore()
+
+  // From here on out we haven't needed to mock the filesystem since it should be returning errors prior to any folder existence checks; of course, update if that changes!
+  errors = []
+  populateViews({ arc: { views: [] }, errors })
+  t.ok(errors.length, '@views without @http errored')
 
   arc = parse(`@http
 get /foo
