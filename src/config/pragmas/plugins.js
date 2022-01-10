@@ -2,7 +2,7 @@ let { join } = require('path')
 let { existsSync } = require('fs')
 let { is, normalizeSrc } = require('../../lib')
 let { lambdas } = require('../../lib/pragmas')
-let nonLambdaSetters = [ 'env', 'customLambdas' ]
+let nonLambdaSetters = [ 'customLambdas', 'env', 'runtimes' ]
 let setters = [ ...lambdas, ...nonLambdaSetters ]
 let pluginMethods = [ 'deploy', 'sandbox' ] // TODO add more!
 
@@ -10,7 +10,7 @@ module.exports = function getPluginModules ({ arc, inventory, errors }) {
   if (!arc?.plugins?.length && !arc?.macros?.length) return null
   let plugins = {}
   let methods = {}
-  let cwd = inventory._project.src
+  let { cwd } = inventory._project
 
   let pluginItems = []
   let tagPlugins = (arr, type) => pluginItems.push(...arr.map(p => ({ plugin: p, type })))

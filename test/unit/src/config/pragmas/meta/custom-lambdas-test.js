@@ -24,7 +24,6 @@ let setterPluginSetup = testLib.setterPluginSetup.bind({}, 'customLambdas')
 let setup = () => {
   item = undefined
   inventory = inventoryDefaults()
-  inventory._project.src = cwd
 }
 
 test('Set up env', t => {

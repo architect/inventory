@@ -1,3 +1,4 @@
+let { join } = require('path')
 let fnConfig = require('./function-config')
 let pragmas = require('../lib/pragmas')
 
@@ -6,9 +7,9 @@ let pragmas = require('../lib/pragmas')
  * - Every possible officially supported value should be present
  */
 module.exports = function inventoryDefaults (params = {}) {
-  let { cwd, region } = params
+  let { cwd = process.cwd(), region } = params
   // Allow region env var override
-  region = process.env.AWS_REGION || region || 'us-west-2'
+  region = region || process.env.AWS_REGION || 'us-west-2'
   let defaultFunctionConfig = fnConfig()
   return {
     // Meta
@@ -19,9 +20,10 @@ module.exports = function inventoryDefaults (params = {}) {
     },
     _project: {
       type: 'aws',
-      src: cwd,
+      cwd,                          // Project root dir
+      src: join(cwd, 'src'),        // Default source tree dir
+      build: null,                  // Optional build artifact dir
       manifest: null,               // Root project manifest filename
-      // manifestCreated            // TODO
       preferences: null,            // Realized preferences obj, resolved from global > local
       localPreferences: null,       // Local preferences obj
       localPreferencesFile: null,   // Local preferences file path
@@ -29,9 +31,10 @@ module.exports = function inventoryDefaults (params = {}) {
       globalPreferencesFile: null,  // Global preferences file path
       defaultFunctionConfig,        // Project-level function config
       rootHandler: null,            // null | configured | arcStaticAssetProxy | proxy
+      env: null,                    // Env vars pulled from SSM + plugins
+      customRuntimes: null,         // Runtime plugins
       arc: [],                      // Raw arc obj
       raw: '',                      // Raw arc string
-      env: null,                    // Env vars pulled from SSM (if enabled)
     },
     // App + vendor config
     app: '',
@@ -64,7 +67,7 @@ module.exports = function inventoryDefaults (params = {}) {
     ws: null,
     // Unclassified / non-pragma custom Lambdas created by plugins
     customLambdas: null,
-    // Collection of all Lambda paths
+    // Collection of all Lambda source paths
     lambdaSrcDirs: null,
     // Lambda lookup by source directory
     lambdasBySrcDir: null,

@@ -34,18 +34,18 @@ function populate (type, pragma, inventory, errors, plugin) {
   if (!pragma || !pragma.length) return
 
   let defaultProjectConfig = () => JSON.parse(JSON.stringify(inventory._project.defaultFunctionConfig))
-  let cwd = inventory._project.src
+  let { cwd, src: projSrc, build: projBuild } = inventory._project
 
   // Fill er up
   let lambdas = []
 
   for (let item of pragma) {
     // Get name, source dir, and any pragma-specific properties
-    let result = getLambda({ type, item, cwd, inventory, errors, plugin })
+    let result = getLambda({ type, item, cwd, projSrc, projBuild, inventory, errors, plugin })
     // Some lambda populators (e.g. plugins) may return empty result
     if (!result) continue
 
-    let { name, src } = result
+    let { name, src, build } = result
     // Set up fresh config, then overlay plugin config
     let config = defaultProjectConfig()
     config = { ...config, ...getKnownProps(configProps, result.config) }
@@ -73,7 +73,7 @@ function populate (type, pragma, inventory, errors, plugin) {
     }
 
     // Interpolate runtimes
-    config = getRuntime(config)
+    config = getRuntime({ config, inventory, name, type, errors })
 
     // Tidy up any irrelevant properties
     if (type !== 'http') {
@@ -81,17 +81,18 @@ function populate (type, pragma, inventory, errors, plugin) {
     }
 
     // Now we know the final source dir + runtime + handler: assemble handler props
-    let { handlerFile, handlerFunction } = getHandler(config, src, errors)
+    let { handlerFile, handlerMethod } = getHandler({ config, src, build, errors })
 
     let lambda = {
       name,
       config,
       src,
       handlerFile,
-      handlerFunction,
+      handlerMethod,
       configFile,
       ...getKnownProps(lambdaProps, result), // Any other pragma-specific stuff
     }
+    if (build) lambda.build = build
 
     lambdas.push(lambda)
   }

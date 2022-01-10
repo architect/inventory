@@ -2,18 +2,18 @@ let { join } = require('path')
 let mockFs = require('mock-fs')
 let parse = require('@architect/parser')
 let test = require('tape')
-let populateHTTPPath = join(process.cwd(), 'src', 'config', 'pragmas', 'http')
+let cwd = process.cwd()
+let populateHTTPPath = join(cwd, 'src', 'config', 'pragmas', 'http')
 let populateHTTP = require(populateHTTPPath)
-let populateEventsPath = join(process.cwd(), 'src', 'config', 'pragmas', 'events')
+let populateEventsPath = join(cwd, 'src', 'config', 'pragmas', 'events')
 let populateEvents = require(populateEventsPath)
-let populateQueuesPath = join(process.cwd(), 'src', 'config', 'pragmas', 'queues')
+let populateQueuesPath = join(cwd, 'src', 'config', 'pragmas', 'queues')
 let populateQueues = require(populateQueuesPath)
-let inventoryDefaultsPath = join(process.cwd(), 'src', 'defaults')
+let inventoryDefaultsPath = join(cwd, 'src', 'defaults')
 let inventoryDefaults = require(inventoryDefaultsPath)
-let sut = join(process.cwd(), 'src', 'config', 'pragmas', 'shared')
+let sut = join(cwd, 'src', 'config', 'pragmas', 'shared')
 let populateShared = require(sut)
 let inventory = inventoryDefaults()
-let cwd = inventory._project.src = process.cwd()
 let lambdaSrcDirs = [] // Only needs to be truthy to test code path
 
 test('Set up env', t => {
@@ -202,8 +202,10 @@ http
     http: populateHTTP({ arc, inventory }), lambdaSrcDirs
   }
   errors = []
+  mockFs({ 'src/shared': {} })
   populateShared({ arc, pragmas, inventory, errors })
   t.equal(errors.length, 1, '@shared lambda not found in corresponding pragma errored')
+  mockFs.restore()
 
   arc = parse(`@http
 get /foo
@@ -213,8 +215,10 @@ hi`)
     http: populateHTTP({ arc, inventory }), lambdaSrcDirs
   }
   errors = []
+  mockFs({ 'src/shared': {} })
   populateShared({ arc, pragmas, inventory, errors })
   t.equal(errors.length, 1, '@shared invalid entry errored')
+  mockFs.restore()
 
   arc = parse(`@http
 get /foo
@@ -225,9 +229,12 @@ static
     http: populateHTTP({ arc, inventory }), lambdaSrcDirs
   }
   errors = []
+  mockFs({ 'src/shared': {} })
   populateShared({ arc, pragmas, inventory, errors })
   t.equal(errors.length, 1, '@shared invalid pragma errored')
+  mockFs.restore()
 
+  // From here on out we haven't needed to mock the filesystem since it should be returning errors prior to any folder existence checks; of course, update if that changes!
   arc = parse(`@http
 get /foo
 @shared

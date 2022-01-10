@@ -59,7 +59,9 @@ test('Inventory got proper project keys', t => {
   t.plan(1)
   let keys = [
     'type',
+    'cwd',
     'src',
+    'build',
     'manifest',
     'preferences',
     'localPreferences',
@@ -68,9 +70,10 @@ test('Inventory got proper project keys', t => {
     'globalPreferencesFile',
     'defaultFunctionConfig',
     'rootHandler',
+    'env',
+    'customRuntimes',
     'arc',
     'raw',
-    'env',
   ]
   let project = Object.keys(result._project)
   t.deepEqual(keys.sort(), project.sort(), 'Found all project keys')

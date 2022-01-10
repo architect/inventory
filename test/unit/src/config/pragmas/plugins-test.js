@@ -14,7 +14,7 @@ let inventoryDefaults = require(inventoryDefaultsPath)
 let inventory
 function setup (path) {
   inventory = inventoryDefaults()
-  inventory._project.src = path || cwd
+  inventory._project.cwd = path || cwd
   mockFs.restore()
 }
 

@@ -1,27 +1,24 @@
-let { join } = require('path')
-let { is, normalizeSrc } = require('../../../lib')
+let { is, getLambdaDirs } = require('../../../lib')
 
-module.exports = function populateEvents ({ type, item, dir, cwd, errors, plugin }) {
+module.exports = function populateEvents (params) {
+  let { type, item, errors, plugin } = params
   if (plugin) {
     let { name, src } = item
     if (name && src) {
-      item.src = normalizeSrc(cwd, src)
-      return item
+      return { ...item, ...getLambdaDirs(params, { plugin }) }
     }
     errors.push(`Invalid plugin-generated @${type} item: name: ${name}, src: ${src}`)
     return
   }
   else if (is.string(item)) {
     let name = item
-    let src = join(cwd, dir, name)
-    return { name, src }
+    let dirs = getLambdaDirs(params, { name })
+    return { name, ...dirs }
   }
   else if (is.object(item)) {
     let name = Object.keys(item)[0]
-    let src = item[name].src
-      ? join(cwd, item[name].src)
-      : join(cwd, dir, name)
-    return { name, src }
+    let dirs = getLambdaDirs(params, { name, customSrc: item[name].src })
+    return { name, ...dirs }
   }
   errors.push(`Invalid @${type} item: ${item}`)
 }

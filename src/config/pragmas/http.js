@@ -54,7 +54,7 @@ module.exports = function configureHTTP ({ arc, inventory, errors }) {
       config: { ...inventory._arc.defaultFunctionConfig },
       src,
       handlerFile: join(src, 'index.js'),
-      handlerFunction: 'handler',
+      handlerMethod: 'handler',
       configFile: null,
       arcStaticAssetProxy: true,
       method: 'get',

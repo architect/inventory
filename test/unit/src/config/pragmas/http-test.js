@@ -11,7 +11,6 @@ let sut = join(cwd, 'src', 'config', 'pragmas', 'http')
 let populateHTTP = require(sut)
 
 let inventory = inventoryDefaults()
-inventory._project.src = cwd
 let httpDir = join(cwd, 'src', 'http')
 let setterPluginSetup = testLib.setterPluginSetup.bind({}, 'http')
 
@@ -31,7 +30,6 @@ test('@http population via @static: implicit get /* (Arc Static Asset Proxy)', t
 
   function check (arc, expected, expectedRootHandler) {
     let inventory = inventoryDefaults()
-    inventory._project.src = cwd
     let http = populateHTTP({ arc, inventory })
     let result = http === null ? http : http.length
     t.equal(result, expected, `Got expected number of routes back: ${expected}`)
@@ -308,7 +306,6 @@ test('@http population: plugin setter', t => {
 
   let values = [ 'get /foo', 'put /bar' ]
   let inventory = inventoryDefaults()
-  inventory._project.src = cwd
   let setter = () => values.map(v => {
     let bits = v.split(' ')
     let method = bits[0]
@@ -495,7 +492,6 @@ test('@plugin population: plugin errors', t => {
   let errors = []
   function run (returning) {
     let inventory = inventoryDefaults()
-    inventory._project.src = cwd
     inventory.plugins = setterPluginSetup(() => returning)
     populateHTTP({ arc: {}, inventory, errors })
   }

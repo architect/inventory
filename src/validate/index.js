@@ -21,11 +21,7 @@ module.exports = function finalValidation (params, inventory) {
   // TODO add deeper policy validation here
 
   if (errors.length) {
-    return errorFmt({
-      type: 'configuration',
-      errors,
-      inventory,
-    })
+    return errorFmt({ type: 'configuration', errors })
   }
 
   /**
@@ -35,10 +31,6 @@ module.exports = function finalValidation (params, inventory) {
   tablesChildren(inventory, errors)
 
   if (errors.length) {
-    return errorFmt({
-      type: 'validation',
-      errors,
-      inventory,
-    })
+    return errorFmt({ type: 'validation', errors })
   }
 }
