@@ -12,6 +12,8 @@
   - Formerly `inv|get.plugins`
 - Added `inv._project.customRuntimes`
 - Added the concept of a `build` destination (currently only available via plugin)
+- Added `handlerModuleSystem` property for `nodejs14.x` Lambdas, with a value of `cjs` or `esm` based on Lambda + Node.js conventions
+- Added `handlerFile` detection for `nodejs14.x` + `deno` Lambdas
 
 
 ### Changed
@@ -24,6 +26,9 @@
   - Existing functions can be simply moved to `src/tables-streams/{name}` (or use a custom `src` property)
 - Breaking change: renamed `lambda.handlerFunction` to `lambda.handlerMethod`
 - Internal change: performance improvements to building `inv.shared` + `inv.views`
+- Improved memory footprint of Inventory object by preserving references in `lambdaSrcDirs`, `lambdasBySrcDir`
+  - Added `pragma` property to all Lambdas to preserve references
+- Tidy up order of enumerated properties in each Lambda
 
 ---
 
