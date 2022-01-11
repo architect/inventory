@@ -65,7 +65,7 @@ test('Multiple Lambdas mapped to the same source dir', t => {
       t.ok(Array.isArray(lambdasBySrcDir[dir]), 'Got array of multitenant Lambdae back')
       t.equal(lambdasBySrcDir[dir].length, 3, 'Got correct number of multitenant Lambdae back')
       lambdasBySrcDir[dir].forEach(l => {
-        t.ok((l.src === values[0]) && (l.pragma === 'http'), 'Multitenant Lambda params identify the same dir')
+        t.ok((l.src === values[0]), 'Multitenant Lambda params identify the same dir')
       })
     }
     else t.equal(lambdasBySrcDir[dir].src, dir, 'Got normal Lambda back')

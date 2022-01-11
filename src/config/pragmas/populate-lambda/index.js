@@ -81,18 +81,20 @@ function populate (type, pragma, inventory, errors, plugin) {
     }
 
     // Now we know the final source dir + runtime + handler: assemble handler props
-    let { handlerFile, handlerMethod } = getHandler({ config, src, build, errors })
+    let handlerProps = getHandler({ config, src, build, errors })
 
     let lambda = {
       name,
+      ...getKnownProps(lambdaProps, result), // Pragma-specific stuff
       config,
       src,
-      handlerFile,
-      handlerMethod,
+      build,
+      ...handlerProps,
       configFile,
-      ...getKnownProps(lambdaProps, result), // Any other pragma-specific stuff
+      pragma: type !== 'customLambdas' ? type : null,
     }
-    if (build) lambda.build = build
+    // Tidy up any undefined properties
+    Object.keys(lambda).forEach(k => !is.defined(lambda[k]) && delete lambda[k])
 
     lambdas.push(lambda)
   }
