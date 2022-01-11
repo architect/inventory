@@ -5,7 +5,7 @@ let config = require('./config')
 let getEnv = require('./env')
 let validate = require('./validate')
 let get = require('./get')
-let errorFmt = require('./lib/error-fmt')
+let { errorFmt } = require('./lib')
 
 /**
  * Architect Inventory

@@ -1,6 +1,6 @@
 let read = require('../../read')
 let validate = require('./validate')
-let is = require('../../lib/is')
+let { is } = require('../../lib')
 let { homedir } = require('os')
 
 module.exports = function getPrefs ({ scope, inventory, errors }) {

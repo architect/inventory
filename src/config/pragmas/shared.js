@@ -1,7 +1,7 @@
 let { join } = require('path')
 let validate = require('./validate')
-let is = require('../../lib/is')
-let { lambdas } = require('../../lib/pragmas')
+let { is, pragmas } = require('../../lib')
+let { lambdas } = pragmas
 
 module.exports = function configureShared ({ arc, pragmas, inventory, errors }) {
   if (!pragmas.lambdaSrcDirs) return null

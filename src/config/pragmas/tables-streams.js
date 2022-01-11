@@ -1,6 +1,6 @@
 let populate = require('./populate-lambda')
 let validate = require('./validate')
-let is = require('../../lib/is')
+let { is } = require('../../lib')
 let ts = 'tables-streams'
 
 /**

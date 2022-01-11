@@ -1,5 +1,5 @@
-let is = require('../lib/is')
-let { lambdas } = require('../lib/pragmas')
+let { is, pragmas } = require('../lib')
+let { lambdas } = pragmas
 let { aliases, runtimeList } = require('lambda-runtimes')
 
 /**

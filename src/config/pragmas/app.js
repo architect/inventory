@@ -1,5 +1,5 @@
 let { validate } =  require('./validate')
-let is = require('../../lib/is')
+let { is } = require('../../lib')
 
 module.exports = function configureApp ({ arc, errors }) {
   if (!is.array(arc.app) ||

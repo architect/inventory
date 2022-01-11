@@ -1,6 +1,6 @@
 let { sep } = require('path')
-let { lambdas } = require('../lib/pragmas')
-let is = require('../lib/is')
+let { is, pragmas } = require('../lib')
+let { lambdas } = pragmas
 let plural = arr => arr.length > 1 ? 's' : ''
 
 /**

@@ -1,6 +1,6 @@
 let { join } = require('path')
 let fnConfig = require('./function-config')
-let pragmas = require('../lib/pragmas')
+let { pragmas } = require('../lib')
 
 /**
  * Returns a default stub inventory object

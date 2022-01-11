@@ -1,4 +1,4 @@
-let is = require('../lib/is')
+let { is } = require('../lib')
 
 /**
  * Overlay / append properties onto an existing config object

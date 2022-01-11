@@ -1,6 +1,6 @@
 let { join } = require('path')
 let populate = require('./populate-lambda')
-let asapSrc = require('../../lib/asap-src')
+let { asapSrc } = require('../../lib')
 let validate = require('./validate')
 let sort = require('./sort/http')
 
