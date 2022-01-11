@@ -1,4 +1,4 @@
-let is = require('../../../lib/is')
+let { is } = require('../../../lib')
 let { regex, size, unique } = require('./_lib')
 
 /**

@@ -1,4 +1,4 @@
-let methods = require('../../../lib/http-methods')
+let { httpMethods } = require('../../../lib')
 
 /**
  * HTTP route sorter; this is a multifurcating tree, so we'll do a few passes
@@ -32,7 +32,7 @@ module.exports = function sortHTTP (http) {
 
   // Multi-pass route sort
   let sorted = []
-  methods.forEach(method => {
+  httpMethods.forEach(method => {
     if (!tree[method]) return
     /* istanbul ignore next: random test shuffles may not trigger all paths */
     tree[method]

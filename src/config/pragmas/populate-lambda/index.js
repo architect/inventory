@@ -4,7 +4,7 @@ let getRuntime = require('./get-runtime')
 let getHandler = require('./get-handler')
 let upsert = require('../../_upsert')
 let defaultFunctionConfig = require('../../../defaults/function-config')
-let is = require('../../../lib/is')
+let { is } = require('../../../lib')
 
 /**
  * Build out the Lambda tree from the Arc manifest or a passed pragma, and plugins

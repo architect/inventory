@@ -1,5 +1,4 @@
-let asapSrc = require('../../lib/asap-src')
-let is = require('../../lib/is')
+let { asapSrc, is } = require('../../lib')
 
 module.exports = function configureStatic ({ arc, inventory }) {
   // @static is inferred by @http

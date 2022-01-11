@@ -1,4 +1,5 @@
-let { all: allPragmas } = require('../../lib/pragmas')
+let { pragmas } = require('../../lib')
+let { all: allPragmas } = pragmas
 
 // Get all pragmas except special cases
 let isSpecial = p => [ 'plugins', 'shared', 'views' ].includes(p)

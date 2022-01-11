@@ -1,4 +1,4 @@
-let is = require('../../../lib/is')
+let { is } = require('../../../lib')
 
 let patterns = {
   looseName: new RegExp(/^[a-z][a-zA-Z0-9-_]+$/),

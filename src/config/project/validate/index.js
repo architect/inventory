@@ -1,4 +1,4 @@
-let is = require('./../../../lib/is')
+let { is } = require('./../../../lib')
 
 module.exports = function validatePreferences (preferences, errors) {
   // Env checks

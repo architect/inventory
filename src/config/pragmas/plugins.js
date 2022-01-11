@@ -1,7 +1,7 @@
 let { join } = require('path')
 let { existsSync } = require('fs')
-let { is, normalizeSrc } = require('../../lib')
-let { lambdas } = require('../../lib/pragmas')
+let { is, normalizeSrc, pragmas } = require('../../lib')
+let { lambdas } = pragmas
 let nonLambdaSetters = [ 'customLambdas', 'env', 'runtimes' ]
 let setters = [ ...lambdas, ...nonLambdaSetters ]
 let pluginMethods = [ 'deploy', 'sandbox' ] // TODO add more!
