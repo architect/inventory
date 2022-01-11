@@ -33,7 +33,9 @@ module.exports = function getHandler ({ config, src, build, errors }) {
 }
 
 let nodeHandlers = [ 'index.js', 'index.mjs', 'index.cjs' ]
-let denoHandlers = [ 'index.js', 'mod.js', 'index.ts', 'mod.ts', 'index.tsx', 'mod.tsx' ]
+let denoHandlers = [ 'mod.ts', 'mod.js' ]
+  // TODO: these are all prob going away
+  .concat([ 'mod.tsx', 'index.ts', 'index.js', 'index.tsx' ])
 
 function getExt ({ runtime, src, errors }) {
   try {

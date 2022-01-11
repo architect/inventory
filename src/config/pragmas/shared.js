@@ -83,8 +83,5 @@ module.exports = function configureShared ({ arc, pragmas, inventory, errors }) 
     }
   }
 
-  // De-dupe (in case multiple functions live at the same src path)
-  shared.shared = [ ...new Set(shared.shared) ]
-
   return shared
 }

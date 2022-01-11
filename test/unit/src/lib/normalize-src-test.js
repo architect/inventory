@@ -1,8 +1,8 @@
 let { join } = require('path')
 let test = require('tape')
-let sut = join(process.cwd(), 'src', 'lib', 'normalize-src')
-let normalizeSrc = require(sut)
 let cwd = process.cwd()
+let sut = join(cwd, 'src', 'lib')
+let { normalizeSrc } = require(sut)
 
 test('Set up env', t => {
   t.plan(1)

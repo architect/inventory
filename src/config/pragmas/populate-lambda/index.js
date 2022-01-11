@@ -4,7 +4,7 @@ let getRuntime = require('./get-runtime')
 let getHandler = require('./get-handler')
 let upsert = require('../../_upsert')
 let defaultFunctionConfig = require('../../../defaults/function-config')
-let { is } = require('../../../lib')
+let { compiledRuntimes, is } = require('../../../lib')
 
 /**
  * Build out the Lambda tree from the Arc manifest or a passed pragma, and plugins
@@ -42,7 +42,7 @@ function populate (type, pragma, inventory, errors, plugin) {
   for (let item of pragma) {
     // Get name, source dir, and any pragma-specific properties
     let result = getLambda({ type, item, cwd, projSrc, projBuild, inventory, errors, plugin })
-    // Some lambda populators (e.g. plugins) may return empty result
+    // Some Lambda populators (e.g. plugins) may return empty result
     if (!result) continue
 
     let { name, src, build } = result
@@ -73,9 +73,18 @@ function populate (type, pragma, inventory, errors, plugin) {
     }
 
     // Interpolate runtimes
-    config = getRuntime({ config, inventory, name, type, errors })
+    config = getRuntime({ config, inventory })
+
+    // Disable code sharing on [trans|com]piled functions
+    if (compiledRuntimes.includes(config.runtimeConfig?.type)) {
+      config.shared = config.views = false
+    }
 
     // Tidy up any irrelevant properties
+    if (!compiledRuntimes.includes(config.runtimeConfig?.type)) {
+      // Important: if we don't clean up the build prop, many explosions will explode
+      build = undefined
+    }
     if (type !== 'http') {
       delete config.apigateway
     }
@@ -93,7 +102,7 @@ function populate (type, pragma, inventory, errors, plugin) {
       configFile,
       pragma: type !== 'customLambdas' ? type : null,
     }
-    // Tidy up any undefined properties
+    // Final tidying of any undefined properties
     Object.keys(lambda).forEach(k => !is.defined(lambda[k]) && delete lambda[k])
 
     lambdas.push(lambda)
