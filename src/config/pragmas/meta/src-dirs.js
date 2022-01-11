@@ -12,12 +12,16 @@ module.exports = function collectSourceDirs ({ pragmas, errors }) {
         else if (is.string(item.src)) {
           lambdaSrcDirs.push(item.src)
           // Multiple Lambdae may map to a single dir
-          if (unsortedBySrcDir[item.src]) {
-            unsortedBySrcDir[item.src] = is.array(unsortedBySrcDir[item.src])
-              ? [ ...unsortedBySrcDir[item.src], { ...item, pragma } ]
-              : [ unsortedBySrcDir[item.src], { ...item, pragma } ]
+          // >2 Lambdas found with same src dir
+          if (is.array(unsortedBySrcDir[item.src])) {
+            unsortedBySrcDir[item.src].push(item)
           }
-          else unsortedBySrcDir[item.src] = { ...item, pragma }
+          // 2 Lambdas found with same src dir
+          else if (is.object(unsortedBySrcDir[item.src])) {
+            unsortedBySrcDir[item.src] = [ unsortedBySrcDir[item.src], item ]
+          }
+          // 1 Lambda found
+          else unsortedBySrcDir[item.src] = item
         }
         else errors.push(`Lambda is missing source directory: ${JSON.stringify(item, null, 2)}`)
       })
@@ -29,8 +33,7 @@ module.exports = function collectSourceDirs ({ pragmas, errors }) {
 
   // Sort the object for human readability
   let lambdasBySrcDir = null
-  unsortedBySrcDir = Object.keys(unsortedBySrcDir).length ? unsortedBySrcDir : null
-  if (unsortedBySrcDir) {
+  if (Object.keys(unsortedBySrcDir).length) {
     lambdasBySrcDir = {}
     lambdaSrcDirs.forEach(d => lambdasBySrcDir[d] = unsortedBySrcDir[d])
   }
