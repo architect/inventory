@@ -33,7 +33,10 @@ module.exports = function setRuntimePlugins (params, project) {
             return errors.push(msg)
           }
           if (runtime.build) {
-            if (is.bool(runtime.build) ||
+            if (build && build !== runtime.build) {
+              errors.push(`Runtime '${name}' cannot set a build directory, as it is already configured to: ${build}`)
+            }
+            else if (is.bool(runtime.build) ||
                 !is.string(runtime.build)) {
               build = 'build'
             }
@@ -47,12 +50,7 @@ module.exports = function setRuntimePlugins (params, project) {
         errors.push(`Runtime plugin '${fn.plugin}' failed: ${err.message}`)
       }
     })
-    if (build && runtimePlugins.length > 1) {
-      let msg = `Runtime plugins that compile to a build directory cannot be used with other runtime plugins, got: '${runtimes.runtimes.join(`', '`)}'`
-      errors.push(msg)
-      return
-    }
     return { build, runtimes }
   }
-  return null
+  return {}
 }

@@ -2,7 +2,7 @@ let { is } = require('../../../lib')
 let { aliases, runtimes } = require('lambda-runtimes')
 
 // Runtime interpolater
-module.exports = function getRuntime ({ config, inventory, name, type, errors }) {
+module.exports = function getRuntime ({ config, inventory }) {
   let { runtime } = config
 
   if (typeof runtime === 'string') {
@@ -18,14 +18,6 @@ module.exports = function getRuntime ({ config, inventory, name, type, errors })
     // Runtime is custom via plugin
     else if (customRuntime) {
       config.runtimeConfig = customRuntime
-    }
-
-    // Special case: compiled runtime is in conflict with a manually specified runtime
-    let customRuntimeIsCompiled = inventory._project.build
-    let compiledRuntime = inventory._project?.customRuntimes?.runtimes?.[0]
-    if (customRuntimeIsCompiled &&
-        compiledRuntime && (compiledRuntime !== runtime)) {
-      errors.push(`Project is using compiled runtime ${compiledRuntime}, @${type} ${name} cannot use ${runtime}`)
     }
   }
   else if (is.defined(runtime)) {
