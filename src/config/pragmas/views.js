@@ -63,15 +63,10 @@ module.exports = function configureViews ({ arc, pragmas, inventory, errors }) {
 
   // lambda.config.views was added by Lambda populator defaults, or added above
   for (let { src, config } of pragmas.http) {
-    if (config.views === true) {
-      if (config.views === true && !views.views.includes(src)) {
-        views.views.push(src)
-      }
+    if (config.views === true && !views.views.includes(src)) {
+      views.views.push(src)
     }
   }
-
-  // De-dupe (in case multiple functions live at the same src path)
-  views.views = [ ...new Set(views.views) ]
 
   return views
 }

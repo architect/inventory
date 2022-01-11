@@ -56,15 +56,9 @@ module.exports = function getProjectConfig (params) {
   if (inventory.plugins?._methods) {
     // TODO: project.env = plugins.env(params, project)
 
-    let runtimes = plugins.runtimes(params, project)
-    if (runtimes?.runtimes) project.customRuntimes = runtimes.runtimes
-    // Compiled runtimes specify build dirs
-    if (runtimes?.build) {
-      // Since compiled cannot be used with interpreted, we can assume only one plugin
-      let runtime = project.customRuntimes.runtimes[0]
-      project.build = join(project.cwd, runtimes.build)
-      project.defaultFunctionConfig.runtime = runtime
-    }
+    let { build, runtimes } = plugins.runtimes(params, project)
+    if (build)    project.build = join(project.cwd, build)
+    if (runtimes) project.customRuntimes = runtimes
   }
 
   return project

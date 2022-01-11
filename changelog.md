@@ -33,6 +33,7 @@
 - Breaking change: legacy `@tables-streams` folders (`src/tables/...` and `src/streams/...`) are now deprecated
   - Existing functions can be simply moved to `src/tables-streams/{name}` (or use a custom `src` property)
 - Breaking change: renamed `lambda.handlerFunction` to `lambda.handlerMethod`
+- Breaking change: prioritize mod.ts|js in Deno
 - Internal change: performance improvements to building `inv.shared` + `inv.views`
 - Improved memory footprint of Inventory object by preserving references in `lambdaSrcDirs`, `lambdasBySrcDir`
   - Added `pragma` property to all Lambdas to preserve references

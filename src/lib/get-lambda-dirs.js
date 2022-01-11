@@ -1,18 +1,17 @@
 let { join } = require('path')
-let normalizeSrcDir = require('./normalize-src')
 
 /**
  * Get the src (and build) dirs for a Lambda
  * - Arc Lambdas: pass a name + pragma || relative file path
  * - Plugin Lambdas: pass a relative file path || absolute file path
  */
-module.exports = function getLambdaDirs (params, options) {
+function getLambdaDirs (params, options) {
   let { cwd, item, projSrc, projBuild, type: pragma } = params
   let { name, plugin, customSrc } = options
   let lambdaDirs = {}
 
   if (plugin) {
-    let src = normalizeSrcDir(cwd, item.src)
+    let src = normalizeSrc(cwd, item.src)
     lambdaDirs.src = src
     if (projBuild) {
       lambdaDirs.build = src.replace(src, projBuild)
@@ -28,3 +27,11 @@ module.exports = function getLambdaDirs (params, options) {
   }
   return lambdaDirs
 }
+
+function normalizeSrc (cwd, dir) {
+  if (!dir.startsWith(cwd)) return join(cwd, dir)
+  return dir
+}
+
+getLambdaDirs.normalizeSrc = normalizeSrc
+module.exports = getLambdaDirs
