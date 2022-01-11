@@ -1,6 +1,6 @@
 let { join } = require('path')
 let validate = require('./validate')
-let is = require('../../lib/is')
+let { is } = require('../../lib')
 
 module.exports = function configureViews ({ arc, pragmas, inventory, errors }) {
   if (arc.views && !arc.http) {

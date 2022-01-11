@@ -1,5 +1,5 @@
-let { lambdas } = require('../../../lib/pragmas')
-let is = require('../../../lib/is')
+let { is, pragmas } = require('../../../lib')
+let { lambdas } = pragmas
 
 module.exports = function collectSourceDirs ({ pragmas, errors }) {
   let lambdaSrcDirs = []

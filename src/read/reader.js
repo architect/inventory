@@ -1,7 +1,7 @@
 let parse = require('@architect/parser')
 let { existsSync, readFileSync } = require('fs')
 let { join } = require('path')
-let is = require('../lib/is')
+let { is } = require('../lib')
 let read = p => readFileSync(p).toString()
 
 /**

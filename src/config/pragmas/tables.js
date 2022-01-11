@@ -1,4 +1,4 @@
-let is = require('../../lib/is')
+let { is } = require('../../lib')
 let validate = require('./validate')
 
 module.exports = function configureTables ({ arc, errors }) {

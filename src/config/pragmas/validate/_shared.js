@@ -1,5 +1,5 @@
 let { join, resolve, sep } = require('path')
-let is = require('../../../lib/is')
+let { is } = require('../../../lib')
 
 module.exports = function validateShared (src, cwd, errors) {
   let path = src && resolve(join(cwd, src))
