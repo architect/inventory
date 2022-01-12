@@ -68,7 +68,7 @@ test('Handler properties (built-in runtimes)', t => {
   config.runtime = 'deno'
   result = getHandler({ config, src, errors })
   t.notOk(errors.length, 'Did not get handler errors')
-  t.equal(result.handlerFile, srcPath(`${file}.ts`), `Got correct handlerFile: ${result.handlerFile}`)
+  t.equal(result.handlerFile, srcPath(`mod.ts`), `Got correct handlerFile: ${result.handlerFile}`)
   t.equal(result.handlerMethod, handler, `Got correct handlerMethod: ${result.handlerMethod}`)
 
   // Other / unknown
@@ -197,7 +197,7 @@ test('Handler properties (Deno)', t => {
   config.runtime = deno
   result = getHandler({ config, src, errors })
   t.notOk(errors.length, 'Did not get handler errors')
-  t.equal(result.handlerFile, srcPath(`${file}.ts`), `Got correct handlerFile: ${result.handlerFile}`)
+  t.equal(result.handlerFile, srcPath(`mod.ts`), `Got correct handlerFile: ${result.handlerFile}`)
 
   // Explicitly defined
   config = defaultFunctionConfig()
