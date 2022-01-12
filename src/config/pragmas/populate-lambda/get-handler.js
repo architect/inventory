@@ -58,7 +58,7 @@ function getExt ({ runtime, src, errors }) {
     if (runtime.startsWith('python')) return { ext: 'py' }
     if (runtime.startsWith('ruby')) return { ext: 'rb' }
     if (runtime.startsWith('deno')) {
-      let { file, ext = 'ts' } = findHandler(denoHandlers, src)
+      let { file = 'mod', ext = 'ts' } = findHandler(denoHandlers, src)
       return { file, ext }
     }
     return { ext: '' }
