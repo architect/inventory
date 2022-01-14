@@ -57,7 +57,7 @@ test('Missing @macro errors', t => {
 })
 
 test('Check plugin file paths', t => {
-  t.plan(40)
+  t.plan(60)
   let path = join(sep, 'foo')
   let name1 = 'proj1'
   let name2 = 'proj2'
@@ -92,42 +92,40 @@ test('Check plugin file paths', t => {
   let result
   let arc = { plugins: [ name1 ] }
 
+  function check (projName, name, type, hook) {
+    t.ok(result[projName], 'Got back a valid plugin')
+    t.notOk(errors.length, 'No errors reported')
+    t.equal(result[projName][hook].start.name, name, `Got back correct plugin: ${name}`)
+    t.equal(result[projName][hook].start.type, type, 'Got back correct plugin type: plugin')
+    t.equal(result._methods[hook].start[0].name, name, `Got back correct plugin _method: ${name}`)
+    t.equal(result._methods[hook].start[0].type, type, 'Got back correct plugin type: plugin')
+  }
+
   // Simple
   setup(path)
   mockFs({ [pluginPaths[0]]: null })
   errors = []
   result = populatePlugins({ arc, inventory, errors })
-  t.ok(result[name1], 'Got back a valid plugin')
-  t.notOk(errors.length, 'No errors reported')
-  t.equal(result[name1].sandbox.start.name, 'pluginPath0', 'Got back correct plugin: pluginPath0')
-  t.equal(result._methods.sandbox.start[0].name, 'pluginPath0', 'Got back correct plugin _method: pluginPath0')
+  check(name1, 'pluginPath0', 'plugin', 'sandbox')
+
 
   setup(path)
   mockFs({ [pluginPaths[1]]: null })
   errors = []
   result = populatePlugins({ arc, inventory, errors })
-  t.ok(result[name1], 'Got back a valid plugin')
-  t.notOk(errors.length, 'No errors reported')
-  t.equal(result[name1].sandbox.start.name, 'pluginPath1', 'Got back correct plugin: pluginPath1')
-  t.equal(result._methods.sandbox.start[0].name, 'pluginPath1', 'Got back correct plugin _method: pluginPath1')
+  check(name1, 'pluginPath1', 'plugin', 'sandbox')
 
   setup(path)
   mockFs({ [pluginPaths[2]]: null })
   errors = []
   result = populatePlugins({ arc, inventory, errors })
-  t.ok(result[name1], 'Got back a valid plugin')
-  t.notOk(errors.length, 'No errors reported')
-  t.equal(result[name1].sandbox.start.name, 'pluginPath2', 'Got back correct plugin: pluginPath2')
-  t.equal(result._methods.sandbox.start[0].name, 'pluginPath2', 'Got back correct plugin _method: pluginPath2')
+  check(name1, 'pluginPath2', 'plugin', 'sandbox')
 
   setup(path)
   mockFs({ [pluginPaths[3]]: null })
   errors = []
   result = populatePlugins({ arc, inventory, errors })
-  t.ok(result[name1], 'Got back a valid plugin')
-  t.notOk(errors.length, 'No errors reported')
-  t.equal(result[name1].sandbox.start.name, 'pluginPath3', 'Got back correct plugin: pluginPath3')
-  t.equal(result._methods.sandbox.start[0].name, 'pluginPath3', 'Got back correct plugin _method: pluginPath3')
+  check(name1, 'pluginPath3', 'plugin', 'sandbox')
 
   // Verbose
   arc = parse(`@plugins
@@ -137,10 +135,7 @@ proj1
   mockFs({ [pluginPaths[4]]: null })
   errors = []
   result = populatePlugins({ arc, inventory, errors })
-  t.ok(result[name1], 'Got back a valid plugin')
-  t.notOk(errors.length, 'No errors reported')
-  t.equal(result[name1].sandbox.start.name, 'pluginPath4', 'Got back correct plugin: pluginPath4')
-  t.equal(result._methods.sandbox.start[0].name, 'pluginPath4', 'Got back correct plugin _method: pluginPath4')
+  check(name1, 'pluginPath4', 'plugin', 'sandbox')
 
   // Verbose that does not include src property
   arc = parse(`@plugins
@@ -149,10 +144,7 @@ proj1
   setup(path)
   errors = []
   result = populatePlugins({ arc, inventory, errors })
-  t.ok(result[name1], 'Got back a valid plugin')
-  t.notOk(errors.length, 'No errors reported')
-  t.equal(result[name1].sandbox.start.name, 'pluginPath1', 'Got back correct plugin: pluginPath1')
-  t.equal(result._methods.sandbox.start[0].name, 'pluginPath1', 'Got back correct plugin _method: pluginPath1')
+  check(name1, 'pluginPath1', 'plugin', 'sandbox')
 
   // Macros
   arc = { macros: [ name2 ] }
@@ -161,37 +153,25 @@ proj1
   mockFs({ [pluginPaths[5]]: null })
   errors = []
   result = populatePlugins({ arc, inventory, errors })
-  t.ok(result[name2], 'Got back a valid macro (plugin compat)')
-  t.notOk(errors.length, 'No errors reported')
-  t.equal(result[name2].deploy.start.name, 'pluginPath5', 'Got back correct macro (mapped to deploy.start): pluginPath5')
-  t.equal(result._methods.deploy.start[0].name, 'pluginPath5', 'Got back correct macro (mapped to deploy.start): pluginPath5')
+  check(name2, 'pluginPath5', 'macro', 'deploy')
 
   setup(path)
   mockFs({ [pluginPaths[6]]: null })
   errors = []
   result = populatePlugins({ arc, inventory, errors })
-  t.ok(result[name2], 'Got back a valid macro (plugin compat)')
-  t.notOk(errors.length, 'No errors reported')
-  t.equal(result[name2].deploy.start.name, 'pluginPath6', 'Got back correct macro (mapped to deploy.start): pluginPath6')
-  t.equal(result._methods.deploy.start[0].name, 'pluginPath6', 'Got back correct macro (mapped to deploy.start): pluginPath6')
+  check(name2, 'pluginPath6', 'macro', 'deploy')
 
   setup(path)
   mockFs({ [pluginPaths[7]]: null })
   errors = []
   result = populatePlugins({ arc, inventory, errors })
-  t.ok(result[name2], 'Got back a valid macro (plugin compat)')
-  t.notOk(errors.length, 'No errors reported')
-  t.equal(result[name2].deploy.start.name, 'pluginPath7', 'Got back correct macro (mapped to deploy.start): pluginPath7')
-  t.equal(result._methods.deploy.start[0].name, 'pluginPath7', 'Got back correct macro (mapped to deploy.start): pluginPath7')
+  check(name2, 'pluginPath7', 'macro', 'deploy')
 
   setup(path)
   mockFs({ [pluginPaths[8]]: null })
   errors = []
   result = populatePlugins({ arc, inventory, errors })
-  t.ok(result[name2], 'Got back a valid macro (plugin compat)')
-  t.notOk(errors.length, 'No errors reported')
-  t.equal(result[name2].deploy.start.name, 'pluginPath8', 'Got back correct macro (mapped to deploy.start): pluginPath8')
-  t.equal(result._methods.deploy.start[0].name, 'pluginPath8', 'Got back correct macro (mapped to deploy.start): pluginPath8')
+  check(name2, 'pluginPath8', 'macro', 'deploy')
 
   mockFs.restore()
   mockRequire.stopAll()
