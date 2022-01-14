@@ -36,6 +36,7 @@ module.exports = {
     'indexes',
     'macros',
     'slack',
+    'streams', // Never fully launched
     // Static types
     'css',
     'html',

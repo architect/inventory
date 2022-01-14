@@ -7,7 +7,7 @@ let { pragmas } = require('../lib')
  * - Every possible officially supported value should be present
  */
 module.exports = function inventoryDefaults (params = {}) {
-  let { cwd = process.cwd(), region } = params
+  let { cwd = process.cwd(), deployStage = null, region } = params
   // Allow region env var override
   region = region || process.env.AWS_REGION || 'us-west-2'
   let defaultFunctionConfig = fnConfig()
@@ -16,7 +16,8 @@ module.exports = function inventoryDefaults (params = {}) {
     _arc: {
       version: 'Unknown',     // @architect/architect semver (if installed)
       defaultFunctionConfig,  // Architect's default function config
-      pragmas,                // Registry of all + Lambda pragmas
+      pragmas,                // Registry of all, Lambda, reserved, retired pragmas
+      deployStage,            // Deploy stage of the running project (if specified)
     },
     _project: {
       type: 'aws',

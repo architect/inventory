@@ -14,6 +14,7 @@
 - Added the concept of a `build` destination (currently only available via plugin)
 - Added `handlerModuleSystem` property for `nodejs14.x` Lambdas, with a value of `cjs` or `esm` based on Lambda + Node.js conventions
 - Added `handlerFile` detection for `nodejs14.x` + `deno` Lambdas
+- Added `inv._arc.deployStage` property, enabling Inventory to be aware of an intended deploy stage; (this property may change, consider it in beta!)
 
 
 ### Changed
