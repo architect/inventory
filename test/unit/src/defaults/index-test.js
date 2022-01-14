@@ -78,3 +78,25 @@ test('Inventory got proper project keys', t => {
   let project = Object.keys(result._project)
   t.deepEqual(keys.sort(), project.sort(), 'Found all project keys')
 })
+
+
+test('Set Arc deploy stage (if present)', t => {
+  t.plan(4)
+  let def, deployStage
+
+  def = inventoryDefaults()
+  t.equal(def._arc.deployStage, null, 'Unspecified deploy stage returns null')
+
+  deployStage = 'staging'
+  def = inventoryDefaults({ deployStage })
+  t.equal(def._arc.deployStage, deployStage, `Got correct deployStage: ${deployStage}`)
+
+  deployStage = 'production'
+  def = inventoryDefaults({ deployStage })
+  t.equal(def._arc.deployStage, deployStage, `Got correct deployStage: ${deployStage}`)
+
+  // We aren't really doing this, but let's look out for it
+  deployStage = 'idk'
+  def = inventoryDefaults({ deployStage })
+  t.equal(def._arc.deployStage, deployStage, `Got correct deployStage: ${deployStage}`)
+})
