@@ -17,7 +17,7 @@ module.exports = function asapSrc () {
   try {
     return require.resolve('@architect/asap')
   }
-  catch (err) { /* Swallow */ }
-
-  throw Error('Cannot find ASAP module!')
+  catch (err) {
+    throw Error('Cannot find ASAP module!')
+  }
 }

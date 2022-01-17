@@ -6,15 +6,23 @@
 
 ### Added
 
+- Architect 10 plugin API support! Specifically:
+  - `plugins.set.runtimes` - custom runtime support (still in beta)
+  - `plugins.set.env` - add environment variables to all Lambdas
+  - `plugins.set.events|http|scheduled|tables-streams|ws` - generate or drop in Lambdas in Architect pragmas
+  - `plugins.set.customLambdas` - generate or drop in unique Lambdas with custom event sources
+  - More below...
 - Added `inv|get.plugins` tree + methods
   - What used to be `plugins` in the plugins beta is now `customLambdas` (see next item)
 - Added `inv|get.customLambdas`
   - Formerly `inv|get.plugins`
 - Added `inv._project.customRuntimes`
-- Added the concept of a `build` destination (currently only available via plugin)
+- Added low-level support for `build` destinations to runtime plugins that register type `transpiled` or `compiled`
 - Added `handlerModuleSystem` property for `nodejs14.x` Lambdas, with a value of `cjs` or `esm` based on Lambda + Node.js conventions
 - Added `handlerFile` detection for `nodejs14.x` + `deno` Lambdas
+  - This will detect the correct handler file on the filesystem, and fall back to a default handler file if none are found (e.g. `index.js` in `nodejs14.x`)
 - Added `inv._arc.deployStage` property, enabling Inventory to be aware of an intended deploy stage; (this property may change, consider it in beta!)
+- Added built-in support for reading `.env` files when enumerating local env var preferences
 
 
 ### Changed
@@ -22,14 +30,15 @@
 - Breaking change: changed `_project.src`, added `_project.cwd`, making both the pair significantly more literal and descriptive
   - `_project.src` is now the default source tree folder (eg `$cwd/src`)
   - `_project.cwd` refers to the current working directory of the project
+- Breaking change: `_project.env` is now by default an object populated by three properties: `local`, `plugins`, and `aws`, reflecting the env vars found for each environment
 - Breaking change: AWS region prioritizes a region passed via param over `AWS_REGION` env var; this should realistically have little or no effect in practice
 - Breaking change: legacy `@tables-streams` folders (`src/tables/...` and `src/streams/...`) are now deprecated
   - Existing functions can be simply moved to `src/tables-streams/{name}` (or use a custom `src` property)
 - Breaking change: renamed `lambda.handlerFunction` to `lambda.handlerMethod`
-- Breaking change: prioritize mod.ts|js in Deno
-- Internal change: performance improvements to building `inv.shared` + `inv.views`
+- Breaking change: prioritize `mod.ts|js` handlers in Deno Lambdas
+- Performance improvements to building `inv.shared` + `inv.views`
 - Improved memory footprint of Inventory object by preserving references in `lambdaSrcDirs`, `lambdasBySrcDir`
-  - Added `pragma` property to all Lambdas to preserve references
+  - Added `pragma` property to all Lambdas to aid in reference preservation
 - Tidy up order of enumerated properties in each Lambda
 
 ---

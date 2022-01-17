@@ -25,14 +25,18 @@ module.exports = function inventoryDefaults (params = {}) {
       src: join(cwd, 'src'),        // Default source tree dir
       build: null,                  // Optional build artifact dir
       manifest: null,               // Root project manifest filename
-      preferences: null,            // Realized preferences obj, resolved from global > local
+      preferences: null,            // Realized preferences obj, resolved from local > global
       localPreferences: null,       // Local preferences obj
       localPreferencesFile: null,   // Local preferences file path
       globalPreferences: null,      // Global preferences obj
       globalPreferencesFile: null,  // Global preferences file path
       defaultFunctionConfig,        // Project-level function config
       rootHandler: null,            // null | configured | arcStaticAssetProxy | proxy
-      env: null,                    // Env vars pulled from SSM + plugins
+      env: {                        // Env vars pulled from:
+        local: null,                // Local/global prefs or .env
+        plugins: null,              // Plugins
+        aws: null,                  // SSM
+      },
       customRuntimes: null,         // Runtime plugins
       arc: [],                      // Raw arc obj
       raw: '',                      // Raw arc string

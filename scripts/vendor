@@ -1,0 +1,22 @@
+#! /usr/bin/env node
+// Assumes you have esbuild installed globally!
+// eslint-disable-next-line
+let { build: esbuild } = require('esbuild')
+let { join } = require('path')
+
+;(async () => {
+  // dotenv
+  // Note: esbuild tree shaking wasn't removing `exports.config` even with a custom entry file that only used `exports.parse`, so might as well just bundle directly from the module's main file :shruggie:
+  await esbuild({
+    entryPoints: [ join(process.cwd(), 'node_modules', 'dotenv', 'lib', 'main.js') ],
+    bundle: true,
+    platform: 'node',
+    format: 'cjs',
+    // minify: true,
+    outfile: join(process.cwd(), 'src', 'config', 'project', 'prefs', 'dotenv.js'),
+    banner: { js: `// Copyright (c) 2015, Scott Motte\n` +
+                  `// All rights reserved.\n\n` +
+                  `/* istanbul ignore file */\n` +
+                  `/* eslint-disable */` }
+  })
+})()
