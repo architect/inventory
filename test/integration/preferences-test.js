@@ -33,6 +33,8 @@ test('Get global preferences', t => {
     ],
     env: {
       testing: { 'env-var-1': 'foo', 'env-var-2': 'bar' },
+      staging: null,
+      production: null,
     },
   }
   let prefsText = `
@@ -150,10 +152,9 @@ testing
     },
     deploy: false,
     env: {
-      testing: {
-        'env-var-1': 'foo',
-        'env-var-2': 'bar',
-      }
+      testing: { 'env-var-1': 'foo', 'env-var-2': 'bar' },
+      staging: null,
+      production: null,
     }
   }
   let localPrefsText = `
@@ -179,6 +180,7 @@ staging
     env: {
       testing: { 'env-var-2': 'bar' },
       staging: { 'env-var-3': 'fiz' },
+      production: null,
     }
   }
   let prefs = {
@@ -193,6 +195,7 @@ staging
     env: {
       testing: { 'env-var-2': 'bar' },
       staging: { 'env-var-3': 'fiz' },
+      production: null,
     }
   }
   let path = join(homedir(), '.prefs.arc')

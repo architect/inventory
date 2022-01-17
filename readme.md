@@ -43,7 +43,7 @@ The inventory object contains the entirety of a project's data, including Archit
 
 Top-level inventory parameters that start with an underscore (e.g. `_arc`, `_project`) denote project metadata or internal diagnostic data; all other parameters represent userland project resources.
 
-In a project inventory, `null` values are used as placeholders for known values or options that were not user-defined. The existence of a non-`null` value can be inferred as a user having specifically defined a setting. For example: `arc.http === null` can be construed as the user having **not** defined an `@http` pragma. This rule has some exceptions:
+In a project inventory, `null` values are used as placeholders for known values or options that were not user-defined. The existence of a non-`null` value can be inferred as a user having specifically defined a setting. For example: `arc.http: null` can be construed as the user having **not** defined an `@http` pragma. This rule has some exceptions:
 
 - A handful of settings that must be backfilled if not supplied
   - Example: `inv.aws.region`, which is required by the `aws-sdk` to function, and will be backfilled if not defined
@@ -51,9 +51,10 @@ In a project inventory, `null` values are used as placeholders for known values 
   - Example: while `@static` can be defined on its own without any other pragmas, the existence of `@http` infers `@static`
   - Thus, the act of adding `@http` will necessarily make `inv.static` non-`null`
 - Settings that generate related resources
-  - Example: DynamoDB streams can be defined in `@tables` with `stream true`; Inventory would interpret a table with `stream true` as a new `inv.streams` resource and thus make `inv.streams` non-`null`
-
-> Note: The `inv` format is primarily designed and intended for internal use within Architect libraries; as such, Inventory may theoretically introduce breaking changes in its behavior, shape, or naming conventions.
+  - Example: DynamoDB streams can be defined in `@tables` with `stream true`; Inventory would interpret a table with `stream true` as a new `inv['tables-streams']` resource and thus make `inv['tables-streams']` non-`null`
+- Lambda `handlerFile` file path property is present even if the file is not
+  - This differs from Lambda `configFile` file path properties, which will be `null` if no file is present
+  - This exception is namely because some workflows may need the computed default handler path (example: when running `arc create`)
 
 
 #### `get`
