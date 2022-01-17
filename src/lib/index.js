@@ -2,6 +2,7 @@ let asapSrc = require('./asap-src')
 let errorFmt = require('./error-fmt')
 let getLambdaDirs = require('./get-lambda-dirs')
 let is = require('./is')
+let mergeEnvVars = require('./merge-env-vars')
 let pragmas = require('./pragmas')
 
 /**
@@ -19,8 +20,9 @@ module.exports = {
   compiledRuntimes,
   errorFmt,
   getLambdaDirs,
-  normalizeSrc: getLambdaDirs.normalizeSrc,
   httpMethods,
   is,
+  mergeEnvVars,
+  normalizeSrc: getLambdaDirs.normalizeSrc,
   pragmas,
 }

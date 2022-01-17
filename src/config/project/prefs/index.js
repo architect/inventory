@@ -1,6 +1,9 @@
-let read = require('../../read')
-let validate = require('./validate')
-let { is } = require('../../lib')
+let { join } = require('path')
+let { existsSync, readFileSync } = require('fs')
+let read = require('../../../read')
+let validate = require('../validate')
+let { is } = require('../../../lib')
+let { parse } = require('./dotenv')
 let { homedir } = require('os')
 
 module.exports = function getPrefs ({ scope, inventory, errors }) {
@@ -8,10 +11,16 @@ module.exports = function getPrefs ({ scope, inventory, errors }) {
     ? homedir()
     : inventory._project.cwd
 
-  // Populate preferences
+  let envFilepath = join(cwd, '.env')
+  let hasEnvFile = scope === 'local' && existsSync(envFilepath)
   let prefs = read({ type: 'preferences', cwd, errors })
+
+  if (!prefs.filepath && !hasEnvFile) return null
+
+  let preferences = {}
+
+  // Populate Architect preferences
   if (prefs.filepath) {
-    let preferences = {}
     // Ok, this gets a bit hairy
     // Arc outputs an object of nested arrays
     // Basically, construct a pared-down intermediate prefs obj for consumers
@@ -45,6 +54,7 @@ module.exports = function getPrefs ({ scope, inventory, errors }) {
               if (is.array(val)) preferences.env[e][key] = val.join(' ')
             })
           }
+          else preferences.env[e] = null
         })
       }
       // Turn Sandbox scripts into commands
@@ -58,16 +68,24 @@ module.exports = function getPrefs ({ scope, inventory, errors }) {
     })
 
     validate(preferences, errors)
+  }
 
-    return {
-      preferences: {
-        ...preferences,
-        _arc: prefs.arc,
-        _raw: prefs.raw,
-      },
-      preferencesFile: prefs.filepath
+  // Populate .env (testing environment only, disables other env vars)
+  if (hasEnvFile) {
+    let dotenv = parse(readFileSync(envFilepath))
+    preferences.env = {
+      testing: Object.keys(dotenv).length ? dotenv : null,
+      staging: null,
+      production: null,
     }
   }
 
-  return null
+  return {
+    preferences: {
+      ...preferences,
+      _arc: prefs.arc,
+      _raw: prefs.raw,
+    },
+    preferencesFile: prefs.filepath
+  }
 }
