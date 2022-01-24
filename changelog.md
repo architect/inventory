@@ -40,6 +40,8 @@
 - Improved memory footprint of Inventory object by preserving references in `lambdaSrcDirs`, `lambdasBySrcDir`
   - Added `pragma` property to all Lambdas to aid in reference preservation
 - Tidy up order of enumerated properties in each Lambda
+Update CI
+- Stop publishing to the GitHub Package registry
 
 ---
 
