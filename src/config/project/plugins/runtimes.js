@@ -15,7 +15,7 @@ module.exports = function setRuntimePlugins (params, project) {
     runtimePlugins.forEach(fn => {
       let errType = `plugin: ${fn.plugin}, method: set.runtimes`
       try {
-        let result = fn({ inventory: inv })
+        let result = fn({ inventory: { inv } })
         result = is.array(result) ? result : [ result ]
         result.forEach(runtime => {
           // TODO add more validation

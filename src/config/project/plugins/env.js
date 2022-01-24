@@ -11,7 +11,7 @@ module.exports = function setEnvPlugins (params, project) {
     envPlugins.forEach(fn => {
       let errType = `plugin: ${fn.plugin}, method: set.env`
       try {
-        let result = fn({ inventory: inv })
+        let result = fn({ inventory: { inv } })
         if (!is.object(result) || !Object.keys(result).length) {
           return errors.push(`Env plugin returned invalid data, must return an Object with one or more keys + values: ${errType}`)
         }

@@ -60,7 +60,7 @@ test('Env setter plugin runs', t => {
   errors = []
   pluginOne = function ({ inventory: i }) {
     t.ok(i, 'Plugin function called and received params with Inventory')
-    t.deepEqual(inventory, i, 'Inventory is partial, containing the current default inventory + partially built project')
+    t.deepEqual(inventory, i.inv, 'Inventory is partial, containing the current default inventory + partially built project')
     return varStr
   }
   inventory = newInv([ pluginOne ])
