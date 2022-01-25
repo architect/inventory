@@ -207,10 +207,20 @@ userland true
 })
 
 test('Validate preferences', t => {
-  t.plan(5)
+  t.plan(6)
   let mock = () => mockFs({ [path]: prefsText })
   let prefsText
   let errors
+
+  // Invalid @sandbox env
+  prefsText = `
+@sandbox
+env foo
+`
+  mock()
+  errors = []
+  getPrefs({ scope: 'global', inventory, errors })
+  t.equal(errors.length, 1, `Invalid preferences errored: ${errors[0]}`)
 
   // Invalid @env pragma
   prefsText = `
