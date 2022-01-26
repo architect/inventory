@@ -5,7 +5,6 @@ let projectManifest = {
   arc: [ 'app.arc', '.arc' ],
   json: [ 'arc.json' ],
   yaml: [ 'arc.yaml', 'arc.yml' ],
-  toml: [ 'arc.toml' ],
   manifest: [ 'package.json' ],
   _default: `@app\napp-default\n@http\n@static`,
 }
@@ -15,13 +14,12 @@ let functionConfig = {
   arc: [ 'config.arc', '.arc-config' ],
   json: [ 'arc.json', 'arc-config.json' ],
   yaml: [ 'config.yaml', 'config.yml', 'arc-config.yaml', 'arc-config.yml' ],
-  toml: [ 'config.toml', 'arc-config.toml' ],
 }
 
 // Local preferences
 let preferences = {
   arc: [ 'preferences.arc', 'prefs.arc', '.preferences.arc', '.prefs.arc', ],
-  // TODO add json, yaml, toml later if folks want it?
+  // TODO add json, yaml later if folks want it?
 }
 
 let reads = { projectManifest, functionConfig, preferences }
