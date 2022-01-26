@@ -105,32 +105,6 @@ test('Read Architect YAML manifests', t => {
   */
 })
 
-test('Read Architect TOML manifests', t => {
-  let arcs = [ 'arc.toml' ]
-  let configs = [ 'config.toml', 'arc-config.toml' ]
-  // TODO impl prefs when support is added
-  t.plan(arcs.concat(configs).length * 3)
-  let text
-  let type
-
-  // Core Architect manifests
-  text = 'app="appname"'
-  type = 'projectManifest'
-  arcs.forEach(check.bind({}, { t, text, obj: basicArcObj, type }))
-
-  // Architect config files
-  text = `[aws]\nruntime=42`
-  type = 'functionConfig'
-  configs.forEach(check.bind({}, { t, text, obj: basicConfigObj, type }))
-
-  /*
-  // Architect preference files
-  text = 'blergtomllol'
-  type = 'preferences'
-  prefs.forEach(check.bind({}, {t, text, obj: basicPrefsObj, type}))
-  */
-})
-
 test('Read Architect embedded in existing manifests', t => {
   let arcs = [ 'package.json' ]
   t.plan(arcs.length * 7)
@@ -162,7 +136,7 @@ test('Read Architect embedded in existing manifests', t => {
 
 
 test('Reader errors', t => {
-  t.plan(11)
+  t.plan(9)
 
   let file
   let type
@@ -192,10 +166,6 @@ test('Reader errors', t => {
   mockFs({ [file]: `'lol` })
   go()
 
-  file = 'arc.toml'
-  mockFs({ [file]: 'lol' })
-  go()
-
   file = 'package.json'
   mockFs({ [file]: 'lol' })
   go()
@@ -212,10 +182,6 @@ test('Reader errors', t => {
   go()
 
   file = 'arc.yaml'
-  mockFs({ [file]: empty })
-  go()
-
-  file = 'arc.toml'
   mockFs({ [file]: empty })
   go()
 

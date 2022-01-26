@@ -37,7 +37,7 @@ module.exports = function reader (reads, cwd, errors) {
             if (raw.trim() === '') return errors.push(`Empty file: ${f}`)
             arc = type === 'arc'
               ? parse(raw)
-              : parse[type](raw) // Parser has convenient json, yaml, toml methods!
+              : parse[type](raw) // Parser has convenient json + yaml methods!
           }
           else {
             let pkg = JSON.parse(read(file))
