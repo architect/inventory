@@ -44,6 +44,7 @@
   - Existing functions can be simply moved to `src/tables-streams/{name}` (or use a custom `src` property)
 - Breaking change: renamed `lambda.handlerFunction` to `lambda.handlerMethod`
 - Breaking change: prioritize `mod.ts|js` handlers in Deno Lambdas
+- Breaking change: removed `toml` support
 - Performance improvements to building `inv.shared` + `inv.views`
 - Improved memory footprint of Inventory object by preserving references in `lambdaSrcDirs`, `lambdasBySrcDir`
   - Added `pragma` property to all Lambdas to aid in reference preservation
