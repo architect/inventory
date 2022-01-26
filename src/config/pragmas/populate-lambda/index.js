@@ -14,7 +14,7 @@ function populateLambda (type, { arc, inventory, errors, pragma }) {
   let pluginLambda = []
   if (plugins) {
     let pluginResults = plugins.flatMap(fn => {
-      let result = fn({ arc, inventory })
+      let result = fn({ arc, inventory: { inv: inventory } })
       if (!result) {
         errors.push(`Setter plugins must return a valid response: plugin: ${fn.plugin}, method: set.${type}`)
         return []
