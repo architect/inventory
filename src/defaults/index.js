@@ -33,9 +33,9 @@ module.exports = function inventoryDefaults (params = {}) {
       defaultFunctionConfig,        // Project-level function config
       rootHandler: null,            // null | configured | arcStaticAssetProxy | proxy
       env: {                        // Env vars pulled from:
-        local: null,                // Local/global prefs or .env
-        plugins: null,              // Plugins
-        aws: null,                  // SSM
+        local: null,                // - Local/global prefs or .env
+        plugins: null,              // - Plugins
+        aws: null,                  // - SSM
       },
       customRuntimes: null,         // Runtime plugins
       arc: [],                      // Raw arc obj
