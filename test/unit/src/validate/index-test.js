@@ -30,7 +30,7 @@ test('Configuration errors', t => {
   let err = finalValidation(params, defaults)
   if (!err) t.fail('Expected an error')
   else {
-    t.ok(err.message.includes('Configuration error'), `Got a configuration error`)
+    t.match(err.message, /Configuration error/, `Got a configuration error`)
     console.log(err.message)
   }
 
@@ -38,7 +38,7 @@ test('Configuration errors', t => {
   err = finalValidation(params, defaults)
   if (!err) t.fail('Expected an error')
   else {
-    t.ok(err.message.includes('Configuration error'), `Got a configuration error`)
+    t.match(err.message, /Configuration error/, `Got a configuration error`)
     console.log(err.message)
   }
 
@@ -46,7 +46,7 @@ test('Configuration errors', t => {
   err = finalValidation(params, defaults)
   if (!err) t.fail('Expected an error')
   else {
-    t.ok(err.message.includes('Configuration error'), `Got a configuration error`)
+    t.match(err.message, /Configuration error/, `Got a configuration error`)
     console.log(err.message)
   }
 
@@ -54,7 +54,7 @@ test('Configuration errors', t => {
   err = finalValidation(params, defaults)
   if (!err) t.fail('Expected an error')
   else {
-    t.ok(err.message.includes('Configuration error'), `Got a configuration error`)
+    t.match(err.message, /Configuration error/, `Got a configuration error`)
     console.log(err.message)
   }
 
@@ -62,7 +62,7 @@ test('Configuration errors', t => {
   err = finalValidation(params, defaults)
   if (!err) t.fail('Expected an error')
   else {
-    t.ok(err.message.includes('Configuration error'), `Got a configuration error`)
+    t.match(err.message, /Configuration error/, `Got a configuration error`)
     console.log(err.message)
   }
 
@@ -70,14 +70,14 @@ test('Configuration errors', t => {
   err = finalValidation(params, defaults)
   if (!err) t.fail('Expected an error')
   else {
-    t.ok(err.message.includes('Configuration error'), `Got a configuration error`)
+    t.match(err.message, /Configuration error/, `Got a configuration error`)
     console.log(err.message)
   }
 
   t.teardown(reset)
 })
 
-test('Validation errors', t => {
+test('Table validation errors', t => {
   t.plan(1)
   let tables = [ { name: 'table' } ]
   let streams = [ { name: 'foo', table: 'foo', config: { runtime: 'nodejs14.x', ...config } } ]
@@ -85,7 +85,20 @@ test('Validation errors', t => {
   let err = finalValidation(params, inventory)
   if (!err) t.fail('Expected an error')
   else {
-    t.ok(err.message.includes('Validation error'), `Got a validation error`)
+    t.match(err.message, /Validation error/, `Got a validation error`)
+    console.log(err.message)
+  }
+
+  t.teardown(reset)
+})
+
+test('File path validation errors', t => {
+  t.plan(1)
+  defaults._project.cwd = '/füü'
+  let err = finalValidation(params, defaults)
+  if (!err) t.fail('Expected an error')
+  else {
+    t.match(err.message, /Project file path/, `Got a validation error`)
     console.log(err.message)
   }
 

@@ -1,7 +1,8 @@
 let config = require('./config')
 let layers = require('./layers')
 let tablesChildren = require('./tables-children')
-let errorFmt = require('../lib/error-fmt')
+let paths = require('./paths')
+let { errorFmt } = require('../lib')
 
 /**
  * Final inventory validation
@@ -11,26 +12,32 @@ module.exports = function finalValidation (params, inventory) {
 
   /**
    * Deal with vendor configuration errors
+   * - Analyze function configuration
+   * - Ensure layer configuration will work, AWS blows up with awful errors on this
+   * - TODO add deeper policy validation
    */
-  // Analyze function configuration
   config(params, inventory, errors)
-
-  // Ensure layer configuration will work, AWS blows up with awful errors on this
   layers(params, inventory, errors)
-
-  // TODO add deeper policy validation here
-
   if (errors.length) {
     return errorFmt({ type: 'configuration', errors })
   }
 
   /**
    * Deal with project validation errors
+   * - Ensure @tables children (@tables-streams, @tables-indexes) have parent tables present
    */
-  // Ensure @tables children (@tables-streams, @tables-indexes) have parent tables present
   tablesChildren(inventory, errors)
-
   if (errors.length) {
     return errorFmt({ type: 'validation', errors })
   }
+
+  /**
+   * File path validation
+   * - Ensure all file paths are ascii
+   */
+  paths(inventory, errors)
+  if (errors.length) {
+    return errorFmt({ type: 'file path', errors })
+  }
+
 }
