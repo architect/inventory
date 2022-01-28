@@ -58,9 +58,9 @@ test('Env setter plugin runs', t => {
 
   // Plugin gets the args and props it expects
   errors = []
-  pluginOne = function ({ inventory: i }) {
-    t.ok(i, 'Plugin function called and received params with Inventory')
-    t.deepEqual(inventory, i.inv, 'Inventory is partial, containing the current default inventory + partially built project')
+  pluginOne = function (params) {
+    t.ok(params, 'Plugin function called and received params with Inventory')
+    t.deepEqual(params, { inventory: { inv: inventory } }, 'Inventory is partial, containing the current default inventory + partially built project')
     return varStr
   }
   inventory = newInv([ pluginOne ])
