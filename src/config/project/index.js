@@ -68,7 +68,7 @@ module.exports = function getProjectConfig (params) {
     })
 
     let { build, runtimes } = plugins.runtimes(params, _project)
-    if (build)    _project.build = join(_project.cwd, build)
+    if (build) _project.build = join(_project.cwd, build)
     if (runtimes) _project.customRuntimes = runtimes
   }
 

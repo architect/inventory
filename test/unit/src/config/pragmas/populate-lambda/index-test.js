@@ -68,11 +68,11 @@ test('Populate Lambdas (via manifest)', t => {
 })
 
 test('Populate Lambdas (via plugin)', t => {
-  t.plan(61)
+  t.plan(70)
   let arc = {}, inventory = defaultConfig(), result
-  let item = { name, src }
-  let fn = () => (item)
-  let fn2x = () => ([ item, item ])
+  let returning = { name, src }
+  let fn = () => (returning)
+  let fn2x = () => ([ returning, returning ])
   fn.plugin = fn2x.plugin = 'plugin-name'
   fn.type = fn2x.type = 'plugin'
   inventory._project.build = 'uh-oh'
@@ -92,6 +92,7 @@ test('Populate Lambdas (via plugin)', t => {
       t.equal(item.config.shared, false, 'config.shared is false')
       t.equal(item.config.views, false, 'config.views is false')
     }
+    inventory = defaultConfig()
   }
 
   // One setter, one Lambda
@@ -118,8 +119,8 @@ test('Populate Lambdas (via plugin)', t => {
   check(result[1])
 
   // Setter is compiled
-  item.build = join('proj', 'build')
-  item.config = { runtime: 'rust' }
+  returning.build = join('proj', 'build')
+  returning.config = { runtime: 'rust' }
   inventory._project.customRuntimes = { rust: { type: 'compiled' } }
   inventory.plugins = { _methods: { set: { events: [ fn ] } } }
   errors = []
@@ -128,12 +129,33 @@ test('Populate Lambdas (via plugin)', t => {
   check(result[0], true)
 
   // Setter is transpiled
-  item.config = { runtime: 'typescript' }
+  returning.config = { runtime: 'typescript' }
   inventory._project.customRuntimes = { typescript: { type: 'transpiled' } }
+  inventory.plugins = { _methods: { set: { events: [ fn ] } } }
   errors = []
   result = populateLambda.events({ arc, inventory, errors })
   t.equal(result.length, 1, 'Returned a Lambda')
   check(result[0], true)
+
+  // Populate regular Lambda with custom runtime
+  // We don't need to exercise the entirety of the effects of custom runtimes; just ensure that the configuration ensures the build property is set
+  inventory.plugins = null
+  inventory._project.build = join('proj', 'build')
+  inventory._project.customRuntimes = { typescript: { type: 'transpiled' } }
+  inventory._project.defaultFunctionConfig.runtime = 'typescript'
+  arc = { events: [ name ] }
+  errors = []
+  result = populateLambda.events({ arc, inventory, errors })
+  t.equal(result.length, 1, 'Returned a Lambda')
+  t.notOk(errors.length, 'No errors returned')
+  t.equal(result[0].name, name, 'Returned proper Lambda')
+  t.equal(result[0].src, join(cwd, 'src', 'events', 'an-event'), 'Returned correct source path')
+  t.notOk(result[0].plugin, 'Lambda not identified by plugin name')
+  t.notOk(result[0].type, 'Lambda not identified as having been created by a plugin')
+  t.equal(result[0].build, join(inventory._project.build, 'events', 'an-event'), 'Build property set')
+  t.equal(result[0].config.shared, false, 'config.shared is false')
+  t.equal(result[0].config.views, false, 'config.views is false')
+  inventory = defaultConfig()
 })
 
 test('Plugin population errors', t => {
