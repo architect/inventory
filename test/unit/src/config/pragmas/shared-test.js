@@ -234,6 +234,34 @@ static
   t.equal(errors.length, 1, '@shared invalid pragma errored')
   mockFs.restore()
 
+  arc = parse(`@http
+get /foo
+@shared
+src foo`)
+  pragmas = {
+    http: populateHTTP({ arc, inventory }),
+    lambdaSrcDirs
+  }
+  errors = []
+  mockFs({})
+  populateShared({ arc, pragmas, inventory, errors })
+  t.equal(errors.length, 1, '@shared src dir must exist')
+  mockFs.restore()
+
+  arc = parse(`@http
+get /foo
+@shared
+src foo`)
+  pragmas = {
+    http: populateHTTP({ arc, inventory }),
+    lambdaSrcDirs
+  }
+  errors = []
+  mockFs({ foo: 'hi!' })
+  populateShared({ arc, pragmas, inventory, errors })
+  t.equal(errors.length, 1, '@shared src must refer to a dir, not a file')
+  mockFs.restore()
+
   // From here on out we haven't needed to mock the filesystem since it should be returning errors prior to any folder existence checks; of course, update if that changes!
   arc = parse(`@http
 get /foo
@@ -306,34 +334,6 @@ src true`)
   errors = []
   populateShared({ arc, pragmas, inventory, errors })
   t.equal(errors.length, 1, '@shared src must be a string')
-
-  mockFs({})
-  arc = parse(`@http
-get /
-@shared
-src foo`)
-  pragmas = {
-    http: populateHTTP({ arc, inventory }),
-    lambdaSrcDirs
-  }
-  errors = []
-  populateShared({ arc, pragmas, inventory, errors })
-  t.equal(errors.length, 1, '@shared src dir must exist')
-
-  mockFs({ foo: 'hi!' })
-  arc = parse(`@http
-get /
-@shared
-src foo`)
-  pragmas = {
-    http: populateHTTP({ arc, inventory }),
-    lambdaSrcDirs
-  }
-  errors = []
-  populateShared({ arc, pragmas, inventory, errors })
-  t.equal(errors.length, 1, '@shared src must refer to a dir, not a file')
-
-  mockFs.restore()
 })
 
 

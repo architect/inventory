@@ -171,7 +171,7 @@ src foo/bar`)
 })
 
 test('@views errors', t => {
-  t.plan(7)
+  t.plan(12)
   let arc
   let pragmas
   let errors
@@ -184,13 +184,60 @@ put /bar`)
   errors = []
   mockFs({ 'src/views': {} })
   populateViews({ arc, pragmas, inventory, errors })
-  t.ok(errors.length, '@views route not found in @http errored')
+  t.equal(errors.length, 1, '@views route not found in @http errored')
+  mockFs.restore()
+
+  arc = parse(`@http
+get /foo
+@views
+hi`)
+  pragmas = { http: populateHTTP({ arc, inventory }) }
+  errors = []
+  mockFs({ 'src/views': {} })
+  populateViews({ arc, pragmas, inventory, errors })
+  t.equal(errors.length, 1, '@views invalid entry errored')
+  mockFs.restore()
+
+  arc = parse(`@http
+get /foo
+@views
+hey
+  there`)
+  pragmas = { http: populateHTTP({ arc, inventory }) }
+  errors = []
+  mockFs({})
+  mockFs({ 'src/views': {} })
+  populateViews({ arc, pragmas, inventory, errors })
+  t.equal(errors.length, 1, '@views invalid entry errored')
+  mockFs.restore()
+
+  arc = parse(`@http
+get /foo
+@views
+src foo`)
+  pragmas = { http: populateHTTP({ arc, inventory }) }
+  errors = []
+  mockFs({})
+  populateViews({ arc, pragmas, inventory, errors })
+  t.equal(errors.length, 1, '@views src dir must exist')
+  mockFs.restore()
+
+
+  arc = parse(`@http
+get /foo
+@views
+src foo`)
+  pragmas = { http: populateHTTP({ arc, inventory }) }
+  errors = []
+  mockFs({ foo: 'hi!' })
+  populateViews({ arc, pragmas, inventory, errors })
+  t.equal(errors.length, 1, '@views src must refer to a dir, not a file')
   mockFs.restore()
 
   // From here on out we haven't needed to mock the filesystem since it should be returning errors prior to any folder existence checks; of course, update if that changes!
   errors = []
   populateViews({ arc: { views: [] }, errors })
-  t.ok(errors.length, '@views without @http errored')
+  t.equal(errors.length, 1, '@views without @http errored')
 
   arc = parse(`@http
 get /foo
@@ -199,7 +246,7 @@ src src/index.js`)
   pragmas = { http: populateHTTP({ arc, inventory }) }
   errors = []
   populateViews({ arc, pragmas, inventory, errors })
-  t.ok(errors.length, '@views src must be a directory')
+  t.equal(errors.length, 1, '@views src must be a directory')
 
   arc = parse(`@http
 get /foo
@@ -208,7 +255,7 @@ src .`)
   pragmas = { http: populateHTTP({ arc, inventory }) }
   errors = []
   populateViews({ arc, pragmas, inventory, errors })
-  t.ok(errors.length, '@views cannot be .')
+  t.equal(errors.length, 1, '@views src cannot be .')
 
   arc = parse(`@http
 get /foo
@@ -217,7 +264,7 @@ src ./`)
   pragmas = { http: populateHTTP({ arc, inventory }) }
   errors = []
   populateViews({ arc, pragmas, inventory, errors })
-  t.ok(errors.length, '@views cannot be ./')
+  t.equal(errors.length, 1, '@views src cannot be ./')
 
   arc = parse(`@http
 get /foo
@@ -226,7 +273,7 @@ src ..`)
   pragmas = { http: populateHTTP({ arc, inventory }) }
   errors = []
   populateViews({ arc, pragmas, inventory, errors })
-  t.ok(errors.length, '@views cannot be ..')
+  t.equal(errors.length, 1, '@views src cannot be ..')
 
   arc = parse(`@http
 get /foo
@@ -235,5 +282,14 @@ src ../`)
   pragmas = { http: populateHTTP({ arc, inventory }) }
   errors = []
   populateViews({ arc, pragmas, inventory, errors })
-  t.ok(errors.length, '@views cannot be ../')
+  t.equal(errors.length, 1, '@views src cannot be ../')
+
+  arc = parse(`@http
+get /foo
+@views
+src true`)
+  pragmas = { http: populateHTTP({ arc, inventory }) }
+  errors = []
+  populateViews({ arc, pragmas, inventory, errors })
+  t.equal(errors.length, 1, '@views src must be a string')
 })

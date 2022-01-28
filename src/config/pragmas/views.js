@@ -48,8 +48,8 @@ module.exports = function configureViews ({ arc, pragmas, inventory, errors }) {
 
     // Set new views settings
     for (let view of arc.views) {
-      let method = view[0].toLowerCase()
-      let path = view[1]
+      let method = view?.[0]?.toLowerCase()
+      let path = view?.[1]
       if (method === 'src') continue
       let name = `${method} ${path}`
       let route = pragmas.http.find(n => n.name === name)
