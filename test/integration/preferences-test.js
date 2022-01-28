@@ -250,6 +250,6 @@ foo
   }
   catch (err) {
     mockFs.restore()
-    t.ok(err.message.includes('Invalid preferences setting: @env foo'), 'Got back error message for invalid preferences')
+    t.match(err.message, /Invalid preferences setting: @env foo/, 'Got back error message for invalid preferences')
   }
 })

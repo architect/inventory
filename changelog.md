@@ -52,6 +52,11 @@
 Update CI
 - Stop publishing to the GitHub Package registry
 
+
+### Fixed
+
+- Added file path validation because `aws-sdk` blows up on !ascii paths; fixes #1292, thanks @GustMartins!
+
 ---
 
 ## [2.2.1] 2021-11-22
