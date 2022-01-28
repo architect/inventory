@@ -9,22 +9,42 @@ let { compiledRuntimes, is } = require('../../../lib')
 /**
  * Build out the Lambda tree from the Arc manifest or a passed pragma, and plugins
  */
-function populateLambda (type, { arc, inventory, errors, pragma }) {
+function populateLambda (type, params) {
+  // Passing a pragma array via params allows special overrides
+  // See: @tables populating inv['tables-streams']
+  let { arc, inventory, errors, pragma } = params
+
   let plugins = inventory.plugins?._methods?.set?.[type]
   let pluginLambda = []
   if (plugins) {
     let pluginResults = plugins.flatMap(fn => {
-      let result = fn({ arc, inventory: { inv: inventory } })
-      if (!result) {
+      try {
+        var result = fn({ arc, inventory: { inv: inventory } })
+      }
+      catch (err) {
+        err.message = `Setter plugin exception: plugin: ${fn.plugin}, method: set.${type}`
+                      + `\n` + err.message
+        throw err
+      }
+      if (!result || (!is.object(result) && !is.array(result))) {
         errors.push(`Setter plugins must return a valid response: plugin: ${fn.plugin}, method: set.${type}`)
         return []
       }
-      result.plugin = fn.plugin
-      result.type = fn.type
+      if (is.array(result)) {
+        result.forEach(item => {
+          item.plugin = fn.plugin
+          item.type = fn.type
+        })
+      }
+      else {
+        result.plugin = fn.plugin
+        result.type = fn.type
+      }
       return result
     })
     pluginLambda = populate(type, pluginResults, inventory, errors, true) || []
   }
+
   let pragmaLambda = populate(type, pragma || arc[type], inventory, errors) || []
   let aggregate = [ ...pluginLambda, ...pragmaLambda ]
   return aggregate.length ? aggregate : null
@@ -82,7 +102,7 @@ function populate (type, pragma, inventory, errors, plugin) {
 
     // Tidy up any irrelevant properties
     if (!compiledRuntimes.includes(config.runtimeConfig?.type)) {
-      // Important: if we don't clean up the build prop, many explosions will explode
+      // Super important! If we don't clean up the build prop, many explosions will explode
       build = undefined
     }
     if (type !== 'http') {
@@ -112,7 +132,7 @@ function populate (type, pragma, inventory, errors, plugin) {
 }
 
 // Lambda setter plugins can technically return anything, so this ensures everything is tidy
-let lambdaProps = [ 'cron', 'method', 'path', 'plugin', 'rate', 'route', 'table' ]
+let lambdaProps = [ 'cron', 'method', 'path', 'plugin', 'rate', 'route', 'table', 'type' ]
 let configProps = [ ...Object.keys(defaultFunctionConfig()), 'fifo', 'views' ]
 let getKnownProps = (knownProps, raw = {}) => {
   let props = knownProps.flatMap(prop => is.defined(raw[prop]) ? [ [ prop, raw[prop] ] ] : [])
