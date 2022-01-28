@@ -15,7 +15,7 @@ test('Set up env', t => {
   t.ok(getProjectConfig, 'Project constructor is present')
 })
 
-test('Basic runthrough', t => {
+test('Basic project runthrough', t => {
   t.plan(16)
   let arc = {}
   let errors = []
@@ -43,7 +43,7 @@ test('Basic runthrough', t => {
   t.equal(proj.raw, raw, 'Populated raw arc')
 })
 
-test('Global config upsert', t => {
+test('Project global config upsert', t => {
   t.plan(2)
   let py = 'python3.9'
   let arc = { aws: [ [ 'runtime', py ] ] }
@@ -57,7 +57,7 @@ test('Global config upsert', t => {
   t.deepEqual(proj.defaultFunctionConfig, config, 'Upserted global setting into default function config')
 })
 
-test('Preferences', t => {
+test('Project preferences', t => {
   t.plan(29)
   let arc = {}
   let errors = []
@@ -128,7 +128,7 @@ useAWS true`
   mockFs.restore()
 })
 
-test('Plugins', t => {
+test('Project plugins', t => {
   t.plan(26)
   let arc = {}
   let errors = []
@@ -137,7 +137,7 @@ test('Plugins', t => {
 
   // Env + custom runtime plugins
   let env = { henlo: 'friend' }
-  let runtime = { name: 'typescript', build: 'dist' }
+  let runtime = { name: 'typescript', type: 'transpiled', build: 'dist', baseRuntime: 'nodejs14.x' }
   inventory.plugins = { _methods: { set: {
     env: [ () => (env) ],
     runtimes: [ () => (runtime) ],

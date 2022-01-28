@@ -1,6 +1,8 @@
 let { is } = require('../../../lib')
 let { aliases, runtimeList } = require('lambda-runtimes')
 let allRuntimes = runtimeList.concat([ 'deno', ...Object.keys(aliases) ])
+let validTypes = [ 'transpiled' /* TODO: 'compiled', 'interpreted' */ ]
+let builtTypes = validTypes.filter(t => t !== 'interpreted')
 
 module.exports = function setRuntimePlugins (params, project) {
   let { errors, inventory } = params
@@ -15,40 +17,43 @@ module.exports = function setRuntimePlugins (params, project) {
     runtimePlugins.forEach(fn => {
       let errType = `plugin: ${fn.plugin}, method: set.runtimes`
       try {
-        let result = fn({ inventory: { inv } })
-        result = is.array(result) ? result : [ result ]
-        result.forEach(runtime => {
-          // TODO add more validation
-          let { name } = runtime
-          if (!name) {
-            let msg = `Runtime plugin must provide a name: ${errType}`
-            return errors.push(msg)
-          }
-          if (allRuntimes.includes(name)) {
-            let msg = `Runtime name '${name}' is reserved: ${errType}`
-            return errors.push(msg)
-          }
-          if (runtimes[name]) {
-            let msg = `Runtime '${name}' already registered: ${errType}`
-            return errors.push(msg)
-          }
-          if (runtime.build) {
-            if (build && build !== runtime.build) {
-              errors.push(`Runtime '${name}' cannot set a build directory, as it is already configured to: ${build}`)
-            }
-            else if (is.bool(runtime.build) ||
-                !is.string(runtime.build)) {
-              build = 'build'
-            }
-            else build = runtime.build
-          }
-          runtimes.runtimes.push(name)
-          runtimes[name] = runtime
-        })
+        var result = fn({ inventory: { inv } })
       }
       catch (err) {
-        errors.push(`Runtime plugin '${fn.plugin}' failed: ${err.message}`)
+        err.message = `Runtime plugin exception: ${errType}`
+                      + `\n` + err.message
+        throw err
       }
+      // Accept one or more results, then loop through them
+      result = is.array(result) ? result : [ result ]
+      result.forEach(runtime => {
+        let { name, type, baseRuntime } = runtime
+        if (!name || !type) {
+          let msg = `Runtime plugin must provide a name and type: ${errType}`
+          return errors.push(msg)
+        }
+        if (allRuntimes.includes(name)) {
+          let msg = `Runtime name '${name}' is reserved: ${errType}`
+          return errors.push(msg)
+        }
+        if (runtimes[name]) {
+          let msg = `Runtime name '${name}' already registered: ${errType}`
+          return errors.push(msg)
+        }
+        if (builtTypes.includes(type)) {
+          if (build && runtime.build && build !== runtime.build) {
+            return errors.push(`Runtime '${name}' cannot set a build directory, as it is already configured to: ${build}`)
+          }
+          // Adhere to Postel's Law
+          build = 'build'
+          if (is.string(runtime.build)) build = runtime.build
+        }
+        if (type === 'transpiled' && !allRuntimes.includes(baseRuntime)) {
+          return errors.push(`Runtime '${name}' must include a valid baseRuntime property corresponding to a valid Lambda runtime (e.g. 'nodejs14.x')`)
+        }
+        runtimes.runtimes.push(name)
+        runtimes[name] = runtime
+      })
     })
     return { build, runtimes }
   }
