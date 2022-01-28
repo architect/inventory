@@ -23,7 +23,7 @@ test('Inventory calls callback (manifest on disk)', t => {
   })
 })
 
-test('Inventory calls callback (manifest in params)', t => {
+test('Inventory calls callback (manifest via rawArc param)', t => {
   t.plan(3)
   inv({ rawArc }, (err, result) => {
     if (err) t.fail(err)
@@ -35,7 +35,7 @@ test('Inventory calls callback (manifest in params)', t => {
   })
 })
 
-test('Inventory returns single first-pass validation error', t => {
+test('Inventory returns single early manifest validation error', t => {
   t.plan(3)
   inv({ cwd: join(mock, 'fail', 'bad-pragma') }, (err) => {
     if (!err) t.fail('Should have returned an error')
@@ -48,7 +48,7 @@ test('Inventory returns single first-pass validation error', t => {
   })
 })
 
-test('Inventory returns single first-pass validation error (async)', async t => {
+test('Inventory returns single early manifest validation error (async)', async t => {
   t.plan(3)
   try {
     await inv({ cwd: join(mock, 'fail', 'bad-pragma') })
@@ -62,7 +62,7 @@ test('Inventory returns single first-pass validation error (async)', async t => 
   }
 })
 
-test('Inventory returns multiple first-pass validation errors', t => {
+test('Inventory returns multiple early manifest validation errors', t => {
   t.plan(3)
   let rawArc = `@http\nwell hello there`
   inv({ rawArc }, (err) => {
@@ -76,7 +76,7 @@ test('Inventory returns multiple first-pass validation errors', t => {
   })
 })
 
-test('Inventory returns multiple first-pass validation errors (async)', async t => {
+test('Inventory returns multiple early manifest validation errors (async)', async t => {
   t.plan(3)
   try {
     let rawArc = `@http\nwell hello there`
@@ -91,7 +91,42 @@ test('Inventory returns multiple first-pass validation errors (async)', async t 
   }
 })
 
-test('Inventory returns second-pass validation error', t => {
+test('Inventory returns plugin error', t => {
+  t.plan(3)
+  let rawArc = `@app
+my-app
+@plugins
+foo`
+  inv({ rawArc }, (err) => {
+    if (!err) t.fail('Should have returned an error')
+    else {
+      let { message, ARC_ERRORS } = err
+      t.ok(message.startsWith('Plugin error:'), 'Returned plugin error message')
+      t.equal(ARC_ERRORS.type, 'plugin', 'Returned plugin error type')
+      t.equal(ARC_ERRORS.errors.length, 1, 'Returned plugin error array')
+    }
+  })
+})
+
+test('Inventory returns plugin error (async)', async t => {
+  t.plan(3)
+  let rawArc = `@app
+my-app
+@plugins
+foo`
+  try {
+    await inv({ rawArc })
+    t.fail('Should have returned an error')
+  }
+  catch (err) {
+    let { message, ARC_ERRORS } = err
+    t.ok(message.startsWith('Plugin error:'), 'Returned plugin error message')
+    t.equal(ARC_ERRORS.type, 'plugin', 'Returned plugin error type')
+    t.equal(ARC_ERRORS.errors.length, 1, 'Returned plugin error array')
+  }
+})
+
+test('Inventory returns validation error', t => {
   t.plan(3)
   let rawArc = `@app
 my-app
@@ -110,7 +145,7 @@ bar`
   })
 })
 
-test('Inventory returns second-pass validation error (async)', async t => {
+test('Inventory returns validation error (async)', async t => {
   t.plan(3)
   let rawArc = `@app
 my-app
@@ -130,7 +165,7 @@ bar`
   }
 })
 
-test('Inventory returns second-pass configuration error', t => {
+test('Inventory returns configuration error', t => {
   t.plan(3)
   let rawArc = `@app
 my-app
@@ -147,7 +182,7 @@ layer foo`
   })
 })
 
-test('Inventory returns second-pass validation error (async)', async t => {
+test('Inventory returns configuration error (async)', async t => {
   t.plan(3)
   let rawArc = `@app
 my-app
@@ -178,7 +213,7 @@ test('Inventory invokes async (manifest on disk)', async t => {
   }
 })
 
-test('Inventory invokes async (manifest in params)', async t => {
+test('Inventory invokes async (manifest via rawArc param)', async t => {
   t.plan(3)
   try {
     let result = await inv({ rawArc })
