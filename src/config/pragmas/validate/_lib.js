@@ -1,15 +1,8 @@
-let { is } = require('../../../lib')
-
-let patterns = {
-  looseName: new RegExp(/^[a-z][a-zA-Z0-9-_]+$/),
-  strictName: new RegExp(/^[a-z][a-z0-9-]+$/),
-  // DynamoDB, SNS, SQS
-  veryLooseName: new RegExp(/^[a-zA-Z0-9/\-._]*$/),
-}
+let { is, validationPatterns } = require('../../../lib')
 
 function regex (value, pattern, pragmaName, errors) {
-  if (!patterns[pattern]) throw ReferenceError(`Invalid validation pattern specified: ${pattern}`)
-  if (!patterns[pattern].test(value)) errors.push(`Invalid ${pragmaName} item: '${value}' must match ${patterns[pattern]}`)
+  if (!validationPatterns[pattern]) throw ReferenceError(`Invalid validation pattern specified: ${pattern}`)
+  if (!validationPatterns[pattern].test(value)) errors.push(`Invalid ${pragmaName} item: '${value}' must match ${validationPatterns[pattern]}`)
 }
 
 function size (value, min, max, pragmaName, errors) {

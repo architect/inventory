@@ -8,7 +8,7 @@ let sut = join(cwd, 'src', 'config', 'pragmas', 'populate-lambda')
 let populateLambda = require(sut)
 
 let name = 'an-event'
-let src = join('proj', 'src')
+let src = join('proj', 'src', 'fn')
 let errors = []
 
 test('Set up env', t => {
@@ -35,7 +35,7 @@ test('Do nothing', t => {
 })
 
 test('Populate Lambdas (via manifest)', t => {
-  t.plan(18)
+  t.plan(27)
   let arc, inventory, errors, result
 
   function check (item) {
@@ -57,6 +57,14 @@ test('Populate Lambdas (via manifest)', t => {
   t.equal(result.length, 1, 'Returned a Lambda')
   check(result[0])
 
+  // Ensure src slashes are normalized
+  arc = { events: [ { [name]: { src: `src\\events/an-event` } } ] }
+  inventory = defaultConfig()
+  errors = []
+  result = populateLambda.events({ arc, inventory, errors })
+  t.equal(result.length, 1, 'Returned a Lambda')
+  check(result[0])
+
   // Special case: one pragma populates another
   // e.g. @tables populating inv['tables-streams']
   arc = {}
@@ -68,7 +76,7 @@ test('Populate Lambdas (via manifest)', t => {
 })
 
 test('Populate Lambdas (via plugin)', t => {
-  t.plan(70)
+  t.plan(79)
   let arc = {}, inventory = defaultConfig(), result
   let returning = { name, src }
   let fn = () => (returning)
@@ -101,6 +109,15 @@ test('Populate Lambdas (via plugin)', t => {
   result = populateLambda.events({ arc, inventory, errors })
   t.equal(result.length, 1, 'Returned a Lambda')
   check(result[0])
+
+  // ... same, but ensure src slashes are normalized
+  returning.src = `proj\\src/fn`
+  inventory.plugins = { _methods: { set: { events: [ fn ] } } }
+  errors = []
+  result = populateLambda.events({ arc, inventory, errors })
+  t.equal(result.length, 1, 'Returned a Lambda')
+  check(result[0])
+  returning.src = src
 
   // One setter, multiple Lambdas
   inventory.plugins = { _methods: { set: { events: [ fn2x ] } } }

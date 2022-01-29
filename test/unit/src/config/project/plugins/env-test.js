@@ -74,7 +74,6 @@ test('Env setter plugin runs', t => {
   t.notOk(errors.length, 'Did not return errors')
   check(plugins, varStr)
 
-
   // String
   errors = []
   pluginOne = () => varNum
@@ -134,7 +133,7 @@ test('Env setter plugin runs', t => {
 })
 
 test('Env setter plugin errors', t => {
-  t.plan(12)
+  t.plan(14)
   let errors, inventory, pluginOne, pluginTwo
 
   // No return
@@ -144,6 +143,14 @@ test('Env setter plugin errors', t => {
   setEnvPlugins({ inventory, errors })
   t.equal(errors.length, 1, 'Returned an error')
   t.match(errors[0], /must return an Object/, 'Got correct error')
+
+  // Return an invalid env var
+  errors = []
+  pluginOne = () => ({ 'hello!': 'there' })
+  inventory = newInv([ pluginOne ])
+  setEnvPlugins({ inventory, errors })
+  t.equal(errors.length, 1, 'Returned an error')
+  t.match(errors[0], /is invalid, must be/, 'Got correct error')
 
   // Throw
   errors = []

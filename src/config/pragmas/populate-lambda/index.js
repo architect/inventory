@@ -1,3 +1,4 @@
+let { sep } = require('path')
 let read = require('../../../read')
 let getLambda = require('./get-lambda')
 let getRuntime = require('./get-runtime')
@@ -66,6 +67,11 @@ function populate (type, pragma, inventory, errors, plugin) {
     if (!result) continue
 
     let { name, src, build } = result
+
+    // Normalize paths, especially since plugin authors may not use path.join
+    src = normalize(src)
+    if (build) build = normalize(build)
+
     // Set up fresh config, then overlay plugin config
     let config = defaultProjectConfig()
     config = { ...config, ...getKnownProps(configProps, result.config) }
@@ -130,6 +136,8 @@ function populate (type, pragma, inventory, errors, plugin) {
 
   return lambdas
 }
+
+let normalize = path => path.replace(/[\\\/]/g, sep)
 
 // Lambda setter plugins can technically return anything, so this ensures everything is tidy
 let lambdaProps = [ 'cron', 'method', 'path', 'plugin', 'rate', 'route', 'table', 'type' ]

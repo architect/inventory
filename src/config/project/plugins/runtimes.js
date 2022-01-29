@@ -1,7 +1,8 @@
-let { is } = require('../../../lib')
+let { is, validationPatterns } = require('../../../lib')
 let { aliases, runtimeList } = require('lambda-runtimes')
+let { looserName } = validationPatterns
 let allRuntimes = runtimeList.concat([ 'deno', ...Object.keys(aliases) ])
-let validTypes = [ 'transpiled' /* TODO: 'compiled', 'interpreted' */ ]
+let validTypes = [ 'transpiled', 'compiled', 'interpreted' ]
 let builtTypes = validTypes.filter(t => t !== 'interpreted')
 
 module.exports = function setRuntimePlugins (params, project) {
@@ -28,8 +29,12 @@ module.exports = function setRuntimePlugins (params, project) {
       result = is.array(result) ? result : [ result ]
       result.forEach(runtime => {
         let { name, type, baseRuntime } = runtime
-        if (!name || !type) {
-          let msg = `Runtime plugin must provide a name and type: ${errType}`
+        if (!name || !looserName.test(name)) {
+          let msg = `Runtime plugin must provide a valid name: ${errType}`
+          return errors.push(msg)
+        }
+        if (!type || !validTypes.includes(type)) {
+          let msg = `Runtime plugin must provide a valid type: ${errType}`
           return errors.push(msg)
         }
         if (allRuntimes.includes(name)) {
