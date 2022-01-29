@@ -123,7 +123,7 @@ test('Runtime setter validation (transpiled)', t => {
 })
 
 test('Runtime setter validation', t => {
-  t.plan(10)
+  t.plan(14)
   let errors, inventory, plugin, runtime
   let type = 'transpiled'
   let baseRuntime = 'nodejs14.x'
@@ -135,7 +135,16 @@ test('Runtime setter validation', t => {
   errors = []
   setRuntimesPlugins({ inventory, errors })
   t.equal(errors.length, 1, 'Returned an error')
-  t.match(errors[0], /Runtime plugin must provide a name and type/, 'Returned correct name error')
+  t.match(errors[0], /Runtime plugin must provide a valid name/, 'Returned correct name error')
+
+  // Invalid name
+  runtime = { name: 'c++', type }
+  plugin = () => runtime
+  inventory = newInv([ plugin ])
+  errors = []
+  setRuntimesPlugins({ inventory, errors })
+  t.equal(errors.length, 1, 'Returned an error')
+  t.match(errors[0], /Runtime plugin must provide a valid name/, 'Returned correct name error')
 
   // No type
   runtime = { name }
@@ -144,7 +153,16 @@ test('Runtime setter validation', t => {
   errors = []
   setRuntimesPlugins({ inventory, errors })
   t.equal(errors.length, 1, 'Returned an error')
-  t.match(errors[0], /Runtime plugin must provide a name and type/, 'Returned correct type error')
+  t.match(errors[0], /Runtime plugin must provide a valid type/, 'Returned correct type error')
+
+  // Invalid type
+  runtime = { name, type: 'jit' }
+  plugin = () => runtime
+  inventory = newInv([ plugin ])
+  errors = []
+  setRuntimesPlugins({ inventory, errors })
+  t.equal(errors.length, 1, 'Returned an error')
+  t.match(errors[0], /Runtime plugin must provide a valid type/, 'Returned correct type error')
 
   // Name cannot conflict with an existing runtime
   runtime = { name: 'nodejs14.x', type }
