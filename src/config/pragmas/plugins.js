@@ -1,6 +1,6 @@
 let { join } = require('path')
 let { existsSync } = require('fs')
-let { is, normalizeSrc, pragmas } = require('../../lib')
+let { is, normalizeSrc, pragmas, validationPatterns } = require('../../lib')
 let { lambdas } = pragmas
 let nonLambdaSetters = [ 'customLambdas', 'env', 'runtimes' ]
 let setters = [ ...lambdas, ...nonLambdaSetters ]
@@ -35,6 +35,10 @@ module.exports = function getPluginModules ({ arc, inventory, errors }) {
 
     if (name === '_methods') {
       errors.push('Plugin name _methods is reserved, please rename your plugin')
+      continue
+    }
+    if (!validationPatterns.veryLooseName.test(name)) {
+      errors.push('Plugin names can only contain [a-zA-Z0-9/\\-._]')
       continue
     }
     if (pluginPath) {

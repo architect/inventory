@@ -19,7 +19,6 @@ let validationPatterns = {
   strictName: /^[a-z][a-z0-9-]+$/,
   looseName: /^[a-z][a-zA-Z0-9-_]+$/,
   looserName: /^[a-z][a-zA-Z0-9-._]+$/,
-  // DynamoDB, SNS, SQS
   veryLooseName: /^[a-zA-Z0-9/\-._]*$/,
 }
 
