@@ -20,7 +20,7 @@ test('Set up env', t => {
 
 test('No @static returns null', t => {
   t.plan(1)
-  t.equal(populateStatic({ arc: {} }), null, 'Returned null')
+  t.equal(populateStatic({ arc: {}, inventory: {} }), null, 'Returned null')
 })
 
 test('@static can be disabled', t => {
