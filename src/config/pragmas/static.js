@@ -1,8 +1,10 @@
 let { asapSrc, is } = require('../../lib')
 
 module.exports = function configureStatic ({ arc, inventory }) {
+  let httpSetters = inventory.plugins?._methods?.set?.http
+
   // @static is inferred by @http
-  if (!arc.static && !arc.http) return null
+  if (!arc.static && !arc.http && !httpSetters) return null
 
   let staticPragma = arc.static || []
   let _static = {
@@ -37,7 +39,7 @@ module.exports = function configureStatic ({ arc, inventory }) {
   }
 
   // Handy shortcut to ASAP for bare @static
-  if (!arc.http) {
+  if (!arc.http && !httpSetters) {
     inventory._project.rootHandler = 'arcStaticAssetProxy'
     inventory._project.asapSrc = asapSrc()
   }
