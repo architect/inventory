@@ -27,7 +27,9 @@ function populateLambda (type, params) {
                       + `\n` + err.message
         throw err
       }
-      if (!result || (!is.object(result) && !is.array(result))) {
+      if (!result ||
+          (!is.object(result) && !is.array(result)) ||
+          (is.array(result) && result.some(r => !is.object(r)))) {
         errors.push(`Setter plugins must return a valid response: plugin: ${fn.plugin}, method: set.${type}`)
         return []
       }

@@ -488,7 +488,7 @@ test('@http population: validation errors', t => {
 })
 
 test('@plugin population: plugin errors', t => {
-  t.plan(7)
+  t.plan(8)
   let errors = []
   function run (returning) {
     let inventory = inventoryDefaults()
@@ -523,5 +523,8 @@ test('@plugin population: plugin errors', t => {
   check()
 
   run({ src: 'hi' })
+  check()
+
+  run([ { method: 'get', path: '/hi', src: 'hi' }, [] ])
   check()
 })
