@@ -43,17 +43,17 @@ test('Do nothing if no env setter plugins are present', t => {
 })
 
 test('Env setter plugin runs', t => {
-  t.plan(34)
+  t.plan(54)
   let errors, inventory, plugins, pluginOne, pluginTwo
 
   // Stringify env obj values
   let str = obj => Object.fromEntries(Object.entries(obj).map(([ k, v ]) => [ k, `${v}` ]))
 
-  function check (actual, expected) {
+  function check (actual, expected, customEnv) {
     console.log(`Got env:`, actual)
-    t.deepEqual(actual.testing, expected, 'Testing env got correct env vars')
-    t.deepEqual(actual.staging, expected, 'Staging env got correct env vars')
-    t.deepEqual(actual.production, expected, 'Production env got correct env vars')
+    t.deepEqual(actual.testing, customEnv ? expected.testing : expected, 'Testing env got correct env vars')
+    t.deepEqual(actual.staging, customEnv ? expected.staging : expected, 'Staging env got correct env vars')
+    t.deepEqual(actual.production, customEnv ? expected.production : expected, 'Production env got correct env vars')
   }
 
   // Plugin gets the args and props it expects
@@ -130,10 +130,52 @@ test('Env setter plugin runs', t => {
   plugins = setEnvPlugins({ inventory, errors })
   t.notOk(errors.length, 'Did not return errors')
   check(plugins, str({ ...varStr, ...varBool }))
+
+  // Specific environments
+  // Testing
+  errors = []
+  pluginOne = () => ({ testing: varStr })
+  inventory = newInv([ pluginOne ])
+  plugins = setEnvPlugins({ inventory, errors })
+  t.notOk(errors.length, 'Did not return errors')
+  check(plugins, { testing: varStr, staging: null, production: null }, true)
+
+  // Staging
+  errors = []
+  pluginOne = () => ({ staging: varStr })
+  inventory = newInv([ pluginOne ])
+  plugins = setEnvPlugins({ inventory, errors })
+  t.notOk(errors.length, 'Did not return errors')
+  check(plugins, { testing: null, staging: varStr, production: null }, true)
+
+  // Production
+  errors = []
+  pluginOne = () => ({ production: varStr })
+  inventory = newInv([ pluginOne ])
+  plugins = setEnvPlugins({ inventory, errors })
+  t.notOk(errors.length, 'Did not return errors')
+  check(plugins, { testing: null, staging: null, production: varStr }, true)
+
+  // Multiple plugins
+  errors = []
+  pluginOne = () => ({ testing: varStr })
+  pluginTwo = () => ({ testing: varBool })
+  inventory = newInv([ pluginOne, pluginTwo ])
+  plugins = setEnvPlugins({ inventory, errors })
+  t.notOk(errors.length, 'Did not return errors')
+  check(plugins, { testing: { ...varStr, bool: 'true' }, staging: null, production: null }, true)
+
+  // Ignore unrelated env vars
+  errors = []
+  pluginOne = () => ({ testing: varStr, foo: 'bar', fiz: 'buz' })
+  inventory = newInv([ pluginOne ])
+  plugins = setEnvPlugins({ inventory, errors })
+  t.notOk(errors.length, 'Did not return errors')
+  check(plugins, { testing: varStr, staging: null, production: null }, true)
 })
 
 test('Env setter plugin errors', t => {
-  t.plan(14)
+  t.plan(16)
   let errors, inventory, pluginOne, pluginTwo
 
   // No return
@@ -182,6 +224,15 @@ test('Env setter plugin errors', t => {
   errors = []
   pluginOne = () => varStr
   pluginTwo = () => varStr
+  inventory = newInv([ pluginOne, pluginTwo ])
+  setEnvPlugins({ inventory, errors })
+  t.equal(errors.length, 1, 'Returned an error')
+  t.match(errors[0], /already registered/, 'Got correct error')
+
+  // Multiple plugins returning single env
+  errors = []
+  pluginOne = () => ({ testing: varStr })
+  pluginTwo = () => ({ testing: varStr })
   inventory = newInv([ pluginOne, pluginTwo ])
   setEnvPlugins({ inventory, errors })
   t.equal(errors.length, 1, 'Returned an error')
