@@ -178,7 +178,7 @@ proj1
 })
 
 test('@plugins validation', t => {
-  t.plan(40)
+  t.plan(42)
   let path = join(sep, 'foo')
   let arc, err, errors, result
   let name1 = 'proj1'
@@ -294,6 +294,19 @@ test('@plugins validation', t => {
   errors = []
   result = populatePlugins({ arc, inventory, errors })
   err = /Plugin name _methods is reserved/
+  t.equal(errors.length, 1, 'Invalid plugin errored')
+  t.match(errors[0], err, `Got correct error: ${errors[0]}`)
+
+  // Plugin uses an invalid name
+  name1 = '@wesome-plugin!'
+  pluginPath1 = join(path, 'src', 'plugins', name1)
+  arc = { plugins: [ name1 ] }
+  setup(path)
+  mockFs({ [pluginPath1]: null })
+  mockRequire(pluginPath1, {})
+  errors = []
+  result = populatePlugins({ arc, inventory, errors })
+  err = /Plugin names can only contain/
   t.equal(errors.length, 1, 'Invalid plugin errored')
   t.match(errors[0], err, `Got correct error: ${errors[0]}`)
 
