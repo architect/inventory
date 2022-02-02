@@ -42,7 +42,7 @@ test('Get preferences', t => {
       `echo hi #here`,
     ],
     env: {
-      testing: { 'env-var-1': 'foo', 'env-var-2': 'bar' },
+      testing: { 'env_var_1': 'foo', 'env_var_2': 'bar' },
       staging: null,
       production: null,
     },
@@ -62,8 +62,8 @@ echo "hi #here"
 
 @env
 testing
-  env-var-1 foo
-  env-var-2 bar
+  env_var_1 foo
+  env_var_2 bar
 `
   mockFs({
     [path]: prefsText
@@ -91,8 +91,8 @@ test('.env file handling', t => {
   prefs = {
     sandbox: { environment: 'testing' },
     env: {
-      testing: { 'env-var-1': 'foo' },
-      staging: { 'env-var-2': 'bar' },
+      testing: { 'env_var_1': 'foo' },
+      staging: { 'env_var_2': 'bar' },
       production: null,
     },
   }
@@ -102,9 +102,9 @@ environment testing
 
 @env
 testing
-  env-var-1 foo
+  env_var_1 foo
 staging
-  env-var-2 bar
+  env_var_2 bar
 `
   mockFs({
     'prefs.arc': prefsText
@@ -207,7 +207,7 @@ userland true
 })
 
 test('Validate preferences', t => {
-  t.plan(6)
+  t.plan(7)
   let mock = () => mockFs({ [path]: prefsText })
   let prefsText
   let errors
@@ -245,9 +245,19 @@ staging
 
   prefsText = `
 @env
-testing
+staging
   env-var-1 foo
-  env-var-2 bar
+`
+  mock()
+  errors = []
+  getPrefs({ scope: 'global', inventory, errors })
+  t.equal(errors.length, 1, `Invalid preferences errored: ${errors[0]}`)
+
+  prefsText = `
+@env
+testing
+  env_var_1 foo
+  env_var_2 bar
 
 staging
 `
@@ -259,14 +269,14 @@ staging
   prefsText = `
 @env
 testing
-  env-var-1 foo
-  env-var-2 bar
+  env_var_1 foo
+  env_var_2 bar
 
 staging true
 
 production
-  env-var-1 foo
-  env-var-2 bar
+  env_var_1 foo
+  env_var_2 bar
 `
   mock()
   errors = []
@@ -278,8 +288,8 @@ production
 testing foo
 
 staging
-  env-var-1 foo
-  env-var-2 bar
+  env_var_1 foo
+  env_var_2 bar
 `
   mock()
   errors = []
