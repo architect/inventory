@@ -56,6 +56,8 @@ Update CI
 ### Fixed
 
 - Added file path validation because `aws-sdk` blows up on !ascii paths; fixes #1292, thanks @GustMartins!
+- Fixed env var validation from preference files
+- Fixed error bubbling when reading a preferences file with issues
 
 ---
 

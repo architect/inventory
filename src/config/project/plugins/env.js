@@ -1,4 +1,4 @@
-let { is } = require('../../../lib')
+let { is, validationPatterns: valid } = require('../../../lib')
 let envs = [ 'testing', 'staging', 'production' ]
 let str = value => {
   if (is.object(value) || is.array(value)) return JSON.stringify(value)
@@ -15,9 +15,6 @@ module.exports = function setEnvPlugins (params, project) {
       production: null,
     }
 
-    // IEEE 1003.1-2001 does not allow lowercase, so consider this a compromise for the Windows folks in the house
-    let validName = /^[a-zA-Z0-9_]+$/
-
     // inventory._project is not yet built, so provide as much as we can to plugins for now
     let inv = { ...inventory, _project: project }
     envPlugins.forEach(fn => {
@@ -32,6 +29,9 @@ module.exports = function setEnvPlugins (params, project) {
         if (Object.keys(result).some(k => envs.includes(k))) {
           envs.forEach(e => {
             if (result[e]) Object.entries(result[e]).forEach(([ k, v ]) => {
+              if (!valid.envVar.test(k)) {
+                return errors.push(`Env var '${k}' is invalid, must be [a-zA-Z0-9_]`)
+              }
               let errored = false, val = str(v)
               if (!env[e]) env[e] = { [k]: val }
               else if (env[e][k] && !errored) {
@@ -45,7 +45,7 @@ module.exports = function setEnvPlugins (params, project) {
         // Populate all environments based on env var
         else {
           Object.entries(result).forEach(([ k, v ]) => {
-            if (!validName.test(k)) {
+            if (!valid.envVar.test(k)) {
               return errors.push(`Env var '${k}' is invalid, must be [a-zA-Z0-9_]`)
             }
             let errored = false, val = str(v)

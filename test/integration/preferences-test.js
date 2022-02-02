@@ -32,7 +32,7 @@ test('Get global preferences', t => {
       `echo hi #here`,
     ],
     env: {
-      testing: { 'env-var-1': 'foo', 'env-var-2': 'bar' },
+      testing: { 'env_var_1': 'foo', 'env_var_2': 'bar' },
       staging: null,
       production: null,
     },
@@ -52,8 +52,8 @@ echo "hi #here"
 
 @env
 testing
-  env-var-1 foo
-  env-var-2 bar
+  env_var_1 foo
+  env_var_2 bar
 `
   let path = join(homedir(), '.prefs.arc')
   mockFs({
@@ -101,9 +101,9 @@ test('Get local preferences', t => {
     create: { autocreate: true },
     deploy: false,
     env: {
-      testing: { 'env-var-1': 'foo', 'env-var-2': 'bar' },
-      staging: { 'env-var-1': 'fiz', 'env-var-2': 'buz' },
-      production: { 'env-var-1': 'qix qix', 'env-var-2': 'qux qux' }
+      testing: { 'env_var_1': 'foo', 'env_var_2': 'bar' },
+      staging: { 'env_var_1': 'fiz', 'env_var_2': 'buz' },
+      production: { 'env_var_1': 'qix qix', 'env_var_2': 'qux qux' }
     },
   }
   inv({ cwd }, (err, result) => {
@@ -142,8 +142,8 @@ false
 
 @env
 testing
-  env-var-1 foo
-  env-var-2 bar
+  env_var_1 foo
+  env_var_2 bar
 `
   let globalPrefs = {
     sandbox: {
@@ -152,7 +152,7 @@ testing
     },
     deploy: false,
     env: {
-      testing: { 'env-var-1': 'foo', 'env-var-2': 'bar' },
+      testing: { 'env_var_1': 'foo', 'env_var_2': 'bar' },
       staging: null,
       production: null,
     }
@@ -166,9 +166,9 @@ autocreate true
 
 @env
 testing
-  env-var-2 bar
+  env_var_2 bar
 staging
-  env-var-3 fiz
+  env_var_3 fiz
 `
   let localPrefs = {
     sandbox: {
@@ -178,8 +178,8 @@ staging
       autocreate: true
     },
     env: {
-      testing: { 'env-var-2': 'bar' },
-      staging: { 'env-var-3': 'fiz' },
+      testing: { 'env_var_2': 'bar' },
+      staging: { 'env_var_3': 'fiz' },
       production: null,
     }
   }
@@ -193,8 +193,8 @@ staging
       autocreate: true
     },
     env: {
-      testing: { 'env-var-2': 'bar' },
-      staging: { 'env-var-3': 'fiz' },
+      testing: { 'env_var_2': 'bar' },
+      staging: { 'env_var_3': 'fiz' },
       production: null,
     }
   }
