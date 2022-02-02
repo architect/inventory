@@ -18,13 +18,13 @@ false
 
 @env
 testing
-  env-var-1 foo
-  env-var-2 bar
+  env_var_1 foo
+  env_var_2 bar
 
 staging
-  env-var-1 fiz
-  env-var-2 buz
+  env_var_1 fiz
+  env_var_2 buz
 
 production
-  env-var-1 "qix qix"
-  env-var-2 qux qux
+  env_var_1 "qix qix"
+  env_var_2 qux qux

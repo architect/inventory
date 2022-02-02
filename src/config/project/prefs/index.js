@@ -2,7 +2,7 @@ let { join } = require('path')
 let { existsSync, readFileSync } = require('fs')
 let read = require('../../../read')
 let validate = require('../validate')
-let { is } = require('../../../lib')
+let { is, validationPatterns: valid } = require('../../../lib')
 let { parse } = require('./dotenv')
 let { homedir } = require('os')
 
@@ -20,13 +20,11 @@ module.exports = function getPrefs ({ scope, inventory, errors }) {
   let preferences = {}
 
   // Populate Architect preferences
-  if (prefs.filepath) {
+  if (prefs.filepath && prefs.arc) {
     // Ok, this gets a bit hairy
     // Arc outputs an object of nested arrays
     // Basically, construct a pared-down intermediate prefs obj for consumers
     Object.entries(prefs.arc).forEach(([ key, val ]) => {
-      // TODO add additional preferences checks and normalization
-
       /* istanbul ignore else: Parser should get this, but jic */
       if (!preferences[key]) preferences[key] = {}
       /* istanbul ignore else: Parser should only produce arrays, but jic */
@@ -51,6 +49,9 @@ module.exports = function getPrefs ({ scope, inventory, errors }) {
           /* istanbul ignore else: Yet another jic */
           if (preferences.env[e]) {
             Object.entries(preferences.env[e]).forEach(([ key, val ]) => {
+              if (!valid.envVar.test(key)) {
+                errors.push(`Env var '${key}' is invalid, must be [a-zA-Z0-9_]`)
+              }
               if (is.array(val)) preferences.env[e][key] = val.join(' ')
             })
           }

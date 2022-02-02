@@ -175,7 +175,7 @@ test('Env setter plugin runs', t => {
 })
 
 test('Env setter plugin errors', t => {
-  t.plan(16)
+  t.plan(18)
   let errors, inventory, pluginOne, pluginTwo
 
   // No return
@@ -189,6 +189,14 @@ test('Env setter plugin errors', t => {
   // Return an invalid env var
   errors = []
   pluginOne = () => ({ 'hello!': 'there' })
+  inventory = newInv([ pluginOne ])
+  setEnvPlugins({ inventory, errors })
+  t.equal(errors.length, 1, 'Returned an error')
+  t.match(errors[0], /is invalid, must be/, 'Got correct error')
+
+  // Return an invalid env var within a named environment
+  errors = []
+  pluginOne = () => ({ testing: { 'hello!': 'there' } })
   inventory = newInv([ pluginOne ])
   setEnvPlugins({ inventory, errors })
   t.equal(errors.length, 1, 'Returned an error')

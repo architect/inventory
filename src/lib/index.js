@@ -20,6 +20,8 @@ let validationPatterns = {
   looseName: /^[a-z][a-zA-Z0-9-_]+$/,
   looserName: /^[a-z][a-zA-Z0-9-._]+$/,
   veryLooseName: /^[a-zA-Z0-9/\-._]*$/,
+  // IEEE 1003.1-2001 does not allow lowercase, so consider this a compromise for the Windows folks in the house
+  envVar: /^[a-zA-Z0-9_]+$/,
 }
 
 module.exports = {
