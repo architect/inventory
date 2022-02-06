@@ -5,6 +5,7 @@ let { lambdas } = pragmas
 let nonLambdaSetters = [ 'customLambdas', 'env', 'runtimes' ]
 let setters = [ ...lambdas, ...nonLambdaSetters ]
 let pluginMethods = [ 'deploy', 'sandbox' ] // TODO add more!
+let reservedNames = [ '_methods', 'events', 'queues', 'static', 'tables' ]
 
 module.exports = function getPluginModules ({ arc, inventory, errors }) {
   if (!arc?.plugins?.length && !arc?.macros?.length) return null
@@ -33,8 +34,8 @@ module.exports = function getPluginModules ({ arc, inventory, errors }) {
         : join(cwd, 'src', type + 's', name)
     }
 
-    if (name === '_methods') {
-      errors.push('Plugin name _methods is reserved, please rename your plugin')
+    if (reservedNames.includes(name)) {
+      errors.push(`Plugin name ${name} is reserved, please rename your plugin`)
       continue
     }
     if (!validationPatterns.veryLooseName.test(name)) {

@@ -45,6 +45,7 @@
 - Breaking change: renamed `lambda.handlerFunction` to `lambda.handlerMethod`
 - Breaking change: prioritize `mod.ts|js` handlers in Deno Lambdas
 - Breaking change: removed `toml` support
+- Breaking change: removed `get.macros` method; as `@macros` are now automatically mapped to the Architect plugins, you can simply use `get.plugins` instead
 - Performance improvements to building `inv.shared` + `inv.views`
 - Improved memory footprint of Inventory object by preserving references in `lambdaSrcDirs`, `lambdasBySrcDir`
   - Added `pragma` property to all Lambdas to aid in reference preservation
