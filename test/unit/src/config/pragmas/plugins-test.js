@@ -178,7 +178,7 @@ proj1
 })
 
 test('@plugins validation', t => {
-  t.plan(42)
+  t.plan(44)
   let path = join(sep, 'foo')
   let arc, err, errors, result
   let name1 = 'proj1'
@@ -284,7 +284,7 @@ test('@plugins validation', t => {
   t.ok(is.fn(result._methods.set.http[0]), 'Found Sandbox lifecycle function in _methods')
   t.ok(is.fn(result._methods.set.http[1]), 'Found Sandbox lifecycle function in _methods')
 
-  // Plugin uses a reserved name
+  // Plugin uses a reserved name (internal to plugins)
   name1 = '_methods'
   pluginPath1 = join(path, 'src', 'plugins', name1)
   arc = { plugins: [ name1 ] }
@@ -294,6 +294,19 @@ test('@plugins validation', t => {
   errors = []
   result = populatePlugins({ arc, inventory, errors })
   err = /Plugin name _methods is reserved/
+  t.equal(errors.length, 1, 'Invalid plugin errored')
+  t.match(errors[0], err, `Got correct error: ${errors[0]}`)
+
+  // Plugin uses a reserved name (pragma conflict)
+  name1 = 'tables'
+  pluginPath1 = join(path, 'src', 'plugins', name1)
+  arc = { plugins: [ name1 ] }
+  setup(path)
+  mockFs({ [pluginPath1]: null })
+  mockRequire(pluginPath1, {})
+  errors = []
+  result = populatePlugins({ arc, inventory, errors })
+  err = /Plugin name tables is reserved/
   t.equal(errors.length, 1, 'Invalid plugin errored')
   t.match(errors[0], err, `Got correct error: ${errors[0]}`)
 
