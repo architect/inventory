@@ -1,6 +1,6 @@
 {
   "name": "@architect/inventory",
-  "version": "3.0.0-RC.7",
+  "version": "3.0.0-RC.8",
   "description": "Architect project resource enumeration utility",
   "main": "src/index.js",
   "scripts": {
