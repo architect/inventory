@@ -1,4 +1,4 @@
-let { join } = require('path')
+let { isAbsolute, join } = require('path')
 
 /**
  * Get the src (and build) dirs for a Lambda
@@ -29,8 +29,8 @@ function getLambdaDirs (params, options) {
 }
 
 function normalizeSrc (cwd, dir) {
-  if (!dir.startsWith(cwd)) return join(cwd, dir)
-  return dir
+  if (isAbsolute(dir)) return dir
+  return join(cwd, dir)
 }
 
 getLambdaDirs.normalizeSrc = normalizeSrc
