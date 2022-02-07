@@ -76,7 +76,7 @@ test('Populate Lambdas (via manifest)', t => {
 })
 
 test('Populate Lambdas (via plugin)', t => {
-  t.plan(79)
+  t.plan(88)
   let arc = {}, inventory = defaultConfig(), result
   let returning = { name, src }
   let fn = () => (returning)
@@ -84,10 +84,10 @@ test('Populate Lambdas (via plugin)', t => {
   fn.plugin = fn2x.plugin = 'plugin-name'
   fn.type = fn2x.type = 'plugin'
   inventory._project.build = 'uh-oh'
-  function check (item, compiled) {
+  function check (item, compiled, absoluteSrc) {
     t.notOk(errors.length, 'No errors returned')
     t.equal(item.name, name, 'Returned proper Lambda')
-    t.equal(item.src, join(cwd, src), 'Returned correct source path')
+    t.equal(item.src, absoluteSrc || join(cwd, src), 'Returned correct source path')
     t.equal(item.plugin, fn.plugin, 'Lambda identified by plugin name')
     t.equal(item.type, fn.type, 'Lambda identified as having been created by a plugin')
     if (!compiled) {
@@ -117,6 +117,15 @@ test('Populate Lambdas (via plugin)', t => {
   result = populateLambda.events({ arc, inventory, errors })
   t.equal(result.length, 1, 'Returned a Lambda')
   check(result[0])
+  returning.src = src
+
+  // One setter, using absolute paths
+  returning.src = join(process.cwd(), 'foo', 'bar')
+  inventory.plugins = { _methods: { set: { events: [ fn ] } } }
+  errors = []
+  result = populateLambda.events({ arc, inventory, errors })
+  t.equal(result.length, 1, 'Returned a Lambda')
+  check(result[0], null, returning.src)
   returning.src = src
 
   // One setter, multiple Lambdas
