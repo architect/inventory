@@ -3,6 +3,7 @@ let test = require('tape')
 let sut = join(process.cwd(), 'src', 'config', 'project', 'plugins', 'env')
 let setEnvPlugins = require(sut)
 
+let emptyProj = { arc: {} }
 let nulls = {
   testing: null,
   staging: null,
@@ -15,7 +16,7 @@ let noEnv = {
 }
 let newInv = (env = { plugins: null }) => {
   return {
-    _project: { env: noEnv },
+    _project: { arc: {}, env: noEnv },
     plugins: { _methods: { set: { env } } },
   }
 }
@@ -60,17 +61,17 @@ test('Env setter plugin runs', t => {
   errors = []
   pluginOne = function (params) {
     t.ok(params, 'Plugin function called and received params with Inventory')
-    t.deepEqual(params, { inventory: { inv: inventory } }, 'Inventory is partial, containing the current default inventory + partially built project')
+    t.deepEqual(params, { arc: inventory._project.arc, inventory: { inv: inventory } }, 'Inventory is partial, containing the current default inventory + partially built project')
     return varStr
   }
   inventory = newInv([ pluginOne ])
-  plugins = setEnvPlugins({ inventory, errors }, { env: noEnv })
+  plugins = setEnvPlugins({ inventory, errors }, { arc: {}, env: noEnv })
 
   // String
   errors = []
   pluginOne = () => varStr
   inventory = newInv([ pluginOne ])
-  plugins = setEnvPlugins({ inventory, errors })
+  plugins = setEnvPlugins({ inventory, errors }, emptyProj)
   t.notOk(errors.length, 'Did not return errors')
   check(plugins, varStr)
 
@@ -78,7 +79,7 @@ test('Env setter plugin runs', t => {
   errors = []
   pluginOne = () => varNum
   inventory = newInv([ pluginOne ])
-  plugins = setEnvPlugins({ inventory, errors })
+  plugins = setEnvPlugins({ inventory, errors }, emptyProj)
   t.notOk(errors.length, 'Did not return errors')
   check(plugins, str(varNum))
 
@@ -86,7 +87,7 @@ test('Env setter plugin runs', t => {
   errors = []
   pluginOne = () => varFloat
   inventory = newInv([ pluginOne ])
-  plugins = setEnvPlugins({ inventory, errors })
+  plugins = setEnvPlugins({ inventory, errors }, emptyProj)
   t.notOk(errors.length, 'Did not return errors')
   check(plugins, str(varFloat))
 
@@ -94,7 +95,7 @@ test('Env setter plugin runs', t => {
   errors = []
   pluginOne = () => varBool
   inventory = newInv([ pluginOne ])
-  plugins = setEnvPlugins({ inventory, errors })
+  plugins = setEnvPlugins({ inventory, errors }, emptyProj)
   t.notOk(errors.length, 'Did not return errors')
   check(plugins, str(varBool))
 
@@ -102,7 +103,7 @@ test('Env setter plugin runs', t => {
   errors = []
   pluginOne = () => varObj
   inventory = newInv([ pluginOne ])
-  plugins = setEnvPlugins({ inventory, errors })
+  plugins = setEnvPlugins({ inventory, errors }, emptyProj)
   t.notOk(errors.length, 'Did not return errors')
   check(plugins, { obj: JSON.stringify(varObj.obj) })
 
@@ -110,7 +111,7 @@ test('Env setter plugin runs', t => {
   errors = []
   pluginOne = () => varArr
   inventory = newInv([ pluginOne ])
-  plugins = setEnvPlugins({ inventory, errors })
+  plugins = setEnvPlugins({ inventory, errors }, emptyProj)
   t.notOk(errors.length, 'Did not return errors')
   check(plugins, { arr: JSON.stringify(varArr.arr) })
 
@@ -118,7 +119,7 @@ test('Env setter plugin runs', t => {
   errors = []
   pluginOne = () => varMany
   inventory = newInv([ pluginOne ])
-  plugins = setEnvPlugins({ inventory, errors })
+  plugins = setEnvPlugins({ inventory, errors }, emptyProj)
   t.notOk(errors.length, 'Did not return errors')
   check(plugins, str(varMany))
 
@@ -127,7 +128,7 @@ test('Env setter plugin runs', t => {
   pluginOne = () => varStr
   pluginTwo = () => varBool
   inventory = newInv([ pluginOne, pluginTwo ])
-  plugins = setEnvPlugins({ inventory, errors })
+  plugins = setEnvPlugins({ inventory, errors }, emptyProj)
   t.notOk(errors.length, 'Did not return errors')
   check(plugins, str({ ...varStr, ...varBool }))
 
@@ -136,7 +137,7 @@ test('Env setter plugin runs', t => {
   errors = []
   pluginOne = () => ({ testing: varStr })
   inventory = newInv([ pluginOne ])
-  plugins = setEnvPlugins({ inventory, errors })
+  plugins = setEnvPlugins({ inventory, errors }, emptyProj)
   t.notOk(errors.length, 'Did not return errors')
   check(plugins, { testing: varStr, staging: null, production: null }, true)
 
@@ -144,7 +145,7 @@ test('Env setter plugin runs', t => {
   errors = []
   pluginOne = () => ({ staging: varStr })
   inventory = newInv([ pluginOne ])
-  plugins = setEnvPlugins({ inventory, errors })
+  plugins = setEnvPlugins({ inventory, errors }, emptyProj)
   t.notOk(errors.length, 'Did not return errors')
   check(plugins, { testing: null, staging: varStr, production: null }, true)
 
@@ -152,7 +153,7 @@ test('Env setter plugin runs', t => {
   errors = []
   pluginOne = () => ({ production: varStr })
   inventory = newInv([ pluginOne ])
-  plugins = setEnvPlugins({ inventory, errors })
+  plugins = setEnvPlugins({ inventory, errors }, emptyProj)
   t.notOk(errors.length, 'Did not return errors')
   check(plugins, { testing: null, staging: null, production: varStr }, true)
 
@@ -161,7 +162,7 @@ test('Env setter plugin runs', t => {
   pluginOne = () => ({ testing: varStr })
   pluginTwo = () => ({ testing: varBool })
   inventory = newInv([ pluginOne, pluginTwo ])
-  plugins = setEnvPlugins({ inventory, errors })
+  plugins = setEnvPlugins({ inventory, errors }, emptyProj)
   t.notOk(errors.length, 'Did not return errors')
   check(plugins, { testing: { ...varStr, bool: 'true' }, staging: null, production: null }, true)
 
@@ -169,7 +170,7 @@ test('Env setter plugin runs', t => {
   errors = []
   pluginOne = () => ({ testing: varStr, foo: 'bar', fiz: 'buz' })
   inventory = newInv([ pluginOne ])
-  plugins = setEnvPlugins({ inventory, errors })
+  plugins = setEnvPlugins({ inventory, errors }, emptyProj)
   t.notOk(errors.length, 'Did not return errors')
   check(plugins, { testing: varStr, staging: null, production: null }, true)
 })
@@ -182,7 +183,7 @@ test('Env setter plugin errors', t => {
   errors = []
   pluginOne = () => {}
   inventory = newInv([ pluginOne ])
-  setEnvPlugins({ inventory, errors })
+  setEnvPlugins({ inventory, errors }, emptyProj)
   t.equal(errors.length, 1, 'Returned an error')
   t.match(errors[0], /must return an Object/, 'Got correct error')
 
@@ -190,7 +191,7 @@ test('Env setter plugin errors', t => {
   errors = []
   pluginOne = () => ({ 'hello!': 'there' })
   inventory = newInv([ pluginOne ])
-  setEnvPlugins({ inventory, errors })
+  setEnvPlugins({ inventory, errors }, emptyProj)
   t.equal(errors.length, 1, 'Returned an error')
   t.match(errors[0], /is invalid, must be/, 'Got correct error')
 
@@ -198,7 +199,7 @@ test('Env setter plugin errors', t => {
   errors = []
   pluginOne = () => ({ testing: { 'hello!': 'there' } })
   inventory = newInv([ pluginOne ])
-  setEnvPlugins({ inventory, errors })
+  setEnvPlugins({ inventory, errors }, emptyProj)
   t.equal(errors.length, 1, 'Returned an error')
   t.match(errors[0], /is invalid, must be/, 'Got correct error')
 
@@ -208,7 +209,7 @@ test('Env setter plugin errors', t => {
     throw Error('lolidk')
   }
   inventory = newInv([ pluginOne ])
-  setEnvPlugins({ inventory, errors })
+  setEnvPlugins({ inventory, errors }, emptyProj)
   t.equal(errors.length, 1, 'Returned an error')
   t.match(errors[0], /lolidk/, 'Got correct error')
 
@@ -216,7 +217,7 @@ test('Env setter plugin errors', t => {
   errors = []
   pluginOne = () => new Promise()
   inventory = newInv([ pluginOne ])
-  setEnvPlugins({ inventory, errors })
+  setEnvPlugins({ inventory, errors }, emptyProj)
   t.equal(errors.length, 1, 'Returned an error')
   t.match(errors[0], /Runtime plugin/, 'Got correct error')
 
@@ -224,7 +225,7 @@ test('Env setter plugin errors', t => {
   errors = []
   pluginOne = () => ({})
   inventory = newInv([ pluginOne ])
-  setEnvPlugins({ inventory, errors })
+  setEnvPlugins({ inventory, errors }, emptyProj)
   t.equal(errors.length, 1, 'Returned an error')
   t.match(errors[0], /must return an Object/, 'Got correct error')
 
@@ -233,7 +234,7 @@ test('Env setter plugin errors', t => {
   pluginOne = () => varStr
   pluginTwo = () => varStr
   inventory = newInv([ pluginOne, pluginTwo ])
-  setEnvPlugins({ inventory, errors })
+  setEnvPlugins({ inventory, errors }, emptyProj)
   t.equal(errors.length, 1, 'Returned an error')
   t.match(errors[0], /already registered/, 'Got correct error')
 
@@ -242,7 +243,7 @@ test('Env setter plugin errors', t => {
   pluginOne = () => ({ testing: varStr })
   pluginTwo = () => ({ testing: varStr })
   inventory = newInv([ pluginOne, pluginTwo ])
-  setEnvPlugins({ inventory, errors })
+  setEnvPlugins({ inventory, errors }, emptyProj)
   t.equal(errors.length, 1, 'Returned an error')
   t.match(errors[0], /already registered/, 'Got correct error')
 
@@ -250,7 +251,7 @@ test('Env setter plugin errors', t => {
   errors = []
   pluginOne = () => function foo () {}
   inventory = newInv([ pluginOne ])
-  setEnvPlugins({ inventory, errors })
+  setEnvPlugins({ inventory, errors }, emptyProj)
   t.equal(errors.length, 1, 'Returned an error')
   t.match(errors[0], /must return an Object/, 'Got correct error')
 })
