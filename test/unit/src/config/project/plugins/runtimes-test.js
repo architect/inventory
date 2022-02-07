@@ -6,9 +6,9 @@ let setRuntimesPlugins = require(sut)
 let name = 'custom-runtime'
 let name2 = 'another-custom-runtime'
 
+let emptyProj = { arc: {} }
 let newInv = (runtimes = { plugins: null }) => {
   return {
-    // _project: { env: noEnv },
     plugins: { _methods: { set: { runtimes } } },
   }
 }
@@ -38,17 +38,17 @@ test('Basic runtime setter plugins', t => {
   errors = []
   plugin = function (params) {
     t.ok(params, 'Plugin function called and received params with Inventory')
-    t.deepEqual(params, { inventory: { inv: inventory } }, 'Inventory is partial, containing the current default inventory + partially built project')
+    t.deepEqual(params, { arc: {}, inventory: { inv: inventory } }, 'Inventory is partial, containing the current default inventory + partially built project')
     return runtime
   }
   inventory = newInv([ plugin ])
-  inventory._project = { cwd: 'hi' }
+  inventory._project = { arc: {}, cwd: 'hi' }
   plugins = setRuntimesPlugins({ inventory, errors }, inventory._project)
 
   // Return a single custom runtime
   plugin = () => runtime
   inventory = newInv([ plugin ])
-  plugins = setRuntimesPlugins({ inventory, errors })
+  plugins = setRuntimesPlugins({ inventory, errors }, emptyProj)
   t.notOk(errors.length, 'Did not return errors')
   t.notOk(plugins.build, 'Did not return build property')
   t.equal(plugins.runtimes.runtimes.length, 1, 'Returned single runtime')
@@ -60,7 +60,7 @@ test('Basic runtime setter plugins', t => {
   runtime2 = { name: name2, type }
   plugin = () => [ runtime, runtime2 ]
   inventory = newInv([ plugin ])
-  plugins = setRuntimesPlugins({ inventory, errors })
+  plugins = setRuntimesPlugins({ inventory, errors }, emptyProj)
   t.notOk(errors.length, 'Did not return errors')
   t.notOk(plugins.build, 'Did not return build property')
   t.equal(plugins.runtimes.runtimes.length, 2, 'Returned two runtimes')
@@ -82,7 +82,7 @@ test('Transpiled runtime setters', t => {
   runtime = { name, type, baseRuntime }
   plugin = () => runtime
   inventory = newInv([ plugin ])
-  plugins = setRuntimesPlugins({ inventory, errors })
+  plugins = setRuntimesPlugins({ inventory, errors }, emptyProj)
   t.notOk(errors.length, 'Did not return errors')
   t.equal(plugins.build, 'build', 'Returned default build property')
   t.equal(plugins.runtimes.runtimes.length, 1, 'Returned single runtime')
@@ -94,7 +94,7 @@ test('Transpiled runtime setters', t => {
   runtime = { name, type, build: true, baseRuntime }
   plugin = () => runtime
   inventory = newInv([ plugin ])
-  plugins = setRuntimesPlugins({ inventory, errors })
+  plugins = setRuntimesPlugins({ inventory, errors }, emptyProj)
   t.notOk(errors.length, 'Did not return errors')
   t.equal(plugins.build, 'build', 'Returned default build property')
 
@@ -102,7 +102,7 @@ test('Transpiled runtime setters', t => {
   runtime = { name, type, build, baseRuntime }
   plugin = () => runtime
   inventory = newInv([ plugin ])
-  plugins = setRuntimesPlugins({ inventory, errors })
+  plugins = setRuntimesPlugins({ inventory, errors }, emptyProj)
   t.notOk(errors.length, 'Did not return errors')
   t.equal(plugins.build, build, 'Returned explicit build property')
 })
@@ -117,7 +117,7 @@ test('Runtime setter validation (transpiled)', t => {
   runtime = { name, type, baseRuntime: 'nodejs10.x' }
   plugin = () => runtime
   inventory = newInv([ plugin ])
-  setRuntimesPlugins({ inventory, errors })
+  setRuntimesPlugins({ inventory, errors }, emptyProj)
   t.equal(errors.length, 1, 'Returned an error')
   t.match(errors[0], /must include a valid baseRuntime property/, 'Returned correct baseRuntime error')
 })
@@ -133,7 +133,7 @@ test('Runtime setter validation', t => {
   plugin = () => runtime
   inventory = newInv([ plugin ])
   errors = []
-  setRuntimesPlugins({ inventory, errors })
+  setRuntimesPlugins({ inventory, errors }, emptyProj)
   t.equal(errors.length, 1, 'Returned an error')
   t.match(errors[0], /Runtime plugin must provide a valid name/, 'Returned correct name error')
 
@@ -142,7 +142,7 @@ test('Runtime setter validation', t => {
   plugin = () => runtime
   inventory = newInv([ plugin ])
   errors = []
-  setRuntimesPlugins({ inventory, errors })
+  setRuntimesPlugins({ inventory, errors }, emptyProj)
   t.equal(errors.length, 1, 'Returned an error')
   t.match(errors[0], /Runtime plugin must provide a valid name/, 'Returned correct name error')
 
@@ -151,7 +151,7 @@ test('Runtime setter validation', t => {
   plugin = () => runtime
   inventory = newInv([ plugin ])
   errors = []
-  setRuntimesPlugins({ inventory, errors })
+  setRuntimesPlugins({ inventory, errors }, emptyProj)
   t.equal(errors.length, 1, 'Returned an error')
   t.match(errors[0], /Runtime plugin must provide a valid type/, 'Returned correct type error')
 
@@ -160,7 +160,7 @@ test('Runtime setter validation', t => {
   plugin = () => runtime
   inventory = newInv([ plugin ])
   errors = []
-  setRuntimesPlugins({ inventory, errors })
+  setRuntimesPlugins({ inventory, errors }, emptyProj)
   t.equal(errors.length, 1, 'Returned an error')
   t.match(errors[0], /Runtime plugin must provide a valid type/, 'Returned correct type error')
 
@@ -169,7 +169,7 @@ test('Runtime setter validation', t => {
   plugin = () => runtime
   inventory = newInv([ plugin ])
   errors = []
-  setRuntimesPlugins({ inventory, errors })
+  setRuntimesPlugins({ inventory, errors }, emptyProj)
   t.equal(errors.length, 1, 'Returned an error')
   t.match(errors[0], /Runtime name 'nodejs14\.x' is reserved/, 'Returned correct name error')
 
@@ -178,7 +178,7 @@ test('Runtime setter validation', t => {
   plugin = () => [ runtime, runtime ]
   inventory = newInv([ plugin ])
   errors = []
-  setRuntimesPlugins({ inventory, errors })
+  setRuntimesPlugins({ inventory, errors }, emptyProj)
   t.equal(errors.length, 1, 'Returned an error')
   t.match(errors[0], /Runtime name 'custom-runtime' already registered/, 'Returned correct name error')
 
@@ -186,7 +186,7 @@ test('Runtime setter validation', t => {
   plugin = () => [ runtime, { name: 'idk', type, build: 'idk', baseRuntime } ]
   inventory = newInv([ plugin ])
   errors = []
-  setRuntimesPlugins({ inventory, errors })
+  setRuntimesPlugins({ inventory, errors }, emptyProj)
   t.equal(errors.length, 1, 'Returned an error')
   t.match(errors[0], /cannot set a build directory, as it is already configured/, 'Returned correct build error')
 })
@@ -198,6 +198,6 @@ test('Runtime setter errors', t => {
   inventory = newInv([ plugin ])
   errors = []
   t.throws(() => {
-    setRuntimesPlugins({ inventory, errors })
+    setRuntimesPlugins({ inventory, errors }, emptyProj)
   }, /Runtime plugin exception/, 'Failing setter threw')
 })

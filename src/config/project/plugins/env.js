@@ -1,3 +1,4 @@
+let { deepFrozenCopy } = require('@architect/utils')
 let { is, validationPatterns: valid } = require('../../../lib')
 let envs = [ 'testing', 'staging', 'production' ]
 let str = value => {
@@ -16,11 +17,11 @@ module.exports = function setEnvPlugins (params, project) {
     }
 
     // inventory._project is not yet built, so provide as much as we can to plugins for now
-    let inv = { ...inventory, _project: project }
+    let inv = deepFrozenCopy({ ...inventory, _project: project })
     envPlugins.forEach(fn => {
       let errType = `plugin: ${fn.plugin}, method: set.env`
       try {
-        let result = fn({ inventory: { inv } })
+        let result = fn({ arc: inv._project.arc, inventory: { inv } })
         if (!is.object(result) || !Object.keys(result).length) {
           return errors.push(`Env plugin returned invalid data, must return an Object with one or more keys + values: ${errType}`)
         }

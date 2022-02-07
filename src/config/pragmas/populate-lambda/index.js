@@ -1,4 +1,5 @@
 let { sep } = require('path')
+let { deepFrozenCopy } = require('@architect/utils')
 let read = require('../../../read')
 let getLambda = require('./get-lambda')
 let getRuntime = require('./get-runtime')
@@ -18,9 +19,10 @@ function populateLambda (type, params) {
   let plugins = inventory.plugins?._methods?.set?.[type]
   let pluginLambda = []
   if (plugins) {
+    let invCopy = deepFrozenCopy(inventory)
     let pluginResults = plugins.flatMap(fn => {
       try {
-        var result = fn({ arc, inventory: { inv: inventory } })
+        var result = fn({ arc: invCopy._project.arc, inventory: { inv: invCopy } })
       }
       catch (err) {
         err.message = `Setter plugin exception: plugin: ${fn.plugin}, method: set.${type}`

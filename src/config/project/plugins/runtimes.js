@@ -1,5 +1,6 @@
-let { is, validationPatterns } = require('../../../lib')
 let { aliases, runtimeList } = require('lambda-runtimes')
+let { deepFrozenCopy } = require('@architect/utils')
+let { is, validationPatterns } = require('../../../lib')
 let { looserName } = validationPatterns
 let allRuntimes = runtimeList.concat([ 'deno', ...Object.keys(aliases) ])
 let validTypes = [ 'transpiled', 'compiled', 'interpreted' ]
@@ -13,12 +14,12 @@ module.exports = function setRuntimePlugins (params, project) {
       runtimes: [],
     }
     // inventory._project is not yet built, so provide as much as we can to plugins for now
-    let inv = { ...inventory, _project: project }
+    let inv = deepFrozenCopy({ ...inventory, _project: project })
     let build
     runtimePlugins.forEach(fn => {
       let errType = `plugin: ${fn.plugin}, method: set.runtimes`
       try {
-        var result = fn({ inventory: { inv } })
+        var result = fn({ arc: inv._project.arc, inventory: { inv } })
       }
       catch (err) {
         err.message = `Runtime plugin exception: ${errType}`
