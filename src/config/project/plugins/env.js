@@ -1,5 +1,5 @@
 let { deepFrozenCopy } = require('@architect/utils')
-let { is, validationPatterns: valid } = require('../../../lib')
+let { is, tidyError, validationPatterns: valid } = require('../../../lib')
 let envs = [ 'testing', 'staging', 'production' ]
 let str = value => {
   if (is.object(value) || is.array(value)) return JSON.stringify(value)
@@ -62,7 +62,7 @@ module.exports = function setEnvPlugins (params, project) {
         }
       }
       catch (err) {
-        errors.push(`Runtime plugin '${fn.plugin}' failed: ${err.message}`)
+        errors.push(`Runtime plugin '${fn.plugin}' failed: ${tidyError(err)}`)
       }
     })
     return env
