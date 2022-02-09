@@ -7,7 +7,7 @@
 var fs = require("fs");
 var path = require("path");
 var os = require("os");
-var LINE = /(?:^|^)\s*(?:export\s+)?([\w.-]+)(?:\s*=\s*?|:\s+?)(\s*'(?:\\'|[^'])*'|\s*"(?:\\"|[^"])*"|[^#\r\n]+)?\s*(?:#.*)?(?:$|$)/mg;
+var LINE = /(?:^|^)\s*(?:export\s+)?([\w.-]+)(?:\s*=\s*?|:\s+?)(\s*'(?:\\'|[^'])*'|\s*"(?:\\"|[^"])*"|\s*`(?:\\`|[^`])*`|[^#\r\n]+)?\s*(?:#.*)?(?:$|$)/mg;
 function parse(src) {
   const obj = {};
   let lines = src.toString();
@@ -18,7 +18,7 @@ function parse(src) {
     let value = match[2] || "";
     value = value.trim();
     const maybeQuote = value[0];
-    value = value.replace(/^(['"])([\s\S]+)\1$/mg, "$2");
+    value = value.replace(/^(['"`])([\s\S]*)\1$/mg, "$2");
     if (maybeQuote === '"') {
       value = value.replace(/\\n/g, "\n");
       value = value.replace(/\\r/g, "\r");
