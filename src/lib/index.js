@@ -24,6 +24,9 @@ let validationPatterns = {
   envVar: /^[a-zA-Z0-9_]+$/,
 }
 
+// Error tidier: remove the error name, just print the message + stack data
+let tidyError = err => err.message + `\n` + err.stack.split('\n').slice(1).join('\n')
+
 module.exports = {
   asapSrc,
   compiledRuntimes,
@@ -34,5 +37,6 @@ module.exports = {
   mergeEnvVars,
   normalizeSrc: getLambdaDirs.normalizeSrc,
   pragmas,
+  tidyError,
   validationPatterns,
 }
