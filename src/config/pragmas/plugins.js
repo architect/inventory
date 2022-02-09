@@ -1,6 +1,6 @@
 let { join } = require('path')
 let { existsSync } = require('fs')
-let { is, normalizeSrc, pragmas, validationPatterns } = require('../../lib')
+let { is, normalizeSrc, pragmas, tidyError, validationPatterns } = require('../../lib')
 let { lambdas } = pragmas
 let nonLambdaSetters = [ 'customLambdas', 'env', 'runtimes' ]
 let setters = [ ...lambdas, ...nonLambdaSetters ]
@@ -91,7 +91,7 @@ module.exports = function getPluginModules ({ arc, inventory, errors }) {
         })
       }
       catch (err) {
-        errors.push(`Unable to load plugin '${name}': ${err.message.split('\n')[0]}`)
+        errors.push(`Unable to load plugin '${name}': ${tidyError(err)}`)
       }
     }
     else errors.push(`Cannot find plugin '${name || plugin}'! Are you sure you have installed or created it correctly?`)
