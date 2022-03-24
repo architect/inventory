@@ -18,10 +18,11 @@ let name = 'an-event'
 let okRuntime = 'nodejs14.x'
 let okMemory = 1000
 let okTimeout = 30
-function createPragma (memory, runtime, timeout) {
+let okStorage = 1024
+function createPragma (memory, runtime, storage, timeout) {
   return [ {
     name,
-    config: { memory, runtime, timeout }
+    config: { memory, runtime, storage, timeout }
   } ]
 }
 
@@ -42,6 +43,7 @@ test('Valid config', t => {
   t.plan(5)
   defaults.aws.runtime = okRuntime
   defaults.aws.memory = okMemory
+  defaults.aws.storage = okStorage
   defaults.aws.timeout = okTimeout
   validateConfig(params, defaults, errors)
   t.equal(errors.length, 0, `No errors reported (global config)`)
@@ -59,7 +61,7 @@ test('Valid config', t => {
   t.equal(errors.length, 0, `No errors reported (global config)`)
   reset()
 
-  defaults.events = createPragma(okMemory, okRuntime, okTimeout)
+  defaults.events = createPragma(okMemory, okRuntime, okStorage, okTimeout)
   validateConfig(params, defaults, errors)
   t.equal(errors.length, 0, `No errors reported (function config)`)
 
@@ -78,14 +80,14 @@ test('Minimum memory not met', t => {
   t.ok(!errors[0].includes(name), `Configuration error is not Lambda-specific`)
   reset()
 
-  defaults.events = createPragma(127, okRuntime, okTimeout)
+  defaults.events = createPragma(127, okRuntime, okStorage, okTimeout)
   validateConfig(params, defaults, errors)
   t.equal(errors.length, 1, `Error reported (function config)`)
   t.ok(errors[0].includes(name), `Configuration error is Lambda-specific`)
   reset()
 
   defaults.aws.memory = 127
-  defaults.events = createPragma(127, okRuntime, okTimeout)
+  defaults.events = createPragma(127, okRuntime, okStorage, okTimeout)
   validateConfig(params, defaults, errors)
   t.equal(errors.length, 1, `Error reported (global + function config match)`)
   t.ok(!errors[0].includes(name), `Configuration error is not Lambda-specific`)
@@ -102,14 +104,14 @@ test('Maximum memory exceeded', t => {
   t.ok(!errors[0].includes(name), `Configuration error is not Lambda-specific`)
   reset()
 
-  defaults.events = createPragma(10241, okRuntime, okTimeout)
+  defaults.events = createPragma(10241, okRuntime, okStorage, okTimeout)
   validateConfig(params, defaults, errors)
   t.equal(errors.length, 1, `Error reported (function config)`)
   t.ok(errors[0].includes(name), `Configuration error is Lambda-specific`)
   reset()
 
   defaults.aws.memory = 10241
-  defaults.events = createPragma(10241, okRuntime, okTimeout)
+  defaults.events = createPragma(10241, okRuntime, okStorage, okTimeout)
   validateConfig(params, defaults, errors)
   t.equal(errors.length, 1, `Error reported (global + function config match)`)
   t.ok(!errors[0].includes(name), `Configuration error is not Lambda-specific`)
@@ -126,14 +128,14 @@ test('Memory is invalid', t => {
   t.ok(!errors[0].includes(name), `Configuration error is not Lambda-specific`)
   reset()
 
-  defaults.events = createPragma(1.01, okRuntime, okTimeout)
+  defaults.events = createPragma(1.01, okRuntime, okStorage, okTimeout)
   validateConfig(params, defaults, errors)
   t.equal(errors.length, 1, `Error reported (function config)`)
   t.ok(errors[0].includes(name), `Configuration error is Lambda-specific`)
   reset()
 
   defaults.aws.memory = 1.01
-  defaults.events = createPragma(1.01, okRuntime, okTimeout)
+  defaults.events = createPragma(1.01, okRuntime, okStorage, okTimeout)
   validateConfig(params, defaults, errors)
   t.equal(errors.length, 1, `Error reported (global + function config match)`)
   t.ok(!errors[0].includes(name), `Configuration error is not Lambda-specific`)
@@ -154,14 +156,89 @@ test('Runtime is invalid', t => {
   t.ok(!errors[0].includes(name), `Configuration error is not Lambda-specific`)
   reset()
 
-  defaults.events = createPragma(okMemory, runtime, okTimeout)
+  defaults.events = createPragma(okMemory, runtime, okStorage, okTimeout)
   validateConfig(params, defaults, errors)
   t.equal(errors.length, 1, `Error reported (function config)`)
   t.ok(errors[0].includes(name), `Configuration error is Lambda-specific`)
   reset()
 
   defaults.aws.runtime = runtime
-  defaults.events = createPragma(okMemory, runtime, okTimeout)
+  defaults.events = createPragma(okMemory, runtime, okStorage, okTimeout)
+  validateConfig(params, defaults, errors)
+  t.equal(errors.length, 1, `Error reported (global + function config match)`)
+  t.ok(!errors[0].includes(name), `Configuration error is not Lambda-specific`)
+
+  t.teardown(reset)
+})
+
+/**
+ * Storage
+ */
+test('Minimum storage not met', t => {
+  t.plan(6)
+
+  defaults.aws.storage = 127
+  validateConfig(params, defaults, errors)
+  t.equal(errors.length, 1, `Error reported (global config)`)
+  t.ok(!errors[0].includes(name), `Configuration error is not Lambda-specific`)
+  reset()
+
+  defaults.events = createPragma(okMemory, okRuntime, 127, okTimeout)
+  validateConfig(params, defaults, errors)
+  t.equal(errors.length, 1, `Error reported (function config)`)
+  t.ok(errors[0].includes(name), `Configuration error is Lambda-specific`)
+  reset()
+
+  defaults.aws.storage = 127
+  defaults.events = createPragma(okMemory, okRuntime, 127, okTimeout)
+  validateConfig(params, defaults, errors)
+  t.equal(errors.length, 1, `Error reported (global + function config match)`)
+  t.ok(!errors[0].includes(name), `Configuration error is not Lambda-specific`)
+
+  t.teardown(reset)
+})
+
+test('Maximum storage exceeded', t => {
+  t.plan(6)
+
+  defaults.aws.storage = 10241
+  validateConfig(params, defaults, errors)
+  t.equal(errors.length, 1, `Error reported (global config)`)
+  t.ok(!errors[0].includes(name), `Configuration error is not Lambda-specific`)
+  reset()
+
+  defaults.events = createPragma(okMemory, okRuntime, 10241, okTimeout)
+  validateConfig(params, defaults, errors)
+  t.equal(errors.length, 1, `Error reported (function config)`)
+  t.ok(errors[0].includes(name), `Configuration error is Lambda-specific`)
+  reset()
+
+  defaults.aws.storage = 10241
+  defaults.events = createPragma(okMemory, okRuntime, 10241, okTimeout)
+  validateConfig(params, defaults, errors)
+  t.equal(errors.length, 1, `Error reported (global + function config match)`)
+  t.ok(!errors[0].includes(name), `Configuration error is not Lambda-specific`)
+
+  t.teardown(reset)
+})
+
+test('Storage is invalid', t => {
+  t.plan(6)
+
+  defaults.aws.storage = 1.01
+  validateConfig(params, defaults, errors)
+  t.equal(errors.length, 1, `Error reported (global config)`)
+  t.ok(!errors[0].includes(name), `Configuration error is not Lambda-specific`)
+  reset()
+
+  defaults.events = createPragma(okMemory, okRuntime, 1.01, okTimeout)
+  validateConfig(params, defaults, errors)
+  t.equal(errors.length, 1, `Error reported (function config)`)
+  t.ok(errors[0].includes(name), `Configuration error is Lambda-specific`)
+  reset()
+
+  defaults.aws.storage = 1.01
+  defaults.events = createPragma(okMemory, okRuntime, 1.01, okTimeout)
   validateConfig(params, defaults, errors)
   t.equal(errors.length, 1, `Error reported (global + function config match)`)
   t.ok(!errors[0].includes(name), `Configuration error is not Lambda-specific`)
@@ -181,14 +258,14 @@ test('Minimum timeout not met', t => {
   t.ok(!errors[0].includes(name), `Configuration error is not Lambda-specific`)
   reset()
 
-  defaults.events = createPragma(okMemory, okRuntime, 0)
+  defaults.events = createPragma(okMemory, okRuntime, okStorage, 0)
   validateConfig(params, defaults, errors)
   t.equal(errors.length, 1, `Error reported (function config)`)
   t.ok(errors[0].includes(name), `Configuration error is Lambda-specific`)
   reset()
 
   defaults.aws.timeout = 0
-  defaults.events = createPragma(okMemory, okRuntime, 0)
+  defaults.events = createPragma(okMemory, okRuntime, okStorage, 0)
   validateConfig(params, defaults, errors)
   t.equal(errors.length, 1, `Error reported (global + function config match)`)
   t.ok(!errors[0].includes(name), `Configuration error is not Lambda-specific`)
@@ -206,14 +283,14 @@ test('Maximum timeout exceeded', t => {
   t.ok(!errors[0].includes(name), `Configuration error is not Lambda-specific`)
   reset()
 
-  defaults.events = createPragma(okMemory, okRuntime, timeout)
+  defaults.events = createPragma(okMemory, okRuntime, okStorage, timeout)
   validateConfig(params, defaults, errors)
   t.equal(errors.length, 1, `Error reported (function config)`)
   t.ok(errors[0].includes(name), `Configuration error is Lambda-specific`)
   reset()
 
   defaults.aws.timeout = timeout
-  defaults.events = createPragma(okMemory, okRuntime, timeout)
+  defaults.events = createPragma(okMemory, okRuntime, okStorage, timeout)
   validateConfig(params, defaults, errors)
   t.equal(errors.length, 1, `Error reported (global + function config match)`)
   t.ok(!errors[0].includes(name), `Configuration error is not Lambda-specific`)
@@ -230,14 +307,14 @@ test('Timeout is invalid', t => {
   t.ok(!errors[0].includes(name), `Configuration error is not Lambda-specific`)
   reset()
 
-  defaults.events = createPragma(okMemory, okRuntime, 1.01)
+  defaults.events = createPragma(okMemory, okRuntime, okStorage, 1.01)
   validateConfig(params, defaults, errors)
   t.equal(errors.length, 1, `Error reported (function config)`)
   t.ok(errors[0].includes(name), `Configuration error is Lambda-specific`)
   reset()
 
   defaults.aws.timeout = 1.01
-  defaults.events = createPragma(okMemory, okRuntime, 1.01)
+  defaults.events = createPragma(okMemory, okRuntime, okStorage, 1.01)
   validateConfig(params, defaults, errors)
   t.equal(errors.length, 1, `Error reported (global + function config match)`)
   t.ok(!errors[0].includes(name), `Configuration error is not Lambda-specific`)

@@ -3,6 +3,7 @@
 runtime node
 timeout 10
 memory 128
+storage 1337
 layers
   arn:a:b:us-west-1:c:d:e:f
 policies
