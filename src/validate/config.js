@@ -9,7 +9,8 @@ module.exports = function configValidator (params, inventory, errors) {
   let {
     runtime: globalRuntime,
     memory: globalMemory,
-    timeout: globalTimeout
+    storage: globalStorage,
+    timeout: globalTimeout,
   } = inventory.aws
 
   let customRuntimes = inventory._project?.customRuntimes?.runtimes || []
@@ -28,6 +29,10 @@ module.exports = function configValidator (params, inventory, errors) {
        !aliases[globalRuntime] && !aliases[globalRuntime.toLowerCase()])) {
     errors.push(`Invalid project-level runtime: ${globalRuntime}`)
   }
+  // Storage
+  if (!is.nullish(globalStorage) && invalidStorage(globalStorage)) {
+    errors.push(invalidStorageMsg(`${globalStorage} MB (@aws)`))
+  }
   // Timeout
   if (!is.nullish(globalTimeout) && invalidTimeout(globalTimeout)) {
     errors.push(invalidTimeoutMsg(`${globalTimeout} seconds (@aws)`))
@@ -39,7 +44,7 @@ module.exports = function configValidator (params, inventory, errors) {
   lambdas.forEach(p => {
     let pragma = inventory[p]
     if (pragma) pragma.forEach(({ name, config }) => {
-      let { memory, runtime, timeout } = config
+      let { memory, runtime, storage, timeout } = config
 
       // Memory
       if (invalidMemory(memory) && memory !== globalMemory) {
@@ -48,6 +53,10 @@ module.exports = function configValidator (params, inventory, errors) {
       // Runtime
       if (!allRuntimes.includes(runtime) && runtime !== globalRuntime) {
         errors.push(`Invalid runtime: ${runtime} (@${p} ${name})`)
+      }
+      // Storage
+      if (invalidStorage(storage) && storage !== globalStorage) {
+        errors.push(invalidStorageMsg(`${storage} MB (@${p} ${name})`))
       }
       // Timeout
       if (invalidTimeout(timeout) && timeout !== globalTimeout) {
@@ -68,3 +77,9 @@ let minTimeout = 1
 let maxTimeout = 1 * 60 * 15 // 15 mins
 let invalidTimeout = timeout => !is.number(timeout) || (timeout < minTimeout) || (timeout > maxTimeout)
 let invalidTimeoutMsg = info => `Invalid Lambda timeout setting: ${info}, timeout must be between ${minTimeout} - ${maxTimeout} seconds`
+
+// Memory
+let minStorage = 512
+let maxStorage = 10240
+let invalidStorage = storage => !is.number(storage) || (storage < minStorage) || (storage > maxStorage)
+let invalidStorageMsg = info => `Invalid Lambda storage setting: ${info}, storage must be between ${minStorage} - ${maxStorage} MB`

@@ -9,15 +9,16 @@ test('Set up env', t => {
 })
 
 test('Function config returns correct defaults', t => {
-  t.plan(12)
+  t.plan(13)
   let result = functionConfig()
-  t.equal(Object.keys(result).length, 11, 'Got correct number of properties')
+  t.equal(Object.keys(result).length, 12, 'Got correct number of properties')
   t.ok(result.timeout, 'Got timeout')
   t.ok(result.memory, 'Got memory')
   t.ok(result.runtime, 'Got runtime')
   t.ok(result.handler, 'Got handler')
   t.ok(result.state, 'Got state')
   t.ok(result.concurrency, 'Got concurrency')
+  t.ok(result.storage, 'Got storage')
   t.ok(result.layers, 'Got layers')
   t.ok(result.policies, 'Got policies')
   t.ok(result.shared, 'Got shared')

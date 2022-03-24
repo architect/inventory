@@ -14,7 +14,8 @@ memory 3008
 runtime python3.7
 handler index.yo
 state idkwhynot
-concurrency 1337
+concurrency 420
+storage 1337
 layers
   layer-1
   layer-2
@@ -43,7 +44,7 @@ test('Upsert returns same number of params', t => {
   t.plan(3)
   let result = upsert(defaults, [])
   t.ok(result, 'Got result from upsert')
-  t.equal(Object.keys(result).length, 11, 'Got back same number of params as base config')
+  t.equal(Object.keys(result).length, 12, 'Got back same number of params as base config')
   t.equal(str(defaults), str(result), 'Passed back config as-is')
 })
 

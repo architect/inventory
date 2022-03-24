@@ -10,6 +10,7 @@ module.exports = function createDefaultFunctionConfig () {
     handler: 'index.handler',
     state: 'n/a',
     concurrency: 'unthrottled',
+    storage: 512,
     layers: [],
     policies: [],
     shared: true,
