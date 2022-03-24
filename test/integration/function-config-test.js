@@ -31,6 +31,7 @@ test('[No global runtime] Inventory and compare functions with / without functio
         architecture: 'arm64',
         timeout: 10,
         memory: 128,
+        storage: 1337,
         layers: [ 'arn:a:b:us-west-1:c:d:e:f' ],
         policies: [ 'arn:b:c:us-west-1:d:e:f:g' ],
         shared: false,
@@ -42,7 +43,7 @@ test('[No global runtime] Inventory and compare functions with / without functio
         t.plan(params)
         let { config } = get.http('get /config')
         Object.keys(custom).forEach(p => {
-          t.equal(str(config[p]), str(custom[p]), `get /custom has correct custom ${p} setting: ${str(config[p])}`)
+          t.equal(str(config[p]), str(custom[p]), `get /config has correct custom ${p} setting: ${str(config[p])}`)
         })
       })
       test('Non-configured route uses default function settings', t => {
@@ -75,6 +76,7 @@ test('[Global runtime alias] Inventory and compare functions with / without func
         architecture: 'arm64',
         timeout: 10,
         memory: 128,
+        storage: 1337,
         layers: [ 'arn:a:b:us-west-1:c:d:e:f' ],
         policies: [ 'arn:b:c:us-west-1:d:e:f:g' ],
         shared: false,
@@ -86,7 +88,7 @@ test('[Global runtime alias] Inventory and compare functions with / without func
         t.plan(params)
         let { config } = get.http('get /config')
         Object.keys(custom).forEach(p => {
-          t.equal(str(config[p]), str(custom[p]), `get /custom has correct custom ${p} setting: ${str(config[p])}`)
+          t.equal(str(config[p]), str(custom[p]), `get /config has correct custom ${p} setting: ${str(config[p])}`)
         })
       })
       test('Non-configured route uses default function settings with interpolated runtime', t => {

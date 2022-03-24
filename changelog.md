@@ -2,6 +2,14 @@
 
 ---
 
+## [3.1.0] 2022-03-24
+
+### Added
+
+- Added support for configuring Lambda's ephemeral storage feature
+
+---
+
 ## [3.0.0] 2022-01-04
 
 ### Added
