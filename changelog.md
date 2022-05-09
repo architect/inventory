@@ -2,6 +2,14 @@
 
 ---
 
+## [3.1.1] 2022-05-09
+
+### Changed
+
+- Updated dependencies; `lambda-runtimes` enables `nodejs16.x`
+
+---
+
 ## [3.1.0] 2022-03-24
 
 ### Added
