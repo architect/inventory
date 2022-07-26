@@ -1,10 +1,12 @@
+let populate = require('./populate-other')
 let { asapSrc, is } = require('../../lib')
 
-module.exports = function configureStatic ({ arc, inventory }) {
+module.exports = function configureStatic ({ arc, inventory, errors }) {
+  let staticSetters = inventory.plugins?._methods?.set?.static
   let httpSetters = inventory.plugins?._methods?.set?.http
 
   // @static is inferred by @http
-  if (!arc.static && !arc.http && !httpSetters) return null
+  if (!arc.static && !staticSetters && !arc.http && !httpSetters) return null
 
   let staticPragma = arc.static || []
   let _static = {
@@ -23,6 +25,14 @@ module.exports = function configureStatic ({ arc, inventory }) {
     let isDisabled = disabled.includes(arc.static[0])
     if (isDisabled) return false
   }
+
+  _static = populate.settings({
+    errors,
+    settings: _static,
+    plugins: staticSetters,
+    inventory,
+    type: 'static',
+  })
 
   let settings = Object.entries(_static).map(([ setting ]) => setting)
   for (let setting of staticPragma) {

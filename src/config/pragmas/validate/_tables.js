@@ -10,12 +10,13 @@ let { deepStrictEqual } = require('assert')
 module.exports = function validateTablesAndIndexes (pragma, pragmaName, errors) {
   if (pragma?.length) {
     pragma.forEach(table => {
-      let { name, indexName, partitionKey, sortKey } = table
+      let { name, indexName, partitionKey, partitionKeyType, sortKey } = table
 
       size(name, 3, 255, pragmaName, errors)
       regex(name, 'veryLooseName', pragmaName, errors)
 
       if (!partitionKey) errors.push(`Invalid ${pragmaName} item (partition key required): '${name}'`)
+      if (!partitionKeyType) errors.push(`Invalid ${pragmaName} item (partition key type required): '${name}'`)
       if (indexName) {
         size(indexName, 3, 255, pragmaName, errors)
         regex(indexName, 'veryLooseName', pragmaName, errors)

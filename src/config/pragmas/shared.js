@@ -1,4 +1,5 @@
 let { join } = require('path')
+let populate = require('./populate-other')
 let validate = require('./validate')
 let { is, pragmas } = require('../../lib')
 let lambdas = pragmas.lambdas.concat('customLambdas')
@@ -9,20 +10,34 @@ module.exports = function configureShared ({ arc, pragmas, inventory, errors }) 
   let { cwd, src: projSrc } = inventory._project
   let src = join(projSrc, 'shared')
   let shared = {
-    src,
-    shared: [] // Revert to null later if none are defined
+    src: null,
+    shared: []
+  }
+
+  let foundSrcSetting = false
+  let pluginSrc = populate.settings({
+    errors,
+    settings: shared,
+    plugins: inventory.plugins?._methods?.set?.shared,
+    inventory,
+    type: 'shared',
+    valid: { src: 'string' },
+  })
+  // Shared setters only support src, and do not support specifying Lambdas
+  // Lambda paths have not yet been reified in Inventory
+  if (is.string(pluginSrc?.src)) {
+    shared.src = pluginSrc.src
+    foundSrcSetting = true
   }
 
   // First pass to get + check shared folder (if any)
-  let foundSrc = false
   if (arc?.shared?.length) {
     for (let share of arc.shared) {
       if (is.array(share)) {
         let key = share[0]?.toLowerCase()
         if (key === 'src' && is.string(share[1])) {
           shared.src = share[1]
-          foundSrc = true
-          validate.shared(shared.src, cwd, errors)
+          foundSrcSetting = true
           continue
         }
         if (key === 'src' && !is.string(share[1])) {
@@ -32,11 +47,14 @@ module.exports = function configureShared ({ arc, pragmas, inventory, errors }) 
     }
   }
 
+  if (foundSrcSetting) validate.shared(shared.src, cwd, errors)
+  else shared.src = src
+
   // Exit if configured shared folder doesn't exist
   if (!is.exists(shared.src)) return null
 
   // Proceeding from here resets all shared config, so make sure it's only if specific shared are specified
-  let some = arc.shared?.length && !(arc?.shared?.length === 1 && foundSrc)
+  let some = arc.shared?.length && !(arc?.shared?.length === 1 && foundSrcSetting)
   if (some) {
     // Reset shared settings
     for (let pragma of lambdas) {
