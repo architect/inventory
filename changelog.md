@@ -9,6 +9,12 @@
 - Added support for new setter plugin APIs, specifically: `@proxy`, `@shared`, `@static`, `@tables`, `@tables-indexes`, `@views`
 
 
+### Changed
+
+- `@tables` and `@tables-indexes` can now accept lower case key types (e.g. `*string` instead of `*String`)
+- `@tables` and `@tables-indexes` can also accept `*` and `**` as a shortcut for string-type primary and sort keys
+
+
 ### Fixed
 
 - Fixed issue where Lambdas created by plugins that returned arrays did not have their `plugin` and `type` properties set

@@ -60,13 +60,14 @@ number-keys # Second index on the same table
 })
 
 test('@tables-indexes population: plugin setter', t => {
-  t.plan(16)
+  t.plan(22)
+  let inventory, setter, indexes
 
   let arc = parse(`
 @tables
 whatever`)
-  let inventory = inventoryDefaults()
-  let setter = () => ([
+  inventory = inventoryDefaults()
+  setter = () => ([
     {
       name: 'string-keys',
       partitionKey: 'strID',
@@ -88,7 +89,7 @@ whatever`)
     },
   ])
   inventory.plugins = setterPluginSetup(setter)
-  let indexes = populateTablesIndexes({ arc, inventory })
+  indexes = populateTablesIndexes({ arc, inventory })
   t.ok(indexes.length === 3, 'Got correct number of indexes back')
   t.equal(indexes[0].name, 'string-keys', 'Got back correct name for first index')
   t.equal(indexes[0].partitionKey, 'strID', 'Got back correct partition key for first index')
@@ -105,6 +106,24 @@ whatever`)
   t.equal(indexes[2].partitionKeyType, 'Number', 'Got back correct partition key type for second index')
   t.equal(indexes[2].sortKey, null, 'Got back correct sort key for second index')
   t.equal(indexes[2].sortKeyType, null, 'Got back correct sort key type for second index')
+
+  // Key type casing
+  inventory = inventoryDefaults()
+  setter = () => ({
+    name: 'string-keys',
+    partitionKey: 'strID',
+    partitionKeyType: 'string',
+    sortKey: 'numSort',
+    sortKeyType: 'number',
+  })
+  inventory.plugins = setterPluginSetup(setter)
+  indexes = populateTablesIndexes({ arc, inventory })
+  t.ok(indexes.length === 1, 'Got correct number of indexes back')
+  t.equal(indexes[0].name, 'string-keys', 'Got back correct name')
+  t.equal(indexes[0].partitionKey, 'strID', 'Got back correct partition key')
+  t.equal(indexes[0].partitionKeyType, 'String', 'Got back correct partition key type')
+  t.equal(indexes[0].sortKey, 'numSort', 'Got back correct sort key')
+  t.equal(indexes[0].sortKeyType, 'Number', 'Got back correct sort key type')
 })
 
 test('@tables-indexes parses custom indexName', t => {
@@ -134,8 +153,43 @@ number-keys # Second index on the same table
   t.equal(indexes[2].indexName, 'MyNumberIndex', 'Got correct indexName for third index')
 })
 
+test('@tables-indexes key type casing + shortcuts', t => {
+  t.plan(6)
+  let arc, inventory, indexes
+
+  arc = parse(`
+@tables
+whatever
+
+@tables-indexes
+string-keys
+  strID *string
+  numSort **number
+`)
+  inventory = inventoryDefaults()
+  indexes = populateTablesIndexes({ arc, inventory })
+  t.ok(indexes.length === 1, 'Got correct number of indexes back')
+  t.equal(indexes[0].partitionKeyType, 'String', 'Got back correct partition key type')
+  t.equal(indexes[0].sortKeyType, 'Number', 'Got back correct sort key type')
+
+  arc = parse(`
+@tables
+whatever
+
+@tables-indexes
+string-keys
+  strID *
+  strSort **
+`)
+  inventory = inventoryDefaults()
+  indexes = populateTablesIndexes({ arc, inventory })
+  t.ok(indexes.length === 1, 'Got correct number of indexes back')
+  t.equal(indexes[0].partitionKeyType, 'String', 'Got back correct partition key type')
+  t.equal(indexes[0].sortKeyType, 'String', 'Got back correct sort key type')
+})
+
 test('@tables-indexes population: validation errors', t => {
-  t.plan(13)
+  t.plan(12)
   let errors = []
   let inventory = inventoryDefaults()
   function run (str) {
@@ -182,10 +236,6 @@ test('@tables-indexes population: validation errors', t => {
   run(`${tables}${indexes}hello
   there **String`)
   check(`Primary keys are required`, 2)
-
-  run(`${tables}${indexes}hello
-  there *string`)
-  check(`Primary key casing matters`, 2)
 
   run(`${tables}${indexes}hi there`)
   check()

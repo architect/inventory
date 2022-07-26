@@ -53,7 +53,7 @@ number-keys
 })
 
 test('@tables population (extra params)', t => {
-  t.plan(12)
+  t.plan(18)
 
   let arc = parse(`
 @tables
@@ -78,6 +78,33 @@ string-keys
   t.equal(tables[0].pitr, true, 'Got back correct pitr value')
   t.equal(tables[0].encrypt, true, 'Got back correct encrypt value')
 
+  // Key type casing + shortcuts
+  arc = parse(`
+@tables
+string-keys
+  strID *string
+  numSort **number
+  PITR true
+`)
+  inventory = inventoryDefaults()
+  tables = populateTables({ arc, inventory })
+  t.ok(tables.length === 1, 'Got correct number of tables back')
+  t.equal(tables[0].partitionKeyType, 'String', 'Got back correct partition key type')
+  t.equal(tables[0].sortKeyType, 'Number', 'Got back correct sort key type')
+
+  arc = parse(`
+@tables
+string-keys
+  strID *
+  numSort **
+  PITR true
+`)
+  inventory = inventoryDefaults()
+  tables = populateTables({ arc, inventory })
+  t.ok(tables.length === 1, 'Got correct number of tables back')
+  t.equal(tables[0].partitionKeyType, 'String', 'Got back correct partition key type')
+  t.equal(tables[0].sortKeyType, 'String', 'Got back correct sort key type')
+
   // Alt PITR casing
   arc = parse(`
 @tables
@@ -93,10 +120,11 @@ string-keys
 })
 
 test('@tables population: plugin setter', t => {
-  t.plan(10)
+  t.plan(16)
+  let inventory, setter, tables
 
-  let inventory = inventoryDefaults()
-  let setter = () => ({
+  inventory = inventoryDefaults()
+  setter = () => ({
     name: 'string-keys',
     partitionKey: 'strID',
     partitionKeyType: 'String',
@@ -108,7 +136,7 @@ test('@tables population: plugin setter', t => {
     encrypt: true,
   })
   inventory.plugins = setterPluginSetup(setter)
-  let tables = populateTables({ arc: {}, inventory })
+  tables = populateTables({ arc: {}, inventory })
   t.ok(tables.length === 1, 'Got correct number of tables back')
   t.equal(tables[0].name, 'string-keys', 'Got back correct name')
   t.equal(tables[0].partitionKey, 'strID', 'Got back correct partition key')
@@ -119,6 +147,24 @@ test('@tables population: plugin setter', t => {
   t.equal(tables[0].ttl, '_ttl', 'Got back correct TTL value')
   t.equal(tables[0].pitr, true, 'Got back correct pitr value')
   t.equal(tables[0].encrypt, true, 'Got back correct encrypt value')
+
+  // Key type casing
+  inventory = inventoryDefaults()
+  setter = () => ({
+    name: 'string-keys',
+    partitionKey: 'strID',
+    partitionKeyType: 'string',
+    sortKey: 'numSort',
+    sortKeyType: 'number',
+  })
+  inventory.plugins = setterPluginSetup(setter)
+  tables = populateTables({ arc: {}, inventory })
+  t.ok(tables.length === 1, 'Got correct number of tables back')
+  t.equal(tables[0].name, 'string-keys', 'Got back correct name')
+  t.equal(tables[0].partitionKey, 'strID', 'Got back correct partition key')
+  t.equal(tables[0].partitionKeyType, 'String', 'Got back correct partition key type')
+  t.equal(tables[0].sortKey, 'numSort', 'Got back correct sort key')
+  t.equal(tables[0].sortKeyType, 'Number', 'Got back correct sort key type')
 })
 
 test('@tables population (legacy params)', t => {
@@ -145,7 +191,7 @@ string-keys
 })
 
 test('@tables population: validation errors', t => {
-  t.plan(13)
+  t.plan(12)
   let errors = []
   let inventory = inventoryDefaults()
   function run (str) {
@@ -192,10 +238,6 @@ hello
   run(`hello
   there **String`)
   check(`Primary keys are required`, 2)
-
-  run(`hello
-  there *string`)
-  check(`Primary key casing matters`, 2)
 
   run(`hi there`)
   check()
