@@ -111,4 +111,10 @@ function getPath (cwd, srcDir, name) {
   else if (existsSync(paths[1])) return paths[1]
   else if (existsSync(paths[2])) return paths[2]
   else if (existsSync(paths[3])) return paths[3]
+  try {
+    return require.resolve(name)
+  }
+  catch {
+    return
+  }
 }
