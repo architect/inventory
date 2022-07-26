@@ -298,7 +298,7 @@ test('@plugins validation', t => {
   t.match(errors[0], err, `Got correct error: ${errors[0]}`)
 
   // Plugin uses a reserved name (pragma conflict)
-  name1 = 'tables'
+  name1 = '_methods'
   pluginPath1 = join(path, 'src', 'plugins', name1)
   arc = { plugins: [ name1 ] }
   setup(path)
@@ -306,7 +306,7 @@ test('@plugins validation', t => {
   mockRequire(pluginPath1, {})
   errors = []
   result = populatePlugins({ arc, inventory, errors })
-  err = /Plugin name tables is reserved/
+  err = /Plugin name _methods is reserved/
   t.equal(errors.length, 1, 'Invalid plugin errored')
   t.match(errors[0], err, `Got correct error: ${errors[0]}`)
 

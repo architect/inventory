@@ -1,54 +1,60 @@
+let populate = require('./populate-other')
 let { is } = require('../../lib')
 let validate = require('./validate')
 
-module.exports = function configureTables ({ arc, errors }) {
-  if (!arc.tables || !arc.tables.length) return null
+module.exports = function configureTables ({ arc, inventory, errors }) {
+  let tablesSetters = inventory.plugins?._methods?.set?.tables
+  if ((!arc.tables || !arc.tables.length) && !tablesSetters) return null
 
   let pitrLong = 'PointInTimeRecovery' // It's just so long
+  let tableTemplate = () => ({
+    name: undefined,
+    partitionKey: null,
+    partitionKeyType: null,
+    sortKey: null,
+    sortKeyType: null,
+    stream: null,
+    ttl: null,
+    encrypt: null,
+    pitr: null,
+  })
 
-  let tables = arc.tables.map(table => {
+  let tables = []
+  let plugins = populate.resources({
+    errors,
+    template: tableTemplate(),
+    plugins: tablesSetters,
+    inventory,
+    type: 'tables',
+    valid: { name: 'string' }
+  })
+  if (plugins) tables.push(...plugins)
+
+  let userland = arc?.tables?.map(table => {
     if (is.object(table)) {
-      let name = Object.keys(table)[0]
-      let partitionKey = null
-      let partitionKeyType = null
-      let sortKey = null
-      let sortKeyType = null
-      let stream = null
-      let ttl = null
-      let encrypt = null
-      let pitr = null
-      let pitrOld // Old opt, remove in some future breaking change
-      Object.entries(table[name]).forEach(([ key, value ]) => {
+      let t = tableTemplate()
+      t.name = Object.keys(table)[0]
+      Object.entries(table[t.name]).forEach(([ key, value ]) => {
         if (is.sortKey(value)) {
-          sortKey = key
-          sortKeyType = value.replace('**', '')
+          t.sortKey = key
+          t.sortKeyType = value.replace('**', '')
         }
         else if (is.primaryKey(value)) {
-          partitionKey = key
-          partitionKeyType = value.replace('*', '')
+          t.partitionKey = key
+          t.partitionKeyType = value.replace('*', '')
         }
-        if (key === 'stream')   stream = value
-        if (value === 'TTL')    ttl = key
-        if (key === 'encrypt')  encrypt = value
-        if (key === 'pitr')     pitr = value
-        if (key === pitrLong)   pitrOld = value
+        if (key === 'stream')   t.stream = value
+        if (value === 'TTL')    t.ttl = key
+        if (key === 'encrypt')  t.encrypt = value
+        if (key === 'PITR')     t.pitr = value
+        if (key === 'pitr')     t.pitr = value
+        if (key === pitrLong)   t.PointInTimeRecovery = value
       })
-      let t = {
-        name,
-        partitionKey,
-        partitionKeyType,
-        sortKey,
-        sortKeyType,
-        stream,
-        ttl,
-        encrypt,
-        pitr,
-      }
-      if (pitrOld !== undefined) t.PointInTimeRecovery = pitrOld
       return t
     }
     errors.push(`Invalid @tables item: ${table}`)
-  }).filter(Boolean) // Invalid tables may create undefined entries in the map
+  }).filter(Boolean) // Invalid tables or plugins may create undefined entries in the map
+  if (userland) tables.push(...userland)
 
   validate.tables(tables, '@tables', errors)
 

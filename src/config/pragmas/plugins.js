@@ -2,10 +2,10 @@ let { join } = require('path')
 let { existsSync } = require('fs')
 let { is, normalizeSrc, pragmas, tidyError, validationPatterns } = require('../../lib')
 let { lambdas } = pragmas
-let nonLambdaSetters = [ 'customLambdas', 'env', 'runtimes' ]
+let nonLambdaSetters = [ 'customLambdas', 'env', 'proxy', 'runtimes', 'shared', 'static', 'views', 'tables', 'tables-indexes' ]
 let setters = [ ...lambdas, ...nonLambdaSetters ]
 let pluginMethods = [ 'deploy', 'sandbox' ] // TODO add more!
-let reservedNames = [ '_methods', 'events', 'queues', 'static', 'tables' ]
+let reservedNames = [ '_methods' ]
 
 module.exports = function getPluginModules ({ arc, inventory, errors }) {
   if (!arc?.plugins?.length && !arc?.macros?.length) return null
@@ -107,7 +107,7 @@ function getPath (cwd, srcDir, name) {
     join(cwd, 'node_modules', name),
     join(cwd, 'node_modules', `@${name}`),
   ]
-  if (existsSync(paths[0]))      return paths[0]
+  /**/ if (existsSync(paths[0])) return paths[0]
   else if (existsSync(paths[1])) return paths[1]
   else if (existsSync(paths[2])) return paths[2]
   else if (existsSync(paths[3])) return paths[3]

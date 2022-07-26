@@ -36,9 +36,10 @@ function populateLambda (type, params) {
         return []
       }
       if (is.array(result)) {
-        result.forEach(item => {
+        result.forEach((item, i) => {
           item.plugin = fn.plugin
           item.type = fn.type
+          result[i] = item
         })
       }
       else {
