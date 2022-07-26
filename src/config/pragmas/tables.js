@@ -1,5 +1,5 @@
 let populate = require('./populate-other')
-let { is } = require('../../lib')
+let { is, capitalize } = require('../../lib')
 let validate = require('./validate')
 
 module.exports = function configureTables ({ arc, inventory, errors }) {
@@ -37,11 +37,13 @@ module.exports = function configureTables ({ arc, inventory, errors }) {
       Object.entries(table[t.name]).forEach(([ key, value ]) => {
         if (is.sortKey(value)) {
           t.sortKey = key
-          t.sortKeyType = value.replace('**', '')
+          t.sortKeyType = value.replace('**', '').toLowerCase()
+          if (!t.sortKeyType) t.sortKeyType = 'string'
         }
         else if (is.primaryKey(value)) {
           t.partitionKey = key
-          t.partitionKeyType = value.replace('*', '')
+          t.partitionKeyType = value.replace('*', '').toLowerCase()
+          if (!t.partitionKeyType) t.partitionKeyType = 'string'
         }
         if (key === 'stream')   t.stream = value
         if (value === 'TTL')    t.ttl = key
@@ -55,6 +57,14 @@ module.exports = function configureTables ({ arc, inventory, errors }) {
     errors.push(`Invalid @tables item: ${table}`)
   }).filter(Boolean) // Invalid tables or plugins may create undefined entries in the map
   if (userland) tables.push(...userland)
+
+  // Normalize key type casing
+  if (tables.length) tables = tables.map(table => {
+    let { sortKeyType, partitionKeyType } = table
+    if (sortKeyType) table.sortKeyType = capitalize(table.sortKeyType)
+    if (partitionKeyType) table.partitionKeyType = capitalize(table.partitionKeyType)
+    return table
+  })
 
   validate.tables(tables, '@tables', errors)
 
