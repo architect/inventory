@@ -9,6 +9,9 @@ let pragmas = require('./pragmas')
  * Why take up a whole fs block when smol libs can just live here?
  */
 
+// Capitalize a string (used to normalize table/index key types)
+let capitalize = str => str[0].toUpperCase() + str.substr(1)
+
 // For setting `lambda.build`, compiled + transpiled are effectively the same
 let compiledRuntimes = [ 'compiled', 'transpiled' ]
 
@@ -29,6 +32,7 @@ let tidyError = err => err.message + `\n` + err.stack.split('\n').slice(1).join(
 
 module.exports = {
   asapSrc,
+  capitalize,
   compiledRuntimes,
   errorFmt,
   getLambdaDirs,

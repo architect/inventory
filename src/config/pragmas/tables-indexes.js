@@ -1,5 +1,5 @@
 let populate = require('./populate-other')
-let { is } = require('../../lib')
+let { is, capitalize } = require('../../lib')
 let validate = require('./validate')
 
 module.exports = function configureTablesIndexes ({ arc, inventory, errors }) {
@@ -40,11 +40,13 @@ module.exports = function configureTablesIndexes ({ arc, inventory, errors }) {
       Object.entries(index[i.name]).forEach(([ key, value ]) => {
         if (is.sortKey(value)) {
           i.sortKey = key
-          i.sortKeyType = value.replace('**', '')
+          i.sortKeyType = value.replace('**', '').toLowerCase()
+          if (!i.sortKeyType) i.sortKeyType = 'string'
         }
         else if (is.primaryKey(value)) {
           i.partitionKey = key
-          i.partitionKeyType = value.replace('*', '')
+          i.partitionKeyType = value.replace('*', '').toLowerCase()
+          if (!i.partitionKeyType) i.partitionKeyType = 'string'
         }
         else if (key?.toLowerCase() === 'name') {
           i.indexName = value
@@ -55,6 +57,14 @@ module.exports = function configureTablesIndexes ({ arc, inventory, errors }) {
     errors.push(`Invalid @${$indexes} item: ${index}`)
   }).filter(Boolean) // Invalid indexes or plugins may create undefined entries in the map
   if (userland) indexes.push(...userland)
+
+  // Normalize key type casing
+  if (indexes.length) indexes = indexes.map(index => {
+    let { sortKeyType, partitionKeyType } = index
+    if (sortKeyType) index.sortKeyType = capitalize(index.sortKeyType)
+    if (partitionKeyType) index.partitionKeyType = capitalize(index.partitionKeyType)
+    return index
+  })
 
   validate.tablesIndexes(indexes, '@tables-indexes', errors)
 
