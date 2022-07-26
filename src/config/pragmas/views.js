@@ -1,31 +1,47 @@
 let { join } = require('path')
+let populate = require('./populate-other')
 let validate = require('./validate')
 let { is } = require('../../lib')
 
 module.exports = function configureViews ({ arc, pragmas, inventory, errors }) {
-  if (arc.views && !arc.http) {
+  let httpSetters = inventory.plugins?._methods?.set?.http
+  if (arc.views && (!arc.http && !httpSetters)) {
     errors.push('@views requires @http')
     return null
   }
-  if (!arc.http) return null
+  if (!arc.http && !httpSetters) return null
 
   let { cwd, src: projSrc } = inventory._project
   let src = join(projSrc, 'views')
   let views = {
-    src,
-    views: [] // Revert to null later if none are defined
+    src: null,
+    views: []
+  }
+
+  let foundSrcSetting = false
+  let pluginSrc = populate.settings({
+    errors,
+    settings: views,
+    plugins: inventory.plugins?._methods?.set?.views,
+    inventory,
+    type: 'views',
+    valid: { src: 'string' },
+  })
+  // Views setters only support src, and do not support specifying Lambdas
+  // Lambda paths have not yet been reified in Inventory
+  if (is.string(pluginSrc?.src)) {
+    views.src = pluginSrc.src
+    foundSrcSetting = true
   }
 
   // First pass to get + check views folder (if any)
-  let foundSrc = false
   if (arc?.views?.length) {
     for (let view of arc.views) {
       if (is.array(view)) {
         let key = view[0]?.toLowerCase()
         if (key === 'src' && is.string(view[1])) {
           views.src = view[1]
-          foundSrc = true
-          validate.shared(views.src, cwd, errors)
+          foundSrcSetting = true
           continue
         }
         if (key === 'src' && !is.string(view[1])) {
@@ -35,11 +51,14 @@ module.exports = function configureViews ({ arc, pragmas, inventory, errors }) {
     }
   }
 
+  if (foundSrcSetting) validate.shared(views.src, cwd, errors)
+  else views.src = src
+
   // Exit if default views folder doesn't exist
   if (!is.exists(views.src)) return null
 
   // Proceeding from here resets all views config, so make sure it's only if specific views are specified
-  let some = arc.views?.length && !(arc?.views?.length === 1 && foundSrc)
+  let some = arc.views?.length && !(arc?.views?.length === 1 && foundSrcSetting)
   if (some) {
     // Reset views settings
     for (let route of pragmas.http) {

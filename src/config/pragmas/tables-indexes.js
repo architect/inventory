@@ -1,80 +1,83 @@
+let populate = require('./populate-other')
 let { is } = require('../../lib')
 let validate = require('./validate')
 
-module.exports = function configureTablesIndexes ({ arc, errors }) {
-  if (!arc['tables-indexes'] || !arc['tables-indexes'].length) return null
-  if (arc['tables-indexes'] && !arc.tables) {
+module.exports = function configureTablesIndexes ({ arc, inventory, errors }) {
+  let $indexes = 'tables-indexes' // It's quite long!
+  let indexesSetters = inventory.plugins?._methods?.set?.[$indexes]
+  let tablesSetters = inventory.plugins?._methods?.set?.tables
+  if ((!arc[$indexes] || !arc[$indexes].length) && !indexesSetters) return null
+  if ((arc[$indexes] || indexesSetters) &&
+      (!arc.tables && !tablesSetters)) {
     errors.push(`Specifying @tables-indexes requires specifying corresponding @tables`)
     return null
   }
 
-  let indexes = getIndexes(arc, 'tables-indexes', errors)
-  validate.tablesIndexes(indexes, '@tables-indexes', errors)
+  let indexTemplate = () => ({
+    name: undefined,
+    partitionKey: null,
+    partitionKeyType: null,
+    sortKey: null,
+    sortKeyType: null,
+    indexName: null,
+    projectionType: 'ALL',
+    projectionAttributes: null,
+  })
 
-  return indexes
-}
+  let indexes = []
+  let plugins = populate.resources({
+    errors,
+    template: indexTemplate(),
+    plugins: indexesSetters,
+    inventory,
+    type: 'indexes',
+    valid: { name: 'string' }
+  })
+  if (plugins) indexes.push(...plugins)
 
-let getIndexes = (arc, pragma, errors) => {
-  let isCustomName = key => is.string(key) && key.toLowerCase() === 'name'
-  let isProjection = key => is.string(key) && key.toLowerCase() === 'projection'
-  function error (item) { errors.push(`Invalid @${pragma} item: ${item}`) }
-  return arc[pragma].map(index => {
+  let userland = arc?.[$indexes]?.map(index => {
     if (is.object(index)) {
-      let name = Object.keys(index)[0]
-      let partitionKey = null
-      let partitionKeyType = null
-      let sortKey = null
-      let sortKeyType = null
-      let indexName = null
-      // @tables-indexes specific:
-      let projectionType = 'ALL'
-      let projectionAttributes = null
-
-      Object.entries(index[name]).forEach(([ key, value ]) => {
+      let i = indexTemplate()
+      i.name = Object.keys(index)[0]
+      Object.entries(index[i.name]).forEach(([ key, value ]) => {
+        let setting = key?.toLowerCase()
         if (is.sortKey(value)) {
-          sortKey = key
-          sortKeyType = value.replace('**', '')
+          i.sortKey = key
+          i.sortKeyType = value.replace('**', '')
         }
         else if (is.primaryKey(value)) {
-          partitionKey = key
-          partitionKeyType = value.replace('*', '')
+          i.partitionKey = key
+          i.partitionKeyType = value.replace('*', '')
         }
-        else if (isCustomName(key)) {
-          indexName = value
+        else if (setting === 'name') {
+          i.indexName = value
         }
-        else if (isProjection(key)) {
+        else if (setting === 'projection') {
           let val = value.toLowerCase()
           if (val === 'all') {
-            projectionType = 'ALL'
+            i.projectionType = 'ALL'
           }
           else if (val === 'keys') {
-            projectionType = 'KEYS_ONLY'
+            i.projectionType = 'KEYS_ONLY'
           }
           else {
-            projectionType = 'INCLUDE'
+            i.projectionType = 'INCLUDE'
             if (Array.isArray(value)) {
-              projectionAttributes = value
+              i.projectionAttributes = value
             }
             else {
-              projectionAttributes = [ value ]
+              i.projectionAttributes = [ value ]
             }
           }
         }
       })
-      let item = {
-        indexName,
-        name,
-        partitionKey,
-        partitionKeyType,
-        sortKey,
-        sortKeyType,
-      }
-      if (pragma === 'tables-indexes') {
-        item.projectionType = projectionType
-        item.projectionAttributes = projectionAttributes
-      }
-      return item
+      return i
     }
-    error(index)
-  }).filter(Boolean) // Invalid indexes may create undefined entries in the map
+    errors.push(`Invalid @${$indexes} item: ${index}`)
+  }).filter(Boolean) // Invalid indexes or plugins may create undefined entries in the map
+  if (userland) indexes.push(...userland)
+
+  validate.tablesIndexes(indexes, '@tables-indexes', errors)
+
+  return indexes
 }

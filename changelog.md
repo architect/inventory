@@ -2,11 +2,18 @@
 
 ---
 
-## [2.2.0] 2021-10-12
+## [3.2.0] 2022-07-24
 
 ### Added
 
-- Added support for specifying DynamoDB index projection attributes; incremental support for [#1083](https://github.com/architect/architect/issues/1083)
+- Added support for new setter plugin APIs, specifically: `@proxy`, `@shared`, `@static`, `@tables`, `@tables-indexes`, `@views`
+
+
+### Fixed
+
+- Fixed issue where Lambdas created by plugins that returned arrays did not have their `plugin` and `type` properties set
+- Fixed issue where an absolute path in `@shared|views` `src` would incorrectly resolve
+- Fixed issue where `@views` might incorrectly return a validation error when only HTTP setter plugins are used to define `@http` routes
 
 ---
 

@@ -9,7 +9,6 @@ let populateLambda = require(sut)
 
 let name = 'an-event'
 let src = join('proj', 'src', 'fn')
-let errors = []
 
 test('Set up env', t => {
   t.plan(2)
@@ -22,7 +21,7 @@ test('Do nothing', t => {
   let result
   let arc = {}
   let inventory = defaultConfig()
-  errors = []
+  let errors = []
 
   result = populateLambda.events({ arc, inventory, errors })
   t.equal(result, null, 'Returned null pragma')
@@ -77,7 +76,7 @@ test('Populate Lambdas (via manifest)', t => {
 
 test('Populate Lambdas (via plugin)', t => {
   t.plan(88)
-  let arc = {}, inventory = defaultConfig(), result
+  let arc = {}, errors = [], inventory = defaultConfig(), result
   let returning = { name, src }
   let fn = () => (returning)
   let fn2x = () => ([ returning, returning ])
@@ -101,11 +100,11 @@ test('Populate Lambdas (via plugin)', t => {
       t.equal(item.config.views, false, 'config.views is false')
     }
     inventory = defaultConfig()
+    errors = []
   }
 
   // One setter, one Lambda
   inventory.plugins = { _methods: { set: { events: [ fn ] } } }
-  errors = []
   result = populateLambda.events({ arc, inventory, errors })
   t.equal(result.length, 1, 'Returned a Lambda')
   check(result[0])
@@ -113,7 +112,6 @@ test('Populate Lambdas (via plugin)', t => {
   // ... same, but ensure src slashes are normalized
   returning.src = `proj\\src/fn`
   inventory.plugins = { _methods: { set: { events: [ fn ] } } }
-  errors = []
   result = populateLambda.events({ arc, inventory, errors })
   t.equal(result.length, 1, 'Returned a Lambda')
   check(result[0])
@@ -122,7 +120,6 @@ test('Populate Lambdas (via plugin)', t => {
   // One setter, using absolute paths
   returning.src = join(process.cwd(), 'foo', 'bar')
   inventory.plugins = { _methods: { set: { events: [ fn ] } } }
-  errors = []
   result = populateLambda.events({ arc, inventory, errors })
   t.equal(result.length, 1, 'Returned a Lambda')
   check(result[0], null, returning.src)
@@ -130,7 +127,6 @@ test('Populate Lambdas (via plugin)', t => {
 
   // One setter, multiple Lambdas
   inventory.plugins = { _methods: { set: { events: [ fn2x ] } } }
-  errors = []
   result = populateLambda.events({ arc, inventory, errors })
   t.equal(result.length, 2, 'Returned two Lambdas')
   check(result[0])
@@ -138,7 +134,6 @@ test('Populate Lambdas (via plugin)', t => {
 
   // Multiple setters, multiple Lambdas
   inventory.plugins = { _methods: { set: { events: [ fn, fn ] } } }
-  errors = []
   result = populateLambda.events({ arc, inventory, errors })
   t.equal(result.length, 2, 'Returned two Lambdas')
   check(result[0])
@@ -149,7 +144,6 @@ test('Populate Lambdas (via plugin)', t => {
   returning.config = { runtime: 'rust' }
   inventory._project.customRuntimes = { rust: { type: 'compiled' } }
   inventory.plugins = { _methods: { set: { events: [ fn ] } } }
-  errors = []
   result = populateLambda.events({ arc, inventory, errors })
   t.equal(result.length, 1, 'Returned a Lambda')
   check(result[0], true)
@@ -158,7 +152,6 @@ test('Populate Lambdas (via plugin)', t => {
   returning.config = { runtime: 'typescript' }
   inventory._project.customRuntimes = { typescript: { type: 'transpiled' } }
   inventory.plugins = { _methods: { set: { events: [ fn ] } } }
-  errors = []
   result = populateLambda.events({ arc, inventory, errors })
   t.equal(result.length, 1, 'Returned a Lambda')
   check(result[0], true)
@@ -186,7 +179,7 @@ test('Populate Lambdas (via plugin)', t => {
 
 test('Plugin population errors', t => {
   t.plan(26)
-  let arc = {}, inventory = defaultConfig(), fn, result
+  let arc = {}, errors = [], inventory = defaultConfig(), fn, result
   function rtn (item) {
     fn = () => (item)
     fn.plugin = 'plugin-name'
@@ -200,35 +193,31 @@ test('Plugin population errors', t => {
     t.match(errors[0], /plugin: plugin-name/, 'Got a setter plugin error')
     t.match(errors[0], /method: set\.events/, 'Got a setter plugin error')
     t.notOk(result, 'No result returned')
+    errors = []
   }
 
   // String
   rtn('hi')
-  errors = []
   result = populateLambda.events({ arc, inventory, errors })
   check()
 
   // Number
   rtn(123)
-  errors = []
   result = populateLambda.events({ arc, inventory, errors })
   check()
 
   // Bool
   rtn(true)
-  errors = []
   result = populateLambda.events({ arc, inventory, errors })
   check()
 
   // Function
   rtn(() => {})
-  errors = []
   result = populateLambda.events({ arc, inventory, errors })
   check()
 
   // Falsy
   rtn(undefined)
-  errors = []
   result = populateLambda.events({ arc, inventory, errors })
   check()
 
