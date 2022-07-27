@@ -101,16 +101,14 @@ module.exports = function getPluginModules ({ arc, inventory, errors }) {
 }
 
 function getPath (cwd, srcDir, name) {
-  let paths = [
-    join(cwd, 'src', srcDir, `${name}.js`),
-    join(cwd, 'src', srcDir, name),
-    join(cwd, 'node_modules', name),
-    join(cwd, 'node_modules', `@${name}`),
-  ]
-  /**/ if (existsSync(paths[0])) return paths[0]
-  else if (existsSync(paths[1])) return paths[1]
-  else if (existsSync(paths[2])) return paths[2]
-  else if (existsSync(paths[3])) return paths[3]
+  let path1 = join(cwd, 'src', srcDir, `${name}.js`)
+  let path2 = join(cwd, 'src', srcDir, name)
+  let path3 = join(cwd, 'node_modules', name)
+  let path4 = join(cwd, 'node_modules', `@${name}`)
+  /**/ if (existsSync(path1)) return path1
+  else if (existsSync(path2)) return path2
+  else if (existsSync(path3)) return path3
+  else if (existsSync(path4)) return path4
   try {
     return require.resolve(name)
   }
