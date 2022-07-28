@@ -53,6 +53,12 @@ function populateLambda (type, params) {
 
   let pragmaLambda = populate(type, pragma || arc[type], inventory, errors) || []
   let aggregate = [ ...pluginLambda, ...pragmaLambda ]
+  // Filter plugin overrides
+  aggregate = aggregate.filter(lambda => {
+    if (lambda._override &&
+        aggregate.some(({ name }) => name === lambda.name)) return false
+    return true
+  })
   return aggregate.length ? aggregate : null
 }
 
@@ -135,6 +141,9 @@ function populate (type, pragma, inventory, errors, plugin) {
     }
     // Final tidying of any undefined properties
     Object.keys(lambda).forEach(k => !is.defined(lambda[k]) && delete lambda[k])
+
+    // Pass through the plugin override flag
+    if (item._override) lambda._override = true
 
     lambdas.push(lambda)
   }

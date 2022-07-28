@@ -75,6 +75,36 @@ test('Populate Lambdas (via manifest)', t => {
 })
 
 test('Populate Lambdas (via plugin)', t => {
+  t.plan(9)
+  let arc, errors, inventory, result
+  let fn = () => ({ name, src })
+  let fnOverride = () => ({ name, src: 'foo', _override: true })
+
+  // Arc + set plugins produce array with conflicting lambdas (which will later throw a conflict error)
+  errors = []
+  arc = { events: [ name ] }
+  inventory = defaultConfig()
+  inventory.plugins = { _methods: { set: { events: [ fn ] } } }
+  result = populateLambda.events({ arc, inventory, errors })
+  t.notOk(errors.length, 'No errors returned')
+  t.equal(result.length, 2, 'Returned 2 Lambdas')
+  t.equal(result[0].name, name, 'Lambda has conflicting name')
+  t.equal(result[1].name, name, 'Lambda has conflicting name')
+
+  // Arc + set plugin produce array with conflicting lambda removed when `_override` property is set
+  errors = []
+  arc = { events: [ name ] }
+  inventory = defaultConfig()
+  inventory.plugins = { _methods: { set: { events: [ fnOverride ] } } }
+  result = populateLambda.events({ arc, inventory, errors })
+  t.notOk(errors.length, 'No errors returned')
+  t.equal(result.length, 1, 'Returned 1 Lambda')
+  t.equal(result[0].name, name, 'Lambda has conflicting name')
+  t.notEqual(result[0].src, 'foo', 'Correct Lambda made it through')
+  t.notOk(result[0]._override, 'Lambda override property not found')
+})
+
+test('Populate Lambdas (via plugin)', t => {
   t.plan(88)
   let arc = {}, errors = [], inventory = defaultConfig(), result
   let returning = { name, src }
