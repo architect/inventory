@@ -57,7 +57,7 @@ test('Missing @macro errors', t => {
 })
 
 test('Check plugin file paths', t => {
-  t.plan(60)
+  t.plan(80)
   let path = join(sep, 'foo')
   let name1 = 'proj1'
   let name2 = 'proj2'
@@ -92,13 +92,15 @@ test('Check plugin file paths', t => {
   let result
   let arc = { plugins: [ name1 ] }
 
-  function check (projName, name, type, hook) {
+  function check (projName, name, _type, hook) {
     t.ok(result[projName], 'Got back a valid plugin')
     t.notOk(errors.length, 'No errors reported')
     t.equal(result[projName][hook].start.name, name, `Got back correct plugin: ${name}`)
-    t.equal(result[projName][hook].start.type, type, 'Got back correct plugin type: plugin')
+    t.equal(result[projName][hook].start._plugin, projName, `Got back correct plugin name: ${projName}`)
+    t.equal(result[projName][hook].start._type, _type, 'Got back correct plugin type: plugin')
     t.equal(result._methods[hook].start[0].name, name, `Got back correct plugin _method: ${name}`)
-    t.equal(result._methods[hook].start[0].type, type, 'Got back correct plugin type: plugin')
+    t.equal(result._methods[hook].start[0]._plugin, projName, `Got back correct plugin name: ${projName}`)
+    t.equal(result._methods[hook].start[0]._type, _type, 'Got back correct plugin type: plugin')
   }
 
   // Simple
@@ -107,7 +109,6 @@ test('Check plugin file paths', t => {
   errors = []
   result = populatePlugins({ arc, inventory, errors })
   check(name1, 'pluginPath0', 'plugin', 'sandbox')
-
 
   setup(path)
   mockFs({ [pluginPaths[1]]: null })

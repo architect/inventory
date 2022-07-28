@@ -13,6 +13,7 @@
 
 - `@tables` and `@tables-indexes` can now accept lower case key types (e.g. `*string` instead of `*String`)
 - `@tables` and `@tables-indexes` can also accept `*` and `**` as a shortcut for string-type primary and sort keys
+- Changed plugin function property tags from `plugin|type` to `_plugin|_type` to indicate internal property namespacing
 
 
 ### Fixed
