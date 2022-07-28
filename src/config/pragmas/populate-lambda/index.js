@@ -25,26 +25,26 @@ function populateLambda (type, params) {
         var result = fn({ arc: invCopy._project.arc, inventory: { inv: invCopy } })
       }
       catch (err) {
-        err.message = `Setter plugin exception: plugin: ${fn.plugin}, method: set.${type}`
+        err.message = `Setter plugin exception: plugin: ${fn._plugin}, method: set.${type}`
                       + `\n` + err.message
         throw err
       }
       if (!result ||
           (!is.object(result) && !is.array(result)) ||
           (is.array(result) && result.some(r => !is.object(r)))) {
-        errors.push(`Setter plugins must return a valid response: plugin: ${fn.plugin}, method: set.${type}`)
+        errors.push(`Setter plugins must return a valid response: plugin: ${fn._plugin}, method: set.${type}`)
         return []
       }
       if (is.array(result)) {
         result.forEach((item, i) => {
-          item.plugin = fn.plugin
-          item.type = fn.type
+          item._plugin = fn._plugin
+          item._type = fn._type
           result[i] = item
         })
       }
       else {
-        result.plugin = fn.plugin
-        result.type = fn.type
+        result._plugin = fn._plugin
+        result._type = fn._type
       }
       return result
     })

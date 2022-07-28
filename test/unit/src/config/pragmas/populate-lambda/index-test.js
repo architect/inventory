@@ -80,8 +80,8 @@ test('Populate Lambdas (via plugin)', t => {
   let returning = { name, src }
   let fn = () => (returning)
   let fn2x = () => ([ returning, returning ])
-  fn.plugin = fn2x.plugin = 'plugin-name'
-  fn.type = fn2x.type = 'plugin'
+  fn._plugin = fn2x._plugin = 'plugin-name'
+  fn._type = fn2x._type = 'plugin'
   inventory._project.build = 'uh-oh'
   function check (item, compiled, absoluteSrc) {
     t.notOk(errors.length, 'No errors returned')
@@ -182,8 +182,8 @@ test('Plugin population errors', t => {
   let arc = {}, errors = [], inventory = defaultConfig(), fn, result
   function rtn (item) {
     fn = () => (item)
-    fn.plugin = 'plugin-name'
-    fn.type = 'plugin'
+    fn._plugin = 'plugin-name'
+    fn._type = 'plugin'
     inventory.plugins = { _methods: { set: { events: [ fn ] } } }
   }
   function check () {
@@ -223,8 +223,8 @@ test('Plugin population errors', t => {
 
   // Fail immediately upon setter exception
   fn = params => params.hi.there
-  fn.plugin = 'plugin-name'
-  fn.type = 'plugin'
+  fn._plugin = 'plugin-name'
+  fn._type = 'plugin'
   inventory.plugins = { _methods: { set: { events: [ fn ] } } }
   t.throws(() => {
     populateLambda.events({ arc, inventory, errors })
