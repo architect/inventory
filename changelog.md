@@ -7,6 +7,7 @@
 ### Added
 
 - Added support for new setter plugin APIs, specifically: `@proxy`, `@shared`, `@static`, `@tables`, `@tables-indexes`, `@views`
+- Allow developers to opt into enabling setter plugin Lambdas to be overridden by userland Architect project manifest with a `_override` flag; fixes #1352
 
 
 ### Changed
