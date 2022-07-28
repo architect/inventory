@@ -4,7 +4,7 @@ let { is, normalizeSrc, pragmas, tidyError, validationPatterns } = require('../.
 let { lambdas } = pragmas
 let nonLambdaSetters = [ 'customLambdas', 'env', 'proxy', 'runtimes', 'shared', 'static', 'views', 'tables', 'tables-indexes' ]
 let setters = [ ...lambdas, ...nonLambdaSetters ]
-let pluginMethods = [ 'deploy', 'sandbox' ] // TODO add more!
+let pluginMethods = [ 'deploy', 'sandbox' ]
 let reservedNames = [ '_methods' ]
 
 module.exports = function getPluginModules ({ arc, inventory, errors }) {
@@ -67,8 +67,8 @@ module.exports = function getPluginModules ({ arc, inventory, errors }) {
                   return
                 }
                 if (!methods.set[setter]) methods.set[setter] = []
-                fn.plugin = name
-                fn.type = type
+                fn._plugin = name
+                fn._type = type
                 methods.set[setter].push(fn)
               }
             })
@@ -83,8 +83,8 @@ module.exports = function getPluginModules ({ arc, inventory, errors }) {
               }
               if (!methods[method]) methods[method] = {}
               if (!methods[method][hook]) methods[method][hook] = []
-              fn.plugin = name
-              fn.type = type
+              fn._plugin = name
+              fn._type = type
               methods[method][hook].push(fn)
             })
           }

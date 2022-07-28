@@ -36,8 +36,8 @@ test('Populate resources (via plugin)', t => {
   let errors = []
   function check (item) {
     t.notOk(errors.length, 'No errors returned')
-    t.equal(item.plugin, 'test', 'Resource identified by plugin name')
-    t.equal(item.type, 'plugin', 'Resource identified as having been created by a plugin')
+    t.equal(item._plugin, 'test', 'Resource identified by plugin name')
+    t.equal(item._type, 'plugin', 'Resource identified as having been created by a plugin')
     errors = []
   }
 
@@ -48,8 +48,8 @@ test('Populate resources (via plugin)', t => {
 
   let fn = () => (returning)
   let fn2x = () => ([ returning, returning ])
-  fn.plugin = fn2x.plugin = 'test'
-  fn.type = fn2x.type = 'plugin'
+  fn._plugin = fn2x._plugin = 'test'
+  fn._type = fn2x._type = 'plugin'
 
   // One setter, one resource (with prop backfilled by template)
   plugins = [ fn ]
@@ -117,8 +117,8 @@ test('Plugin resource population errors', t => {
   let errors = []
   function rtn (item) {
     fn = () => (item)
-    fn.plugin = 'test'
-    fn.type = 'plugin'
+    fn._plugin = 'test'
+    fn._type = 'plugin'
     plugins = [ fn ]
   }
   function check (msg) {
@@ -167,8 +167,8 @@ test('Plugin resource population errors', t => {
 
   // Fail immediately upon setter exception
   fn = params => params.hi.there
-  fn.plugin = 'test'
-  fn.type = 'plugin'
+  fn._plugin = 'test'
+  fn._type = 'plugin'
   plugins = [ fn ]
   t.throws(() => {
     populateOther.resources({ inventory, plugins, template, type, valid, errors })
@@ -190,8 +190,8 @@ test('Populate settings (via plugin)', t => {
 
   let fn = () => (returning)
   let fn2x = () => ([ returning, returning ])
-  fn.plugin = fn2x.plugin = 'test'
-  fn.type = fn2x.type = 'plugin'
+  fn._plugin = fn2x._plugin = 'test'
+  fn._type = fn2x._type = 'plugin'
   let settings = { prop }
 
   // One setter, ignores properties not specified in settings
@@ -257,8 +257,8 @@ test('Plugin settings population errors', t => {
   let errors = []
   function rtn (item) {
     fn = () => (item)
-    fn.plugin = 'test'
-    fn.type = 'plugin'
+    fn._plugin = 'test'
+    fn._type = 'plugin'
     plugins = [ fn ]
   }
   function check (msg) {
@@ -308,8 +308,8 @@ test('Plugin settings population errors', t => {
 
   // Fail immediately upon setter exception
   fn = params => params.hi.there
-  fn.plugin = 'test'
-  fn.type = 'plugin'
+  fn._plugin = 'test'
+  fn._type = 'plugin'
   plugins = [ fn ]
   t.throws(() => {
     populateOther.settings({ inventory, plugins, type, valid, errors })
