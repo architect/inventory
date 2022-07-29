@@ -53,10 +53,13 @@ function populateLambda (type, params) {
 
   let pragmaLambda = populate(type, pragma || arc[type], inventory, errors) || []
   let aggregate = [ ...pluginLambda, ...pragmaLambda ]
-  // Filter plugin overrides
+
+  // Filter plugins, if appropriate: not required, but do conflict with a manifest entry
   aggregate = aggregate.filter(lambda => {
-    if (lambda._override &&
-        aggregate.some(({ name }) => name === lambda.name)) return false
+    if (lambda._plugin && !lambda.required &&
+        aggregate.some(({ name, _plugin }) => !_plugin && name === lambda.name)) {
+      return false
+    }
     return true
   })
   return aggregate.length ? aggregate : null
@@ -142,8 +145,11 @@ function populate (type, pragma, inventory, errors, plugin) {
     // Final tidying of any undefined properties
     Object.keys(lambda).forEach(k => !is.defined(lambda[k]) && delete lambda[k])
 
-    // Pass through the plugin override flag
-    if (item._override) lambda._override = true
+    // Pass through the plugin tag and required status
+    if (item._plugin) {
+      lambda._plugin = item._plugin
+      if (item.required === true) lambda.required = true
+    }
 
     lambdas.push(lambda)
   }

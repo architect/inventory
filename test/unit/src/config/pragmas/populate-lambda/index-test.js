@@ -74,34 +74,46 @@ test('Populate Lambdas (via manifest)', t => {
   check(result[0])
 })
 
-test('Populate Lambdas (via plugin)', t => {
-  t.plan(9)
+test('Populate Lambdas (manifest vs. plugin conflict resolution)', t => {
+  t.plan(16)
   let arc, errors, inventory, result
   let fn = () => ({ name, src })
-  let fnOverride = () => ({ name, src: 'foo', _override: true })
+  let fnOverride = () => ({ name, src: 'foo', required: true })
+  fn._plugin = fnOverride._plugin = 'plugin-name'
+  fn._type = fnOverride._type = 'plugin'
 
-  // Arc + set plugins produce array with conflicting lambdas (which will later throw a conflict error)
+  // Arc + set plugins result in conflicting plugin Lambda removed when `required` property is NOT set
   errors = []
   arc = { events: [ name ] }
   inventory = defaultConfig()
   inventory.plugins = { _methods: { set: { events: [ fn ] } } }
   result = populateLambda.events({ arc, inventory, errors })
   t.notOk(errors.length, 'No errors returned')
-  t.equal(result.length, 2, 'Returned 2 Lambdas')
+  t.equal(result.length, 1, 'Returned 1 Lambda')
   t.equal(result[0].name, name, 'Lambda has conflicting name')
-  t.equal(result[1].name, name, 'Lambda has conflicting name')
+  t.ok(!result[0].src.includes('foo'), 'Lambda has correct src path')
+  t.notOk(result[0]._plugin, 'Lambda _plugin property not found')
+  t.notOk(result[0].required, 'Lambda required property not found')
 
-  // Arc + set plugin produce array with conflicting lambda removed when `_override` property is set
+  // Arc + set plugin result in multiple conflicting lambdas when `required` property IS set
+  // (This will later throw a conflict error)
   errors = []
   arc = { events: [ name ] }
   inventory = defaultConfig()
   inventory.plugins = { _methods: { set: { events: [ fnOverride ] } } }
   result = populateLambda.events({ arc, inventory, errors })
   t.notOk(errors.length, 'No errors returned')
-  t.equal(result.length, 1, 'Returned 1 Lambda')
+  t.equal(result.length, 2, 'Returned 2 Lambdas')
+  // Plugin Lambda
   t.equal(result[0].name, name, 'Lambda has conflicting name')
-  t.notEqual(result[0].src, 'foo', 'Correct Lambda made it through')
-  t.notOk(result[0]._override, 'Lambda override property not found')
+  t.ok(result[0].src.includes('foo'), 'Lambda has correct src path')
+  t.ok(result[0]._plugin, 'Lambda _plugin property found')
+  t.ok(result[0].required, 'Lambda required property found')
+  // Arc Lambda
+  t.equal(result[1].name, name, 'Lambda has conflicting name')
+  t.ok(!result[1].src.includes('foo'), 'Lambda has correct src path')
+  t.notOk(result[1]._plugin, 'Lambda _plugin property not found')
+  t.notOk(result[1].required, 'Lambda required property not found')
 })
 
 test('Populate Lambdas (via plugin)', t => {
