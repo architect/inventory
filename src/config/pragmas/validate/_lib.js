@@ -22,10 +22,19 @@ function size (value, min, max, pragmaName, errors) {
 
 function unique (lambdas, pragmaName, errors) {
   if (!is.array(lambdas)) throw ReferenceError(`Invalid Lambda array: ${lambdas}`)
-  let names = []
-  if (lambdas.length) lambdas.forEach(({ name }) => {
-    let err = `Duplicate ${pragmaName} item: ${name}`
-    if (names.includes(name) && !errors.includes(err)) errors.push(err)
+  let names = []        // List of names we've looked at
+  let namesErrored = [] // List of any offending names
+  if (lambdas.length) lambdas.forEach(({ name, pragma }) => {
+    if (names.includes(name) && !namesErrored.includes(name)) {
+      let err = `Duplicate ${pragmaName} item: ${name}`
+
+      // If we find a plugin Lambda, that means the filter let it through because it's required by the plugin, so we must now error
+      let foundPlugin = lambdas.find(l => l._plugin && l.name === name)
+      if (foundPlugin) err = `Plugin requires conflicting ${pragmaName} item: ${name}, plugin: ${foundPlugin._plugin}, method: set.${pragma}`
+
+      namesErrored.push(name)
+      errors.push(err)
+    }
     names.push(name)
   })
 }
