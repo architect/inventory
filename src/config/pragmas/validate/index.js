@@ -8,6 +8,7 @@ module.exports = {
   queues:         require('./_events'), // Same ruleset as @events
   scheduled:      require('./_scheduled'),
   shared:         require('./_shared'), // Also includes @views
+  static:         require('./_static'),
   tables:         require('./_tables'),
   tablesIndexes:  require('./_tables'), // Same ruleset as @tables (more or less)
   tablesStreams:  require('./_tables-streams'),
