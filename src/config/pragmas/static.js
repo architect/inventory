@@ -1,5 +1,6 @@
 let populate = require('./populate-other')
 let { asapSrc, is } = require('../../lib')
+let validate = require('./validate')
 
 module.exports = function configureStatic ({ arc, inventory, errors }) {
   let staticSetters = inventory.plugins?._methods?.set?.static
@@ -10,6 +11,7 @@ module.exports = function configureStatic ({ arc, inventory, errors }) {
 
   let staticPragma = arc.static || []
   let _static = {
+    compression: false, // Arc applied default
     fingerprint: null,
     folder: 'public', // Arc applied default
     ignore: null,
@@ -35,16 +37,14 @@ module.exports = function configureStatic ({ arc, inventory, errors }) {
   })
 
   let settings = Object.entries(_static).map(([ setting ]) => setting)
+  let validSetting = key => settings.includes(key)
   for (let setting of staticPragma) {
-    let validSetting = key => settings.includes(key)
+    // The ignore setting can come in a couple shapes, so we have to handle those
     if (setting.ignore) {
       _static.ignore = setting.ignore
     }
-    else if (is.array(setting) &&
-             setting.length === 2 &&
-             validSetting(setting[0])) {
-      let isIgnore = setting[0] === 'ignore'
-      _static[setting[0]] = isIgnore ? [ setting[1] ] : setting[1]
+    else if (is.array(setting) && validSetting(setting[0])) {
+      _static[setting[0]] = setting[0] === 'ignore' ? [ ...setting.slice(1) ] : setting[1]
     }
   }
 
@@ -53,6 +53,8 @@ module.exports = function configureStatic ({ arc, inventory, errors }) {
     inventory._project.rootHandler = 'arcStaticAssetProxy'
     inventory._project.asapSrc = asapSrc()
   }
+
+  validate.static(_static, errors)
 
   return _static
 }

@@ -7,6 +7,7 @@
 ### Added
 
 - Added support for new setter plugin APIs, specifically: `@proxy`, `@shared`, `@static`, `@tables`, `@tables-indexes`, `@views`
+- Added new `@static` setting: `compression`
 
 
 ### Changed
@@ -16,6 +17,8 @@
 - `@tables` and `@tables-indexes` can now accept lower case key types (e.g. `*string` instead of `*String`)
 - `@tables` and `@tables-indexes` can also accept `*` and `**` as a shortcut for string-type primary and sort keys
 - Changed plugin function property tags from `plugin|type` to `_plugin|_type` to indicate internal property namespacing
+- Added `@static` pragma validation
+- Fixed obscure case where `@static` `ignore` setting might only use the first list item
 
 
 ### Fixed
