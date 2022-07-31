@@ -1,17 +1,21 @@
 let { join } = require('path')
 let parse = require('@architect/parser')
 let test = require('tape')
-let inventoryDefaultsPath = join(process.cwd(), 'src', 'defaults')
+let cwd = process.cwd()
+let inventoryDefaultsPath = join(cwd, 'src', 'defaults')
 let inventoryDefaults = require(inventoryDefaultsPath)
-let sut = join(process.cwd(), 'src', 'config', 'pragmas', 'static')
+let testLibPath = join(cwd, 'test', 'lib')
+let testLib = require(testLibPath)
+let sut = join(cwd, 'src', 'config', 'pragmas', 'static')
 let populateStatic = require(sut)
 
 let inventory
 function reset () {
   inventory = inventoryDefaults()
-  inventory._project.cwd = process.cwd()
+  inventory._project.cwd = cwd
 }
 let str = s => JSON.stringify(s)
+let setterPluginSetup = testLib.setterPluginSetup.bind({}, 'static')
 
 test('Set up env', t => {
   t.plan(1)
@@ -39,7 +43,7 @@ test('@static population via @http', t => {
   reset()
   let arc = parse(`@http`)
   let _static = populateStatic({ arc, inventory })
-  t.equal(Object.keys(_static).length, 8, 'Returned correct number of settings')
+  t.equal(Object.keys(_static).length, 9, 'Returned correct number of settings')
   t.notOk(inventory._project.rootHandler, '_project.rootHandler not set')
   t.notOk(inventory._project.asapSrc, '_project.asapSrc not set')
 })
@@ -48,6 +52,7 @@ test('@static returns all known defaults or null values', t => {
   t.plan(4)
   reset()
   let mock = {
+    compression: false,
     fingerprint: null,
     folder: 'public',
     ignore: null,
@@ -62,7 +67,7 @@ test('@static returns all known defaults or null values', t => {
 idk whatev
 `)
   let _static = populateStatic({ arc, inventory })
-  t.equal(Object.keys(_static).length, 8, 'Returned correct number of settings')
+  t.equal(Object.keys(_static).length, 9, 'Returned correct number of settings')
   t.equal(str(_static), str(mock), 'Returned all known keys')
   t.equal(inventory._project.rootHandler, 'arcStaticAssetProxy', '_project.rootHandler set')
   t.ok(inventory._project.asapSrc, '_project.asapSrc set')
@@ -234,4 +239,134 @@ ${setting} ${value}
 `)
   let _static = populateStatic({ arc, inventory })
   t.equal(_static[setting], value, `Returned correct ${setting} setting: ${value}`)
+})
+
+test('@static population: validation errors', t => {
+  t.plan(10)
+  let errors = []
+  function run (str) {
+    reset()
+    let arc = parse(`@http\n@static\n${str}`)
+    populateStatic({ arc, inventory, errors })
+  }
+  function check (str = 'Invalid setting errored', qty = 1) {
+    t.equal(errors.length, qty, str)
+    // Run a bunch of control tests at the top by resetting errors after asserting
+    errors = []
+  }
+
+  // Controls (fyi: folder is tested elsewhere)
+  run(`compression false`)
+  run(`compression true`)
+  run(`compression br`)
+  run(`compression gzip`)
+  run(`fingerprint false`)
+  run(`fingerprint true`)
+  run(`fingerprint external`)
+  run(`ignore lol`)
+  run(`ignore lol idk`)
+  run(`ignore
+  lol`)
+  run(`ignore
+  lol
+  idk`)
+  run(`prefix lol`)
+  run(`prune false`)
+  run(`prune true`)
+  run(`spa false`)
+  run(`spa true`)
+  run(`staging lol`)
+  run(`production idk`)
+  t.equal(errors.length, 0, `Valid settings did not error`)
+
+  // Errors
+  run(`compression deflate`)
+  check(`Invalid compression errored`)
+
+  run(`fingerprint lol`)
+  check()
+
+  run(`ignore true`)
+  check()
+
+  run(`ignore
+  lol idk`)
+  check()
+
+  run(`prefix true`)
+  check()
+
+  run(`prune lol`)
+  check()
+
+  run(`spa lol`)
+  check()
+
+  run(`staging true`)
+  check()
+
+  run(`production false`)
+  check()
+})
+
+test('@static population: plugin errors', t => {
+  t.plan(10)
+  let errors = []
+  function run (returning) {
+    let inventory = inventoryDefaults()
+    inventory.plugins = setterPluginSetup(() => returning)
+    populateStatic({ arc: {}, inventory, errors })
+  }
+  function check (str = 'Invalid setting errored', qty = 1) {
+    t.equal(errors.length, qty, str)
+    // Run a bunch of control tests at the top by resetting errors after asserting
+    errors = []
+  }
+
+  // Controls (fyi: folder is tested elsewhere)
+  run({})
+  run({ compression: true })
+  run({ compression: 'br' })
+  run({ compression: 'gzip' })
+  run({ fingerprint: false })
+  run({ fingerprint: true })
+  run({ fingerprint: 'external' })
+  run({ ignore: [ 'lol' ] })
+  run({ ignore: [ 'lol', 'idk' ] })
+  run({ prefix: 'lol' })
+  run({ prune: false })
+  run({ prune: true })
+  run({ spa: false })
+  run({ spa: true })
+  run({ staging: 'lol' })
+  run({ production: 'idk' })
+  t.equal(errors.length, 0, `Valid settings did not error`)
+
+  // Errors
+  run({ compression: 'deflate' })
+  check(`Invalid compression errored`)
+
+  run({ fingerprint: 'lol' })
+  check()
+
+  run({ ignore: true })
+  check()
+
+  run({ ignore: { lol: 'idk' } })
+  check()
+
+  run({ prefix: true })
+  check()
+
+  run({ prune: 'lol' })
+  check()
+
+  run({ spa: 'lol' })
+  check()
+
+  run({ staging: true })
+  check()
+
+  run({ production: false })
+  check()
 })
