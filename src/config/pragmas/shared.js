@@ -14,10 +14,10 @@ module.exports = function configureShared ({ arc, pragmas, inventory, errors }) 
     shared: []
   }
 
-  let foundSrcSetting = false
+  let foundPluginSrc, foundArcSrc, required = false
   let pluginSrc = populate.settings({
     errors,
-    settings: shared,
+    settings: { ...shared, required: null },
     plugins: inventory.plugins?._methods?.set?.shared,
     inventory,
     type: 'shared',
@@ -27,33 +27,45 @@ module.exports = function configureShared ({ arc, pragmas, inventory, errors }) 
   // Lambda paths have not yet been reified in Inventory
   if (is.string(pluginSrc?.src)) {
     shared.src = pluginSrc.src
-    foundSrcSetting = true
+    required = pluginSrc.required
+    foundPluginSrc = true
   }
 
   // First pass to get + check shared folder (if any)
   if (arc?.shared?.length) {
     for (let share of arc.shared) {
-      if (is.array(share)) {
-        let key = share[0]?.toLowerCase()
-        if (key === 'src' && is.string(share[1])) {
+      if (is.array(share) && share[0]?.toLowerCase() === 'src') {
+        if (is.string(share[1])) {
           shared.src = share[1]
-          foundSrcSetting = true
+          foundArcSrc = true
+          if (required) errors.push(`@shared src setting conflicts with plugin`)
           continue
         }
-        if (key === 'src' && !is.string(share[1])) {
-          errors.push(`@shared invalid setting: ${key}`)
-        }
+        else errors.push(`@shared invalid setting: src`)
       }
     }
   }
 
-  if (foundSrcSetting) validate.shared(shared.src, cwd, errors)
-  else shared.src = src
-
+  // Source path selection + validation: manifest always wins; validate plugins differently if required; if not, fall back to `src/shared` (or null)
+  if (foundArcSrc) {
+    validate.shared(shared.src, cwd, errors, true)
+  }
+  else if (foundPluginSrc) {
+    if (!required) {
+      if (!is.exists(shared.src)) shared.src = src
+      if (!is.exists(shared.src)) return null
+    }
+    validate.shared(shared.src, cwd, errors, required)
+  }
+  else if (is.exists(src)) {
+    shared.src = src
+    validate.shared(shared.src, cwd, errors, false)
+  }
   // Exit if configured shared folder doesn't exist
-  if (!is.exists(shared.src)) return null
+  else return null
 
   // Proceeding from here resets all shared config, so make sure it's only if specific shared are specified
+  let foundSrcSetting = foundArcSrc || foundPluginSrc
   let some = arc.shared?.length && !(arc?.shared?.length === 1 && foundSrcSetting)
   if (some) {
     // Reset shared settings
