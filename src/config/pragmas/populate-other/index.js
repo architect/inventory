@@ -75,9 +75,9 @@ function validate (item, valid, type) {
  */
 function settings (params) {
   let { errors, settings, plugins, inventory, type, valid } = params
+  let newSettings = is.defined(settings) ? JSON.parse(JSON.stringify(settings)) : settings
   if (plugins) {
     let invCopy = deepFrozenCopy(inventory)
-    let pluginSettings = settings
     let foundError = false
     plugins.forEach(fn => {
       try {
@@ -95,7 +95,7 @@ function settings (params) {
       else {
         Object.entries(result).forEach(([ setting, value ]) => {
           if (is.defined(settings[setting]) && is.defined(value)) {
-            pluginSettings[setting] = value
+            newSettings[setting] = value
           }
         })
       }
@@ -103,15 +103,15 @@ function settings (params) {
     if (foundError) return null
 
     // Validation pass
-    let validationErrors = validate(pluginSettings, valid, type)
+    let validationErrors = validate(newSettings, valid, type)
     if (validationErrors.length) {
       errors = errors.push(...validationErrors)
       return null
     }
 
-    return pluginSettings
+    return newSettings
   }
-  return settings
+  return newSettings
 }
 
 module.exports = { resources, settings }

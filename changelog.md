@@ -2,6 +2,20 @@
 
 ---
 
+## [3.2.1] 2022-08-10
+
+### Changed
+
+- By default, when a `set.shared|views` plugin sets a `src` path, if it is not present on the filesystem, Inventory falls back to default paths (e.g. `src/shared|views`)
+  - `set.shared|views` plugins now accept a `required` flag to enforce a validation error should a `src` path conflict with the project manifest (or not be found on the filesystem)
+
+
+### Fixed
+
+- Fixed an obscure internal reference passing bug in `set.proxy|shared|static|views` plugins
+
+---
+
 ## [3.2.0] 2022-07-24
 
 ### Added

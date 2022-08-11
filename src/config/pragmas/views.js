@@ -18,10 +18,10 @@ module.exports = function configureViews ({ arc, pragmas, inventory, errors }) {
     views: []
   }
 
-  let foundSrcSetting = false
+  let foundPluginSrc, foundArcSrc, required = false
   let pluginSrc = populate.settings({
     errors,
-    settings: views,
+    settings: { ...views, required: null },
     plugins: inventory.plugins?._methods?.set?.views,
     inventory,
     type: 'views',
@@ -31,33 +31,45 @@ module.exports = function configureViews ({ arc, pragmas, inventory, errors }) {
   // Lambda paths have not yet been reified in Inventory
   if (is.string(pluginSrc?.src)) {
     views.src = pluginSrc.src
-    foundSrcSetting = true
+    required = pluginSrc.required
+    foundPluginSrc = true
   }
 
   // First pass to get + check views folder (if any)
   if (arc?.views?.length) {
     for (let view of arc.views) {
-      if (is.array(view)) {
-        let key = view[0]?.toLowerCase()
-        if (key === 'src' && is.string(view[1])) {
+      if (is.array(view) && view[0]?.toLowerCase() === 'src') {
+        if (is.string(view[1])) {
           views.src = view[1]
-          foundSrcSetting = true
+          foundArcSrc = true
+          if (required) errors.push(`@views src setting conflicts with plugin`)
           continue
         }
-        if (key === 'src' && !is.string(view[1])) {
-          errors.push(`@shared invalid setting: ${key}`)
-        }
+        else errors.push(`@views invalid setting: src`)
       }
     }
   }
 
-  if (foundSrcSetting) validate.shared(views.src, cwd, errors)
-  else views.src = src
-
-  // Exit if default views folder doesn't exist
-  if (!is.exists(views.src)) return null
+  // Source path selection + validation: manifest always wins; validate plugins differently if required; if not, fall back to `src/shared` (or null)
+  if (foundArcSrc) {
+    validate.shared(views.src, cwd, errors, true)
+  }
+  else if (foundPluginSrc) {
+    if (!required) {
+      if (!is.exists(views.src)) views.src = src
+      if (!is.exists(views.src)) return null
+    }
+    validate.shared(views.src, cwd, errors, required)
+  }
+  else if (is.exists(src)) {
+    views.src = src
+    validate.shared(views.src, cwd, errors, false)
+  }
+  // Exit if configured shared folder doesn't exist
+  else return null
 
   // Proceeding from here resets all views config, so make sure it's only if specific views are specified
+  let foundSrcSetting = foundArcSrc || foundPluginSrc
   let some = arc.views?.length && !(arc?.views?.length === 1 && foundSrcSetting)
   if (some) {
     // Reset views settings

@@ -152,7 +152,7 @@ src foo/bar`)
 })
 
 test(`@views population: plugin setter defaults only to 'get' + 'any' routes (with src setting)`, t => {
-  t.plan(18)
+  t.plan(22)
   let arc
   let pragmas
   let setter
@@ -162,10 +162,12 @@ test(`@views population: plugin setter defaults only to 'get' + 'any' routes (wi
   setter = () => ({ src: 'foo/bar' })
   inventory.plugins = setterPluginSetup(setter)
   let values = [ 'get /', 'any /whatever', 'post /' ]
+  let httpLambda = values[0]
   arc = parse(`@http
 ${values.join('\n')}`)
   pragmas = { http: populateHTTP({ arc, inventory }) }
 
+  // Basic plugin stuff
   mockFs({ 'foo/bar': {} })
   views = populateViews({ arc, pragmas, inventory })
   t.equal(views.src, 'foo/bar', 'Got correct src dir back')
@@ -182,6 +184,27 @@ ${values.join('\n')}`)
   })
   mockFs.restore()
 
+  // Fall back to src/views if specified dir is not found
+  arc = parse(`@http\n${httpLambda}`)
+  pragmas = { http: populateHTTP({ arc, inventory }) }
+  mockFs({ 'src/views': {} })
+  views = populateViews({ arc, pragmas, inventory })
+  t.ok(views.src.endsWith(join('src', 'views')), 'Got correct src dir back')
+  t.equal(views.views.length, 1, 'Got correct number of routes with views back')
+  mockFs.restore()
+
+  // Shared is null if setter doesn't set `required` flag and no dirs are found
+  arc = parse(`@http\n${httpLambda}`)
+  pragmas = { http: populateHTTP({ arc, inventory }) }
+  mockFs({ 'foo/bar': {} })
+  // Just a control test!
+  views = populateViews({ arc, pragmas, inventory })
+  t.equal(views.src, 'foo/bar', 'Got correct src dir back')
+  mockFs.restore()
+  views = populateViews({ arc, pragmas, inventory })
+  t.equal(views, null, 'views is null')
+
+
   // Arc file wins
   setter = () => ({ src: 'foo/baz' })
   inventory.plugins = setterPluginSetup(setter)
@@ -190,7 +213,6 @@ ${values.join('\n')}
 @views
 src foo/bar`)
   pragmas = { http: populateHTTP({ arc, inventory }) }
-
   mockFs({ 'foo/bar': {} })
   views = populateViews({ arc, pragmas, inventory })
   t.equal(views.src, 'foo/bar', 'Got correct src dir back')
@@ -208,7 +230,6 @@ src foo/bar`)
   mockFs.restore()
 
   // cwd isn't concatenated when an absolute file path is returned
-  let httpLambda = values[0]
   let src = join(inventory._project.cwd, 'foo', 'bar')
   setter = () => ({ src })
   inventory.plugins = setterPluginSetup(setter)
@@ -383,8 +404,8 @@ src true`)
 })
 
 test('@views: plugin errors', t => {
-  t.plan(8)
-  let arc = parse(`@http\nget /foo`)
+  t.plan(9)
+  let arc
   let pragmas
   let errors
   let setter
@@ -393,16 +414,24 @@ test('@views: plugin errors', t => {
     pragmas = { http: populateHTTP({ arc, inventory }) }
   }
 
-  setter = () => ({ src: 'hi' })
+  arc = parse(`@http\nget /foo\n@views\nsrc foo`)
+  setter = () => ({ src: 'hi', required: true })
   inventory.plugins = setterPluginSetup(setter)
   updatePragmas()
   errors = []
-  mockFs({ 'src/views': {} })
+  mockFs({ foo: {}, hi: {} })
   populateViews({ arc, pragmas, inventory, errors })
-  t.equal(errors.length, 1, '@views src dir must exist')
+  t.equal(errors[0], '@views src setting conflicts with plugin', '@views src dir must exist if required flag is set')
   mockFs.restore()
 
-  setter = () => ({ src: 'hi' })
+  arc = parse(`@http\nget /foo`)
+  inventory.plugins = setterPluginSetup(setter)
+  updatePragmas()
+  errors = []
+  populateViews({ arc, pragmas, inventory, errors })
+  t.equal(errors[0], 'Directory not found: hi', '@views src dir must exist if required flag is set')
+
+  setter = () => ({ src: 'foo' })
   inventory.plugins = setterPluginSetup(setter)
   updatePragmas()
   errors = []
