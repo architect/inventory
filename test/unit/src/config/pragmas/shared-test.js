@@ -156,7 +156,7 @@ src foo/bar`)
 })
 
 test(`@shared population: plugin setter`, t => {
-  t.plan(16)
+  t.plan(20)
   let inventory = inventoryDefaults()
   let setter = () => ({ src: 'foo/bar' })
   inventory.plugins = setterPluginSetup(setter)
@@ -167,13 +167,14 @@ test(`@shared population: plugin setter`, t => {
   let fn1, fn2
   let httpLambda = 'get /'
   let eventLambda = 'an-event'
+
+  // Basic plugin stuff
   arc = parse(`@http\n${httpLambda}\n@events\n${eventLambda}`)
   pragmas = {
     http: populateHTTP({ arc, inventory }),
     events: populateEvents({ arc, inventory }),
     lambdaSrcDirs
   }
-
   mockFs({ 'foo/bar': {} })
   shared = populateShared({ arc, pragmas, inventory })
   t.equal(shared.src, 'foo/bar', 'Got correct src dir back')
@@ -186,6 +187,34 @@ test(`@shared population: plugin setter`, t => {
   t.ok(fn2.config.shared, `Shared setting enabled in lambda: ${eventLambda}`)
   mockFs.restore()
 
+  // Fall back to src/shared if specified dir is not found
+  arc = parse(`@http\n${httpLambda}\n@events\n${eventLambda}`)
+  pragmas = {
+    http: populateHTTP({ arc, inventory }),
+    events: populateEvents({ arc, inventory }),
+    lambdaSrcDirs
+  }
+  mockFs({ 'src/shared': {} })
+  shared = populateShared({ arc, pragmas, inventory })
+  t.ok(shared.src.endsWith(join('src', 'shared')), 'Got correct src dir back')
+  t.equal(shared.shared.length, 2, 'Got correct number of lambdae with shared back')
+  mockFs.restore()
+
+  // Shared is null if setter doesn't set `required` flag and no dirs are found
+  arc = parse(`@http\n${httpLambda}\n@events\n${eventLambda}`)
+  pragmas = {
+    http: populateHTTP({ arc, inventory }),
+    events: populateEvents({ arc, inventory }),
+    lambdaSrcDirs
+  }
+  mockFs({ 'foo/bar': {} })
+  // Just a control test!
+  shared = populateShared({ arc, pragmas, inventory })
+  t.equal(shared.src, 'foo/bar', 'Got correct src dir back')
+  mockFs.restore()
+  shared = populateShared({ arc, pragmas, inventory })
+  t.equal(shared, null, 'shared is null')
+
   // Arc file wins
   arc = parse(`@http\n${httpLambda}\n@events\n${eventLambda}
 @shared
@@ -195,7 +224,6 @@ src foo/baz`)
     events: populateEvents({ arc, inventory }),
     lambdaSrcDirs
   }
-
   mockFs({ 'foo/baz': {} })
   shared = populateShared({ arc, pragmas, inventory })
   t.equal(shared.src, 'foo/baz', 'Got correct src dir back')
@@ -394,8 +422,8 @@ src true`)
 })
 
 test('@shared: plugin errors', t => {
-  t.plan(8)
-  let arc = parse(`@http\nget /foo`)
+  t.plan(9)
+  let arc
   let pragmas
   let errors
   let setter
@@ -404,14 +432,22 @@ test('@shared: plugin errors', t => {
     pragmas = { http: populateHTTP({ arc, inventory }), lambdaSrcDirs }
   }
 
-  setter = () => ({ src: 'hi' })
+  arc = parse(`@http\nget /foo\n@shared\nsrc foo`)
+  setter = () => ({ src: 'hi', required: true })
   inventory.plugins = setterPluginSetup(setter)
   errors = []
   updatePragmas()
-  mockFs({ 'src/shared': {} })
+  mockFs({ foo: {}, hi: {} })
   populateShared({ arc, pragmas, inventory, errors })
-  t.equal(errors.length, 1, '@shared src dir must exist')
+  t.equal(errors[0], '@shared src setting conflicts with plugin', '@shared src dir must exist if required flag is set')
   mockFs.restore()
+
+  arc = parse(`@http\nget /foo`)
+  inventory.plugins = setterPluginSetup(setter)
+  errors = []
+  updatePragmas()
+  populateShared({ arc, pragmas, inventory, errors })
+  t.equal(errors[0], 'Directory not found: hi', '@shared src dir must exist if required flag is set')
 
   setter = () => ({ src: 'foo' })
   inventory.plugins = setterPluginSetup(setter)
