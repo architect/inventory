@@ -2,6 +2,14 @@
 
 ---
 
+## [3.2.2] 2022-08-20
+
+### Changed
+
+- Enabled `hydrate` plugin API support
+
+---
+
 ## [3.2.1] 2022-08-10
 
 ### Changed
