@@ -22,7 +22,7 @@ test('Set up env', t => {
 })
 
 test('Handler properties (built-in runtimes)', t => {
-  t.plan(20)
+  t.plan(24)
   let config, errors, result
 
   // Defaults to Node.js
@@ -30,14 +30,24 @@ test('Handler properties (built-in runtimes)', t => {
   errors = []
   result = getHandler({ config, src, errors })
   t.notOk(errors.length, 'Did not get handler errors')
-  t.equal(result.handlerFile, srcPath(`${file}.js`), `Got correct handlerFile: ${result.handlerFile}`)
+  t.equal(result.handlerFile, srcPath(`${file}.mjs`), `Got correct handlerFile: ${result.handlerFile}`)
   t.equal(result.handlerMethod, handler, `Got correct handlerMethod: ${result.handlerMethod}`)
-  t.equal(result.handlerModuleSystem, 'cjs', `Got correct handlerModuleSystem: ${result.handlerModuleSystem}`)
+  t.equal(result.handlerModuleSystem, 'esm', `Got correct handlerModuleSystem: ${result.handlerModuleSystem}`)
 
   // Assume Node will keep being developed and keyed by AWS starting with `nodejs`
   config = defaultFunctionConfig()
   errors = []
   config.runtime = 'nodejs14.x'
+  result = getHandler({ config, src, errors })
+  t.notOk(errors.length, 'Did not get handler errors')
+  t.equal(result.handlerFile, srcPath(`${file}.mjs`), `Got correct handlerFile: ${result.handlerFile}`)
+  t.equal(result.handlerMethod, handler, `Got correct handlerMethod: ${result.handlerMethod}`)
+  t.equal(result.handlerModuleSystem, 'esm', `Got correct handlerModuleSystem: ${result.handlerModuleSystem}`)
+
+  // Node 12 should default to CJS, not ESM
+  config = defaultFunctionConfig()
+  errors = []
+  config.runtime = 'nodejs12.x'
   result = getHandler({ config, src, errors })
   t.notOk(errors.length, 'Did not get handler errors')
   t.equal(result.handlerFile, srcPath(`${file}.js`), `Got correct handlerFile: ${result.handlerFile}`)
@@ -113,8 +123,8 @@ test('Handler properties (Node.js module systems)', t => {
   config.runtime = 'nodejs14.x'
   result = getHandler({ config, src, errors })
   t.notOk(errors.length, 'Did not get handler errors')
-  t.equal(result.handlerFile, srcPath(`${file}.js`), `Got correct handlerFile: ${result.handlerFile}`)
-  t.equal(result.handlerModuleSystem, 'cjs', `Got correct handlerModuleSystem: ${result.handlerModuleSystem}`)
+  t.equal(result.handlerFile, srcPath(`${file}.mjs`), `Got correct handlerFile: ${result.handlerFile}`)
+  t.equal(result.handlerModuleSystem, 'esm', `Got correct handlerModuleSystem: ${result.handlerModuleSystem}`)
 
   // .cjs
   config = defaultFunctionConfig()
@@ -271,7 +281,7 @@ test('Custom runtime properties', t => {
   errors = []
   result = getHandler({ config, src, errors })
   t.notOk(errors.length, 'Did not get handler errors')
-  t.equal(result.handlerFile, srcPath(`${file}.js`), `Got correct handlerFile: ${result.handlerFile}`)
+  t.equal(result.handlerFile, srcPath(`${file}.mjs`), `Got correct handlerFile: ${result.handlerFile}`)
   t.equal(result.handlerMethod, handler, `Got correct handlerMethod: ${result.handlerMethod}`)
 
   // Transpiled to an interpreted runtime, no specified handlerFile
