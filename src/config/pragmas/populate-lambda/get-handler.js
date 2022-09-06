@@ -32,6 +32,7 @@ module.exports = function getHandler ({ config, src, build, errors }) {
   return handlerConfig
 }
 
+// As of nodejs14.x, CJS remains the default over ESM when both are present
 let nodeHandlers = [ 'index.js', 'index.mjs', 'index.cjs' ]
 let denoHandlers = [ 'mod.ts', 'mod.js' ]
   // TODO: these are all prob going away
@@ -43,14 +44,22 @@ function getExt ({ runtime, src, errors }) {
       if (runtime === 'nodejs12.x') {
         return { ext: 'js', handlerModuleSystem: 'cjs' }
       }
-      // This presumes Node.js 14.x+ Lambda releases use the same CJS/ESM pattern
+      // This presumes Node.js ≥14 Lambda releases use the same CJS/ESM pattern
+      // Generally in Lambda: CJS wins, but in Architect-land we attempt to default to ESM
       else {
-        let { file, ext = 'js' } = findHandler(nodeHandlers, src)
+        let { file, ext = 'mjs' } = findHandler(nodeHandlers, src)
         let handlerModuleSystem = ext === 'mjs' ? 'esm' : 'cjs'
         let pkgFile = join(src, 'package.json')
         if (existsSync(pkgFile)) {
           let pkg = JSON.parse(readFileSync(pkgFile))
-          handlerModuleSystem = getModSystem(pkg)
+
+          /**/ if (pkg?.type === 'module') handlerModuleSystem = 'esm'
+          else if (pkg?.type === 'commonjs') handlerModuleSystem = 'cjs'
+          else if (pkg?.type) throw Error(`Invalid 'type' field: ${pkg.type}`)
+          else handlerModuleSystem = 'cjs' // Lambda's default, not ours
+
+          // We always get to make this a .js file, even if it's ESM!
+          ext = 'js'
         }
         return { file, ext, handlerModuleSystem }
       }
@@ -77,11 +86,4 @@ function findHandler (arr, src){
     }
   }
   return {}
-}
-
-function getModSystem (pkg) {
-  if (pkg?.type === 'module') return 'esm'
-  else if (pkg?.type === 'commonjs') return 'cjs'
-  else if (pkg?.type) throw Error(`Invalid 'type' field: ${pkg.type}`)
-  return 'cjs'
 }
