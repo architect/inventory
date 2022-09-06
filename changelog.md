@@ -2,6 +2,14 @@
 
 ---
 
+## [3.3.0] 2022-09-06
+
+### Changed
+
+- Node 14+ Lambda handler selection now defaults to ESM (unless otherwise specified)
+
+---
+
 ## [3.2.2] 2022-08-20
 
 ### Changed
