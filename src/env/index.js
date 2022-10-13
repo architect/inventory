@@ -11,7 +11,7 @@ module.exports = function env (params, inventory, callback) {
   /* istanbul ignore next */
   try {
     // eslint-disable-next-line
-      var aws = require('aws-sdk')
+    var aws = require('aws-sdk')
   }
   catch (err) {
     let msg = `'aws-sdk' not found, please install locally or globally (see also readme#aws-sdk-caveat)`
