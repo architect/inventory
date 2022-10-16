@@ -95,7 +95,9 @@ function populate (type, pragma, inventory, errors, plugin) {
       config.fifo = config.fifo === undefined ? true : config.fifo
     }
     if (type === 'http') {
-      if (name.startsWith('get ') || name.startsWith('any ')) config.views = true
+      if (name.startsWith('get ') || name.startsWith('any ')) {
+        config.views = config.views === undefined ? true : config.views
+      }
     }
 
     // Now let's check in on the function config

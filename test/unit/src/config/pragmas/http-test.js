@@ -332,6 +332,58 @@ test('@http population: plugin setter', t => {
   })
 })
 
+test('@http population: plugin setter respects custom config', t => {
+  t.plan(20)
+
+  let inventory = inventoryDefaults()
+  let configs = {
+    'get /foo': {
+      shared: true,
+      views: true,
+      runtime: 'python3.9',
+      timeout: 11,
+      memory: 1337,
+      storage: 1024,
+    },
+    'get /bar': {
+      shared: false,
+      views: false,
+      runtime: 'nodejs14.x',
+      timeout: 12,
+      memory: 1338,
+      storage: 1025,
+    },
+  }
+  let values = Object.keys(configs)
+  let setter = () => values.map(v => {
+    let bits = v.split(' ')
+    let method = bits[0]
+    let path = bits[1]
+    let folder = `${method}${getLambdaName(path)}`
+    return { method, path, src: join(httpDir, folder), config: configs[v] }
+  })
+  inventory.plugins = setterPluginSetup(setter)
+  let http = populateHTTP({ arc: {}, inventory })
+
+  t.equal(http.length, values.length + 1, 'Got correct number of routes back (including default get /*)')
+  values.forEach(val => {
+    t.ok(http.some(route => route.name === val), `Got route: ${val}`)
+  })
+  http.forEach(route => {
+    let name = `${route.method}${getLambdaName(route.path)}`
+    if (route.name === 'get /*') {
+      t.equal(route.arcStaticAssetProxy, true, 'Implicit get /* (ASAP) found')
+    }
+    else {
+      t.equal(route.src, join(httpDir, name), `Route configured with correct source dir: ${route.src}`)
+      t.ok(route.handlerFile.startsWith(route.src), `Handler file is in the correct source dir`)
+      Object.entries(configs[route.name]).forEach(([ option, setting ]) => {
+        t.equal(route.config[option], setting, `Plugin config setting '${option}' is correct: ${setting}`)
+      })
+    }
+  })
+})
+
 test('@http population: route sorting', t => {
   t.plan(2)
   let desiredOrder = [
