@@ -2,6 +2,14 @@
 
 ---
 
+## [3.3.1] 2022-10-15
+
+### Fixed
+
+- Fixed issue where `set.http` plugins would not have `config.views` respected if set to `false`
+
+---
+
 ## [3.3.0] 2022-09-06
 
 ### Changed
