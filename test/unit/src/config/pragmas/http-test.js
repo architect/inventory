@@ -25,7 +25,7 @@ test('No @http returns null', t => {
 })
 
 test('@http population via @static: implicit get /* (Arc Static Asset Proxy)', t => {
-  t.plan(67)
+  t.plan(85)
   let arc
 
   function check (arc, expected, expectedRootHandler) {
@@ -35,12 +35,18 @@ test('@http population via @static: implicit get /* (Arc Static Asset Proxy)', t
     t.equal(result, expected, `Got expected number of routes back: ${expected}`)
     if (expectedRootHandler === 'arcStaticAssetProxy') {
       let asap = http.find(r => r.arcStaticAssetProxy)
+      t.equal(asap.name, 'get /*', `ASAP is 'get /*`)
       t.ok(asap.src, `Found Arc Static Asset Proxy dist src`)
       t.equal(asap.handlerFile, join(asap.src, 'index.js'), `Found Arc Static Asset Proxy dist handler file`)
+      t.equal(asap.handlerMethod, 'handler', `Found Arc Static Asset Proxy dist handler method`)
       t.equal(asap.arcStaticAssetProxy, true, `Found Arc Static Asset Proxy root handler`)
+      t.ok(asap.config, `Found Arc Static Asset Proxy config`)
       t.equal(asap.config.shared, false, 'Arc Static Asset Proxy has disabled shared files')
       t.equal(asap.config.views, false, 'Arc Static Asset Proxy has disabled shared views')
       t.deepEqual(asap.config.layers, [], 'Arc Static Asset Proxy has no layers')
+      t.equal(asap.pragma, 'http', `Found Arc Static Asset Proxy @http pragma`)
+      t.equal(asap.method, 'get', `Found Arc Static Asset Proxy http method`)
+      t.equal(asap.path, '/*', `Found Arc Static Asset Proxy http path`)
       t.equal(inventory._project.rootHandler, expectedRootHandler, '_project.rootHandler set to: arcStaticAssetProxy')
       t.ok(inventory._project.asapSrc, '_project.asapSrc set')
     }
