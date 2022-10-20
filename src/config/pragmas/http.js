@@ -57,6 +57,7 @@ module.exports = function configureHTTP ({ arc, inventory, errors }) {
       handlerMethod: 'handler',
       configFile: null,
       arcStaticAssetProxy: true,
+      pragma: 'http',
       method: 'get',
       path: '/*'
     }

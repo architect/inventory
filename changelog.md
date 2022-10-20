@@ -2,6 +2,14 @@
 
 ---
 
+## [3.3.2] 2022-10-19
+
+### Fixed
+
+- Fixed issue where `@static spa true` setting wouldn't be respected when the root handler is not explicitly defined; thanks @oliverturner!
+
+---
+
 ## [3.3.1] 2022-10-15
 
 ### Fixed
