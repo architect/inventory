@@ -113,6 +113,11 @@ function getPath (cwd, srcDir, name) {
     return require.resolve(name)
   }
   catch {
-    return
+    try {
+      return require.resolve(`@${name}`)
+    }
+    catch {
+      return
+    }
   }
 }
