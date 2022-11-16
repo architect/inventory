@@ -14,7 +14,7 @@ function getLambdaDirs (params, options) {
     let src = normalizeSrc(cwd, item.src)
     lambdaDirs.src = src
     if (projBuild) {
-      lambdaDirs.build = src.replace(src, projBuild)
+      lambdaDirs.build = src.replace(cwd, projBuild)
     }
   }
   else {
