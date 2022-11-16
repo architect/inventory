@@ -2,6 +2,14 @@
 
 ---
 
+## [3.3.3] 2022-11-15
+
+### Fixed
+
+- Fixed issue where projects with plugins that define >1 transpiled Lambdas would all build to the same directory; thanks @Scorsi!
+
+---
+
 ## [3.3.2] 2022-10-19
 
 ### Fixed
