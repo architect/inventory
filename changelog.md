@@ -7,6 +7,7 @@
 ### Fixed
 
 - Fixed issue where projects with plugins that define >1 transpiled Lambdas would all build to the same directory; thanks @Scorsi!
+- Fixed issue where plugins may not be found if attempted to be loaded from a subfolder in a monorepo; thanks @Scorsi!
 
 ---
 
