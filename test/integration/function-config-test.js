@@ -26,7 +26,7 @@ test('[No global runtime] Inventory and compare functions with / without functio
       t.ok(get, 'Inventory returned getter')
       let def = inv._project.defaultFunctionConfig
       let custom = {
-        runtime: 'nodejs14.x',
+        runtime: 'nodejs16.x',
         runtimeAlias: 'node',
         architecture: 'arm64',
         timeout: 10,

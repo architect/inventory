@@ -35,7 +35,7 @@ test('Friendly runtime names (aka aliases)', t => {
   t.equal(config.runtimeAlias, 'golang', `Alias returned lowcase as runtimeAlias: ${config.runtimeAlias}`)
 
   config = getRuntimes({ config: c('.net'), inventory })
-  t.match(config.runtime, /dotnetcore\d\.\d/, `Alias mapped to valid AWS .NET string: ${config.runtime}`)
+  t.match(config.runtime, /dotnet6/, `Alias mapped to valid AWS .NET string: ${config.runtime}`)
   t.equal(config.runtimeAlias, '.net', `Alias returned lowcase as runtimeAlias: ${config.runtimeAlias}`)
 
   config = getRuntimes({ config: c('custom'), inventory })
