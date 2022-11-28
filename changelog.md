@@ -11,6 +11,7 @@
 
 ### Changed
 
+- Updated default runtime to `nodejs16.x`
 - Updated dependencies
 
 ---
