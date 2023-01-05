@@ -2,6 +2,14 @@
 
 ---
 
+## [3.3.5] 2023-01-05
+
+### Added
+
+- `set.static` plugins now merge `ignore` patterns with userland `ignore` settings (if present)
+
+---
+
 ## [3.3.4] 2022-11-24
 
 ### Added
