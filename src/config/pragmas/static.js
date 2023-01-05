@@ -21,6 +21,8 @@ module.exports = function configureStatic ({ arc, inventory, errors }) {
     staging: null,
     production: null,
   }
+  let validSettings = Object.entries(_static).map(([ setting ]) => setting)
+  let validSetting = key => validSettings.includes(key)
 
   if (is.array(arc.static)) {
     let disabled = [ false, 'disable', 'disabled' ]
@@ -36,15 +38,25 @@ module.exports = function configureStatic ({ arc, inventory, errors }) {
     type: 'static',
   })
 
-  let settings = Object.entries(_static).map(([ setting ]) => setting)
-  let validSetting = key => settings.includes(key)
   for (let setting of staticPragma) {
-    // The ignore setting can come in a couple shapes, so we have to handle those
+    // The ignore setting can come in one of two shapes, handle both
+    let ignore
+
+    // Ignore is a named vector
     if (setting.ignore) {
-      _static.ignore = setting.ignore
+      ignore = setting.ignore
     }
+    // Plain vector settings
     else if (is.array(setting) && validSetting(setting[0])) {
-      _static[setting[0]] = setting[0] === 'ignore' ? [ ...setting.slice(1) ] : setting[1]
+      if (setting[0] === 'ignore') ignore = setting.slice(1)
+      else _static[setting[0]] = setting[1]
+    }
+
+    // Merge manifest + plugin ignore patterns
+    if (ignore) {
+      _static.ignore = _static.ignore
+        ? [ ...new Set([ ..._static.ignore, ...setting.ignore ]) ] // De-dupe
+        : ignore
     }
   }
 
