@@ -143,11 +143,56 @@ ${setting}
   _static = populateStatic({ arc, inventory })
   t.equal(str(_static[setting]), str(values), `Returned correct ${setting} setting: ${str(values)}`)
 
-  values = [ 'some-filename' ]
   arc = parse(`
 @static
 ${setting} ${values[0]}
   `)
+  _static = populateStatic({ arc, inventory })
+  t.equal(str(_static[setting]), str(values), `Returned correct ${setting} setting: ${str(values)}`)
+})
+
+test('Individual @static setting: ignore merged by plugin + userland arc', t => {
+  t.plan(3)
+  reset()
+  let setting = 'ignore'
+  let values = [ 'some-filename', 'some-other-filename' ]
+  let arc
+  let _static
+  let valid
+  let setter = () => ({
+    ignore: [ 'some-filename' ]
+  })
+
+  /**
+   * Arc, no plugin
+   */
+  arc = parse(`
+@static
+${setting}
+  ${values[1]}
+`)
+  _static = populateStatic({ arc, inventory })
+  valid = values.slice(1)
+  t.equal(str(_static[setting]), str(valid), `Returned correct ${setting} setting: ${str(valid)}`)
+
+  /**
+   * Plugin, no arc
+   */
+  arc = parse(`
+@static`)
+  inventory.plugins = setterPluginSetup(setter)
+  _static = populateStatic({ arc, inventory })
+  valid = values.slice(0, 1)
+  t.equal(str(_static[setting]), str(valid), `Returned correct ${setting} setting: ${str(valid)}`)
+
+  /**
+   * Arc + plugin merged
+   */
+  arc = parse(`
+@static
+${setting}
+  ${values[1]}
+`)
   _static = populateStatic({ arc, inventory })
   t.equal(str(_static[setting]), str(values), `Returned correct ${setting} setting: ${str(values)}`)
 })
