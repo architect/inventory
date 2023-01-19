@@ -11,8 +11,14 @@ get /
   method put
 
 @plugins
-custom-pubsub
+custom-pubsub-cjs
+custom-pubsub-esm
+rando
 
-@pubsub
+@pubsub-cjs
 channel-one
 channel-two
+
+@pubsub-esm
+channel-three
+channel-four
