@@ -2,6 +2,14 @@
 
 ---
 
+## [3.4.0] 2023-01-18
+
+### Added
+
+- Added support for plugins authored as ES modules; retains support for plugins authored as CommonJS modules
+
+---
+
 ## [3.3.5] 2023-01-05
 
 ### Added

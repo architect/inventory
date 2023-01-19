@@ -6,6 +6,11 @@ let nonLambdaSetters = [ 'customLambdas', 'env', 'proxy', 'runtimes', 'shared', 
 let setters = [ ...lambdas, ...nonLambdaSetters ]
 let pluginMethods = [ 'deploy', 'hydrate', 'sandbox' ]
 let reservedNames = [ '_methods' ]
+let requireEsm
+let esmErrors = [
+  'Cannot use import statement outside a module',
+  `Unexpected token 'export'`,
+]
 
 module.exports = function getPluginModules ({ arc, inventory, errors }) {
   if (!arc?.plugins?.length && !arc?.macros?.length) return null
@@ -44,9 +49,33 @@ module.exports = function getPluginModules ({ arc, inventory, errors }) {
     }
     if (pluginPath) {
       try {
+        /* istanbul ignore next: idk why but for some reason nyc isn't picking up the catches; all cases are covered in tests, though! */
         if (type === 'plugin') {
-          // eslint-disable-next-line
-          plugins[name] = require(pluginPath)
+          try {
+            // eslint-disable-next-line
+            plugins[name] = require(pluginPath)
+          }
+          catch (err) {
+            // TODO: if we refactor all pragma visitors to async we can use Node's built in support for dynamic import within CJS
+            let isEsmError = (err.name === 'SyntaxError' && esmErrors.includes(err.message)) ||
+                             err.message.includes('require() of ES Module')
+            if (isEsmError) {
+              try {
+                if (!requireEsm) {
+                  // eslint-disable-next-line
+                  requireEsm = require('esm')(module)
+                }
+                let plugin = requireEsm(pluginPath)
+                plugins[name] = plugin.default ? plugin.default : plugin
+              }
+              catch (err) {
+                errors.push(err)
+              }
+            }
+            else {
+              errors.push(err)
+            }
+          }
         }
         // Remap @macros to deploy.start
         if (type === 'macro') {
@@ -100,15 +129,18 @@ module.exports = function getPluginModules ({ arc, inventory, errors }) {
   return plugins
 }
 
+/* istanbul ignore next: per above, nyc isn't picking this up, but it is covered! */
 function getPath (cwd, srcDir, name) {
   let path1 = join(cwd, 'src', srcDir, `${name}.js`)
-  let path2 = join(cwd, 'src', srcDir, name)
-  let path3 = join(cwd, 'node_modules', name)
-  let path4 = join(cwd, 'node_modules', `@${name}`)
+  let path2 = join(cwd, 'src', srcDir, `${name}.mjs`)
+  let path3 = join(cwd, 'src', srcDir, name)
+  let path4 = join(cwd, 'node_modules', name)
+  let path5 = join(cwd, 'node_modules', `@${name}`)
   /**/ if (existsSync(path1)) return path1
   else if (existsSync(path2)) return path2
   else if (existsSync(path3)) return path3
   else if (existsSync(path4)) return path4
+  else if (existsSync(path5)) return path5
   try {
     return require.resolve(name)
   }
