@@ -58,7 +58,8 @@ module.exports = function getPluginModules ({ arc, inventory, errors }) {
           catch (err) {
             // TODO: if we refactor all pragma visitors to async we can use Node's built in support for dynamic import within CJS
             let isEsmError = (err.name === 'SyntaxError' && esmErrors.includes(err.message)) ||
-                             err.message.includes('require() of ES Module')
+                             err.message.includes('require() of ES Module') ||
+                             err.message.includes('Must use import to load ES Module')
             if (isEsmError) {
               try {
                 if (!requireEsm) {
