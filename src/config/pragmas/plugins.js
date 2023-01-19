@@ -7,10 +7,6 @@ let setters = [ ...lambdas, ...nonLambdaSetters ]
 let pluginMethods = [ 'deploy', 'hydrate', 'sandbox' ]
 let reservedNames = [ '_methods' ]
 let requireEsm
-let esmErrors = [
-  'Cannot use import statement outside a module',
-  `Unexpected token 'export'`,
-]
 
 module.exports = function getPluginModules ({ arc, inventory, errors }) {
   if (!arc?.plugins?.length && !arc?.macros?.length) return null
@@ -57,10 +53,7 @@ module.exports = function getPluginModules ({ arc, inventory, errors }) {
           }
           catch (err) {
             // TODO: if we refactor all pragma visitors to async we can use Node's built in support for dynamic import within CJS
-            let isEsmError = (err.name === 'SyntaxError' && esmErrors.includes(err.message)) ||
-                             err.message.includes('require() of ES Module') ||
-                             err.message.includes('Must use import to load ES Module')
-            if (isEsmError) {
+            if (hasEsmError(err)) {
               try {
                 if (!requireEsm) {
                   // eslint-disable-next-line
@@ -154,3 +147,12 @@ function getPath (cwd, srcDir, name) {
     }
   }
 }
+
+let esmErrors = [
+  'Cannot use import statement outside a module',
+  `Unexpected token 'export'`,
+  'require() of ES Module',
+  'Must use import to load ES Module',
+]
+/* istanbul ignore next: per above, nyc isn't picking this up, but it is covered! */
+let hasEsmError = err => esmErrors.some(msg => err.message.includes(msg))
