@@ -276,8 +276,6 @@ Update CI
 
 - Internal: Updated Architect Parser to v5
 
----
-
 ## [2.0.5] 2021-09-03
 
 ### Changed
