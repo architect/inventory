@@ -20,6 +20,8 @@ module.exports = function configureTablesIndexes ({ arc, inventory, errors }) {
     sortKey: null,
     sortKeyType: null,
     indexName: null,
+    projectionType: 'ALL',
+    projectionAttributes: null,
   })
 
   let indexes = []
@@ -38,6 +40,7 @@ module.exports = function configureTablesIndexes ({ arc, inventory, errors }) {
       let i = indexTemplate()
       i.name = Object.keys(index)[0]
       Object.entries(index[i.name]).forEach(([ key, value ]) => {
+        let setting = key?.toLowerCase()
         if (is.sortKey(value)) {
           i.sortKey = key
           i.sortKeyType = value.replace('**', '').toLowerCase()
@@ -48,8 +51,26 @@ module.exports = function configureTablesIndexes ({ arc, inventory, errors }) {
           i.partitionKeyType = value.replace('*', '').toLowerCase()
           if (!i.partitionKeyType) i.partitionKeyType = 'string'
         }
-        else if (key?.toLowerCase() === 'name') {
+        else if (setting === 'name') {
           i.indexName = value
+        }
+        else if (setting === 'projection') {
+          let val = (is.string(value) && value.toLowerCase()) || value
+          if (val === 'all') {
+            i.projectionType = 'ALL'
+          }
+          else if (val === 'keys') {
+            i.projectionType = 'KEYS_ONLY'
+          }
+          else {
+            i.projectionType = 'INCLUDE'
+            if (Array.isArray(value)) {
+              i.projectionAttributes = value
+            }
+            else {
+              i.projectionAttributes = [ value ]
+            }
+          }
         }
       })
       return i

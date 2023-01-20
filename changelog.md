@@ -7,6 +7,7 @@
 ### Added
 
 - Added support for plugins authored as ES modules; retains support for plugins authored as CommonJS modules
+- Added support for specifying DynamoDB index projection attributes; incremental support for [#1083](https://github.com/architect/architect/issues/1083)
 
 ---
 
@@ -275,6 +276,8 @@ Update CI
 ### Changed
 
 - Internal: Updated Architect Parser to v5
+
+---
 
 ## [2.0.5] 2021-09-03
 
