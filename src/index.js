@@ -1,3 +1,4 @@
+let { callbackify } = require('util')
 let parse = require('@architect/parser')
 let read = require('./read')
 let inventoryDefaults = require('./defaults')
@@ -6,6 +7,7 @@ let getEnv = require('./env')
 let validate = require('./validate')
 let get = require('./get')
 let { errorFmt } = require('./lib')
+let plugins = callbackify(config.pragmas.plugins)
 
 /**
  * Architect Inventory
@@ -64,46 +66,53 @@ module.exports = function architectInventory (params = {}, callback) {
   inventory._arc = config._arc(project)
 
   // @plugins come first, as they register hooks all around the project
-  inventory.plugins = config.pragmas.plugins(project)
-
-  // Establish default function config from project + Arc defaults
-  inventory._project = config._project(project)
-
-  // End here if plugins failed
-  if (errors.length) {
-    callback(errorFmt({ type: 'plugin', errors }))
-    return promise
-  }
-
-  // Userland: fill out the pragmas, starting with @plugins
-  inventory = {
-    ...inventory,
-    ...config.pragmas(project)
-  }
-
-  // End here if first-pass validation failed
-  if (errors.length) {
-    callback(errorFmt({ type: 'validation', errors }))
-    return promise
-  }
-
-  // Final validation pass
-  let err = validate(params, inventory)
-  if (err) {
-    callback(err)
-    return promise
-  }
-
-  // Maybe get env vars
-  getEnv(params, inventory, function done (err) {
+  plugins(project, (err, result) => {
     /* istanbul ignore next: yeah we know what happens here */
     if (err) callback(err)
     else {
-      callback(null, {
-        inv: inventory,
-        get: get(inventory)
+      inventory.plugins = result
+
+      // Establish default function config from project + Arc defaults
+      inventory._project = config._project(project)
+
+      // End here if plugins failed
+      if (errors.length) {
+        callback(errorFmt({ type: 'plugin', errors }))
+        return promise
+      }
+
+      // Userland: fill out the pragmas, starting with @plugins
+      inventory = {
+        ...inventory,
+        ...config.pragmas(project)
+      }
+
+      // End here if first-pass validation failed
+      if (errors.length) {
+        callback(errorFmt({ type: 'validation', errors }))
+        return promise
+      }
+
+      // Final validation pass
+      let err = validate(params, inventory)
+      if (err) {
+        callback(err)
+        return promise
+      }
+
+      // Maybe get env vars
+      getEnv(params, inventory, function done (err) {
+        /* istanbul ignore next: yeah we know what happens here */
+        if (err) callback(err)
+        else {
+          callback(null, {
+            inv: inventory,
+            get: get(inventory)
+          })
+        }
       })
     }
   })
+
   return promise
 }

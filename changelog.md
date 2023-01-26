@@ -2,6 +2,15 @@
 
 ---
 
+## [3.4.1] 2023-01-25
+
+### Added
+
+- Added plugin ES module support for ES2020+ syntax, `node:*` imports, etc.; fixes #1401
+- Added support for loading ESM plugins via `package.json` `"type": "module"`, respecting `main`, etc.
+
+---
+
 ## [3.4.0] 2023-01-18
 
 ### Added

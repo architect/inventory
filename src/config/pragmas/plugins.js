@@ -1,14 +1,13 @@
-let { join } = require('path')
+let { join, sep } = require('path')
 let { existsSync } = require('fs')
-let { is, normalizeSrc, pragmas, tidyError, validationPatterns } = require('../../lib')
+let { is, pragmas, tidyError, validationPatterns } = require('../../lib')
 let { lambdas } = pragmas
 let nonLambdaSetters = [ 'customLambdas', 'env', 'proxy', 'runtimes', 'shared', 'static', 'views', 'tables', 'tables-indexes' ]
 let setters = [ ...lambdas, ...nonLambdaSetters ]
 let pluginMethods = [ 'deploy', 'hydrate', 'sandbox' ]
 let reservedNames = [ '_methods' ]
-let requireEsm
 
-module.exports = function getPluginModules ({ arc, inventory, errors }) {
+module.exports = async function getPluginModules ({ arc, inventory, errors }) {
   if (!arc?.plugins?.length && !arc?.macros?.length) return null
   let plugins = {}
   let methods = {}
@@ -31,7 +30,7 @@ module.exports = function getPluginModules ({ arc, inventory, errors }) {
     else if (is.object(plugin)) {
       name = Object.keys(plugin)[0]
       pluginPath = plugin[name].src
-        ? normalizeSrc(cwd, plugin[name].src)
+        ? resolve('.' + sep + plugin[name].src, cwd)
         : join(cwd, 'src', type + 's', name)
     }
 
@@ -43,6 +42,7 @@ module.exports = function getPluginModules ({ arc, inventory, errors }) {
       errors.push('Plugin names can only contain [a-zA-Z0-9/\\-._]')
       continue
     }
+
     if (pluginPath) {
       try {
         /* istanbul ignore next: idk why but for some reason nyc isn't picking up the catches; all cases are covered in tests, though! */
@@ -52,22 +52,12 @@ module.exports = function getPluginModules ({ arc, inventory, errors }) {
             plugins[name] = require(pluginPath)
           }
           catch (err) {
-            // TODO: if we refactor all pragma visitors to async we can use Node's built in support for dynamic import within CJS
             if (hasEsmError(err)) {
-              try {
-                if (!requireEsm) {
-                  // eslint-disable-next-line
-                  requireEsm = require('esm')(module)
-                }
-                let plugin = requireEsm(pluginPath)
-                plugins[name] = plugin.default ? plugin.default : plugin
-              }
-              catch (err) {
-                errors.push(err)
-              }
+              let plugin = await import(pluginPath)
+              plugins[name] = plugin.default ? plugin.default : plugin
             }
             else {
-              errors.push(err)
+              throw err
             }
           }
         }
@@ -123,24 +113,23 @@ module.exports = function getPluginModules ({ arc, inventory, errors }) {
   return plugins
 }
 
-/* istanbul ignore next: per above, nyc isn't picking this up, but it is covered! */
 function getPath (cwd, srcDir, name) {
   let path1 = join(cwd, 'src', srcDir, `${name}.js`)
   let path2 = join(cwd, 'src', srcDir, `${name}.mjs`)
   let path3 = join(cwd, 'src', srcDir, name)
-  let path4 = join(cwd, 'node_modules', name)
-  let path5 = join(cwd, 'node_modules', `@${name}`)
   /**/ if (existsSync(path1)) return path1
   else if (existsSync(path2)) return path2
-  else if (existsSync(path3)) return path3
-  else if (existsSync(path4)) return path4
-  else if (existsSync(path5)) return path5
+  else if (existsSync(path3)) return resolve(path3, cwd)
+  return resolve(name, cwd)
+}
+
+function resolve (path, cwd) {
   try {
-    return require.resolve(name)
+    return require.resolve(path, { paths: [ cwd ] })
   }
   catch {
     try {
-      return require.resolve(`@${name}`)
+      return require.resolve(`@${path}`, { paths: [ cwd ] })
     }
     catch {
       return
@@ -154,5 +143,4 @@ let esmErrors = [
   'require() of ES Module',
   'Must use import to load ES Module',
 ]
-/* istanbul ignore next: per above, nyc isn't picking this up, but it is covered! */
 let hasEsmError = err => esmErrors.some(msg => err.message.includes(msg))
