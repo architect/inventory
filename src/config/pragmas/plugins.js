@@ -53,7 +53,10 @@ module.exports = async function getPluginModules ({ arc, inventory, errors }) {
           }
           catch (err) {
             if (hasEsmError(err)) {
-              let plugin = await import(pluginPath)
+              let path =  process.platform.startsWith('win')
+                ? 'file://' + pluginPath
+                : pluginPath
+              let plugin = await import(path)
               plugins[name] = plugin.default ? plugin.default : plugin
             }
             else {
