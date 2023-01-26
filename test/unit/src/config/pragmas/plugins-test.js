@@ -1,8 +1,6 @@
-let { join, sep  } = require('path')
+let { join } = require('path')
 let parse = require('@architect/parser')
 let test = require('tape')
-let mockFs = require('mock-fs')
-let mockRequire = require('mock-require')
 let cwd = process.cwd()
 let libPath = join(cwd, 'src', 'lib')
 let { is } = require(libPath)
@@ -15,7 +13,7 @@ let inventory
 function setup (path) {
   inventory = inventoryDefaults()
   inventory._project.cwd = path || cwd
-  mockFs.restore()
+  process.chdir(path || cwd)
 }
 
 test('Set up env', t => {
@@ -23,327 +21,215 @@ test('Set up env', t => {
   t.ok(populatePlugins, '@plugins module populator is present')
 })
 
-test('No @plugins or @macros returns null', t => {
+test('No @plugins or @macros returns null', async t => {
   t.plan(1)
-  t.equal(populatePlugins({ arc: {} }), null, 'Returned null')
+  t.equal(await populatePlugins({ arc: {} }), null, 'Returned null')
 })
 
-test('Missing @plugin errors', t => {
+test('Missing @plugin errors', async t => {
   t.plan(4)
   setup()
   let err = /Cannot find plugin/
   let arc = parse('@plugins\nidk')
   let errors = []
-  populatePlugins({ arc, inventory, errors })
+  await populatePlugins({ arc, inventory, errors })
   t.equal(errors.length, 1, 'Invalid plugin errored')
   t.match(errors[0], err, `Got correct error: ${errors[0]}`)
 
   arc = parse('@plugins\nhi there')
   errors = []
-  populatePlugins({ arc, inventory, errors })
+  await populatePlugins({ arc, inventory, errors })
   t.equal(errors.length, 1, 'Invalid plugin errored')
   t.match(errors[0], err, `Got correct error: ${errors[0]}`)
 })
 
-test('Missing @macro errors', t => {
+test('Missing @macro errors', async t => {
   t.plan(2)
   setup()
   let err = /Cannot find plugin/
   let arc = parse('@macros\nidk')
   let errors = []
-  populatePlugins({ arc, inventory, errors })
+  await populatePlugins({ arc, inventory, errors })
   t.equal(errors.length, 1, 'Invalid plugin errored')
   t.match(errors[0], err, `Got correct error: ${errors[0]}`)
 })
 
-test('Check plugin file paths', t => {
-  t.plan(80)
-  let path = join(sep, 'foo')
-  let name1 = 'proj1'
-  let name2 = 'proj2'
-  let pluginPaths = [
-    // Plugins: simple
-    join(path, 'src', 'plugins', `${name1}.js`),
-    join(path, 'src', 'plugins', name1),
-    join(path, 'node_modules', name1),
-    join(path, 'node_modules', `@${name1}`),
-    // Plugins: verbose
-    join(path, 'custom-path', name1),
-    // Macros: simple
-    join(path, 'src', 'macros', `${name2}.js`),
-    join(path, 'src', 'macros', name2),
-    join(path, 'node_modules', name2),
-    join(path, 'node_modules', `@${name2}`),
-  ]
-  let enplugin = fn => ({ sandbox: { start: fn } })
-  // Plugins
-  mockRequire(pluginPaths[0], enplugin(function pluginPath0 () {}))
-  mockRequire(pluginPaths[1], enplugin(function pluginPath1 () {}))
-  mockRequire(pluginPaths[2], enplugin(function pluginPath2 () {}))
-  mockRequire(pluginPaths[3], enplugin(function pluginPath3 () {}))
-  mockRequire(pluginPaths[4], enplugin(function pluginPath4 () {}))
-  // Macros
-  mockRequire(pluginPaths[5], function pluginPath5 () {})
-  mockRequire(pluginPaths[6], function pluginPath6 () {})
-  mockRequire(pluginPaths[7], function pluginPath7 () {})
-  mockRequire(pluginPaths[8], function pluginPath8 () {})
+test('Check plugin file paths', async t => {
+  t.plan(88)
+  let mockRoot = join(cwd, 'test', 'mock', 'plugin-paths')
+  let arc, result
+  let plugin = 'a-plugin'
+  let pluginFnName = 'aPlugin'
+  let macro = 'a-macro'
+  let macroFnName = 'aMacro'
+  let errors = []
 
-  let errors
-  let result
-  let arc = { plugins: [ name1 ] }
-
-  function check (projName, name, _type, hook) {
-    t.ok(result[projName], 'Got back a valid plugin')
+  function check (pluginName, fnName, _type, hook) {
+    t.ok(result[pluginName], 'Got back a valid plugin')
     t.notOk(errors.length, 'No errors reported')
-    t.equal(result[projName][hook].start.name, name, `Got back correct plugin: ${name}`)
-    t.equal(result[projName][hook].start._plugin, projName, `Got back correct plugin name: ${projName}`)
-    t.equal(result[projName][hook].start._type, _type, 'Got back correct plugin type: plugin')
-    t.equal(result._methods[hook].start[0].name, name, `Got back correct plugin _method: ${name}`)
-    t.equal(result._methods[hook].start[0]._plugin, projName, `Got back correct plugin name: ${projName}`)
+    if (errors.length) console.log('Errors:', errors)
+    t.equal(result[pluginName][hook].start.name, fnName, `Got back correct plugin: ${fnName}`)
+    t.equal(result[pluginName][hook].start._plugin, pluginName, `Got back correct plugin name: ${pluginName}`)
+    t.equal(result[pluginName][hook].start._type, _type, 'Got back correct plugin type: plugin')
+    t.equal(result._methods[hook].start[0].name, fnName, `Got back correct plugin _method: ${fnName}`)
+    t.equal(result._methods[hook].start[0]._plugin, pluginName, `Got back correct plugin name: ${pluginName}`)
     t.equal(result._methods[hook].start[0]._type, _type, 'Got back correct plugin type: plugin')
   }
 
-  // Simple
-  setup(path)
-  mockFs({ [pluginPaths[0]]: null })
-  errors = []
-  result = populatePlugins({ arc, inventory, errors })
-  check(name1, 'pluginPath0', 'plugin', 'sandbox')
+  setup(join(mockRoot, 'plugin-js'))
+  arc = { plugins: [ plugin ] }
+  result = await populatePlugins({ arc, inventory, errors })
+  check(plugin, pluginFnName, 'plugin', 'sandbox')
 
-  setup(path)
-  mockFs({ [pluginPaths[1]]: null })
-  errors = []
-  result = populatePlugins({ arc, inventory, errors })
-  check(name1, 'pluginPath1', 'plugin', 'sandbox')
+  setup(join(mockRoot, 'plugin-mjs'))
+  arc = { plugins: [ plugin ] }
+  result = await populatePlugins({ arc, inventory, errors })
+  check(plugin, pluginFnName, 'plugin', 'sandbox')
 
-  setup(path)
-  mockFs({ [pluginPaths[2]]: null })
-  errors = []
-  result = populatePlugins({ arc, inventory, errors })
-  check(name1, 'pluginPath2', 'plugin', 'sandbox')
+  setup(join(mockRoot, 'plugin-folder'))
+  arc = { plugins: [ plugin ] }
+  result = await populatePlugins({ arc, inventory, errors })
+  check(plugin, pluginFnName, 'plugin', 'sandbox')
 
-  setup(path)
-  mockFs({ [pluginPaths[3]]: null })
-  errors = []
-  result = populatePlugins({ arc, inventory, errors })
-  check(name1, 'pluginPath3', 'plugin', 'sandbox')
+  setup(join(mockRoot, 'plugin-custom-path'))
+  arc = { plugins: [
+    { 'a-plugin': { src: join('src', 'a-plugin') } },
+    // Tests default paths in plugins structured as objects without src
+    { 'another-plugin': { 'some-setting': 'whatev' } },
+  ] }
+  result = await populatePlugins({ arc, inventory, errors })
+  check(plugin, pluginFnName, 'plugin', 'sandbox')
 
-  // Verbose
-  arc = parse(`@plugins
-proj1
-  src '${pluginPaths[4]}'`)
-  setup(path)
-  mockFs({ [pluginPaths[4]]: null })
-  errors = []
-  result = populatePlugins({ arc, inventory, errors })
-  check(name1, 'pluginPath4', 'plugin', 'sandbox')
+  setup(join(mockRoot, 'nm-plugin'))
+  arc = { plugins: [ plugin ] }
+  result = await populatePlugins({ arc, inventory, errors })
+  check(plugin, pluginFnName, 'plugin', 'sandbox')
 
-  // Verbose that does not include src property
-  arc = parse(`@plugins
-proj1
-  idk whatever`)
-  setup(path)
-  errors = []
-  result = populatePlugins({ arc, inventory, errors })
-  check(name1, 'pluginPath1', 'plugin', 'sandbox')
+  setup(join(mockRoot, 'nm-atplugin'))
+  arc = { plugins: [ plugin ] }
+  result = await populatePlugins({ arc, inventory, errors })
+  check(plugin, pluginFnName, 'plugin', 'sandbox')
 
-  // Macros
-  arc = { macros: [ name2 ] }
+  setup(join(mockRoot, 'macro-js'))
+  arc = { macros: [ macro ] }
+  result = await populatePlugins({ arc, inventory, errors })
+  check(macro, macroFnName, 'macro', 'deploy')
 
-  setup(path)
-  mockFs({ [pluginPaths[5]]: null })
-  errors = []
-  result = populatePlugins({ arc, inventory, errors })
-  check(name2, 'pluginPath5', 'macro', 'deploy')
+  setup(join(mockRoot, 'macro-folder'))
+  arc = { macros: [ macro ] }
+  result = await populatePlugins({ arc, inventory, errors })
+  check(macro, macroFnName, 'macro', 'deploy')
 
-  setup(path)
-  mockFs({ [pluginPaths[6]]: null })
-  errors = []
-  result = populatePlugins({ arc, inventory, errors })
-  check(name2, 'pluginPath6', 'macro', 'deploy')
+  setup(join(mockRoot, 'macro-custom-path'))
+  arc = { macros: [ { 'a-macro': { src: join('src', 'a-macro') } } ] }
+  result = await populatePlugins({ arc, inventory, errors })
+  check(macro, macroFnName, 'macro', 'deploy')
 
-  setup(path)
-  mockFs({ [pluginPaths[7]]: null })
-  errors = []
-  result = populatePlugins({ arc, inventory, errors })
-  check(name2, 'pluginPath7', 'macro', 'deploy')
+  setup(join(mockRoot, 'nm-macro'))
+  arc = { macros: [ macro ] }
+  result = await populatePlugins({ arc, inventory, errors })
+  check(macro, macroFnName, 'macro', 'deploy')
 
-  setup(path)
-  mockFs({ [pluginPaths[8]]: null })
-  errors = []
-  result = populatePlugins({ arc, inventory, errors })
-  check(name2, 'pluginPath8', 'macro', 'deploy')
-
-  mockFs.restore()
-  mockRequire.stopAll()
+  setup(join(mockRoot, 'nm-atmacro'))
+  arc = { macros: [ macro ] }
+  result = await populatePlugins({ arc, inventory, errors })
+  check(macro, macroFnName, 'macro', 'deploy')
 })
 
-test('@plugins validation', t => {
-  t.plan(44)
-  let path = join(sep, 'foo')
+test('@plugins validation', async t => {
+  t.plan(37)
+  let mockRoot = join(cwd, 'test', 'mock', 'plugin-validation')
   let arc, err, errors, result
-  let name1 = 'proj1'
-  let name2 = 'proj2'
-  let pluginPath1 = join(path, 'src', 'plugins', name1)
-  let pluginPath2 = join(path, 'src', 'plugins', name2)
+  let plugin1 = 'a-plugin-1'
+  let plugin2 = 'a-plugin-2'
+  arc = { plugins: [ plugin1, plugin2 ] }
 
-  arc = { plugins: [ name1 ] }
-  setup(path)
-  mockFs({
-    [pluginPath1]: null,
-    [pluginPath2]: null,
-  })
+  // Multiple plugins aggregate into plugin arrays
+  setup(join(mockRoot, 'valid'))
+  errors = []
+  result = await populatePlugins({ arc, inventory, errors })
+  t.ok(result[plugin1], 'Got back valid plugin 1')
+  t.ok(result[plugin2], 'Got back valid plugin 2')
+  t.notOk(errors.length, 'No errors reported')
 
   // Unknown methods are ignored by method tree
-  mockRequire(pluginPath1, { idk: { start: () => {} } })
-  errors = []
-  result = populatePlugins({ arc, inventory, errors })
-  t.ok(result[name1], 'Got back a valid plugin')
-  t.notOk(errors.length, 'No errors reported')
-  t.ok(is.fn(result[name1].idk.start), 'Found unknown method in plugin')
+  t.ok(is.fn(result[plugin1].idk.start), 'Found unknown method in plugin')
   t.notOk(result._methods.idk, 'Did not find unknown function in _methods')
 
-  // Workflow is a sync function
-  mockRequire(pluginPath1, { sandbox: { start: () => {} } })
-  errors = []
-  result = populatePlugins({ arc, inventory, errors })
-  t.ok(result[name1], 'Got back a valid plugin')
-  t.notOk(errors.length, 'No errors reported')
-  t.ok(is.fn(result[name1].sandbox.start), 'Found Sandbox lifecycle function in plugin')
-  t.ok(is.fn(result._methods.sandbox.start[0]), 'Found Sandbox lifecycle function in _methods')
+  // Workflow functions are sync
+  t.ok(is.fn(result[plugin1].sandbox.start), 'Found sandbox.start function in plugin 1')
+  t.ok(is.fn(result[plugin2].sandbox.start), 'Found sandbox.start function in plugin 2')
+  t.equal(result._methods.sandbox.start.length, 2, 'Got two sandbox.start lifecycle functions in _methods')
+  t.ok(is.fn(result._methods.sandbox.start[0]), 'Found plugin 1 sandbox.start function in _methods')
+  t.ok(is.fn(result._methods.sandbox.start[1]), 'Found plugin 2 sandbox.start function in _methods')
+  t.equal(result[plugin1].sandbox.start.constructor.name, 'Function', 'sandbox.start function is synchronous in plugin 1')
+  t.equal(result[plugin2].sandbox.start.constructor.name, 'Function', 'sandbox.start function is synchronous in plugin 2')
 
-  // Workflow is an async function
-  mockRequire(pluginPath1, { sandbox: { start: async () => {} } })
+  // Workflow functions are async
+  t.ok(is.fn(result[plugin1].sandbox.end), 'Found sandbox.end function in plugin 1')
+  t.ok(is.fn(result[plugin2].sandbox.end), 'Found sandbox.end function in plugin 2')
+  t.equal(result._methods.sandbox.end.length, 2, 'Got two sandbox.end lifecycle functions in _methods')
+  t.ok(is.fn(result._methods.sandbox.end[0]), 'Found plugin 1 sandbox.end function in _methods')
+  t.ok(is.fn(result._methods.sandbox.end[1]), 'Found plugin 2 sandbox.end function in _methods')
+  t.equal(result[plugin1].sandbox.end.constructor.name, 'AsyncFunction', 'sandbox.end function is async in plugin 1')
+  t.equal(result[plugin2].sandbox.end.constructor.name, 'AsyncFunction', 'sandbox.end function is async in plugin 2')
+
+  // Setter functions are sync
+  t.ok(is.fn(result[plugin1].set.http), 'Found set.http function in plugin 1')
+  t.ok(is.fn(result[plugin2].set.events), 'Found set.events function in plugin 2')
+  t.ok(is.fn(result._methods.set.http[0]), 'Found set.http function in _methods')
+  t.ok(is.fn(result._methods.set.http[1]), 'Found set.http function in _methods')
+  t.ok(is.fn(result._methods.set.events[0]), 'Found set.events function in _methods')
+  t.equal(result[plugin1].set.http.constructor.name, 'Function', 'set.http function is synchronous in plugin 1')
+  t.equal(result[plugin2].set.http.constructor.name, 'Function', 'set.http function is synchronous in plugin 2')
+  t.equal(result[plugin2].set.events.constructor.name, 'Function', 'set.events function is synchronous in plugin 2')
+
+  // Errors!
+  arc = { plugins: [ plugin1 ] }
+  setup(join(mockRoot, 'invalid'))
+
   errors = []
-  result = populatePlugins({ arc, inventory, errors })
-  t.ok(result[name1], 'Got back a valid plugin')
-  t.notOk(errors.length, 'No errors reported')
-  t.ok(is.fn(result[name1].sandbox.start), 'Found Sandbox lifecycle function in plugin')
-  t.ok(is.fn(result._methods.sandbox.start[0]), 'Found Sandbox lifecycle function in _methods')
+  result = await populatePlugins({ arc, inventory, errors })
+  t.ok(result[plugin1], 'Got back a valid plugin')
+  t.equal(errors.length, 2, 'Invalid plugin errored')
 
   // Workflow is !function
-  mockRequire(pluginPath1, { sandbox: { start: 'hello' } })
-  errors = []
-  result = populatePlugins({ arc, inventory, errors })
   err = /Invalid plugin, must be a function/
-  t.equal(errors.length, 1, 'Invalid plugin errored')
   t.match(errors[0], err, `Got correct error: ${errors[0]}`)
-
-  // Multiple workflows aggregate in plugin arrays
-  arc = { plugins: [ name1, name2 ] }
-  mockRequire(pluginPath1, { sandbox: { start: async () => {} } })
-  mockRequire(pluginPath2, { sandbox: { start: async () => {} } })
-  errors = []
-  result = populatePlugins({ arc, inventory, errors })
-  t.ok(result[name1], 'Got back a valid plugin')
-  t.ok(result[name2], 'Got back a valid plugin')
-  t.notOk(errors.length, 'No errors reported')
-  t.ok(is.fn(result[name1].sandbox.start), 'Found Sandbox lifecycle function in plugin')
-  t.ok(is.fn(result[name2].sandbox.start), 'Found Sandbox lifecycle function in plugin')
-  t.equal(result._methods.sandbox.start.length, 2, 'Got two Sandbox lifecycle functions in _methods')
-  t.ok(is.fn(result._methods.sandbox.start[0]), 'Found Sandbox lifecycle function in _methods')
-  t.ok(is.fn(result._methods.sandbox.start[1]), 'Found Sandbox lifecycle function in _methods')
-
-  // Setter is a sync function
-  arc = { plugins: [ name1 ] }
-  mockRequire(pluginPath1, { set: { http: () => {} } })
-  errors = []
-  result = populatePlugins({ arc, inventory, errors })
-  t.ok(result[name1], 'Got back a valid plugin')
-  t.notOk(errors.length, 'No errors reported')
-  t.ok(is.fn(result[name1].set.http), 'Found HTTP setter function in plugin')
-  t.ok(is.fn(result._methods.set.http[0]), 'Found HTTP setter function in _methods')
 
   // Setter is !function
-  mockRequire(pluginPath1, { set: { http: 'hello' } })
-  errors = []
-  result = populatePlugins({ arc, inventory, errors })
   err = /setters must be synchronous functions/
-  t.equal(errors.length, 1, 'Invalid plugin errored')
-  t.match(errors[0], err, `Got correct error: ${errors[0]}`)
-
-  // Setter is an async function
-  mockRequire(pluginPath1, { set: { http: async () => {} } })
-  errors = []
-  result = populatePlugins({ arc, inventory, errors })
-  err = /setters must be synchronous functions/
-  t.equal(errors.length, 1, 'Invalid plugin errored')
-  t.match(errors[0], err, `Got correct error: ${errors[0]}`)
-
-  // Multiple setters aggregate in plugin arrays
-  arc = { plugins: [ name1, name2 ] }
-  mockRequire(pluginPath1, { set: { http: () => {} } })
-  mockRequire(pluginPath2, { set: { http: () => {} } })
-  errors = []
-  result = populatePlugins({ arc, inventory, errors })
-  t.ok(result[name1], 'Got back a valid plugin')
-  t.ok(result[name2], 'Got back a valid plugin')
-  t.notOk(errors.length, 'No errors reported')
-  t.ok(is.fn(result[name1].set.http), 'Found HTTP setter function in plugin')
-  t.ok(is.fn(result[name2].set.http), 'Found HTTP setter function in plugin')
-  t.equal(result._methods.set.http.length, 2, 'Got two Sandbox lifecycle functions in _methods')
-  t.ok(is.fn(result._methods.set.http[0]), 'Found Sandbox lifecycle function in _methods')
-  t.ok(is.fn(result._methods.set.http[1]), 'Found Sandbox lifecycle function in _methods')
+  t.match(errors[1], err, `Got correct error: ${errors[1]}`)
 
   // Plugin uses a reserved name (internal to plugins)
-  name1 = '_methods'
-  pluginPath1 = join(path, 'src', 'plugins', name1)
-  arc = { plugins: [ name1 ] }
-  setup(path)
-  mockFs({ [pluginPath1]: null })
-  mockRequire(pluginPath1, {})
+  arc = { plugins: [ '_methods' ] }
   errors = []
-  result = populatePlugins({ arc, inventory, errors })
+  result = await populatePlugins({ arc, inventory, errors })
   err = /Plugin name _methods is reserved/
   t.equal(errors.length, 1, 'Invalid plugin errored')
   t.match(errors[0], err, `Got correct error: ${errors[0]}`)
 
-  // Plugin uses a reserved name (pragma conflict)
-  name1 = '_methods'
-  pluginPath1 = join(path, 'src', 'plugins', name1)
-  arc = { plugins: [ name1 ] }
-  setup(path)
-  mockFs({ [pluginPath1]: null })
-  mockRequire(pluginPath1, {})
-  errors = []
-  result = populatePlugins({ arc, inventory, errors })
-  err = /Plugin name _methods is reserved/
-  t.equal(errors.length, 1, 'Invalid plugin errored')
-  t.match(errors[0], err, `Got correct error: ${errors[0]}`)
+  // TODO: Plugin uses a reserved name (pragma conflict)
 
   // Plugin uses an invalid name
-  name1 = '@wesome-plugin!'
-  pluginPath1 = join(path, 'src', 'plugins', name1)
-  arc = { plugins: [ name1 ] }
-  setup(path)
-  mockFs({ [pluginPath1]: null })
-  mockRequire(pluginPath1, {})
+  arc = { plugins: [ '@wesome-plugin!' ] }
   errors = []
-  result = populatePlugins({ arc, inventory, errors })
+  result = await populatePlugins({ arc, inventory, errors })
   err = /Plugin names can only contain/
   t.equal(errors.length, 1, 'Invalid plugin errored')
   t.match(errors[0], err, `Got correct error: ${errors[0]}`)
 
-  mockFs.restore()
-  mockRequire.stopAll()
-})
-
-test('@plugins fail to load', t => {
-  t.plan(2)
-  let path = join(sep, 'foo')
-  let name1 = 'proj1'
-  let pluginPath1 = join(path, 'src', 'plugins', name1)
-  let arc = { plugins: [ name1 ] }
-  setup(path)
-  mockFs({ [pluginPath1]: null })
-
-  mockRequire(pluginPath1, null)
-  let errors = []
-  populatePlugins({ arc, inventory, errors })
-  let err = /Unable to load plugin 'proj1'/
+  // Plugin fails to load
+  arc = { plugins: [ 'no-load' ] }
+  errors = []
+  result = await populatePlugins({ arc, inventory, errors })
+  err = /Unable to load plugin 'no-load'/
   t.equal(errors.length, 1, 'Invalid plugin errored')
   t.match(errors[0], err, `Got correct error: ${errors[0]}`)
+})
 
-  mockFs.restore()
-  mockRequire.stopAll()
+test('Teardown', t => {
+  t.plan(1)
+  process.chdir(cwd)
+  t.pass('Tore down env')
 })

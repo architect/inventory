@@ -72,7 +72,7 @@ test('Inventory a project with a plugin that registers lambdas', t => {
   let cjsPragma = 'custom-' + cjs
   let esmPragma = 'custom-' + esm
 
-  let cwd = join(mock, 'plugins-lambda')
+  let cwd = join(mock, 'plugin-lambdae')
   let channelOneDir = join(cwd, 'src', cjs, 'channel-one')
   let channelTwoDir = join(cwd, 'src', cjs, 'channel-two')
   let channelThreeDir = join(cwd, 'src', esm, 'channel-three')
