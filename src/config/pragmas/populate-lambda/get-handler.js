@@ -47,8 +47,16 @@ function getExt ({ runtime, src, errors }) {
       // This presumes Node.js ≥14 Lambda releases use the same CJS/ESM pattern
       // Generally in Lambda: CJS wins, but in Architect-land we attempt to default to ESM
       else {
-        let { file, ext = 'mjs' } = findHandler(nodeHandlers, src)
+        let { file, ext } = findHandler(nodeHandlers, src)
+
+        // Early return on extensions that imply module type
+        if (ext === 'mjs') return { file, ext, handlerModuleSystem: 'esm' }
+        if (ext === 'cjs') return { file, ext, handlerModuleSystem: 'cjs' }
+
+        // In the odd case that there only exists an `index` file (no ext), default to ESM and let other things blow up when it's not found
+        ext = ext || 'mjs'
         let handlerModuleSystem = ext === 'mjs' ? 'esm' : 'cjs'
+
         let pkgFile = join(src, 'package.json')
         if (existsSync(pkgFile)) {
           let pkg = JSON.parse(readFileSync(pkgFile))
