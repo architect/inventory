@@ -92,7 +92,7 @@ test('Handler properties (built-in runtimes)', t => {
 })
 
 test('Handler properties (Node.js module systems)', t => {
-  t.plan(28)
+  t.plan(34)
   // Not going to bother checking handlerMethod here, assuming we got that right above
   let config, errors, result
 
@@ -125,6 +125,16 @@ test('Handler properties (Node.js module systems)', t => {
   t.notOk(errors.length, 'Did not get handler errors')
   t.equal(result.handlerFile, srcPath(`${file}.mjs`), `Got correct handlerFile: ${result.handlerFile}`)
   t.equal(result.handlerModuleSystem, 'esm', `Got correct handlerModuleSystem: ${result.handlerModuleSystem}`)
+
+  // .js
+  config = defaultFunctionConfig()
+  errors = []
+  mockFs(fakeFile(`${file}.js`))
+  result = getHandler({ config, src, errors })
+  t.notOk(errors.length, 'Did not get handler errors')
+  t.equal(result.handlerFile, srcPath(`${file}.js`), `Got correct handlerFile: ${result.handlerFile}`)
+  t.equal(result.handlerModuleSystem, 'cjs', `Got correct handlerModuleSystem: ${result.handlerModuleSystem}`)
+  mockFs.restore()
 
   // .cjs
   config = defaultFunctionConfig()
@@ -160,6 +170,19 @@ test('Handler properties (Node.js module systems)', t => {
   config = defaultFunctionConfig()
   errors = []
   mockFs(fakeFile(`${file}.mjs`))
+  result = getHandler({ config, src, errors })
+  t.notOk(errors.length, 'Did not get handler errors')
+  t.equal(result.handlerFile, srcPath(`${file}.mjs`), `Got correct handlerFile: ${result.handlerFile}`)
+  t.equal(result.handlerModuleSystem, 'esm', `Got correct handlerModuleSystem: ${result.handlerModuleSystem}`)
+  mockFs.restore()
+
+  // .mjs in the root with a project package.json
+  config = defaultFunctionConfig()
+  errors = []
+  mockFs({ [src]: {
+    [`${file}.mjs`]: 'hi',
+    'package.json': JSON.stringify({})
+  } })
   result = getHandler({ config, src, errors })
   t.notOk(errors.length, 'Did not get handler errors')
   t.equal(result.handlerFile, srcPath(`${file}.mjs`), `Got correct handlerFile: ${result.handlerFile}`)

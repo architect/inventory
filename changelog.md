@@ -2,6 +2,14 @@
 
 ---
 
+## [3.4.2] 2023-02-02
+
+### Fixed
+
+- Fixed issue where an `index.mjs` handler in the project root would not be properly detected if a `package.json` file is present (which it almost certainly would be)
+
+---
+
 ## [3.4.1] 2023-01-25
 
 ### Added
