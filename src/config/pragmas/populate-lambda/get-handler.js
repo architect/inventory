@@ -21,7 +21,8 @@ module.exports = function getHandler ({ config, src, build, errors }) {
   }
   // Compiled to a binary
   else if (customRuntimeType === 'compiled') {
-    handlerFile = join(build, runtimeConfig.handlerFile || 'handler')
+    handlerFile = join(build, runtimeConfig.buildSubpath || '', runtimeConfig.handlerFile || 'bootstrap')
+    handlerMethod = null
   }
   // Interpreted
   else if (customRuntimeType === 'interpreted') {

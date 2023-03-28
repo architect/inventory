@@ -2,6 +2,14 @@
 
 ---
 
+## [3.4.3] 2023-03-27
+
+### Added
+
+- Added support for `buildSubpath` property for `compiled` runtime plugins
+
+---
+
 ## [3.4.2] 2023-02-02
 
 ### Fixed

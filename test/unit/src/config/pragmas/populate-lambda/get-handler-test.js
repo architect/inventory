@@ -11,6 +11,7 @@ let src = join('src', 'foo')
 let srcPath = file => join(src, file)
 let file = 'index'
 let handler = 'handler'
+let buildSubpath = 'target'
 function fakeFile (file, contents = 'hi') {
   return { [src]: { [file]: contents } }
 }
@@ -295,7 +296,7 @@ test('Handler properties (Deno)', t => {
 })
 
 test('Custom runtime properties', t => {
-  t.plan(21)
+  t.plan(24)
   let build = '.some-build-dir'
   let handlerFile, config, errors, result
 
@@ -337,7 +338,17 @@ test('Custom runtime properties', t => {
   result = getHandler({ config, src, build, errors })
   t.notOk(errors.length, 'Did not get handler errors')
   t.equal(result.handlerFile, join(build, `${handlerFile}`), `Got correct handlerFile: ${result.handlerFile}`)
-  t.equal(result.handlerMethod, handler, `Got correct handlerMethod: ${result.handlerMethod}`)
+  t.equal(result.handlerMethod, null, `Got correct handlerMethod: ${result.handlerMethod}`)
+
+  // Compiled to a binary, with a build subpath
+  config = defaultFunctionConfig()
+  config.runtime = 'rust'
+  errors = []
+  config.runtimeConfig = { type: 'compiled', buildSubpath }
+  result = getHandler({ config, src, build, errors })
+  t.notOk(errors.length, 'Did not get handler errors')
+  t.equal(result.handlerFile, join(build, buildSubpath, 'bootstrap'), `Got correct handlerFile: ${join(build, buildSubpath, 'bootstrap')}`)
+  t.equal(result.handlerMethod, null, `Got correct handlerMethod: ${result.handlerMethod}`)
 
   // Compiled to a binary, with specified handlerFile
   config = defaultFunctionConfig()
@@ -346,8 +357,8 @@ test('Custom runtime properties', t => {
   config.runtimeConfig = { type: 'compiled' }
   result = getHandler({ config, src, build, errors })
   t.notOk(errors.length, 'Did not get handler errors')
-  t.equal(result.handlerFile, join(build, `${handler}`), `Got correct handlerFile: ${result.handlerFile}`)
-  t.equal(result.handlerMethod, handler, `Got correct handlerMethod: ${result.handlerMethod}`)
+  t.equal(result.handlerFile, join(build, 'bootstrap'), `Got correct handlerFile: ${join(build, 'bootstrap')}`)
+  t.equal(result.handlerMethod, null, `Got correct handlerMethod: ${result.handlerMethod}`)
 
   // Interpreted custom runtime, no specified handlerFile
   config = defaultFunctionConfig()
