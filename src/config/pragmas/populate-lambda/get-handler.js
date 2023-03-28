@@ -1,5 +1,6 @@
 let { join } = require('path')
 let { existsSync, readFileSync } = require('fs')
+let isWin = process.platform.startsWith('win')
 
 module.exports = function getHandler ({ config, src, build, errors }) {
   let { handler, runtime, runtimeConfig } = config
@@ -21,7 +22,9 @@ module.exports = function getHandler ({ config, src, build, errors }) {
   }
   // Compiled to a binary
   else if (customRuntimeType === 'compiled') {
-    handlerFile = join(build, runtimeConfig.buildSubpath || '', runtimeConfig.handlerFile || 'bootstrap')
+    /* istanbul ignore next */
+    let bootstrap = `bootstrap${isWin ? '.exe' : ''}`
+    handlerFile = join(build, runtimeConfig.buildSubpath || '', runtimeConfig.handlerFile || bootstrap)
     handlerMethod = null
   }
   // Interpreted

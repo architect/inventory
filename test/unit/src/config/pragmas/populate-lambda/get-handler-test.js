@@ -7,11 +7,13 @@ let fnConfig = join(cwd, 'src', 'defaults', 'function-config')
 let getHandler = require(sut)
 let defaultFunctionConfig = require(fnConfig)
 
+let isWin = process.platform.startsWith('win')
 let src = join('src', 'foo')
 let srcPath = file => join(src, file)
 let file = 'index'
 let handler = 'handler'
 let buildSubpath = 'target'
+let bootstrap = `bootstrap${isWin ? '.exe' : ''}`
 function fakeFile (file, contents = 'hi') {
   return { [src]: { [file]: contents } }
 }
@@ -347,7 +349,7 @@ test('Custom runtime properties', t => {
   config.runtimeConfig = { type: 'compiled', buildSubpath }
   result = getHandler({ config, src, build, errors })
   t.notOk(errors.length, 'Did not get handler errors')
-  t.equal(result.handlerFile, join(build, buildSubpath, 'bootstrap'), `Got correct handlerFile: ${join(build, buildSubpath, 'bootstrap')}`)
+  t.equal(result.handlerFile, join(build, buildSubpath, bootstrap), `Got correct handlerFile: ${join(build, buildSubpath, bootstrap)}`)
   t.equal(result.handlerMethod, null, `Got correct handlerMethod: ${result.handlerMethod}`)
 
   // Compiled to a binary, with specified handlerFile
@@ -357,7 +359,7 @@ test('Custom runtime properties', t => {
   config.runtimeConfig = { type: 'compiled' }
   result = getHandler({ config, src, build, errors })
   t.notOk(errors.length, 'Did not get handler errors')
-  t.equal(result.handlerFile, join(build, 'bootstrap'), `Got correct handlerFile: ${join(build, 'bootstrap')}`)
+  t.equal(result.handlerFile, join(build, bootstrap), `Got correct handlerFile: ${join(build, bootstrap)}`)
   t.equal(result.handlerMethod, null, `Got correct handlerMethod: ${result.handlerMethod}`)
 
   // Interpreted custom runtime, no specified handlerFile
