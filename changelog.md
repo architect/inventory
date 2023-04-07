@@ -2,6 +2,14 @@
 
 ---
 
+## [3.4.3] 2023-04-07
+
+### Changed
+
+- Retired `nodejs12.x` related logic (deprecated in Lambda 2023-03-31)
+
+---
+
 ## [3.4.2] 2023-02-02
 
 ### Fixed
