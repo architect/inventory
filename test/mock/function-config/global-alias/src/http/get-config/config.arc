@@ -1,6 +1,6 @@
 # Non-defaults all around
 @aws
-runtime nodejs12.x
+runtime nodejs14.x
 timeout 10
 memory 128
 storage 1337
