@@ -22,7 +22,7 @@ test('Set up env', t => {
 })
 
 test('Handler properties (built-in runtimes)', t => {
-  t.plan(24)
+  t.plan(20)
   let config, errors, result
 
   // Defaults to Node.js
@@ -43,16 +43,6 @@ test('Handler properties (built-in runtimes)', t => {
   t.equal(result.handlerFile, srcPath(`${file}.mjs`), `Got correct handlerFile: ${result.handlerFile}`)
   t.equal(result.handlerMethod, handler, `Got correct handlerMethod: ${result.handlerMethod}`)
   t.equal(result.handlerModuleSystem, 'esm', `Got correct handlerModuleSystem: ${result.handlerModuleSystem}`)
-
-  // Node 12 should default to CJS, not ESM
-  config = defaultFunctionConfig()
-  errors = []
-  config.runtime = 'nodejs12.x'
-  result = getHandler({ config, src, errors })
-  t.notOk(errors.length, 'Did not get handler errors')
-  t.equal(result.handlerFile, srcPath(`${file}.js`), `Got correct handlerFile: ${result.handlerFile}`)
-  t.equal(result.handlerMethod, handler, `Got correct handlerMethod: ${result.handlerMethod}`)
-  t.equal(result.handlerModuleSystem, 'cjs', `Got correct handlerModuleSystem: ${result.handlerModuleSystem}`)
 
   // Python
   config = defaultFunctionConfig()
@@ -92,32 +82,11 @@ test('Handler properties (built-in runtimes)', t => {
 })
 
 test('Handler properties (Node.js module systems)', t => {
-  t.plan(34)
+  t.plan(28)
   // Not going to bother checking handlerMethod here, assuming we got that right above
   let config, errors, result
 
-  // 12
-  config = defaultFunctionConfig()
-  errors = []
-  config.runtime = 'nodejs12.x'
-  result = getHandler({ config, src, errors })
-  t.notOk(errors.length, 'Did not get handler errors')
-  t.equal(result.handlerFile, srcPath(`${file}.js`), `Got correct handlerFile: ${result.handlerFile}`)
-  t.equal(result.handlerModuleSystem, 'cjs', `Got correct handlerModuleSystem: ${result.handlerModuleSystem}`)
-
-  // Control for CJS/ESM differentiating filenames; all this should be removed at 12 EOL
-  config = defaultFunctionConfig()
-  errors = []
-  config.runtime = 'nodejs12.x'
-  mockFs(fakeFile(`${file}.mjs`))
-  result = getHandler({ config, src, errors })
-  t.notOk(errors.length, 'Did not get handler errors')
-  t.equal(result.handlerFile, srcPath(`${file}.js`), `Got correct handlerFile: ${result.handlerFile}`)
-  t.equal(result.handlerModuleSystem, 'cjs', `Got correct handlerModuleSystem: ${result.handlerModuleSystem}`)
-  mockFs.restore()
-
   // 14
-  // Default
   config = defaultFunctionConfig()
   errors = []
   config.runtime = 'nodejs14.x'
