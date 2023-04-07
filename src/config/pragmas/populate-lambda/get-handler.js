@@ -45,36 +45,31 @@ let denoHandlers = [ 'mod.ts', 'mod.js' ]
 function getExt ({ runtime, src, errors }) {
   try {
     if (runtime.startsWith('node')) {
-      if (runtime === 'nodejs12.x') {
-        return { ext: 'js', handlerModuleSystem: 'cjs' }
-      }
       // This presumes Node.js ≥14 Lambda releases use the same CJS/ESM pattern
       // Generally in Lambda: CJS wins, but in Architect-land we attempt to default to ESM
-      else {
-        let { file, ext } = findHandler(nodeHandlers, src)
+      let { file, ext } = findHandler(nodeHandlers, src)
 
-        // Early return on extensions that imply module type
-        if (ext === 'mjs') return { file, ext, handlerModuleSystem: 'esm' }
-        if (ext === 'cjs') return { file, ext, handlerModuleSystem: 'cjs' }
+      // Early return on extensions that imply module type
+      if (ext === 'mjs') return { file, ext, handlerModuleSystem: 'esm' }
+      if (ext === 'cjs') return { file, ext, handlerModuleSystem: 'cjs' }
 
-        // In the odd case that there only exists an `index` file (no ext), default to ESM and let other things blow up when it's not found
-        ext = ext || 'mjs'
-        let handlerModuleSystem = ext === 'mjs' ? 'esm' : 'cjs'
+      // In the odd case that there only exists an `index` file (no ext), default to ESM and let other things blow up when it's not found
+      ext = ext || 'mjs'
+      let handlerModuleSystem = ext === 'mjs' ? 'esm' : 'cjs'
 
-        let pkgFile = join(src, 'package.json')
-        if (existsSync(pkgFile)) {
-          let pkg = JSON.parse(readFileSync(pkgFile))
+      let pkgFile = join(src, 'package.json')
+      if (existsSync(pkgFile)) {
+        let pkg = JSON.parse(readFileSync(pkgFile))
 
-          /**/ if (pkg?.type === 'module') handlerModuleSystem = 'esm'
-          else if (pkg?.type === 'commonjs') handlerModuleSystem = 'cjs'
-          else if (pkg?.type) throw Error(`Invalid 'type' field: ${pkg.type}`)
-          else handlerModuleSystem = 'cjs' // Lambda's default, not ours
+        /**/ if (pkg?.type === 'module') handlerModuleSystem = 'esm'
+        else if (pkg?.type === 'commonjs') handlerModuleSystem = 'cjs'
+        else if (pkg?.type) throw Error(`Invalid 'type' field: ${pkg.type}`)
+        else handlerModuleSystem = 'cjs' // Lambda's default, not ours
 
-          // We always get to make this a .js file, even if it's ESM!
-          ext = 'js'
-        }
-        return { file, ext, handlerModuleSystem }
+        // We always get to make this a .js file, even if it's ESM!
+        ext = 'js'
       }
+      return { file, ext, handlerModuleSystem }
     }
     if (runtime.startsWith('python')) return { ext: 'py' }
     if (runtime.startsWith('ruby')) return { ext: 'rb' }

@@ -2,11 +2,19 @@
 
 ---
 
-## [3.4.3] 2023-03-27
+## [3.4.4] 2023-03-27
 
 ### Added
 
 - Added support for `buildSubpath` property for `compiled` runtime plugins
+
+---
+
+## [3.4.3] 2023-04-07
+
+### Changed
+
+- Retired `nodejs12.x` related logic (deprecated in Lambda 2023-03-31)
 
 ---
 
