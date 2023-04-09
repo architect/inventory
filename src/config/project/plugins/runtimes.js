@@ -12,18 +12,18 @@ module.exports = function setRuntimePlugins (params, project) {
   if (runtimePlugins?.length) {
     let runtimes = {
       runtimes: [],
+      runtimePlugins: {}, // Map runtimes to their corresponding plugins
     }
     // inventory._project is not yet built, so provide as much as we can to plugins for now
     let inv = deepFrozenCopy({ ...inventory, _project: project })
     let build
     runtimePlugins.forEach(fn => {
-      let errType = `plugin: ${fn.plugin}, method: set.runtimes`
+      let errType = `plugin: ${fn._plugin}, method: set.runtimes`
       try {
         var result = fn({ arc: inv._project.arc, inventory: { inv } })
       }
       catch (err) {
-        err.message = `Runtime plugin exception: ${errType}`
-                      + `\n` + err.message
+        err.message = `Runtime plugin exception: ${errType}\n` + err.message
         throw err
       }
       // Accept one or more results, then loop through them
@@ -55,13 +55,14 @@ module.exports = function setRuntimePlugins (params, project) {
           if (is.string(runtime.build)) build = runtime.build
         }
         if (type === 'transpiled' && !allRuntimes.includes(baseRuntime)) {
-          return errors.push(`Runtime '${name}' must include a valid baseRuntime property corresponding to a valid Lambda runtime (e.g. 'nodejs16.x')`)
+          return errors.push(`Runtime '${name}' must include a valid baseRuntime property corresponding to a valid Lambda runtime (e.g. 'nodejs18.x')`)
         }
         runtimes.runtimes.push(name)
+        runtimes.runtimePlugins[name] = fn._plugin
         runtimes[name] = runtime
       })
     })
-    return { build, runtimes }
+    return { build, runtimes, runtimePlugins }
   }
   return {}
 }

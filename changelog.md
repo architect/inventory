@@ -2,11 +2,13 @@
 
 ---
 
-## [3.4.4] 2023-03-27
+## [3.5.0] 2023-03-27
 
 ### Added
 
+- Added support for `create` plugin API
 - Added support for `buildSubpath` property for `compiled` runtime plugins
+- Added map of custom runtimes to plugin names in `inv._project.runtimePlugins.customRuntimes`
 
 ---
 

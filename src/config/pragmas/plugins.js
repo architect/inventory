@@ -4,7 +4,7 @@ let { is, pragmas, tidyError, validationPatterns } = require('../../lib')
 let { lambdas } = pragmas
 let nonLambdaSetters = [ 'customLambdas', 'env', 'proxy', 'runtimes', 'shared', 'static', 'views', 'tables', 'tables-indexes' ]
 let setters = [ ...lambdas, ...nonLambdaSetters ]
-let pluginMethods = [ 'deploy', 'hydrate', 'sandbox' ]
+let pluginMethods = [ 'deploy', 'create', 'hydrate', 'sandbox' ]
 let reservedNames = [ '_methods' ]
 
 module.exports = async function getPluginModules ({ arc, inventory, errors }) {

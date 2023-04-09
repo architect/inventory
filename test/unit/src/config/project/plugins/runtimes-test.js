@@ -5,6 +5,8 @@ let setRuntimesPlugins = require(sut)
 
 let name = 'custom-runtime'
 let name2 = 'another-custom-runtime'
+let pluginName = 'a-plugin'
+let pluginName2 = 'another-plugin'
 
 let emptyProj = { arc: {} }
 let newInv = (runtimes = { plugins: null }) => {
@@ -28,7 +30,7 @@ test('Do nothing if no runtime setter plugins are present', t => {
 })
 
 test('Basic runtime setter plugins', t => {
-  t.plan(15)
+  t.plan(18)
   let inventory, plugin, plugins, runtime, runtime2
   let type = 'interpreted'
   let errors = []
@@ -47,6 +49,7 @@ test('Basic runtime setter plugins', t => {
 
   // Return a single custom runtime
   plugin = () => runtime
+  plugin._plugin = pluginName
   inventory = newInv([ plugin ])
   plugins = setRuntimesPlugins({ inventory, errors }, emptyProj)
   t.notOk(errors.length, 'Did not return errors')
@@ -55,10 +58,12 @@ test('Basic runtime setter plugins', t => {
   t.equal(plugins.runtimes.runtimes[0], name, 'Returned correct runtime name')
   t.equal(plugins.runtimes[name].name, name, 'Returned populated custom runtime object')
   t.deepEqual(plugins.runtimes[name], runtime, 'Returned populated custom runtime object')
+  t.equal(plugins.runtimes.runtimePlugins[name], pluginName, 'Returned correct runtime plugin map')
 
   // Return multiple custom runtimes
   runtime2 = { name: name2, type }
   plugin = () => [ runtime, runtime2 ]
+  plugin._plugin = pluginName2
   inventory = newInv([ plugin ])
   plugins = setRuntimesPlugins({ inventory, errors }, emptyProj)
   t.notOk(errors.length, 'Did not return errors')
@@ -68,6 +73,8 @@ test('Basic runtime setter plugins', t => {
   t.deepEqual(plugins.runtimes[name], runtime, 'Returned populated custom runtime object')
   t.equal(plugins.runtimes.runtimes[1], name2, 'Returned correct runtime name')
   t.deepEqual(plugins.runtimes[name2], runtime2, 'Returned populated custom runtime object')
+  t.equal(plugins.runtimes.runtimePlugins[name], pluginName2, 'Returned populated custom runtime object')
+  t.equal(plugins.runtimes.runtimePlugins[name2], pluginName2, 'Returned populated custom runtime object')
 })
 
 test('Transpiled runtime setters', t => {
