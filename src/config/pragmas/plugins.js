@@ -7,6 +7,9 @@ let setters = [ ...lambdas, ...nonLambdaSetters ]
 let pluginMethods = [ 'deploy', 'create', 'hydrate', 'sandbox' ]
 let reservedNames = [ '_methods' ]
 
+// Exceptions to the rule where plugin hooks must be functions
+let stringOrArrayHooks = { create: { register: true } }
+
 module.exports = async function getPluginModules ({ arc, inventory, errors }) {
   if (!arc?.plugins?.length && !arc?.macros?.length) return null
   let plugins = {}
@@ -92,8 +95,18 @@ module.exports = async function getPluginModules ({ arc, inventory, errors }) {
           // Command hooks
           else if (pluginMethods.includes(method)) {
             Object.entries(item).forEach(([ hook, fn ]) => {
-              if (!is.fn(fn)) {
-                let msg = `Invalid plugin, must be a function: plugin: ${name}, method: ${method}.${hook}`
+              let isStringOrArrayHook = stringOrArrayHooks?.[method]?.[hook]
+              if (isStringOrArrayHook) {
+                if (!(is.string(fn) || is.array(fn))) {
+                  let msg = `Invalid plugin, property must be a string or array: plugin: ${name}, property: ${method}.${hook}`
+                  errors.push(msg)
+                  return
+                }
+                // Normalize strings to arrays
+                if (is.string(fn)) plugins[name][method][hook] = fn = [ fn ]
+              }
+              else if (!isStringOrArrayHook && !is.fn(fn)) {
+                let msg = `Invalid plugin, method must be a function: plugin: ${name}, method: ${method}.${hook}`
                 errors.push(msg)
                 return
               }

@@ -137,7 +137,7 @@ test('Check plugin file paths', async t => {
 })
 
 test('@plugins validation', async t => {
-  t.plan(37)
+  t.plan(45)
   let mockRoot = join(cwd, 'test', 'mock', 'plugin-validation')
   let arc, err, errors, result
   let plugin1 = 'a-plugin-1'
@@ -184,6 +184,15 @@ test('@plugins validation', async t => {
   t.equal(result[plugin2].set.http.constructor.name, 'Function', 'set.http function is synchronous in plugin 2')
   t.equal(result[plugin2].set.events.constructor.name, 'Function', 'set.events function is synchronous in plugin 2')
 
+  // Special non-function properties are recognized
+  t.ok(is.array(result[plugin1].create.register), 'Found create.register array in plugin 1')
+  t.ok(is.array(result[plugin2].create.register), 'Found create.register array in plugin 2')
+  t.ok(is.array(result._methods.create.register), 'Found create.register array in _methods')
+  t.equal(result[plugin1].create.register._plugin, 'a-plugin-1', 'create.register array is tagged to plugin 1')
+  t.equal(result[plugin2].create.register._plugin, 'a-plugin-2', 'create.register array is tagged to plugin 2')
+  t.equal(result._methods.create.register[0]._plugin, 'a-plugin-1', 'create.register array in _methods is tagged to plugin 1')
+  t.equal(result._methods.create.register[1]._plugin, 'a-plugin-2', 'create.register array in _methods is tagged to plugin 2')
+
   // Errors!
   arc = { plugins: [ plugin1 ] }
   setup(join(mockRoot, 'invalid'))
@@ -191,15 +200,19 @@ test('@plugins validation', async t => {
   errors = []
   result = await populatePlugins({ arc, inventory, errors })
   t.ok(result[plugin1], 'Got back a valid plugin')
-  t.equal(errors.length, 2, 'Invalid plugin errored')
+  t.equal(errors.length, 3, 'Invalid plugin errored')
 
   // Workflow is !function
-  err = /Invalid plugin, must be a function/
+  err = /Invalid plugin, method must be a function/
   t.match(errors[0], err, `Got correct error: ${errors[0]}`)
+
+  // Special array/string plugin property is not
+  err = /property must be a string or array/
+  t.match(errors[1], err, `Got correct error: ${errors[1]}`)
 
   // Setter is !function
   err = /setters must be synchronous functions/
-  t.match(errors[1], err, `Got correct error: ${errors[1]}`)
+  t.match(errors[2], err, `Got correct error: ${errors[2]}`)
 
   // Plugin uses a reserved name (internal to plugins)
   arc = { plugins: [ '_methods' ] }

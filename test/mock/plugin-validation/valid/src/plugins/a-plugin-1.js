@@ -3,6 +3,10 @@ module.exports = {
     start: () => {},
     end: async () => {},
   },
+  create: {
+    register: 'python',
+    handler: async () => {},
+  },
   set: {
     http: () => {},
   },
