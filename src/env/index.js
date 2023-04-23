@@ -11,6 +11,8 @@ module.exports = function env (params, inventory, callback) {
   /* istanbul ignore next */
   try {
     // eslint-disable-next-line
+    require('aws-sdk/lib/maintenance_mode_message').suppress = true
+    // eslint-disable-next-line
     var aws = require('aws-sdk')
   }
   catch (err) {
