@@ -10,6 +10,11 @@
 - Added support for `buildSubpath` property for `compiled` runtime plugins
 - Added map of custom runtimes to plugin names in `inv._project.runtimePlugins.customRuntimes`
 
+
+### Changed
+
+- Unpinned `aws-sdk` from Lambda-specific version to enable SSO and resolve (unrelated) npm vulnerability warnings
+
 ---
 
 ## [3.4.3] 2023-04-07
