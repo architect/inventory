@@ -114,23 +114,8 @@ test('Transpiled runtime setters', t => {
   t.equal(plugins.build, build, 'Returned explicit build property')
 })
 
-test('Runtime setter validation (transpiled)', t => {
-  t.plan(2)
-  let inventory, plugin, runtime
-  let type = 'transpiled'
-  let errors = []
-
-  // Invalid baseRuntime
-  runtime = { name, type, baseRuntime: 'nodejs10.x' }
-  plugin = () => runtime
-  inventory = newInv([ plugin ])
-  setRuntimesPlugins({ inventory, errors }, emptyProj)
-  t.equal(errors.length, 1, 'Returned an error')
-  t.match(errors[0], /must include a valid baseRuntime property/, 'Returned correct baseRuntime error')
-})
-
 test('Runtime setter validation', t => {
-  t.plan(14)
+  t.plan(16)
   let errors, inventory, plugin, runtime
   let type = 'transpiled'
   let baseRuntime = 'nodejs14.x'
@@ -196,6 +181,15 @@ test('Runtime setter validation', t => {
   setRuntimesPlugins({ inventory, errors }, emptyProj)
   t.equal(errors.length, 1, 'Returned an error')
   t.match(errors[0], /cannot set a build directory, as it is already configured/, 'Returned correct build error')
+
+  // Invalid baseRuntime
+  runtime = { name, type, baseRuntime: 'nodejs10.x' }
+  plugin = () => runtime
+  inventory = newInv([ plugin ])
+  errors = []
+  setRuntimesPlugins({ inventory, errors }, emptyProj)
+  t.equal(errors.length, 1, 'Returned an error')
+  t.match(errors[0], /must include a valid baseRuntime property/, 'Returned correct baseRuntime error')
 })
 
 test('Runtime setter errors', t => {
