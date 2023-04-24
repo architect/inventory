@@ -53,6 +53,9 @@ module.exports = function setRuntimePlugins (params, project) {
           // Adhere to Postel's Law
           build = 'build'
           if (is.string(runtime.build)) build = runtime.build
+          if (type === 'compiled') {
+            runtime.baseRuntime = runtime.baseRuntime || 'provided.al2'
+          }
         }
         if (type === 'transpiled' && !allRuntimes.includes(baseRuntime)) {
           return errors.push(`Runtime '${name}' must include a valid baseRuntime property corresponding to a valid Lambda runtime (e.g. 'nodejs18.x')`)

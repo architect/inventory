@@ -114,6 +114,54 @@ test('Transpiled runtime setters', t => {
   t.equal(plugins.build, build, 'Returned explicit build property')
 })
 
+test('Compiled runtime setters', t => {
+  t.plan(14)
+  let inventory, plugin, plugins, runtime
+  let type = 'compiled'
+  let build = '.build' // Just make sure it's different from the default 'build'
+  let defaultBaseRuntime = 'provided.al2'
+  let baseRuntime = 'provided'
+  let errors = []
+
+  // Compiled with default build dir
+  runtime = { name, type }
+  plugin = () => runtime
+  inventory = newInv([ plugin ])
+  plugins = setRuntimesPlugins({ inventory, errors }, emptyProj)
+  t.notOk(errors.length, 'Did not return errors')
+  t.equal(plugins.build, 'build', 'Returned default build property')
+  t.equal(plugins.runtimes.runtimes.length, 1, 'Returned single runtime')
+  t.equal(plugins.runtimes.runtimes[0], name, 'Returned correct runtime name')
+  t.equal(plugins.runtimes[name].name, name, 'Returned populated custom runtime object')
+  t.deepEqual(plugins.runtimes[name], runtime, 'Returned populated custom runtime object')
+  t.equal(plugins.runtimes[name].baseRuntime, defaultBaseRuntime, 'Returned default baseRuntime')
+
+  // Compiled with specified baseRuntime
+  runtime = { name, type, baseRuntime }
+  plugin = () => runtime
+  inventory = newInv([ plugin ])
+  plugins = setRuntimesPlugins({ inventory, errors }, emptyProj)
+  t.notOk(errors.length, 'Did not return errors')
+  t.equal(plugins.build, 'build', 'Returned default build property')
+  t.equal(plugins.runtimes[name].baseRuntime, baseRuntime, 'Returned correct baseRuntime')
+
+  // Compiled with default build dir via truthy build property
+  runtime = { name, type, build: true }
+  plugin = () => runtime
+  inventory = newInv([ plugin ])
+  plugins = setRuntimesPlugins({ inventory, errors }, emptyProj)
+  t.notOk(errors.length, 'Did not return errors')
+  t.equal(plugins.build, 'build', 'Returned default build property')
+
+  // Compiled with default build dir via explicit build property
+  runtime = { name, type, build }
+  plugin = () => runtime
+  inventory = newInv([ plugin ])
+  plugins = setRuntimesPlugins({ inventory, errors }, emptyProj)
+  t.notOk(errors.length, 'Did not return errors')
+  t.equal(plugins.build, build, 'Returned explicit build property')
+})
+
 test('Runtime setter validation', t => {
   t.plan(16)
   let errors, inventory, plugin, runtime
