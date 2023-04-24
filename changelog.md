@@ -2,6 +2,14 @@
 
 ---
 
+## [3.5.3] 2023-04-24
+
+### Changed
+
+- Compiled runtimes now default to `provided.al2`, and no longer require a `baseRuntime` specified by the Arc runtime plugin
+
+---
+
 ## [3.5.0 - 3.5.2] 2023-03-27
 
 ### Added
