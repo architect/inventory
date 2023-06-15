@@ -393,50 +393,92 @@ test('@http population: plugin setter respects custom config', t => {
 test('@http population: route sorting', t => {
   t.plan(2)
   let desiredOrder = [
+    /* get */
+    // 6 positions
+    'get /api/items/:item/fidget/rofl/propA',
+    'get /api/items/:item/widget/:idk/propA',
+    'get /api/items/:item/:idk/lol/propA',
+    'get /api/items/:item/:wtf/omg/propA',
+    // 5 positions
     'get /api/items/widget/v1/prop',
+    'get /api/items/:item/:idk/propA',
+    // 4 positions
     'get /api/items/widget/v1',
     'get /api/items/:item/propA',
     'get /api/items/:item/propB',
     'get /api/:item/items/propB',
     'get /api/items/item/:item',
+    // 3 positions
     'get /api/items/*',
+    // 2 positions
     'get /api/items',
     'get /api/stuff',
     'get /idk/foo',
+    // 1 position
     'get /api',
     'get /',
     'get /*',
     'get /:idk',
+
+    /* post */
+    // 5 positions
     'post /api/items/widget/v1/prop',
+    // 4 positions
     'post /api/items/:item/prop1',
     'post /api/items/:item/prop2',
+    // 3 positions
     'post /api/items/:stuff',
+    // 2 positions
     'post /api/items',
+    // 1 position
     'post /api',
     'post /',
     'post /:idk',
+
+    /* put */
+    // 5 positions
     'put /api/items/widget/v1/prop',
+    // 4 positions
     'put /api/items/:item/prop-a',
     'put /api/items/:item/prop-b',
+    // 2 positions
     'put /api/*',
+    // 1 position
     'put /api',
     'put /',
     'put /:idk',
+
+    /* patch */
+    // 5 positions
     'patch /api/items/widget/v1/prop',
+    // 4 positions
     'patch /api/items/:item/prop_a',
     'patch /api/items/:item/prop_b',
+    // 1 position
     'patch /api',
     'patch /',
     'patch /:idk',
+
+    /* options */
+    // 5 positions
     'options /api/items/widget/v1/prop',
+    // 1 position
     'options /api',
     'options /',
     'options /:idk',
+
+    /* head */
+    // 5 positions
     'head /api/items/widget/v1/prop',
+    // 1 position
     'head /api',
     'head /',
     'head /:idk',
+
+    /* any */
+    // 5 positions
     'any /api/items/widget/v1/prop',
+    // 1 position
     'any /api',
     'any /',
     'any /*',

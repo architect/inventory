@@ -2,6 +2,14 @@
 
 ---
 
+## [3.5.3] 2023-06-14
+
+### Fixed
+
+- Fixed subtle `@http` sorting issue where path params may be prioritized over paths with static URL parts in the same position
+
+---
+
 ## [3.5.3] 2023-04-24
 
 ### Changed
