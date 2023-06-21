@@ -27,7 +27,7 @@ test('Do nothing', t => {
 })
 
 test('Valid paths', t => {
-  t.plan(5)
+  t.plan(6)
 
   defaults._project.cwd = '/foo'
   validatePaths(defaults, errors)
@@ -42,6 +42,10 @@ test('Valid paths', t => {
   t.equal(errors.length, 0, `No errors reported`)
 
   defaults.lambdasBySrcDir = [ { src: '/foo/lambda' } ]
+  validatePaths(defaults, errors)
+  t.equal(errors.length, 0, `No errors reported`)
+
+  defaults.lambdasBySrcDir = [ [ { src: '/foo/lambda' }, { src: '/foo/lambda' } ] ]
   validatePaths(defaults, errors)
   t.equal(errors.length, 0, `No errors reported`)
 

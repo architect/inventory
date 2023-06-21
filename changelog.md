@@ -2,6 +2,14 @@
 
 ---
 
+## [3.5.6] 2023-06-21
+
+### Fixed
+
+- Improved path validation for multi-tenant Lambdae
+
+---
+
 ## [3.5.5] 2023-06-15
 
 ### Changed
