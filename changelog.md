@@ -2,6 +2,14 @@
 
 ---
 
+## [3.5.7] 2023-07-09
+
+### Changed
+
+- Allow lowcase `ttl` `@tables` property type
+
+---
+
 ## [3.5.6] 2023-06-21
 
 ### Fixed
