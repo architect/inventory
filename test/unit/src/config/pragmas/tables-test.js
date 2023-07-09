@@ -53,7 +53,7 @@ number-keys
 })
 
 test('@tables population (extra params)', t => {
-  t.plan(18)
+  t.plan(20)
 
   let arc = parse(`
 @tables
@@ -61,7 +61,7 @@ string-keys
   strID *String
   strSort **String
   stream true
-  _ttl TTL
+  _ttl ttl
   pitr true
   encrypt true
 `)
@@ -117,6 +117,19 @@ string-keys
   tables = populateTables({ arc, inventory })
   t.ok(tables.length === 1, 'Got correct number of tables back')
   t.equal(tables[0].pitr, true, 'Got back correct pitr value')
+
+  // Alt TTL casing
+  arc = parse(`
+@tables
+string-keys
+  strID *String
+  strSort **String
+  _ttl TTL
+`)
+  inventory = inventoryDefaults()
+  tables = populateTables({ arc, inventory })
+  t.ok(tables.length === 1, 'Got correct number of tables back')
+  t.equal(tables[0].ttl, '_ttl', 'Got back correct TTL value')
 })
 
 test('@tables population: plugin setter', t => {
