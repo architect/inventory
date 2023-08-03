@@ -25,8 +25,8 @@ test('Set up env', t => {
 })
 
 test('Handler properties (built-in runtimes)', t => {
-  t.plan(20)
-  let config, errors, result
+  t.plan(32)
+  let config, errors, pythonHandler, result
 
   // Defaults to Node.js
   config = defaultFunctionConfig()
@@ -50,11 +50,60 @@ test('Handler properties (built-in runtimes)', t => {
   // Python
   config = defaultFunctionConfig()
   errors = []
+  pythonHandler = 'lambda.py'
   config.runtime = 'python3.8'
   result = getHandler({ config, src, errors })
   t.notOk(errors.length, 'Did not get handler errors')
-  t.equal(result.handlerFile, srcPath(`${file}.py`), `Got correct handlerFile: ${result.handlerFile}`)
+  t.equal(result.handlerFile, srcPath(pythonHandler), `Got correct handlerFile: ${result.handlerFile}`)
   t.equal(result.handlerMethod, handler, `Got correct handlerMethod: ${result.handlerMethod}`)
+
+  // Verify priority of the updated default handler name
+  config = defaultFunctionConfig()
+  errors = []
+  mockFs({ [src]: {
+    [pythonHandler]: 'hi',
+    'index.py': 'hi',
+  } })
+  config.runtime = 'python3.8'
+  result = getHandler({ config, src, errors })
+  t.notOk(errors.length, 'Did not get handler errors')
+  t.equal(result.handlerFile, srcPath(pythonHandler), `Got correct handlerFile: ${result.handlerFile}`)
+  t.equal(result.handlerMethod, handler, `Got correct handlerMethod: ${result.handlerMethod}`)
+  mockFs.restore()
+
+  config = defaultFunctionConfig()
+  errors = []
+  pythonHandler = 'handler.py'
+  mockFs(fakeFile(pythonHandler))
+  config.runtime = 'python3.8'
+  result = getHandler({ config, src, errors })
+  t.notOk(errors.length, 'Did not get handler errors')
+  t.equal(result.handlerFile, srcPath(pythonHandler), `Got correct handlerFile: ${result.handlerFile}`)
+  t.equal(result.handlerMethod, handler, `Got correct handlerMethod: ${result.handlerMethod}`)
+  mockFs.restore()
+
+  config = defaultFunctionConfig()
+  errors = []
+  pythonHandler = '__main__.py'
+  mockFs(fakeFile(pythonHandler))
+  config.runtime = 'python3.8'
+  result = getHandler({ config, src, errors })
+  t.notOk(errors.length, 'Did not get handler errors')
+  t.equal(result.handlerFile, srcPath(pythonHandler), `Got correct handlerFile: ${result.handlerFile}`)
+  t.equal(result.handlerMethod, handler, `Got correct handlerMethod: ${result.handlerMethod}`)
+  mockFs.restore()
+
+  // Old school Architect default
+  config = defaultFunctionConfig()
+  errors = []
+  pythonHandler = 'index.py'
+  mockFs(fakeFile(pythonHandler))
+  config.runtime = 'python3.8'
+  result = getHandler({ config, src, errors })
+  t.notOk(errors.length, 'Did not get handler errors')
+  t.equal(result.handlerFile, srcPath(pythonHandler), `Got correct handlerFile: ${result.handlerFile}`)
+  t.equal(result.handlerMethod, handler, `Got correct handlerMethod: ${result.handlerMethod}`)
+  mockFs.restore()
 
   // Ruby
   config = defaultFunctionConfig()

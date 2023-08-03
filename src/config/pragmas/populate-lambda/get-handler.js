@@ -41,6 +41,7 @@ let nodeHandlers = [ 'index.js', 'index.mjs', 'index.cjs' ]
 let denoHandlers = [ 'mod.ts', 'mod.js' ]
   // TODO: these are all prob going away
   .concat([ 'mod.tsx', 'index.ts', 'index.js', 'index.tsx' ])
+let snekHandlers = [ 'lambda.py', 'handler.py', '__main__.py', 'index.py' ]
 
 function getExt ({ runtime, src, errors }) {
   try {
@@ -71,7 +72,10 @@ function getExt ({ runtime, src, errors }) {
       }
       return { file, ext, handlerModuleSystem }
     }
-    if (runtime.startsWith('python')) return { ext: 'py' }
+    if (runtime.startsWith('python')) {
+      let { file = 'lambda', ext = 'py' } = findHandler(snekHandlers, src)
+      return { file, ext }
+    }
     if (runtime.startsWith('ruby')) return { ext: 'rb' }
     if (runtime.startsWith('deno')) {
       let { file = 'mod', ext = 'ts' } = findHandler(denoHandlers, src)

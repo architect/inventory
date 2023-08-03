@@ -2,6 +2,15 @@
 
 ---
 
+## [3.6.0] 2023-08-02
+
+### Added
+
+- Added support for additional Python Lambda handler filenames, including `lambda.py`, `handler.py`, and `__main__.py`
+  - Architect's legacy `index.py` root filename remains
+
+---
+
 ## [3.5.7] 2023-07-09
 
 ### Changed
