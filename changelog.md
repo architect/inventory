@@ -6,8 +6,9 @@
 
 ### Added
 
-- Added support for additional Python Lambda handler filenames, including `lambda.py`, `handler.py`, and `__main__.py`
-  - Architect's legacy `index.py` root filename remains
+- Added support for additional Python + Ruby Lambda handler filenames, including:
+  - Python: `lambda.py`, `handler.py` (and legacy `index.py`)
+  - Ruby: `lambda.rb`, `handler.rb` (and legacy `index.rb`)
 
 ---
 
