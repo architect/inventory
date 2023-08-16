@@ -2,6 +2,14 @@
 
 ---
 
+## [3.6.1] 2023-08-15
+
+### Fixed
+
+- Fixed AWS Lambda handler configuration for Python, Ruby, and custom handlers
+
+---
+
 ## [3.6.0] 2023-08-02
 
 ### Added

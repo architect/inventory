@@ -1,4 +1,4 @@
-let { sep } = require('path')
+let { basename, sep } = require('path')
 let { deepFrozenCopy } = require('@architect/utils')
 let read = require('../../../read')
 let getLambda = require('./get-lambda')
@@ -132,7 +132,7 @@ function populate (type, pragma, inventory, errors, plugin) {
     }
 
     // Now we know the final source dir + runtime + handler: assemble handler props
-    let handlerProps = getHandler({ config, src, build, errors })
+    let handlerProps = getHandler({ config, build, errors, src })
 
     let lambda = {
       name,
@@ -144,6 +144,14 @@ function populate (type, pragma, inventory, errors, plugin) {
       configFile,
       pragma: type !== 'customLambdas' ? type : null,
     }
+    // Ensure the correct handler configuration is being used
+    // If the config is the same as the default, regenerate the setting based on the returned handlerFile, as Python / Ruby may have it set to `lambda.`
+    if (config.handler === defaultProjectConfig().handler) {
+      let { handlerFile } = handlerProps
+      let file = basename(handlerFile).split('.')[0]
+      config.handler = `${file}.handler`
+    }
+
     // Final tidying of any undefined properties
     Object.keys(lambda).forEach(k => !is.defined(lambda[k]) && delete lambda[k])
 
