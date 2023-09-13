@@ -7,11 +7,14 @@ module.exports = function checkFilePaths (inventory, errors) {
   if (!ascii.test(proj.src)) return err('Project source')
   if (proj.build && !ascii.test(proj.build)) return err('Build')
 
-  let lambdas = inventory.lambdasBySrcDir
-  if (lambdas){
-    Object.values(lambdas).forEach(lambda => {
-      let { name, pragma, src } = lambda
-      if (!ascii.test(src)) err(`@${pragma} ${name} source`)
+  let { lambdasBySrcDir } = inventory
+  if (lambdasBySrcDir){
+    Object.values(lambdasBySrcDir).forEach(lambdae => {
+      if (!Array.isArray(lambdae)) lambdae = [ lambdae ] // Normalize possible multi-tenant Lambdas
+      lambdae.forEach(lambda => {
+        let { name, pragma, src } = lambda
+        if (!ascii.test(src)) err(`@${pragma} ${name} source`)
+      })
     })
   }
 }

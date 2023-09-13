@@ -2,7 +2,65 @@
 
 ---
 
-## [3.5.0 - 3.5.1] 2023-03-27
+## [3.6.1] 2023-08-15
+
+### Fixed
+
+- Fixed AWS Lambda handler configuration for Python, Ruby, and custom handlers
+
+---
+
+## [3.6.0] 2023-08-02
+
+### Added
+
+- Added support for additional Python + Ruby Lambda handler filenames, including:
+  - Python: `lambda.py`, `handler.py` (and legacy `index.py`)
+  - Ruby: `lambda.rb`, `handler.rb` (and legacy `index.rb`)
+
+---
+
+## [3.5.7] 2023-07-09
+
+### Changed
+
+- Allow lowcase `ttl` `@tables` property type
+
+---
+
+## [3.5.6] 2023-06-21
+
+### Fixed
+
+- Improved path validation for multi-tenant Lambdae
+
+---
+
+## [3.5.5] 2023-06-15
+
+### Changed
+
+- Updated dependencies
+
+---
+
+## [3.5.4] 2023-06-14
+
+### Fixed
+
+- Fixed subtle `@http` sorting issue where path params may be prioritized over paths with static URL parts in the same position
+
+---
+
+## [3.5.3] 2023-04-24
+
+### Changed
+
+- Compiled runtimes now default to `provided.al2`, and no longer require a `baseRuntime` specified by the Arc runtime plugin
+
+---
+
+## [3.5.0 - 3.5.2] 2023-03-27
 
 ### Added
 

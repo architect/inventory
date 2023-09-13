@@ -47,6 +47,7 @@ module.exports = function configureTables ({ arc, inventory, errors }) {
         }
         if (key === 'stream')   t.stream = value
         if (value === 'TTL')    t.ttl = key
+        if (value === 'ttl')    t.ttl = key
         if (key === 'encrypt')  t.encrypt = value
         if (key === 'PITR')     t.pitr = value
         if (key === 'pitr')     t.pitr = value

@@ -273,16 +273,18 @@ test('Plugin population errors', t => {
   }, /Setter plugin exception/, 'Failing setter threw')
 })
 
-test('Per-function AWS/ARC config', t => {
-  t.plan(4)
-  let inventory = defaultConfig()
+test('Per-function AWS/ARC config (including custom handlers)', t => {
+  t.plan(13)
+  let arc, config, errors, inventory, lambdas, modified
+  inventory = defaultConfig()
   inventory._project.cwd = '/nada'
   inventory._project.src = '/nada/src'
   let configPath = `${inventory._project.cwd}/src/events/configured-event/config.arc`
-  let config = `@aws
+
+  // Node.js default
+  config = `@aws
 timeout 10
 memory 128
-runtime python3.8
 
 @arc
 custom setting
@@ -292,15 +294,88 @@ custom setting
     'unconfigured-event',
     'configured-event',
   ]
-  let arc = { events: inventory.events }
-  let errors = []
-  let lambdas = populateLambda.events({ arc, inventory, errors })
+  arc = { events: inventory.events }
+  errors = []
+  lambdas = populateLambda.events({ arc, inventory, errors })
   t.deepEqual(lambdas[0].config, inventory._project.defaultFunctionConfig, 'Config was unmodified')
-  let modified = {
+  modified = {
+    timeout: 10,
+    memory: 128,
+    runtime: `nodejs16.x`,
+    handler: 'index.handler',
+    custom: 'setting',
+  }
+  t.deepEqual(lambdas[1].config, { ...inventory._project.defaultFunctionConfig, ...modified }, 'Config was correctly upserted')
+  t.notOk(errors.length, 'No errors returned')
+  mockFs.restore()
+
+  // Node.js custom configured handler
+  config = `@aws
+timeout 10
+memory 128
+handler lambda.handler
+
+@arc
+custom setting
+`
+  mockFs({ [configPath]: config })
+  errors = []
+  lambdas = populateLambda.events({ arc, inventory, errors })
+  t.deepEqual(lambdas[0].config, inventory._project.defaultFunctionConfig, 'Config was unmodified')
+  modified = {
+    timeout: 10,
+    memory: 128,
+    runtime: `nodejs16.x`,
+    handler: 'lambda.handler',
+    custom: 'setting',
+  }
+  t.deepEqual(lambdas[1].config, { ...inventory._project.defaultFunctionConfig, ...modified }, 'Config was correctly upserted')
+  t.notOk(errors.length, 'No errors returned')
+  mockFs.restore()
+
+  // Python
+  config = `@aws
+timeout 10
+memory 128
+runtime python3.8
+
+@arc
+custom setting
+`
+  mockFs({ [configPath]: config })
+  errors = []
+  lambdas = populateLambda.events({ arc, inventory, errors })
+  t.deepEqual(lambdas[0].config, inventory._project.defaultFunctionConfig, 'Config was unmodified')
+  modified = {
     timeout: 10,
     memory: 128,
     runtime: `python3.8`,
-    custom: 'setting'
+    handler: 'lambda.handler',
+    custom: 'setting',
+  }
+  t.deepEqual(lambdas[1].config, { ...inventory._project.defaultFunctionConfig, ...modified }, 'Config was correctly upserted')
+  t.notOk(errors.length, 'No errors returned')
+  mockFs.restore()
+
+  // Ruby
+  config = `@aws
+timeout 10
+memory 128
+runtime ruby2.7
+
+@arc
+custom setting
+`
+  mockFs({ [configPath]: config })
+  errors = []
+  lambdas = populateLambda.events({ arc, inventory, errors })
+  t.deepEqual(lambdas[0].config, inventory._project.defaultFunctionConfig, 'Config was unmodified')
+  modified = {
+    timeout: 10,
+    memory: 128,
+    runtime: `ruby2.7`,
+    handler: 'lambda.handler',
+    custom: 'setting',
   }
   t.deepEqual(lambdas[1].config, { ...inventory._project.defaultFunctionConfig, ...modified }, 'Config was correctly upserted')
   t.notOk(errors.length, 'No errors returned')
