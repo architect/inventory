@@ -23,6 +23,9 @@ policies
   policy-1
   policy-2
 architecture arm64
+ignoredDependencies
+  module-1
+  module-2
 `
 let mock = parse(rawConfigMock)
 
@@ -44,7 +47,7 @@ test('Upsert returns same number of params', t => {
   t.plan(3)
   let result = upsert(defaults, [])
   t.ok(result, 'Got result from upsert')
-  t.equal(Object.keys(result).length, 12, 'Got back same number of params as base config')
+  t.equal(Object.keys(result).length, 13, 'Got back same number of params as base config')
   t.equal(str(defaults), str(result), 'Passed back config as-is')
 })
 
@@ -451,6 +454,137 @@ runtime python
   t.notEqual(str(policiesDefaults.policies), str(policies.policies), 'Testing value is not already the default')
   t.equal(str(policiesDefaults.policies), str(result.policies), 'Did not overwrite project-level config with empty policies array')
 })
+
+// AJB HACK //
+test('Individual setting upsert: ignoredDependencies', t => {
+  t.plan(22)
+  let value
+  let ignoredDependencies
+  let result
+  let expected
+  let ignoredDependenciesDefaults
+
+  /**
+   * ignored dependencies
+   */
+  // Single inline
+  value = [ 'module-1' ]
+  ignoredDependencies = parse(`@aws
+ignoredDependencies ${value}
+`).aws
+  result = upsert(defaults, ignoredDependencies)
+  t.notEqual(str(defaults.ignoredDependencies), str(value), 'Testing value is not already the default')
+  t.equal(str(result.ignoredDependencies), str(value), 'Properly upserted single ignored dependency')
+
+  // Multiple inline
+  value = [ 'module-1', 'module-2' ]
+  ignoredDependencies = parse(`@aws
+ignoredDependencies ${value.join(' ')}
+`).aws
+  result = upsert(defaults, ignoredDependencies)
+  t.notEqual(str(defaults.ignoredDependencies), str(value), 'Testing value is not already the default')
+  t.equal(str(result.ignoredDependencies), str(value), 'Properly upserted ignored dependencies')
+
+  // Single in array
+  value = [ 'module-1' ]
+  ignoredDependencies = parse(`@aws
+ignoredDependencies
+  ${value}
+`).aws
+  result = upsert(defaults, ignoredDependencies)
+  t.notEqual(str(defaults.ignoredDependencies), str(value), 'Testing value is not already the default')
+  t.equal(str(result.ignoredDependencies), str(value), 'Properly upserted single ignored dependency')
+
+  // Multiple in array
+  value = [ 'module-1', 'module-2' ]
+  ignoredDependencies = parse(`@aws
+ignoredDependencies
+  ${value.join('\n  ')}
+`).aws
+  result = upsert(defaults, ignoredDependencies)
+  t.notEqual(str(defaults.ignoredDependencies), str(value), 'Testing value is not already the default')
+  t.equal(str(result.ignoredDependencies), str(value), 'Properly upserted ignored dependencies')
+
+  // Multiple in array de-duped
+  ignoredDependenciesDefaults = defaultFunctionConfig()
+  ignoredDependenciesDefaults.ignoredDependencies = [ 'module-1', 'module-2' ]
+  value = [ 'module-2', 'module-3', 'module-3' ]
+  expected = [ 'module-2', 'module-3' ]
+  ignoredDependencies = parse(`@aws
+ignoredDependencies
+  ${value.join('\n  ')}
+`).aws
+  result = upsert(ignoredDependenciesDefaults, ignoredDependencies)
+  t.notEqual(str(ignoredDependenciesDefaults.ignoredDependencies), str(value), 'Testing value is not already the default')
+  t.equal(str(result.ignoredDependencies), str(expected), 'Properly upserted ignored dependencies & de-duped')
+
+  /**
+   * ignoredDependencies
+   */
+  // Single inline
+  value = [ 'module-1' ]
+  ignoredDependencies = parse(`@aws
+ignoredDependencies ${value}
+`).aws
+  result = upsert(defaults, ignoredDependencies)
+  t.notEqual(str(defaults.ignoredDependencies), str(value), 'Testing value is not already the default')
+  t.equal(str(result.ignoredDependencies), str(value), 'Properly upserted single ignored dependency')
+
+  // Multiple inline
+  value = [ 'module-1', 'module-2' ]
+  ignoredDependencies = parse(`@aws
+ignoredDependencies ${value.join(' ')}
+`).aws
+  result = upsert(defaults, ignoredDependencies)
+  t.notEqual(str(defaults.ignoredDependencies), str(value), 'Testing value is not already the default')
+  t.equal(str(result.ignoredDependencies), str(value), 'Properly upserted single ignored dependency')
+
+  // Single in array
+  value = [ 'module-1' ]
+  ignoredDependencies = parse(`@aws
+ignoredDependencies
+  ${value}
+`).aws
+  result = upsert(defaults, ignoredDependencies)
+  t.notEqual(str(defaults.ignoredDependencies), str(value), 'Testing value is not already the default')
+  t.equal(str(result.ignoredDependencies), str(value), 'Properly upserted single ignored dependency')
+
+  // Multiple in array
+  value = [ 'module-1', 'module-2' ]
+  ignoredDependencies = parse(`@aws
+ignoredDependencies
+  ${value.join('\n  ')}
+`).aws
+  result = upsert(defaults, ignoredDependencies)
+  t.notEqual(str(defaults.ignoredDependencies), str(value), 'Testing value is not already the default')
+  t.equal(str(result.ignoredDependencies), str(value), 'Properly upserted single ignored dependency')
+
+  // Multiple in array de-duped
+  ignoredDependenciesDefaults = defaultFunctionConfig()
+  ignoredDependenciesDefaults.ignoredDependencies = [ 'module-1', 'module-2' ]
+  value = [ 'module-2', 'module-3', 'module-3' ]
+  expected = [ 'module-2', 'module-3' ]
+  ignoredDependencies = parse(`@aws
+ignoredDependencies
+  ${value.join('\n  ')}
+`).aws
+  result = upsert(ignoredDependenciesDefaults, ignoredDependencies)
+  t.notEqual(str(ignoredDependenciesDefaults.ignoredDependencies), str(value), 'Testing value is not already the default')
+  t.equal(str(result.ignoredDependencies), str(expected), 'Properly upserted ignored dependencies & de-duped')
+
+  /**
+   * Don't unnecessarily overwrite existing ignoredDependencies config
+   */
+  ignoredDependenciesDefaults = defaultFunctionConfig()
+  ignoredDependenciesDefaults.ignoredDependencies = [ 'module-1', 'module-2' ]
+  ignoredDependencies = parse(`@aws
+runtime python
+`).aws
+  result = upsert(ignoredDependenciesDefaults, ignoredDependencies)
+  t.notEqual(str(ignoredDependenciesDefaults.ignoredDependencies), str(ignoredDependencies.ignoredDependencies), 'Testing value is not already the default')
+  t.equal(str(ignoredDependenciesDefaults.ignoredDependencies), str(result.ignoredDependencies), 'Did not overwrite project-level config with empty ignoredDependencies array')
+})
+// AJB HACK END //
 
 test('Individual setting upsert: something unknown', t => {
   t.plan(2)

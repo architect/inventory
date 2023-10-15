@@ -11,7 +11,7 @@ test('Set up env', t => {
 test('Function config returns correct defaults', t => {
   t.plan(13)
   let result = functionConfig()
-  t.equal(Object.keys(result).length, 12, 'Got correct number of properties')
+  t.equal(Object.keys(result).length, 13, 'Got correct number of properties')
   t.ok(result.timeout, 'Got timeout')
   t.ok(result.memory, 'Got memory')
   t.ok(result.runtime, 'Got runtime')

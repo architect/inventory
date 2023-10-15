@@ -14,3 +14,6 @@ architecture arm64
 shared false
 env false
 views false
+ignoredDependencies
+  module-1
+  module-2

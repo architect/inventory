@@ -37,6 +37,7 @@ test('[No global runtime] Inventory and compare functions with / without functio
         shared: false,
         env: false,
         views: false,
+        ignoredDependencies: [ 'module-1', 'module-2' ],
       }
       let params = Object.keys(custom).length
       test('Configured route uses correct custom settings', t => {
@@ -82,6 +83,7 @@ test('[Global runtime alias] Inventory and compare functions with / without func
         shared: false,
         env: false,
         views: false,
+        ignoredDependencies: [ 'module-1', 'module-2' ],
       }
       let params = Object.keys(custom).length
       test('Configured route uses correct custom settings', t => {
