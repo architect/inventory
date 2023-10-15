@@ -15,5 +15,6 @@ module.exports = function createDefaultFunctionConfig () {
     policies: [],
     shared: true,
     env: true,
+    ignoredDependencies: [],
   }
 }

@@ -11,6 +11,7 @@ module.exports = function upsertProps (config, newConfig) {
   let props = JSON.parse(JSON.stringify(config))
   let layers = []
   let policies = []
+  let ignoredDependencies = []
 
   for (let setting of newConfig) {
     let name
@@ -59,6 +60,9 @@ module.exports = function upsertProps (config, newConfig) {
     else if (name === 'policies' && !!(value)) {
       policies = policies.concat(value)
     }
+    else if (name === 'ignoredDependencies' && !!(value)) {
+      ignoredDependencies = ignoredDependencies.concat(value)
+    }
     else {
       props[name] = value[0]
     }
@@ -67,6 +71,7 @@ module.exports = function upsertProps (config, newConfig) {
   // Drop in new (de-duped) layers, but don't unnecessarily overwrite
   if (layers.length) props.layers = [ ...new Set(layers) ]
   if (policies.length) props.policies = [ ...new Set(policies) ]
+  if (ignoredDependencies.length) props.ignoredDependencies = [ ...new Set(ignoredDependencies) ]
 
   return props
 }
