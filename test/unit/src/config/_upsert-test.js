@@ -453,12 +453,31 @@ runtime python
 })
 
 test('Individual setting upsert: something unknown', t => {
-  t.plan(2)
-  let value = 'mysterious'
+  t.plan(6)
+  let result, value
+
+  value = 'mysterious'
   let { aws: idk } = parse(`@aws
 idk ${value}
 `)
-  let result = upsert(defaults, idk)
+  result = upsert(defaults, idk)
   t.notOk(defaults.idk, 'Testing property not already present in the default')
   t.equal(result.idk, value, 'Properly upserted unknown setting')
+
+  value = [ 'foo', 'bar' ]
+  let { aws: arr } = parse(`@aws
+arr
+  ${value[0]}
+  ${value[1]}
+`)
+  result = upsert(defaults, arr)
+  t.notOk(defaults.arr, 'Testing property not already present in the default')
+  t.deepEqual(result.arr, value, 'Properly upserted unknown array setting')
+
+  let { aws: inlineArr } = parse(`@aws
+arr ${value[0]} ${value[1]}
+`)
+  result = upsert(defaults, inlineArr)
+  t.notOk(defaults.arr, 'Testing property not already present in the default')
+  t.deepEqual(result.arr, value, 'Properly upserted unknown inline array setting')
 })

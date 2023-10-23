@@ -60,7 +60,7 @@ module.exports = function upsertProps (config, newConfig) {
       policies = policies.concat(value)
     }
     else {
-      props[name] = value[0]
+      props[name] = value.length === 1 ? value[0] : value
     }
   }
 

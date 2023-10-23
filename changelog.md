@@ -2,6 +2,14 @@
 
 ---
 
+## [3.6.2] 2023-10-23
+
+### Added
+
+- Added ability for unknown function-level configuration settings to be arrays / vectors
+
+---
+
 ## [3.6.1] 2023-08-15
 
 ### Fixed
