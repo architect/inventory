@@ -413,12 +413,13 @@ test('@http population: route sorting', t => {
     // 2 positions
     'get /api/items',
     'get /api/stuff',
-    'get /idk/foo',
+    'get /:item/:idk',
+    'get /api/*',
     // 1 position
     'get /api',
     'get /',
+    'get /:idk', // Technically invalid, since params can't live on the same level as catchalls
     'get /*',
-    'get /:idk',
 
     /* post */
     // 5 positions

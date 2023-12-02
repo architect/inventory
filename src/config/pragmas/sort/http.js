@@ -66,6 +66,12 @@ module.exports = function sortHTTP (http) {
       .sort((a, b) => {
         if (!a.depth && b.depth === 1 && b.trailingCapture) return -1
         if (a.depth - b.depth < 0) return
+        if (a.depth === b.depth &&
+            a.trailingCapture && b.trailingCapture) {
+          if (a.trailingCapture === b.trailingCapture) return
+          if (a.trailingCapture === 'param' && b.trailingCapture === 'catchall') return -1
+          return 1
+        }
         if (a.trailingCapture) return 1
         if (b.trailingCapture) return -1
       })

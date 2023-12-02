@@ -2,6 +2,19 @@
 
 ---
 
+## [3.6.4] 2023-12-02
+
+### Changed
+
+- Updated dependencies
+
+
+### Fixed
+
+- Fix HTTP route sorting issue where trailing catchalls win over trailing params; fixes #1467
+
+---
+
 ## [3.6.3] 2023-11-19
 
 ### Changed
