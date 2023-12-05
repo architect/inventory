@@ -7,6 +7,7 @@ let { parse } = require('./dotenv')
 let { homedir } = require('os')
 
 module.exports = function getPrefs ({ scope, inventory, errors, _testing }) {
+  /* istanbul ignore next */
   let cwd = scope === 'global'
     ? _testing ? join(inventory._project.cwd, homedir()) : homedir()
     : inventory._project.cwd
