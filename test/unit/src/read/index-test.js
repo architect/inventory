@@ -1,5 +1,5 @@
 let { join } = require('path')
-let mockFs = require('mock-fs')
+let mockTmp = require('mock-tmp')
 let test = require('tape')
 let sut = join(process.cwd(), 'src', 'read')
 let read = require(sut)
@@ -15,13 +15,13 @@ let basicPrefsObj = { env: [ { testing: { FOO: 'bar' } } ] }
 
 function check (params, file) {
   let { t, text, obj, type, subset } = params
-  mockFs({ [file]: text })
+  let cwd = mockTmp({ [file]: text })
   let { arc, raw, filepath } = read({ type, cwd })
   t.deepEqual(arc, obj, 'Returned Arc object')
   // Subset used for extracting Arc from an existing manifest (like package.json)
   t.equal(raw, subset ? subset : text, 'Returned raw text')
   t.equal(filepath, join(cwd, file), `Returned filepath`)
-  mockFs.restore()
+  mockTmp.restore()
 }
 
 test('Set up env', t => {
@@ -128,23 +128,23 @@ test('Read Architect embedded in existing manifests', t => {
   arcs.forEach(check.bind({}, { t, text, obj: basicArcObj, type, subset }))
 
   text = JSON.stringify(proj)
-  mockFs({ [arcs[0]]: text })
+  mockTmp({ [arcs[0]]: text })
   let result = read({ type, cwd })
   t.notEqual(result.arc.app, arc.app, 'Did not return arc')
-  mockFs.restore()
+  mockTmp.restore()
 })
-
 
 test('Reader errors', t => {
   t.plan(9)
 
   let file
   let type
+  let cwd
   function go () {
     let errors = []
     read({ type: 'projectManifest', cwd, errors })
     t.equal(errors.length, 1, `Got reader error: ${type} ${file}`)
-    mockFs.restore()
+    mockTmp.restore()
   }
 
   // Invalid reader type
@@ -155,38 +155,38 @@ test('Reader errors', t => {
   // Invalid files
   type = 'invalid'
   file = 'app.arc'
-  mockFs({ [file]: 'lol' })
+  cwd = mockTmp({ [file]: 'lol' })
   go()
 
   file = 'arc.json'
-  mockFs({ [file]: 'lol' })
+  cwd = mockTmp({ [file]: 'lol' })
   go()
 
   file = 'arc.yaml'
-  mockFs({ [file]: `'lol` })
+  cwd = mockTmp({ [file]: `'lol` })
   go()
 
   file = 'package.json'
-  mockFs({ [file]: 'lol' })
+  cwd = mockTmp({ [file]: 'lol' })
   go()
 
   // Empty files
   type = 'empty'
   file = 'app.arc'
   let empty = '\n \n'
-  mockFs({ [file]: empty })
+  cwd = mockTmp({ [file]: empty })
   go()
 
   file = 'arc.json'
-  mockFs({ [file]: empty })
+  cwd = mockTmp({ [file]: empty })
   go()
 
   file = 'arc.yaml'
-  mockFs({ [file]: empty })
+  cwd = mockTmp({ [file]: empty })
   go()
 
   file = 'package.json'
-  mockFs({ [file]: empty })
+  cwd = mockTmp({ [file]: empty })
   go()
 
 })
