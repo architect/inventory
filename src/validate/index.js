@@ -39,5 +39,4 @@ module.exports = function finalValidation (params, inventory) {
   if (errors.length) {
     return errorFmt({ type: 'file path', errors })
   }
-
 }

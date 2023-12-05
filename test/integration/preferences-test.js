@@ -3,11 +3,12 @@ let { homedir } = require('os')
 let test = require('tape')
 let sut = join(process.cwd(), 'src', 'index')
 let inv = require(sut)
-let mockFs = require('mock-fs')
+let mockTmp = require('mock-tmp')
 
 let mock = join(process.cwd(), 'test', 'mock')
 let arc = '@app\nappname\n@events\nan-event' // Not using @http so we can skip ASAP filesystem checks
-let reset = () => mockFs.restore()
+let reset = () => mockTmp.reset()
+let _testing = true, cwd
 
 /**
  * Duplicates some unit tests as part of the larger whole integration test
@@ -56,14 +57,13 @@ testing
   env_var_2 bar
 `
   let path = join(homedir(), '.prefs.arc')
-  mockFs({
+  cwd = mockTmp({
     'app.arc': arc,
     [path]: prefsText
   })
-  inv({}, (err, result) => {
+  inv({ cwd, _testing }, (err, result) => {
     if (err) t.fail(err)
     else {
-      mockFs.restore()
       let { inv, get } = result
       t.ok(inv, 'Inventory returned inventory object')
       t.ok(get, 'Inventory returned getter')
@@ -78,7 +78,7 @@ testing
       delete inv._project.globalPreferences._arc
       delete inv._project.globalPreferences._raw
       t.deepEqual(inv._project.globalPreferences, prefs, 'Got correct global preferences')
-      t.equal(inv._project.globalPreferencesFile, path, 'Got correct preferences file')
+      t.equal(inv._project.globalPreferencesFile, join(cwd, path), 'Got correct preferences file')
       t.teardown(reset)
     }
   })
@@ -199,15 +199,14 @@ staging
     }
   }
   let path = join(homedir(), '.prefs.arc')
-  mockFs({
+  cwd = mockTmp({
     'app.arc': arc,
     [path]: globalPrefsText,
     'preferences.arc': localPrefsText
   })
-  inv({}, (err, result) => {
+  inv({ cwd, _testing }, (err, result) => {
     if (err) t.fail(err)
     else {
-      mockFs.restore()
       let { inv, get } = result
       t.ok(inv, 'Inventory returned inventory object')
       t.ok(get, 'Inventory returned getter')
@@ -226,8 +225,8 @@ staging
       delete inv._project.localPreferences._raw
       t.deepEqual(inv._project.globalPreferences, globalPrefs, 'Got correct global preferences')
       t.deepEqual(inv._project.localPreferences, localPrefs, 'Got correct local preferences')
-      t.equal(inv._project.globalPreferencesFile, path, 'Got correct preferences file')
-      t.equal(inv._project.localPreferencesFile, join(process.cwd(), 'preferences.arc'), 'Got correct preferences file')
+      t.equal(inv._project.globalPreferencesFile, join(cwd, path), 'Got correct preferences file')
+      t.equal(inv._project.localPreferencesFile, join(cwd, 'preferences.arc'), 'Got correct preferences file')
       t.teardown(reset)
     }
   })
@@ -240,16 +239,15 @@ test('Preferences validation errors', async t => {
 @env
 foo
 `
-  mockFs({
+  cwd = mockTmp({
     'app.arc': arc,
     'prefs.arc': prefs,
   })
   try {
-    await inv({})
+    await inv({ cwd })
     t.fail('Expected an error')
   }
   catch (err) {
-    mockFs.restore()
     t.match(err.message, /Invalid preferences setting: @env foo/, 'Got back error message for invalid preferences')
   }
 })

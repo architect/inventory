@@ -6,9 +6,9 @@ let { is, validationPatterns: valid } = require('../../../lib')
 let { parse } = require('./dotenv')
 let { homedir } = require('os')
 
-module.exports = function getPrefs ({ scope, inventory, errors }) {
+module.exports = function getPrefs ({ scope, inventory, errors, _testing }) {
   let cwd = scope === 'global'
-    ? homedir()
+    ? _testing ? join(inventory._project.cwd, homedir()) : homedir()
     : inventory._project.cwd
 
   let envFilepath = join(cwd, '.env')
