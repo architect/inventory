@@ -1,5 +1,5 @@
 let { join } = require('path')
-let mockFs = require('mock-fs')
+let mockTmp = require('mock-tmp')
 let test = require('tape')
 let cwd = process.cwd()
 let _defaults = join(cwd, 'src', 'defaults')
@@ -275,11 +275,8 @@ test('Plugin population errors', t => {
 
 test('Per-function AWS/ARC config (including custom handlers)', t => {
   t.plan(13)
-  let arc, config, errors, inventory, lambdas, modified
-  inventory = defaultConfig()
-  inventory._project.cwd = '/nada'
-  inventory._project.src = '/nada/src'
-  let configPath = `${inventory._project.cwd}/src/events/configured-event/config.arc`
+  let arc, config, cwd, errors, inventory, lambdas, modified
+  let configPath = 'src/events/configured-event/config.arc'
 
   // Node.js default
   config = `@aws
@@ -289,7 +286,9 @@ memory 128
 @arc
 custom setting
 `
-  mockFs({ [configPath]: config })
+
+  cwd = mockTmp({ [configPath]: config })
+  inventory = defaultConfig({ cwd })
   inventory.events = [
     'unconfigured-event',
     'configured-event',
@@ -307,7 +306,7 @@ custom setting
   }
   t.deepEqual(lambdas[1].config, { ...inventory._project.defaultFunctionConfig, ...modified }, 'Config was correctly upserted')
   t.notOk(errors.length, 'No errors returned')
-  mockFs.restore()
+  mockTmp.restore()
 
   // Node.js custom configured handler
   config = `@aws
@@ -318,7 +317,8 @@ handler lambda.handler
 @arc
 custom setting
 `
-  mockFs({ [configPath]: config })
+  cwd = mockTmp({ [configPath]: config })
+  inventory = defaultConfig({ cwd })
   errors = []
   lambdas = populateLambda.events({ arc, inventory, errors })
   t.deepEqual(lambdas[0].config, inventory._project.defaultFunctionConfig, 'Config was unmodified')
@@ -331,7 +331,7 @@ custom setting
   }
   t.deepEqual(lambdas[1].config, { ...inventory._project.defaultFunctionConfig, ...modified }, 'Config was correctly upserted')
   t.notOk(errors.length, 'No errors returned')
-  mockFs.restore()
+  mockTmp.restore()
 
   // Python
   config = `@aws
@@ -342,7 +342,8 @@ runtime python3.8
 @arc
 custom setting
 `
-  mockFs({ [configPath]: config })
+  cwd = mockTmp({ [configPath]: config })
+  inventory = defaultConfig({ cwd })
   errors = []
   lambdas = populateLambda.events({ arc, inventory, errors })
   t.deepEqual(lambdas[0].config, inventory._project.defaultFunctionConfig, 'Config was unmodified')
@@ -355,7 +356,7 @@ custom setting
   }
   t.deepEqual(lambdas[1].config, { ...inventory._project.defaultFunctionConfig, ...modified }, 'Config was correctly upserted')
   t.notOk(errors.length, 'No errors returned')
-  mockFs.restore()
+  mockTmp.restore()
 
   // Ruby
   config = `@aws
@@ -366,7 +367,8 @@ runtime ruby2.7
 @arc
 custom setting
 `
-  mockFs({ [configPath]: config })
+  cwd = mockTmp({ [configPath]: config })
+  inventory = defaultConfig({ cwd })
   errors = []
   lambdas = populateLambda.events({ arc, inventory, errors })
   t.deepEqual(lambdas[0].config, inventory._project.defaultFunctionConfig, 'Config was unmodified')
@@ -379,12 +381,13 @@ custom setting
   }
   t.deepEqual(lambdas[1].config, { ...inventory._project.defaultFunctionConfig, ...modified }, 'Config was correctly upserted')
   t.notOk(errors.length, 'No errors returned')
-  mockFs.restore()
+  mockTmp.restore()
 
   // Now return a Lambda config error
   config = `lolidk`
-  mockFs({ [configPath]: config })
+  cwd = mockTmp({ [configPath]: config })
+  inventory = defaultConfig({ cwd })
   lambdas = populateLambda.events({ arc, inventory, errors })
   t.equal(errors.length, 1, `Invalid Lambda config returned error: ${errors[0]}`)
-  mockFs.restore()
+  mockTmp.restore()
 })
