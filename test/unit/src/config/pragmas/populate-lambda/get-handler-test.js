@@ -1,6 +1,6 @@
 let { join } = require('path')
 let test = require('tape')
-let mockFs = require('mock-fs')
+let mockTmp = require('mock-tmp')
 let cwd = process.cwd()
 let sut = join(cwd, 'src', 'config', 'pragmas', 'populate-lambda', 'get-handler')
 let fnConfig = join(cwd, 'src', 'defaults', 'function-config')
@@ -26,7 +26,7 @@ test('Set up env', t => {
 
 test('Handler properties (built-in runtimes)', t => {
   t.plan(38)
-  let config, errors, pythonHandler, rubyHandler, result
+  let config, cwd, errors, pythonHandler, rubyHandler, result
 
   // Defaults to Node.js
   config = defaultFunctionConfig()
@@ -60,39 +60,39 @@ test('Handler properties (built-in runtimes)', t => {
   // Verify priority of the updated default handler name
   config = defaultFunctionConfig()
   errors = []
-  mockFs({ [src]: {
+  cwd = mockTmp({ [src]: {
     [pythonHandler]: 'hi',
     'index.py': 'hi',
   } })
   config.runtime = 'python3.8'
-  result = getHandler({ config, src, errors })
+  result = getHandler({ config, src: join(cwd, src), errors })
   t.notOk(errors.length, 'Did not get handler errors')
-  t.equal(result.handlerFile, srcPath(pythonHandler), `Got correct handlerFile: ${result.handlerFile}`)
+  t.equal(result.handlerFile, join(cwd, srcPath(pythonHandler)), `Got correct handlerFile: ${result.handlerFile}`)
   t.equal(result.handlerMethod, handler, `Got correct handlerMethod: ${result.handlerMethod}`)
-  mockFs.restore()
+  mockTmp.reset()
 
   config = defaultFunctionConfig()
   errors = []
   pythonHandler = 'handler.py'
-  mockFs(fakeFile(pythonHandler))
+  cwd = mockTmp(fakeFile(pythonHandler))
   config.runtime = 'python3.8'
-  result = getHandler({ config, src, errors })
+  result = getHandler({ config, src: join(cwd, src), errors })
   t.notOk(errors.length, 'Did not get handler errors')
-  t.equal(result.handlerFile, srcPath(pythonHandler), `Got correct handlerFile: ${result.handlerFile}`)
+  t.equal(result.handlerFile, join(cwd, srcPath(pythonHandler)), `Got correct handlerFile: ${result.handlerFile}`)
   t.equal(result.handlerMethod, handler, `Got correct handlerMethod: ${result.handlerMethod}`)
-  mockFs.restore()
+  mockTmp.reset()
 
   // Old school Architect default
   config = defaultFunctionConfig()
   errors = []
   pythonHandler = 'index.py'
-  mockFs(fakeFile(pythonHandler))
+  cwd = mockTmp(fakeFile(pythonHandler))
   config.runtime = 'python3.8'
-  result = getHandler({ config, src, errors })
+  result = getHandler({ config, src: join(cwd, src), errors })
   t.notOk(errors.length, 'Did not get handler errors')
-  t.equal(result.handlerFile, srcPath(pythonHandler), `Got correct handlerFile: ${result.handlerFile}`)
+  t.equal(result.handlerFile, join(cwd, srcPath(pythonHandler)), `Got correct handlerFile: ${result.handlerFile}`)
   t.equal(result.handlerMethod, handler, `Got correct handlerMethod: ${result.handlerMethod}`)
-  mockFs.restore()
+  mockTmp.reset()
 
   // Ruby
   config = defaultFunctionConfig()
@@ -107,39 +107,39 @@ test('Handler properties (built-in runtimes)', t => {
   // Verify priority of the updated default handler name
   config = defaultFunctionConfig()
   errors = []
-  mockFs({ [src]: {
+  cwd = mockTmp({ [src]: {
     [rubyHandler]: 'hi',
     'index.rb': 'hi',
   } })
   config.runtime = 'ruby2.7'
-  result = getHandler({ config, src, errors })
+  result = getHandler({ config, src: join(cwd, src), errors })
   t.notOk(errors.length, 'Did not get handler errors')
-  t.equal(result.handlerFile, srcPath(rubyHandler), `Got correct handlerFile: ${result.handlerFile}`)
+  t.equal(result.handlerFile, join(cwd, srcPath(rubyHandler)), `Got correct handlerFile: ${result.handlerFile}`)
   t.equal(result.handlerMethod, handler, `Got correct handlerMethod: ${result.handlerMethod}`)
-  mockFs.restore()
+  mockTmp.reset()
 
   config = defaultFunctionConfig()
   errors = []
   rubyHandler = 'handler.rb'
-  mockFs(fakeFile(rubyHandler))
+  cwd = mockTmp(fakeFile(rubyHandler))
   config.runtime = 'ruby2.7'
-  result = getHandler({ config, src, errors })
+  result = getHandler({ config, src: join(cwd, src), errors })
   t.notOk(errors.length, 'Did not get handler errors')
-  t.equal(result.handlerFile, srcPath(rubyHandler), `Got correct handlerFile: ${result.handlerFile}`)
+  t.equal(result.handlerFile, join(cwd, srcPath(rubyHandler)), `Got correct handlerFile: ${result.handlerFile}`)
   t.equal(result.handlerMethod, handler, `Got correct handlerMethod: ${result.handlerMethod}`)
-  mockFs.restore()
+  mockTmp.reset()
 
   // Old school Architect default
   config = defaultFunctionConfig()
   errors = []
   rubyHandler = 'index.rb'
-  mockFs(fakeFile(rubyHandler))
+  cwd = mockTmp(fakeFile(rubyHandler))
   config.runtime = 'ruby2.7'
-  result = getHandler({ config, src, errors })
+  result = getHandler({ config, src: join(cwd, src), errors })
   t.notOk(errors.length, 'Did not get handler errors')
-  t.equal(result.handlerFile, srcPath(rubyHandler), `Got correct handlerFile: ${result.handlerFile}`)
+  t.equal(result.handlerFile, join(cwd, srcPath(rubyHandler)), `Got correct handlerFile: ${result.handlerFile}`)
   t.equal(result.handlerMethod, handler, `Got correct handlerMethod: ${result.handlerMethod}`)
-  mockFs.restore()
+  mockTmp.reset()
 
   // Deno
   config = defaultFunctionConfig()
@@ -163,7 +163,7 @@ test('Handler properties (built-in runtimes)', t => {
 test('Handler properties (Node.js module systems)', t => {
   t.plan(28)
   // Not going to bother checking handlerMethod here, assuming we got that right above
-  let config, errors, result
+  let config, cwd, errors, result
 
   // 14
   config = defaultFunctionConfig()
@@ -177,99 +177,99 @@ test('Handler properties (Node.js module systems)', t => {
   // .js
   config = defaultFunctionConfig()
   errors = []
-  mockFs(fakeFile(`${file}.js`))
-  result = getHandler({ config, src, errors })
+  cwd = mockTmp(fakeFile(`${file}.js`))
+  result = getHandler({ config, src: join(cwd, src), errors })
   t.notOk(errors.length, 'Did not get handler errors')
-  t.equal(result.handlerFile, srcPath(`${file}.js`), `Got correct handlerFile: ${result.handlerFile}`)
+  t.equal(result.handlerFile, join(cwd, srcPath(`${file}.js`)), `Got correct handlerFile: ${result.handlerFile}`)
   t.equal(result.handlerModuleSystem, 'cjs', `Got correct handlerModuleSystem: ${result.handlerModuleSystem}`)
-  mockFs.restore()
+  mockTmp.reset()
 
   // .cjs
   config = defaultFunctionConfig()
   errors = []
-  mockFs(fakeFile(`${file}.cjs`))
-  result = getHandler({ config, src, errors })
+  cwd = mockTmp(fakeFile(`${file}.cjs`))
+  result = getHandler({ config, src: join(cwd, src), errors })
   t.notOk(errors.length, 'Did not get handler errors')
-  t.equal(result.handlerFile, srcPath(`${file}.cjs`), `Got correct handlerFile: ${result.handlerFile}`)
+  t.equal(result.handlerFile, join(cwd, srcPath(`${file}.cjs`)), `Got correct handlerFile: ${result.handlerFile}`)
   t.equal(result.handlerModuleSystem, 'cjs', `Got correct handlerModuleSystem: ${result.handlerModuleSystem}`)
-  mockFs.restore()
+  mockTmp.reset()
 
   // CJS via package.json (implied)
   config = defaultFunctionConfig()
   errors = []
-  mockFs(fakeFile(`package.json`, JSON.stringify({})))
-  result = getHandler({ config, src, errors })
+  cwd = mockTmp(fakeFile(`package.json`, JSON.stringify({})))
+  result = getHandler({ config, src: join(cwd, src), errors })
   t.notOk(errors.length, 'Did not get handler errors')
-  t.equal(result.handlerFile, srcPath(`${file}.js`), `Got correct handlerFile: ${result.handlerFile}`)
+  t.equal(result.handlerFile, join(cwd, srcPath(`${file}.js`)), `Got correct handlerFile: ${result.handlerFile}`)
   t.equal(result.handlerModuleSystem, 'cjs', `Got correct handlerModuleSystem: ${result.handlerModuleSystem}`)
-  mockFs.restore()
+  mockTmp.reset()
 
   // CJS via package.json (explicit)
   config = defaultFunctionConfig()
   errors = []
-  mockFs(fakeFile(`package.json`, JSON.stringify({ type: 'commonjs' })))
-  result = getHandler({ config, src, errors })
+  cwd = mockTmp(fakeFile(`package.json`, JSON.stringify({ type: 'commonjs' })))
+  result = getHandler({ config, src: join(cwd, src), errors })
   t.notOk(errors.length, 'Did not get handler errors')
-  t.equal(result.handlerFile, srcPath(`${file}.js`), `Got correct handlerFile: ${result.handlerFile}`)
+  t.equal(result.handlerFile, join(cwd, srcPath(`${file}.js`)), `Got correct handlerFile: ${result.handlerFile}`)
   t.equal(result.handlerModuleSystem, 'cjs', `Got correct handlerModuleSystem: ${result.handlerModuleSystem}`)
-  mockFs.restore()
+  mockTmp.reset()
 
   // .mjs
   config = defaultFunctionConfig()
   errors = []
-  mockFs(fakeFile(`${file}.mjs`))
-  result = getHandler({ config, src, errors })
+  cwd = mockTmp(fakeFile(`${file}.mjs`))
+  result = getHandler({ config, src: join(cwd, src), errors })
   t.notOk(errors.length, 'Did not get handler errors')
-  t.equal(result.handlerFile, srcPath(`${file}.mjs`), `Got correct handlerFile: ${result.handlerFile}`)
+  t.equal(result.handlerFile, join(cwd, srcPath(`${file}.mjs`)), `Got correct handlerFile: ${result.handlerFile}`)
   t.equal(result.handlerModuleSystem, 'esm', `Got correct handlerModuleSystem: ${result.handlerModuleSystem}`)
-  mockFs.restore()
+  mockTmp.reset()
 
   // .mjs in the root with a project package.json
   config = defaultFunctionConfig()
   errors = []
-  mockFs({ [src]: {
+  cwd = mockTmp({ [src]: {
     [`${file}.mjs`]: 'hi',
     'package.json': JSON.stringify({})
   } })
-  result = getHandler({ config, src, errors })
+  result = getHandler({ config, src: join(cwd, src), errors })
   t.notOk(errors.length, 'Did not get handler errors')
-  t.equal(result.handlerFile, srcPath(`${file}.mjs`), `Got correct handlerFile: ${result.handlerFile}`)
+  t.equal(result.handlerFile, join(cwd, srcPath(`${file}.mjs`)), `Got correct handlerFile: ${result.handlerFile}`)
   t.equal(result.handlerModuleSystem, 'esm', `Got correct handlerModuleSystem: ${result.handlerModuleSystem}`)
-  mockFs.restore()
+  mockTmp.reset()
 
   // ESM via package.json
   config = defaultFunctionConfig()
   errors = []
-  mockFs(fakeFile(`package.json`, JSON.stringify({ type: 'module' })))
-  result = getHandler({ config, src, errors })
+  cwd = mockTmp(fakeFile(`package.json`, JSON.stringify({ type: 'module' })))
+  result = getHandler({ config, src: join(cwd, src), errors })
   t.notOk(errors.length, 'Did not get handler errors')
-  t.equal(result.handlerFile, srcPath(`${file}.js`), `Got correct handlerFile: ${result.handlerFile}`)
+  t.equal(result.handlerFile, join(cwd, srcPath(`${file}.js`)), `Got correct handlerFile: ${result.handlerFile}`)
   t.equal(result.handlerModuleSystem, 'esm', `Got correct handlerModuleSystem: ${result.handlerModuleSystem}`)
-  mockFs.restore()
+  mockTmp.reset()
 
   // Invalid package.json
   config = defaultFunctionConfig()
   errors = []
-  mockFs(fakeFile(`package.json`))
-  result = getHandler({ config, src, errors })
+  cwd = mockTmp(fakeFile(`package.json`))
+  result = getHandler({ config, src: join(cwd, src), errors })
   t.equal(errors.length, 1, 'Got handler error')
   t.match(errors[0], /Unexpected token/, 'Got correct error')
-  mockFs.restore()
+  mockTmp.reset()
 
   // Invalid 'type' field
   config = defaultFunctionConfig()
   errors = []
-  mockFs(fakeFile(`package.json`, JSON.stringify({ type: 'lolidk' })))
-  result = getHandler({ config, src, errors })
+  cwd = mockTmp(fakeFile(`package.json`, JSON.stringify({ type: 'lolidk' })))
+  result = getHandler({ config, src: join(cwd, src), errors })
   t.equal(errors.length, 1, 'Got handler error')
   t.match(errors[0], /Invalid 'type' field/, 'Got correct error')
-  mockFs.restore()
+  mockTmp.reset()
 })
 
 test('Handler properties (Deno)', t => {
   t.plan(14)
   // Not going to bother checking handlerMethod here, assuming we got that right above
-  let config, errors, result, denoHandler
+  let config, cwd, errors, result, denoHandler
   let deno = 'deno'
 
   // Default
@@ -285,61 +285,61 @@ test('Handler properties (Deno)', t => {
   errors = []
   config.runtime = deno
   denoHandler = 'index.js'
-  mockFs(fakeFile(denoHandler))
-  result = getHandler({ config, src, errors })
+  cwd = mockTmp(fakeFile(denoHandler))
+  result = getHandler({ config, src: join(cwd, src), errors })
   t.notOk(errors.length, 'Did not get handler errors')
-  t.equal(result.handlerFile, srcPath(denoHandler), `Got correct handlerFile: ${result.handlerFile}`)
-  mockFs.restore()
+  t.equal(result.handlerFile, join(cwd, srcPath(denoHandler)), `Got correct handlerFile: ${result.handlerFile}`)
+  mockTmp.reset()
 
   config = defaultFunctionConfig()
   errors = []
   config.runtime = deno
   denoHandler = 'mod.js'
-  mockFs(fakeFile(denoHandler))
-  result = getHandler({ config, src, errors })
+  cwd = mockTmp(fakeFile(denoHandler))
+  result = getHandler({ config, src: join(cwd, src), errors })
   t.notOk(errors.length, 'Did not get handler errors')
-  t.equal(result.handlerFile, srcPath(denoHandler), `Got correct handlerFile: ${result.handlerFile}`)
-  mockFs.restore()
+  t.equal(result.handlerFile, join(cwd, srcPath(denoHandler)), `Got correct handlerFile: ${result.handlerFile}`)
+  mockTmp.reset()
 
   config = defaultFunctionConfig()
   errors = []
   config.runtime = deno
   denoHandler = 'index.ts'
-  mockFs(fakeFile(denoHandler))
-  result = getHandler({ config, src, errors })
+  cwd = mockTmp(fakeFile(denoHandler))
+  result = getHandler({ config, src: join(cwd, src), errors })
   t.notOk(errors.length, 'Did not get handler errors')
-  t.equal(result.handlerFile, srcPath(denoHandler), `Got correct handlerFile: ${result.handlerFile}`)
-  mockFs.restore()
+  t.equal(result.handlerFile, join(cwd, srcPath(denoHandler)), `Got correct handlerFile: ${result.handlerFile}`)
+  mockTmp.reset()
 
   config = defaultFunctionConfig()
   errors = []
   config.runtime = deno
   denoHandler = 'mod.ts'
-  mockFs(fakeFile(denoHandler))
-  result = getHandler({ config, src, errors })
+  cwd = mockTmp(fakeFile(denoHandler))
+  result = getHandler({ config, src: join(cwd, src), errors })
   t.notOk(errors.length, 'Did not get handler errors')
-  t.equal(result.handlerFile, srcPath(denoHandler), `Got correct handlerFile: ${result.handlerFile}`)
-  mockFs.restore()
+  t.equal(result.handlerFile, join(cwd, srcPath(denoHandler)), `Got correct handlerFile: ${result.handlerFile}`)
+  mockTmp.reset()
 
   config = defaultFunctionConfig()
   errors = []
   config.runtime = deno
   denoHandler = 'index.tsx'
-  mockFs(fakeFile(denoHandler))
-  result = getHandler({ config, src, errors })
+  cwd = mockTmp(fakeFile(denoHandler))
+  result = getHandler({ config, src: join(cwd, src), errors })
   t.notOk(errors.length, 'Did not get handler errors')
-  t.equal(result.handlerFile, srcPath(denoHandler), `Got correct handlerFile: ${result.handlerFile}`)
-  mockFs.restore()
+  t.equal(result.handlerFile, join(cwd, srcPath(denoHandler)), `Got correct handlerFile: ${result.handlerFile}`)
+  mockTmp.reset()
 
   config = defaultFunctionConfig()
   errors = []
   config.runtime = deno
   denoHandler = 'mod.tsx'
-  mockFs(fakeFile(denoHandler))
-  result = getHandler({ config, src, errors })
+  cwd = mockTmp(fakeFile(denoHandler))
+  result = getHandler({ config, src: join(cwd, src), errors })
   t.notOk(errors.length, 'Did not get handler errors')
-  t.equal(result.handlerFile, srcPath(denoHandler), `Got correct handlerFile: ${result.handlerFile}`)
-  mockFs.restore()
+  t.equal(result.handlerFile, join(cwd, srcPath(denoHandler)), `Got correct handlerFile: ${result.handlerFile}`)
+  mockTmp.reset()
 })
 
 test('Custom runtime properties', t => {
