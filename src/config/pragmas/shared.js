@@ -52,8 +52,8 @@ module.exports = function configureShared ({ arc, pragmas, inventory, errors }) 
   }
   else if (foundPluginSrc) {
     if (!required) {
-      if (!is.exists(shared.src)) shared.src = src
-      if (!is.exists(shared.src)) return null
+      if (!is.exists(shared.src) && !is.exists(join(cwd, shared.src))) shared.src = src
+      if (!is.exists(shared.src) && !is.exists(join(cwd, shared.src))) return null
     }
     validate.shared(shared.src, cwd, errors, required)
   }
