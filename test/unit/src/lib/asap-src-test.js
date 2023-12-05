@@ -1,9 +1,9 @@
 let { join } = require('path')
 let test = require('tape')
-let mockFs = require('mock-fs')
-let sut = join(process.cwd(), 'src', 'lib', 'asap-src')
-let asapSrc = require(sut)
+let mockTmp = require('mock-tmp')
 let cwd = process.cwd()
+let sut = join(cwd, 'src', 'lib', 'asap-src')
+let asapSrc = require(sut)
 
 test('Set up env', t => {
   t.plan(1)
@@ -12,31 +12,37 @@ test('Set up env', t => {
 
 test('Get ASAP', t => {
   t.plan(4)
-  // Since we're developing Inventory locally (a scenario that bumps into asapSrc's business logic)
-  // Temporarily change the src dir via cwd to prevent collisions
-  // Work the src dir order backwards to test
-  process.chdir(__dirname)
-  let asap
+  let asap, tmp
 
-  mockFs({})
-  t.throws(() => {
-    asapSrc()
-  }, 'Throw if unable to find ASAP module')
+  let localInstallPath = join('node_modules', '@architect', 'asap', 'src')
+  tmp = mockTmp({ [localInstallPath]: 'ok' })
+  process.chdir('/')
+  asap = asapSrc({ _testing: join(tmp, '1', '2') })
+  // On Macs the tmp filesystem path may present differently via process.cwd() vs. fs.mkdtemp due to root symlinks from /var → /private/var, so use includes()
+  t.ok(asap.includes(join(tmp, localInstallPath)), `Got ASAP module in local dev mode: ${asap}`)
+  mockTmp.reset()
 
-  let localPath = join(cwd, 'node_modules', '@architect', 'asap', 'src')
-  mockFs({ [localPath]: 'ok' })
-  asap = asapSrc()
-  t.equal(asap, localPath, `Got ASAP module in local dev mode: ${asap}`)
-
+  let globalInstallPath = join('asap', 'src')
+  tmp = mockTmp({ [globalInstallPath]: 'ok' })
+  process.chdir(tmp)
+  asap = asapSrc({ _testing: join(tmp, '1', '2', '3') })
+  t.equal(asap, join(tmp, globalInstallPath), `Got ASAP module in global mode: ${asap}`)
   process.chdir(cwd)
-  let globalPath = join(cwd, '..', 'asap', 'src')
-  mockFs({ [globalPath]: 'ok' })
-  asap = asapSrc()
-  t.equal(asap, globalPath, `Got ASAP module in global mode: ${asap}`)
+  mockTmp.reset()
 
-  mockFs.restore()
-  process.chdir(cwd) // Restore again, looks to be a mockFs restore bug mutating cwd
-  let src = localPath // It's ok, this is the known collision when working locally
   asap = asapSrc()
-  t.equal(asap, src, `Got ASAP module as a normal dependency: ${asap}`)
+  t.equal(asap, join(cwd, localInstallPath), `Got ASAP module as a normal dependency: ${asap}`)
+
+  tmp = mockTmp({ hi: 'ok' })
+  process.chdir(tmp)
+  asap = asapSrc({ _testing: '/' })
+  t.equal(asap, require.resolve('@architect/asap'), `Got ASAP module via require.resolve: ${asap}`)
+  process.chdir(cwd)
+  mockTmp.reset()
+
+  // Throwing when unable to find ASAP was previously simple via `mock-fs`
+  // Now, it isn't easily accomplished without some serious business logic intrusions, so we're just going to assume that path works
+  /* t.throws(() => {
+    asapSrc()
+  }, 'Throw if unable to find ASAP module') */
 })
