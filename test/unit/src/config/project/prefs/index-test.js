@@ -1,19 +1,21 @@
 let { join } = require('path')
 let { homedir } = require('os')
 let test = require('tape')
-let mockFs = require('mock-fs')
+let mockTmp = require('mock-tmp')
 let cwd = process.cwd()
+let inventoryDefaultsPath = join(cwd, 'src', 'defaults')
+let inventoryDefaults = require(inventoryDefaultsPath)
 let sut = join(cwd, 'src', 'config', 'project', 'prefs')
 let getPrefs = require(sut)
 
 let path = join(homedir(), '.prefs.arc')
-let inventory = { _project: { cwd } }
-let reset = () => mockFs.restore()
+let reset = () => mockTmp.restore()
 function clean (preferences) {
   // Delete the meta stuff so the actual preferences match during an equality check
   delete preferences._arc
   delete preferences._raw
 }
+let _testing = true
 
 test('Set up env', t => {
   t.plan(1)
@@ -23,6 +25,7 @@ test('Set up env', t => {
 test('Do nothing', t => {
   t.plan(2)
   let errors = []
+  let inventory = inventoryDefaults()
   let preferences = getPrefs({ scope: 'local', inventory, errors })
   t.equal(preferences, null, 'No preferences or .env returns null')
   t.notOk(errors.length, 'Did not error')
@@ -65,12 +68,13 @@ testing
   env_var_1 foo
   env_var_2 bar
 `
-  mockFs({
+  let cwd = mockTmp({
     [path]: prefsText
   })
+  let inventory = inventoryDefaults({ cwd })
 
   let errors = []
-  let { preferences, preferencesFile } = getPrefs({ scope: 'global', inventory, errors })
+  let { preferences, preferencesFile } = getPrefs({ scope: 'global', inventory, errors, _testing })
   t.ok(preferences, 'Got preferences')
   t.ok(preferences._arc, 'Got (arc object)')
   t.ok(preferences._raw, 'Got (raw file)')
@@ -83,7 +87,7 @@ testing
 
 test('.env file handling', t => {
   t.plan(12)
-  let dotenv, errors, prefs, preferences
+  let cwd, dotenv, errors, inventory, prefs, preferences
 
   /**
    * No .env file
@@ -106,9 +110,11 @@ testing
 staging
   env_var_2 bar
 `
-  mockFs({
+  cwd = mockTmp({
     'prefs.arc': prefsText
   })
+  inventory = inventoryDefaults({ cwd })
+
   errors = []
   preferences = getPrefs({ scope: 'local', inventory, errors }).preferences
   t.ok(preferences, 'Got preferences')
@@ -123,10 +129,11 @@ staging
     sandbox: { environment: 'testing' },
     env: { testing: null, staging: null, production: null }
   }
-  mockFs({
+  cwd = mockTmp({
     '.env': '# eventually',
     'prefs.arc': prefsText
   })
+  inventory = inventoryDefaults({ cwd })
   errors = []
   preferences = getPrefs({ scope: 'local', inventory, errors }).preferences
   t.ok(preferences, 'Got preferences')
@@ -148,10 +155,11 @@ from-dotenv = lol
       production: null,
     },
   }
-  mockFs({
+  cwd = mockTmp({
     '.env': dotenv,
     'prefs.arc': prefsText
   })
+  inventory = inventoryDefaults({ cwd })
   errors = []
   preferences = getPrefs({ scope: 'local', inventory, errors }).preferences
   t.ok(preferences, 'Got preferences')
@@ -172,9 +180,10 @@ from-dotenv = lol
       production: null,
     },
   }
-  mockFs({
+  cwd = mockTmp({
     '.env': dotenv,
   })
+  inventory = inventoryDefaults({ cwd })
   errors = []
   preferences = getPrefs({ scope: 'local', inventory, errors }).preferences
   t.ok(preferences, 'Got preferences')
@@ -191,11 +200,12 @@ test('Get preferences (only unknown items)', t => {
 @idk
 userland true
 `
-  mockFs({
+  let cwd = mockTmp({
     [path]: prefsText
   })
+  let inventory = inventoryDefaults({ cwd })
   let errors = []
-  let { preferences, preferencesFile } = getPrefs({ scope: 'global', inventory, errors })
+  let { preferences, preferencesFile } = getPrefs({ scope: 'global', inventory, errors, _testing })
   t.ok(preferences, 'Got preferences')
   t.ok(preferences._arc, 'Got (arc object)')
   t.ok(preferences._raw, 'Got (raw file)')
@@ -208,18 +218,18 @@ userland true
 
 test('Validate preferences', t => {
   t.plan(7)
-  let mock = () => mockFs({ [path]: prefsText })
-  let prefsText
-  let errors
+  let mock = () => mockTmp({ [path]: prefsText })
+  let cwd, errors, inventory, prefsText
 
   // Invalid @sandbox env
   prefsText = `
 @sandbox
 env foo
 `
-  mock()
+  cwd = mock()
+  inventory = inventoryDefaults({ cwd })
   errors = []
-  getPrefs({ scope: 'global', inventory, errors })
+  getPrefs({ scope: 'global', inventory, errors, _testing })
   t.equal(errors.length, 1, `Invalid preferences errored: ${errors[0]}`)
 
   // Invalid @env pragma
@@ -227,9 +237,10 @@ env foo
 @env
 foo
 `
-  mock()
+  cwd = mock()
+  inventory = inventoryDefaults({ cwd })
   errors = []
-  getPrefs({ scope: 'global', inventory, errors })
+  getPrefs({ scope: 'global', inventory, errors, _testing })
   t.equal(errors.length, 1, `Invalid preferences errored: ${errors[0]}`)
 
   // Invalid @env environments
@@ -238,9 +249,10 @@ foo
 staging
   foo
 `
-  mock()
+  cwd = mock()
+  inventory = inventoryDefaults({ cwd })
   errors = []
-  getPrefs({ scope: 'global', inventory, errors })
+  getPrefs({ scope: 'global', inventory, errors, _testing })
   t.equal(errors.length, 1, `Invalid preferences errored: ${errors[0]}`)
 
   prefsText = `
@@ -248,9 +260,10 @@ staging
 staging
   env-var-1 foo
 `
-  mock()
+  cwd = mock()
+  inventory = inventoryDefaults({ cwd })
   errors = []
-  getPrefs({ scope: 'global', inventory, errors })
+  getPrefs({ scope: 'global', inventory, errors, _testing })
   t.equal(errors.length, 1, `Invalid preferences errored: ${errors[0]}`)
 
   prefsText = `
@@ -261,9 +274,10 @@ testing
 
 staging
 `
-  mock()
+  cwd = mock()
+  inventory = inventoryDefaults({ cwd })
   errors = []
-  getPrefs({ scope: 'global', inventory, errors })
+  getPrefs({ scope: 'global', inventory, errors, _testing })
   t.equal(errors.length, 1, `Invalid preferences errored: ${errors[0]}`)
 
   prefsText = `
@@ -278,9 +292,10 @@ production
   env_var_1 foo
   env_var_2 bar
 `
-  mock()
+  cwd = mock()
+  inventory = inventoryDefaults({ cwd })
   errors = []
-  getPrefs({ scope: 'global', inventory, errors })
+  getPrefs({ scope: 'global', inventory, errors, _testing })
   t.equal(errors.length, 1, `Invalid preferences errored: ${errors[0]}`)
 
   prefsText = `
@@ -291,9 +306,10 @@ staging
   env_var_1 foo
   env_var_2 bar
 `
-  mock()
+  cwd = mock()
+  inventory = inventoryDefaults({ cwd })
   errors = []
-  getPrefs({ scope: 'global', inventory, errors })
+  getPrefs({ scope: 'global', inventory, errors, _testing })
   t.equal(errors.length, 1, `Invalid preferences errored: ${errors[0]}`)
 
   t.teardown(reset)
