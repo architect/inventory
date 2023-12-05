@@ -1,5 +1,5 @@
 let { join } = require('path')
-let mockFs = require('mock-fs')
+let mockTmp = require('mock-tmp')
 let parse = require('@architect/parser')
 let test = require('tape')
 let cwd = process.cwd()
@@ -38,24 +38,26 @@ test('@views is null if src/views not present', t => {
 
 test('Default dir is src/views (if present)', t => {
   t.plan(2)
+  let cwd = mockTmp({ 'src/views': {} })
+  let inventory = inventoryDefaults({ cwd })
   let arc
   let pragmas
   arc = parse(`@http`)
-  let inventory = inventoryDefaults()
   pragmas = { http: populateHTTP({ arc, inventory }) }
-  mockFs({ 'src/views': {} })
+
   let views = populateViews({ arc, pragmas, inventory })
   t.equal(views.src, join(cwd, 'src', 'views'), 'Returned correct default dir')
   t.deepEqual(views.views, [], 'Returned empty views array')
-  mockFs.restore()
+  mockTmp.reset()
 })
 
 test('Arc Static Asset Proxy is not included in @views', t => {
   t.plan(3)
+  let cwd = mockTmp({ 'src/views': {} })
+  let inventory = inventoryDefaults({ cwd })
   let arc
   let pragmas
   arc = parse(`@http`)
-  let inventory = inventoryDefaults()
   pragmas = { http: populateHTTP({ arc, inventory }) }
 
   arc = parse(`@http
@@ -63,25 +65,25 @@ get /foo
 @views
 get /*`)
   pragmas = { http: populateHTTP({ arc, inventory }) }
-  mockFs({ 'src/views': {} })
+
   let views = populateViews({ arc, pragmas, inventory })
   t.deepEqual(views.views, [], 'Returned empty views array')
   let asap = pragmas.http.find(r => r.name === 'get /*')
   t.ok(asap.arcStaticAssetProxy, 'Got back ASAP')
   t.notOk(asap.config.views, `Views setting not enabled in ASAP`)
-  mockFs.restore()
+  mockTmp.reset()
 })
 
 test(`@views population: defaults only to 'get' + 'any' routes (without @views)`, t => {
   t.plan(6)
+  let cwd = mockTmp({ 'src/views': {} })
+  let inventory = inventoryDefaults({ cwd })
   let arc
   let pragmas
-  let inventory = inventoryDefaults()
   let values = [ 'get /', 'any /whatever', 'post /' ]
   arc = parse(`@http\n${values.join('\n')}`)
   pragmas = { http: populateHTTP({ arc, inventory }) }
 
-  mockFs({ 'src/views': {} })
   let views = populateViews({ arc, pragmas, inventory })
   t.equal(views.views.length, 2, 'Got correct number of routes with views back')
   values.forEach(val => {
@@ -94,19 +96,19 @@ test(`@views population: defaults only to 'get' + 'any' routes (without @views)`
       t.notOk(route.config.views, `Views setting not enabled in route: ${val}`)
     }
   })
-  mockFs.restore()
+  mockTmp.reset()
 })
 
 test(`@views population: defaults only to 'get' + 'any' routes (with empty @views)`, t => {
   t.plan(6)
+  let cwd = mockTmp({ 'src/views': {} })
+  let inventory = inventoryDefaults({ cwd })
   let arc
   let pragmas
-  let inventory = inventoryDefaults()
   let values = [ 'get /', 'any /whatever', 'post /' ]
   arc = parse(`@http\n${values.join('\n')}\n@views`)
   pragmas = { http: populateHTTP({ arc, inventory }) }
 
-  mockFs({ 'src/views': {} })
   let views = populateViews({ arc, pragmas, inventory })
   t.equal(views.views.length, 2, 'Got correct number of routes with views back')
   values.forEach(val => {
@@ -119,14 +121,15 @@ test(`@views population: defaults only to 'get' + 'any' routes (with empty @view
       t.notOk(route.config.views, `Views setting not enabled in route: ${val}`)
     }
   })
-  mockFs.restore()
+  mockTmp.reset()
 })
 
 test(`@views population: defaults only to 'get' + 'any' routes (with src setting)`, t => {
   t.plan(7)
+  let cwd = mockTmp({ 'foo/bar': {} })
+  let inventory = inventoryDefaults({ cwd })
   let arc
   let pragmas
-  let inventory = inventoryDefaults()
   let values = [ 'get /', 'any /whatever', 'post /' ]
   arc = parse(`@http
 ${values.join('\n')}
@@ -134,7 +137,6 @@ ${values.join('\n')}
 src foo/bar`)
   pragmas = { http: populateHTTP({ arc, inventory }) }
 
-  mockFs({ 'foo/bar': {} })
   let views = populateViews({ arc, pragmas, inventory })
   t.equal(views.src, 'foo/bar', 'Got correct src dir back')
   t.equal(views.views.length, 2, 'Got correct number of routes with views back') // `POST /` is not a view
@@ -148,27 +150,30 @@ src foo/bar`)
       t.notOk(route.config.views, `Views setting not enabled in route: ${val}`)
     }
   })
-  mockFs.restore()
+  mockTmp.reset()
 })
 
 test(`@views population: plugin setter defaults only to 'get' + 'any' routes (with src setting)`, t => {
   t.plan(22)
+  let setter = () => ({ src: 'foo/bar' })
+
   let arc
+  let cwd
+  let inventory
   let pragmas
-  let setter
   let fn1
   let views
-  let inventory = inventoryDefaults()
-  setter = () => ({ src: 'foo/bar' })
-  inventory.plugins = setterPluginSetup(setter)
   let values = [ 'get /', 'any /whatever', 'post /' ]
   let httpLambda = values[0]
-  arc = parse(`@http
-${values.join('\n')}`)
-  pragmas = { http: populateHTTP({ arc, inventory }) }
 
   // Basic plugin stuff
-  mockFs({ 'foo/bar': {} })
+  cwd = mockTmp({ 'foo/bar': {} })
+  inventory = inventoryDefaults({ cwd })
+  inventory.plugins = setterPluginSetup(setter)
+
+  arc = parse(`@http\n${values.join('\n')}`)
+  pragmas = { http: populateHTTP({ arc, inventory }) }
+
   views = populateViews({ arc, pragmas, inventory })
   t.equal(views.src, 'foo/bar', 'Got correct src dir back')
   t.equal(views.views.length, 2, 'Got correct number of routes with views back') // `POST /` is not a view
@@ -182,30 +187,35 @@ ${values.join('\n')}`)
       t.notOk(route.config.views, `Views setting not enabled in route: ${val}`)
     }
   })
-  mockFs.restore()
+  mockTmp.reset()
 
   // Fall back to src/views if specified dir is not found
+  cwd = mockTmp({ 'src/views': {} })
+  inventory = inventoryDefaults({ cwd })
+  inventory.plugins = setterPluginSetup(setter)
   arc = parse(`@http\n${httpLambda}`)
   pragmas = { http: populateHTTP({ arc, inventory }) }
-  mockFs({ 'src/views': {} })
   views = populateViews({ arc, pragmas, inventory })
   t.ok(views.src.endsWith(join('src', 'views')), 'Got correct src dir back')
   t.equal(views.views.length, 1, 'Got correct number of routes with views back')
-  mockFs.restore()
+  mockTmp.reset()
 
   // Shared is null if setter doesn't set `required` flag and no dirs are found
+  cwd = mockTmp({ 'foo/bar': {} })
+  inventory = inventoryDefaults({ cwd })
+  inventory.plugins = setterPluginSetup(setter)
   arc = parse(`@http\n${httpLambda}`)
   pragmas = { http: populateHTTP({ arc, inventory }) }
-  mockFs({ 'foo/bar': {} })
   // Just a control test!
   views = populateViews({ arc, pragmas, inventory })
   t.equal(views.src, 'foo/bar', 'Got correct src dir back')
-  mockFs.restore()
+  mockTmp.reset()
   views = populateViews({ arc, pragmas, inventory })
   t.equal(views, null, 'views is null')
 
-
   // Arc file wins
+  cwd = mockTmp({ 'foo/bar': {} })
+  inventory = inventoryDefaults({ cwd })
   setter = () => ({ src: 'foo/baz' })
   inventory.plugins = setterPluginSetup(setter)
   arc = parse(`@http
@@ -213,7 +223,6 @@ ${values.join('\n')}
 @views
 src foo/bar`)
   pragmas = { http: populateHTTP({ arc, inventory }) }
-  mockFs({ 'foo/bar': {} })
   views = populateViews({ arc, pragmas, inventory })
   t.equal(views.src, 'foo/bar', 'Got correct src dir back')
   t.equal(views.views.length, 2, 'Got correct number of routes with views back') // `POST /` is not a view
@@ -227,29 +236,31 @@ src foo/bar`)
       t.notOk(route.config.views, `Views setting not enabled in route: ${val}`)
     }
   })
-  mockFs.restore()
+  mockTmp.reset()
 
   // cwd isn't concatenated when an absolute file path is returned
+  cwd = mockTmp({ 'foo/bar': {} })
+  inventory = inventoryDefaults({ cwd })
   let src = join(inventory._project.cwd, 'foo', 'bar')
   setter = () => ({ src })
   inventory.plugins = setterPluginSetup(setter)
   arc = parse(`@http\n${httpLambda}`)
   pragmas = { http: populateHTTP({ arc, inventory }) }
-  mockFs({ 'foo/bar': {} })
   views = populateViews({ arc, pragmas, inventory })
   t.equal(views.src, src, 'Got correct src dir back')
   t.equal(views.views.length, 1, 'Got correct number of lambdae with views back')
   fn1 = pragmas.http.find(r => r.name === httpLambda)
   t.ok(views.views.includes(fn1.src), `Got shared lambda: ${httpLambda}`)
   t.ok(fn1.config.shared, `Shared setting enabled in lambda: ${httpLambda}`)
-  mockFs.restore()
+  mockTmp.reset()
 })
 
 test(`@views population: routes not explicitly defined have views disabled (with src setting)`, t => {
   t.plan(6)
+  let cwd = mockTmp({ 'foo/bar': {} })
+  let inventory = inventoryDefaults({ cwd })
   let arc
   let pragmas
-  let inventory = inventoryDefaults()
   let values = [ 'get /', 'any /whatever', 'post /' ]
   arc = parse(`@http
 ${values.join('\n')}
@@ -258,7 +269,6 @@ post /
 src foo/bar`)
   pragmas = { http: populateHTTP({ arc, inventory }) }
 
-  mockFs({ 'foo/bar': {} })
   let views = populateViews({ arc, pragmas, inventory })
   t.equal(views.src, 'foo/bar', 'Got correct src dir back')
   t.equal(views.views.length, 1, 'Got correct number of routes with views back')
@@ -272,41 +282,46 @@ src foo/bar`)
       t.notOk(route.config.views, `Views setting not enabled in route: ${val}`)
     }
   })
-  mockFs.restore()
+  mockTmp.reset()
 })
 
 test('@views: validation errors', t => {
   t.plan(12)
   let arc
+  let cwd
+  let inventory
   let pragmas
   let errors
-  let inventory = inventoryDefaults()
   let updatePragmas = () => {
     pragmas = { http: populateHTTP({ arc, inventory }) }
   }
 
+  cwd = mockTmp({ 'src/views': {} })
+  inventory = inventoryDefaults({ cwd })
   arc = parse(`@http
 get /foo
 @views
 put /bar`)
   updatePragmas()
   errors = []
-  mockFs({ 'src/views': {} })
   populateViews({ arc, pragmas, inventory, errors })
   t.equal(errors.length, 1, '@views route not found in @http errored')
-  mockFs.restore()
+  mockTmp.reset()
 
+  cwd = mockTmp({ 'src/views': {} })
+  inventory = inventoryDefaults({ cwd })
   arc = parse(`@http
 get /foo
 @views
 hi`)
   updatePragmas()
   errors = []
-  mockFs({ 'src/views': {} })
   populateViews({ arc, pragmas, inventory, errors })
   t.equal(errors.length, 1, '@views invalid entry errored')
-  mockFs.restore()
+  mockTmp.reset()
 
+  cwd = mockTmp({ 'src/views': {} })
+  inventory = inventoryDefaults({ cwd })
   arc = parse(`@http
 get /foo
 @views
@@ -314,11 +329,9 @@ hey
   there`)
   updatePragmas()
   errors = []
-  mockFs({})
-  mockFs({ 'src/views': {} })
   populateViews({ arc, pragmas, inventory, errors })
   t.equal(errors.length, 1, '@views invalid entry errored')
-  mockFs.restore()
+  mockTmp.reset()
 
   arc = parse(`@http
 get /foo
@@ -326,22 +339,19 @@ get /foo
 src foo`)
   updatePragmas()
   errors = []
-  mockFs({})
   populateViews({ arc, pragmas, inventory, errors })
   t.equal(errors.length, 1, '@views src dir must exist')
-  mockFs.restore()
 
-
+  cwd = mockTmp({ foo: 'hi!' })
+  inventory = inventoryDefaults({ cwd })
   arc = parse(`@http
 get /foo
 @views
 src foo`)
   updatePragmas()
   errors = []
-  mockFs({ foo: 'hi!' })
   populateViews({ arc, pragmas, inventory, errors })
   t.equal(errors.length, 1, '@views src must refer to a dir, not a file')
-  mockFs.restore()
 
   // From here on out we haven't needed to mock the filesystem since it should be returning errors prior to any folder existence checks; of course, update if that changes!
   errors = []
@@ -406,23 +416,25 @@ src true`)
 test('@views: plugin errors', t => {
   t.plan(9)
   let arc
+  let cwd
+  let inventory
   let pragmas
   let errors
   let setter
-  let inventory = inventoryDefaults()
   let updatePragmas = () => {
     pragmas = { http: populateHTTP({ arc, inventory }) }
   }
 
+  cwd = mockTmp({ foo: {}, hi: {} })
+  inventory = inventoryDefaults({ cwd })
   arc = parse(`@http\nget /foo\n@views\nsrc foo`)
   setter = () => ({ src: 'hi', required: true })
   inventory.plugins = setterPluginSetup(setter)
   updatePragmas()
   errors = []
-  mockFs({ foo: {}, hi: {} })
   populateViews({ arc, pragmas, inventory, errors })
   t.equal(errors[0], '@views src setting conflicts with plugin', '@views src dir must exist if required flag is set')
-  mockFs.restore()
+  mockTmp.reset()
 
   arc = parse(`@http\nget /foo`)
   inventory.plugins = setterPluginSetup(setter)
@@ -431,16 +443,18 @@ test('@views: plugin errors', t => {
   populateViews({ arc, pragmas, inventory, errors })
   t.equal(errors[0], 'Directory not found: hi', '@views src dir must exist if required flag is set')
 
+  cwd = mockTmp({ foo: 'hi!' })
+  inventory = inventoryDefaults({ cwd })
   setter = () => ({ src: 'foo' })
   inventory.plugins = setterPluginSetup(setter)
   updatePragmas()
   errors = []
-  mockFs({ foo: 'hi!' })
   populateViews({ arc, pragmas, inventory, errors })
   t.equal(errors.length, 1, '@views src must refer to a dir, not a file')
-  mockFs.restore()
+  mockTmp.reset()
 
-  // From here on out we haven't needed to mock the filesystem since it should be returning errors prior to any folder existence checks; of course, update if that changes!
+  cwd = mockTmp({ 'src/index.js': '// hi!' })
+  inventory = inventoryDefaults({ cwd })
   setter = () => ({ src: 'src/index.js' })
   inventory.plugins = setterPluginSetup(setter)
   updatePragmas()
@@ -448,6 +462,7 @@ test('@views: plugin errors', t => {
   populateViews({ arc, pragmas, inventory, errors })
   t.equal(errors.length, 1, '@views src must be a directory')
 
+  // From here on out we haven't needed to mock the filesystem since it should be returning errors prior to any folder existence checks; of course, update if that changes!
   setter = () => ({ src: '.' })
   inventory.plugins = setterPluginSetup(setter)
   updatePragmas()

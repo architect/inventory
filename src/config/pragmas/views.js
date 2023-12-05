@@ -56,8 +56,8 @@ module.exports = function configureViews ({ arc, pragmas, inventory, errors }) {
   }
   else if (foundPluginSrc) {
     if (!required) {
-      if (!is.exists(views.src)) views.src = src
-      if (!is.exists(views.src)) return null
+      if (!is.exists(views.src) && !is.exists(join(cwd, views.src))) views.src = src
+      if (!is.exists(views.src) && !is.exists(join(cwd, views.src))) return null
     }
     validate.shared(views.src, cwd, errors, required)
   }
