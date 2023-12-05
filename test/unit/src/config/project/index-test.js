@@ -1,7 +1,7 @@
 let { join } = require('path')
 let { homedir } = require('os')
 let test = require('tape')
-let mockFs = require('mock-fs')
+let mockTmp = require('mock-tmp')
 let cwd = process.cwd()
 let inventoryDefaultsPath = join(process.cwd(), 'src', 'defaults')
 let inventoryDefaults = require(inventoryDefaultsPath)
@@ -9,6 +9,9 @@ let defaultFunctionConfigPath = join(process.cwd(), 'src', 'defaults', 'function
 let defaultFunctionConfig = require(defaultFunctionConfigPath)
 let sut = join(cwd, 'src', 'config', 'project')
 let getProjectConfig = require(sut)
+
+let localPrefsFile = 'prefs.arc'
+let globalPrefsFile = join(homedir(), 'prefs.arc')
 
 test('Set up env', t => {
   t.plan(1)
@@ -61,8 +64,7 @@ test('Project preferences', t => {
   t.plan(29)
   let arc = {}
   let errors = []
-  let inventory = inventoryDefaults()
-  let proj
+  let cwd, inventory, proj
 
   // Local preferences only
   let localPrefs = `@env
@@ -70,10 +72,10 @@ testing
   foo bar
 @create
 autocreate true`
-  let localPrefsFile = join(cwd, 'prefs.arc')
-  mockFs({
+  cwd = mockTmp({
     [localPrefsFile]: localPrefs
   })
+  inventory = inventoryDefaults({ cwd })
   proj = getProjectConfig({ arc, errors, inventory })
   t.equal(errors.length, 0, 'Did not error')
   t.ok(proj.preferences, 'Populated preferences')
@@ -81,11 +83,11 @@ autocreate true`
   t.equal(proj.preferences.create.autocreate, true, 'Populated Create prefs')
   t.notOk(proj.preferences.sandbox, 'Did not populate Sandbox prefs')
   t.ok(proj.localPreferences, 'Populated localPreferences')
-  t.equal(proj.localPreferencesFile, localPrefsFile, 'Populated localPreferencesFile')
+  t.equal(proj.localPreferencesFile, join(cwd, localPrefsFile), 'Populated localPreferencesFile')
   t.equal(proj.globalPreferences, null, 'Did not populate globalPreferences')
   t.equal(proj.globalPreferencesFile, null, 'Did not populate globalPreferencesFile')
   t.equal(proj.env.local.testing.foo, 'bar', 'Populated env local/testing')
-  mockFs.restore()
+  mockTmp.reset()
 
   // Global preferences only
   let globalPrefs = `@env
@@ -93,11 +95,11 @@ testing
   fiz buz
 @sandbox
 useAWS true`
-  let globalPrefsFile = join(homedir(), 'prefs.arc')
-  mockFs({
+  cwd = mockTmp({
     [globalPrefsFile]: globalPrefs
   })
-  proj = getProjectConfig({ arc, errors, inventory })
+  inventory = inventoryDefaults({ cwd })
+  proj = getProjectConfig({ arc, errors, inventory, _testing: true })
   t.equal(errors.length, 0, 'Did not error')
   t.ok(proj.preferences, 'Populated preferences')
   t.equal(proj.preferences.env.testing.fiz, 'buz', 'Populated testing env')
@@ -105,27 +107,28 @@ useAWS true`
   t.equal(proj.localPreferences, null, 'Did not populate localPreferences')
   t.equal(proj.localPreferencesFile, null, 'Did not populate localPreferencesFile')
   t.ok(proj.globalPreferences, 'Populated globalPreferences')
-  t.equal(proj.globalPreferencesFile, globalPrefsFile, 'Populated globalPreferencesFile')
+  t.equal(proj.globalPreferencesFile, join(cwd, globalPrefsFile), 'Populated globalPreferencesFile')
   t.equal(proj.env.local.testing.fiz, 'buz', 'Populated env local/testing')
-  mockFs.restore()
+  mockTmp.reset()
 
   // Merge local + global preferences
-  mockFs({
+  cwd = mockTmp({
     [localPrefsFile]: localPrefs,
     [globalPrefsFile]: globalPrefs,
   })
-  proj = getProjectConfig({ arc, errors, inventory })
+  inventory = inventoryDefaults({ cwd })
+  proj = getProjectConfig({ arc, errors, inventory, _testing: true })
   t.equal(errors.length, 0, 'Did not error')
   t.ok(proj.preferences, 'Populated preferences')
   t.equal(proj.preferences.env.testing.foo, 'bar', 'Populated testing env (preferred local to global prefs)')
   t.equal(proj.preferences.create.autocreate, true, 'Populated Create prefs (from local prefs)')
   t.equal(proj.preferences.sandbox.useAWS, true, 'Populated Sandbox prefs (from global prefs)')
   t.ok(proj.localPreferences, 'Populated localPreferences')
-  t.equal(proj.localPreferencesFile, localPrefsFile, 'Populated localPreferencesFile')
+  t.equal(proj.localPreferencesFile, join(cwd, localPrefsFile), 'Populated localPreferencesFile')
   t.ok(proj.globalPreferences, 'Populated globalPreferences')
-  t.equal(proj.globalPreferencesFile, globalPrefsFile, 'Populated globalPreferencesFile')
+  t.equal(proj.globalPreferencesFile, join(cwd, globalPrefsFile), 'Populated globalPreferencesFile')
   t.equal(proj.env.local.testing.foo, 'bar', 'Populated env local/testing (preferred local to global prefs)')
-  mockFs.restore()
+  mockTmp.reset()
 })
 
 test('Project plugins', t => {
@@ -138,10 +141,11 @@ test('Project plugins', t => {
   // Env + custom runtime plugins
   let env = { henlo: 'friend' }
   let runtime = { name: 'typescript', type: 'transpiled', build: 'dist', baseRuntime: 'nodejs14.x' }
-  inventory.plugins = { _methods: { set: {
+  let plugins = { _methods: { set: {
     env: [ () => (env) ],
     runtimes: [ () => (runtime) ],
   } } }
+  inventory.plugins = plugins
   proj = getProjectConfig({ arc, errors, inventory })
   t.equal(errors.length, 0, 'Did not error')
   t.equal(proj.cwd, cwd, 'Populated cwd')
@@ -162,10 +166,11 @@ test('Project plugins', t => {
   let localPrefs = `@env
 testing
   foo bar`
-  let localPrefsFile = join(cwd, 'prefs.arc')
-  mockFs({
+  cwd = mockTmp({
     [localPrefsFile]: localPrefs
   })
+  inventory = inventoryDefaults({ cwd })
+  inventory.plugins = plugins
   proj = getProjectConfig({ arc, errors, inventory })
   t.equal(errors.length, 0, 'Did not error')
   t.deepEqual(proj.env.local.testing, { foo: 'bar', ...env }, `Populated project env.local.testing with merged prefs + plugin env`)
@@ -173,7 +178,7 @@ testing
   t.deepEqual(proj.env.local.production, env, `Populated project env.local.production with merged prefs + plugin env`)
   Object.entries(proj.env.plugins).forEach(([ e, v ]) => t.deepEqual(v, env, `Populated project env.plugins.${e} with plugin env`))
   t.equal(proj.env.aws, null, 'Did not populate env aws')
-  mockFs.restore()
+  mockTmp.reset()
 
   // Could do some local env + env plugin merge errors, but we can reasonably assume that's covered in `test/unit/src/lib/merge-env-vars-test.js`
 })
