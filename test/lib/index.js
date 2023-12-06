@@ -1,4 +1,11 @@
+let { homedir } = require('os')
 let { is } = require('../../src/lib')
+
+function getHomedir () {
+  let _homedir = homedir()
+  if (process.platform === 'win32') _homedir = _homedir.replace(/^[A-Z]:\\/, '')
+  return _homedir
+}
 
 function setterPluginSetup (setter, fns) {
   let methods = is.array(fns) ? fns : [ fns ]
@@ -11,5 +18,6 @@ function setterPluginSetup (setter, fns) {
 }
 
 module.exports = {
-  setterPluginSetup
+  getHomedir,
+  setterPluginSetup,
 }

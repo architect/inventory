@@ -7,10 +7,16 @@ let { parse } = require('./dotenv')
 let { homedir } = require('os')
 
 module.exports = function getPrefs ({ scope, inventory, errors, _testing }) {
-  /* istanbul ignore next */
   let cwd = scope === 'global'
-    ? _testing ? join(inventory._project.cwd, homedir()) : homedir()
+    ? homedir()
     : inventory._project.cwd
+
+  /* istanbul ignore next */
+  if (_testing && scope === 'global') {
+    let _homedir = homedir()
+    if (process.platform === 'win32') _homedir = _homedir.replace(/^[A-Z]:\\/, '')
+    cwd = join(inventory._project.cwd, _homedir)
+  }
 
   let envFilepath = join(cwd, '.env')
   let hasEnvFile = scope === 'local' && existsSync(envFilepath)

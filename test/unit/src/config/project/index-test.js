@@ -1,8 +1,9 @@
 let { join } = require('path')
-let { homedir } = require('os')
 let test = require('tape')
 let mockTmp = require('mock-tmp')
 let cwd = process.cwd()
+let testLibPath = join(cwd, 'test', 'lib')
+let { getHomedir } = require(testLibPath)
 let inventoryDefaultsPath = join(process.cwd(), 'src', 'defaults')
 let inventoryDefaults = require(inventoryDefaultsPath)
 let defaultFunctionConfigPath = join(process.cwd(), 'src', 'defaults', 'function-config')
@@ -11,7 +12,9 @@ let sut = join(cwd, 'src', 'config', 'project')
 let getProjectConfig = require(sut)
 
 let localPrefsFile = 'prefs.arc'
-let globalPrefsFile = join(homedir(), 'prefs.arc')
+let _homedir = getHomedir()
+let globalPrefsFile = join(_homedir, 'prefs.arc')
+let _testing = true
 
 test('Set up env', t => {
   t.plan(1)
@@ -99,7 +102,7 @@ useAWS true`
     [globalPrefsFile]: globalPrefs
   })
   inventory = inventoryDefaults({ cwd })
-  proj = getProjectConfig({ arc, errors, inventory, _testing: true })
+  proj = getProjectConfig({ arc, errors, inventory, _testing })
   t.equal(errors.length, 0, 'Did not error')
   t.ok(proj.preferences, 'Populated preferences')
   t.equal(proj.preferences.env.testing.fiz, 'buz', 'Populated testing env')
@@ -117,7 +120,7 @@ useAWS true`
     [globalPrefsFile]: globalPrefs,
   })
   inventory = inventoryDefaults({ cwd })
-  proj = getProjectConfig({ arc, errors, inventory, _testing: true })
+  proj = getProjectConfig({ arc, errors, inventory, _testing })
   t.equal(errors.length, 0, 'Did not error')
   t.ok(proj.preferences, 'Populated preferences')
   t.equal(proj.preferences.env.testing.foo, 'bar', 'Populated testing env (preferred local to global prefs)')

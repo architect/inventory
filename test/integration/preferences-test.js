@@ -1,14 +1,17 @@
 let { join } = require('path')
-let { homedir } = require('os')
 let test = require('tape')
-let sut = join(process.cwd(), 'src', 'index')
-let inv = require(sut)
 let mockTmp = require('mock-tmp')
+let cwd = process.cwd()
+let testLibPath = join(cwd, 'test', 'lib')
+let { getHomedir } = require(testLibPath)
+let sut = join(cwd, 'src', 'index')
+let inv = require(sut)
 
-let mock = join(process.cwd(), 'test', 'mock')
+let _homedir = getHomedir()
+let mock = join(cwd, 'test', 'mock')
 let arc = '@app\nappname\n@events\nan-event' // Not using @http so we can skip ASAP filesystem checks
 let reset = () => mockTmp.reset()
-let _testing = true, cwd
+let _testing = true
 
 /**
  * Duplicates some unit tests as part of the larger whole integration test
@@ -56,8 +59,8 @@ testing
   env_var_1 foo
   env_var_2 bar
 `
-  let path = join(homedir(), '.prefs.arc')
-  cwd = mockTmp({
+  let path = join(_homedir, '.prefs.arc')
+  let cwd = mockTmp({
     'app.arc': arc,
     [path]: prefsText
   })
@@ -198,8 +201,8 @@ staging
       production: null,
     }
   }
-  let path = join(homedir(), '.prefs.arc')
-  cwd = mockTmp({
+  let path = join(_homedir, '.prefs.arc')
+  let cwd = mockTmp({
     'app.arc': arc,
     [path]: globalPrefsText,
     'preferences.arc': localPrefsText
@@ -239,7 +242,7 @@ test('Preferences validation errors', async t => {
 @env
 foo
 `
-  cwd = mockTmp({
+  let cwd = mockTmp({
     'app.arc': arc,
     'prefs.arc': prefs,
   })

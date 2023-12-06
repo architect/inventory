@@ -1,14 +1,16 @@
 let { join } = require('path')
-let { homedir } = require('os')
 let test = require('tape')
 let mockTmp = require('mock-tmp')
 let cwd = process.cwd()
+let testLibPath = join(cwd, 'test', 'lib')
+let { getHomedir } = require(testLibPath)
 let inventoryDefaultsPath = join(cwd, 'src', 'defaults')
 let inventoryDefaults = require(inventoryDefaultsPath)
 let sut = join(cwd, 'src', 'config', 'project', 'prefs')
 let getPrefs = require(sut)
 
-let path = join(homedir(), '.prefs.arc')
+let _homedir = getHomedir()
+let path = join(_homedir, '.prefs.arc')
 let reset = () => mockTmp.restore()
 function clean (preferences) {
   // Delete the meta stuff so the actual preferences match during an equality check
