@@ -1,10 +1,18 @@
-let { homedir } = require('os')
+let os = require('os')
 let { is } = require('../../src/lib')
 
-function getHomedir () {
-  let _homedir = homedir()
-  if (process.platform === 'win32') _homedir = _homedir.replace(/^[A-Z]:\\/, '')
-  return _homedir
+let homedirBak
+let tmpHomedir
+function overrideHomedir (tmp) {
+  if (tmp) tmpHomedir = tmp
+  if (!homedirBak) homedirBak = os.homedir
+  os.homedir = () => tmpHomedir
+}
+overrideHomedir.reset = () => {
+  if (homedirBak) {
+    os.homedir = homedirBak
+    homedirBak = undefined
+  }
 }
 
 function setterPluginSetup (setter, fns) {
@@ -18,6 +26,6 @@ function setterPluginSetup (setter, fns) {
 }
 
 module.exports = {
-  getHomedir,
+  overrideHomedir,
   setterPluginSetup,
 }

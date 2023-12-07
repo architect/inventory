@@ -3,7 +3,7 @@ let test = require('tape')
 let mockTmp = require('mock-tmp')
 let cwd = process.cwd()
 let testLibPath = join(cwd, 'test', 'lib')
-let { getHomedir } = require(testLibPath)
+let { overrideHomedir } = require(testLibPath)
 let inventoryDefaultsPath = join(process.cwd(), 'src', 'defaults')
 let inventoryDefaults = require(inventoryDefaultsPath)
 let defaultFunctionConfigPath = join(process.cwd(), 'src', 'defaults', 'function-config')
@@ -11,10 +11,9 @@ let defaultFunctionConfig = require(defaultFunctionConfigPath)
 let sut = join(cwd, 'src', 'config', 'project')
 let getProjectConfig = require(sut)
 
+let mock = join(cwd, 'test', 'mock')
 let localPrefsFile = 'prefs.arc'
-let _homedir = getHomedir()
-let globalPrefsFile = join(_homedir, 'prefs.arc')
-let _testing = true
+let globalPrefsFile = '.prefs.arc'
 
 test('Set up env', t => {
   t.plan(1)
@@ -67,17 +66,10 @@ test('Project preferences', t => {
   t.plan(29)
   let arc = {}
   let errors = []
-  let cwd, inventory, proj
+  let cwd, inventory, proj, tmp
 
   // Local preferences only
-  let localPrefs = `@env
-testing
-  foo bar
-@create
-autocreate true`
-  cwd = mockTmp({
-    [localPrefsFile]: localPrefs
-  })
+  cwd = join(mock, 'prefs', 'local')
   inventory = inventoryDefaults({ cwd })
   proj = getProjectConfig({ arc, errors, inventory })
   t.equal(errors.length, 0, 'Did not error')
@@ -90,7 +82,6 @@ autocreate true`
   t.equal(proj.globalPreferences, null, 'Did not populate globalPreferences')
   t.equal(proj.globalPreferencesFile, null, 'Did not populate globalPreferencesFile')
   t.equal(proj.env.local.testing.foo, 'bar', 'Populated env local/testing')
-  mockTmp.reset()
 
   // Global preferences only
   let globalPrefs = `@env
@@ -98,11 +89,12 @@ testing
   fiz buz
 @sandbox
 useAWS true`
-  cwd = mockTmp({
+  tmp = mockTmp({
     [globalPrefsFile]: globalPrefs
   })
-  inventory = inventoryDefaults({ cwd })
-  proj = getProjectConfig({ arc, errors, inventory, _testing })
+  overrideHomedir(tmp)
+  inventory = inventoryDefaults({ cwd: process.cwd() })
+  proj = getProjectConfig({ arc, errors, inventory })
   t.equal(errors.length, 0, 'Did not error')
   t.ok(proj.preferences, 'Populated preferences')
   t.equal(proj.preferences.env.testing.fiz, 'buz', 'Populated testing env')
@@ -110,17 +102,17 @@ useAWS true`
   t.equal(proj.localPreferences, null, 'Did not populate localPreferences')
   t.equal(proj.localPreferencesFile, null, 'Did not populate localPreferencesFile')
   t.ok(proj.globalPreferences, 'Populated globalPreferences')
-  t.equal(proj.globalPreferencesFile, join(cwd, globalPrefsFile), 'Populated globalPreferencesFile')
+  t.equal(proj.globalPreferencesFile, join(tmp, globalPrefsFile), 'Populated globalPreferencesFile')
   t.equal(proj.env.local.testing.fiz, 'buz', 'Populated env local/testing')
   mockTmp.reset()
 
   // Merge local + global preferences
-  cwd = mockTmp({
-    [localPrefsFile]: localPrefs,
+  tmp = mockTmp({
     [globalPrefsFile]: globalPrefs,
   })
+  overrideHomedir(tmp)
   inventory = inventoryDefaults({ cwd })
-  proj = getProjectConfig({ arc, errors, inventory, _testing })
+  proj = getProjectConfig({ arc, errors, inventory })
   t.equal(errors.length, 0, 'Did not error')
   t.ok(proj.preferences, 'Populated preferences')
   t.equal(proj.preferences.env.testing.foo, 'bar', 'Populated testing env (preferred local to global prefs)')
@@ -129,9 +121,10 @@ useAWS true`
   t.ok(proj.localPreferences, 'Populated localPreferences')
   t.equal(proj.localPreferencesFile, join(cwd, localPrefsFile), 'Populated localPreferencesFile')
   t.ok(proj.globalPreferences, 'Populated globalPreferences')
-  t.equal(proj.globalPreferencesFile, join(cwd, globalPrefsFile), 'Populated globalPreferencesFile')
+  t.equal(proj.globalPreferencesFile, join(tmp, globalPrefsFile), 'Populated globalPreferencesFile')
   t.equal(proj.env.local.testing.foo, 'bar', 'Populated env local/testing (preferred local to global prefs)')
   mockTmp.reset()
+  overrideHomedir.reset()
 })
 
 test('Project plugins', t => {

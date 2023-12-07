@@ -3,15 +3,16 @@ let test = require('tape')
 let mockTmp = require('mock-tmp')
 let cwd = process.cwd()
 let testLibPath = join(cwd, 'test', 'lib')
-let { getHomedir } = require(testLibPath)
+let { overrideHomedir } = require(testLibPath)
 let sut = join(cwd, 'src', 'index')
 let inv = require(sut)
 
-let _homedir = getHomedir()
 let mock = join(cwd, 'test', 'mock')
-let arc = '@app\nappname\n@events\nan-event' // Not using @http so we can skip ASAP filesystem checks
-let reset = () => mockTmp.reset()
-let _testing = true
+let globalPrefsFile = '.prefs.arc'
+let reset = () => {
+  mockTmp.reset()
+  overrideHomedir.reset()
+}
 
 /**
  * Duplicates some unit tests as part of the larger whole integration test
@@ -24,6 +25,7 @@ test('Set up env', t => {
 
 test('Get global preferences', t => {
   t.plan(11)
+  let cwd = join(mock, 'prefs', 'global')
   let prefs = {
     sandbox: { environment: 'testing' },
     'sandbox-startup': [
@@ -59,12 +61,11 @@ testing
   env_var_1 foo
   env_var_2 bar
 `
-  let path = join(_homedir, '.prefs.arc')
-  let cwd = mockTmp({
-    'app.arc': arc,
-    [path]: prefsText
+  let tmp = mockTmp({
+    [globalPrefsFile]: prefsText
   })
-  inv({ cwd, _testing }, (err, result) => {
+  overrideHomedir(tmp)
+  inv({ cwd }, (err, result) => {
     if (err) t.fail(err)
     else {
       let { inv, get } = result
@@ -81,7 +82,7 @@ testing
       delete inv._project.globalPreferences._arc
       delete inv._project.globalPreferences._raw
       t.deepEqual(inv._project.globalPreferences, prefs, 'Got correct global preferences')
-      t.equal(inv._project.globalPreferencesFile, join(cwd, path), 'Got correct preferences file')
+      t.equal(inv._project.globalPreferencesFile, join(tmp, globalPrefsFile), 'Got correct preferences file')
       t.teardown(reset)
     }
   })
@@ -135,6 +136,7 @@ test('Get local preferences', t => {
 
 test('Layer local preferences over global preferences', t => {
   t.plan(14)
+  let cwd = join(mock, 'prefs', 'local-over-global')
   let globalPrefsText = `
 @sandbox
 environment testing
@@ -160,19 +162,6 @@ testing
       production: null,
     }
   }
-  let localPrefsText = `
-@sandbox
-environment staging
-
-@create
-autocreate true
-
-@env
-testing
-  env_var_2 bar
-staging
-  env_var_3 fiz
-`
   let localPrefs = {
     sandbox: {
       environment: 'staging',
@@ -201,13 +190,11 @@ staging
       production: null,
     }
   }
-  let path = join(_homedir, '.prefs.arc')
-  let cwd = mockTmp({
-    'app.arc': arc,
-    [path]: globalPrefsText,
-    'preferences.arc': localPrefsText
+  let tmp = mockTmp({
+    [globalPrefsFile]: globalPrefsText,
   })
-  inv({ cwd, _testing }, (err, result) => {
+  overrideHomedir(tmp)
+  inv({ cwd }, (err, result) => {
     if (err) t.fail(err)
     else {
       let { inv, get } = result
@@ -228,7 +215,7 @@ staging
       delete inv._project.localPreferences._raw
       t.deepEqual(inv._project.globalPreferences, globalPrefs, 'Got correct global preferences')
       t.deepEqual(inv._project.localPreferences, localPrefs, 'Got correct local preferences')
-      t.equal(inv._project.globalPreferencesFile, join(cwd, path), 'Got correct preferences file')
+      t.equal(inv._project.globalPreferencesFile, join(tmp, globalPrefsFile), 'Got correct preferences file')
       t.equal(inv._project.localPreferencesFile, join(cwd, 'preferences.arc'), 'Got correct preferences file')
       t.teardown(reset)
     }

@@ -8,7 +8,7 @@ let { is, mergeEnvVars } = require('../../lib')
  * Get the project-level configuration, overlaying arc.aws settings (if present)
  */
 module.exports = function getProjectConfig (params) {
-  let { arc, errors, raw, filepath, inventory, _testing } = params
+  let { arc, errors, raw, filepath, inventory } = params
   let _project = {
     ...inventory._project,
     arc,
@@ -26,7 +26,7 @@ module.exports = function getProjectConfig (params) {
   // Parse local and global project preferences
   let scopes = [ 'global', 'local' ]
   for (let scope of scopes) {
-    let p = prefs({ scope, inventory, errors, _testing })
+    let p = prefs({ scope, inventory, errors })
     if (p) {
       // Set up the scoped metadata
       _project[`${scope}Preferences`] = p.preferences

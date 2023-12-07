@@ -32,7 +32,7 @@ module.exports = function architectInventory (params = {}, callback) {
 
   // Always ensure we have a working dir
   params.cwd = params.cwd || process.cwd()
-  let { cwd, rawArc, _testing } = params
+  let { cwd, rawArc } = params
 
   // Stateless inventory run
   if (rawArc) {
@@ -60,7 +60,7 @@ module.exports = function architectInventory (params = {}, callback) {
   let inventory = inventoryDefaults(params)
 
   // Set up project params for config
-  let project = { arc, cwd, errors, filepath, inventory, raw, _testing }
+  let project = { arc, cwd, errors, filepath, inventory, raw }
 
   // Populate inventory.arc
   inventory._arc = config._arc(project)
