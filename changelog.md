@@ -2,6 +2,14 @@
 
 ---
 
+## [3.6.5] 2023-12-07
+
+### Changed
+
+- Internal updates and test suite fixes to enable Node.js 20.x testing
+
+---
+
 ## [3.6.4] 2023-12-02
 
 ### Changed
