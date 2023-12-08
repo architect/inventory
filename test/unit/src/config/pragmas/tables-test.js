@@ -53,7 +53,7 @@ number-keys
 })
 
 test('@tables population (extra params)', t => {
-  t.plan(20)
+  t.plan(28)
 
   let arc = parse(`
 @tables
@@ -130,6 +130,31 @@ string-keys
   tables = populateTables({ arc, inventory })
   t.ok(tables.length === 1, 'Got correct number of tables back')
   t.equal(tables[0].ttl, '_ttl', 'Got back correct TTL value')
+
+  arc = parse(`
+@tables
+time-to-live-primary
+  expiresAt *ttl
+`)
+  inventory = inventoryDefaults()
+  tables = populateTables({ arc, inventory })
+  t.ok(tables.length === 1, 'Got correct number of tables back')
+  t.equal(tables[0].ttl, 'expiresAt', 'Got back correct TTL value')
+  t.equal(tables[0].partitionKey, 'expiresAt', 'Got back correct partition key')
+  t.equal(tables[0].partitionKeyType, 'Number', 'Got back correct partition key type')
+
+  arc = parse(`
+@tables
+time-to-live-secondary
+  pk *
+  expiresAt **ttl
+`)
+  inventory = inventoryDefaults()
+  tables = populateTables({ arc, inventory })
+  t.ok(tables.length === 1, 'Got correct number of tables back')
+  t.equal(tables[0].ttl, 'expiresAt', 'Got back correct TTL value')
+  t.equal(tables[0].sortKey, 'expiresAt', 'Got back correct sort key')
+  t.equal(tables[0].sortKeyType, 'Number', 'Got back correct sort key type')
 })
 
 test('@tables population: plugin setter', t => {
