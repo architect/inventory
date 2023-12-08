@@ -38,11 +38,19 @@ module.exports = function configureTables ({ arc, inventory, errors }) {
         if (is.sortKey(value)) {
           t.sortKey = key
           t.sortKeyType = value.replace('**', '').toLowerCase()
+          if (t.sortKeyType === 'ttl') {
+            t.sortKeyType = 'number'
+            t.ttl = key
+          }
           if (!t.sortKeyType) t.sortKeyType = 'string'
         }
         else if (is.primaryKey(value)) {
           t.partitionKey = key
           t.partitionKeyType = value.replace('*', '').toLowerCase()
+          if (t.partitionKeyType === 'ttl') {
+            t.partitionKeyType = 'number'
+            t.ttl = key
+          }
           if (!t.partitionKeyType) t.partitionKeyType = 'string'
         }
         if (key === 'stream')   t.stream = value
