@@ -82,7 +82,7 @@ test('Transpiled runtime setters', t => {
   let inventory, plugin, plugins, runtime
   let type = 'transpiled'
   let build = '.build' // Just make sure it's different from the default 'build'
-  let baseRuntime = 'nodejs14.x'
+  let baseRuntime = 'nodejs20.x'
   let errors = []
 
   // Transpiled with default build dir
@@ -166,7 +166,7 @@ test('Runtime setter validation', t => {
   t.plan(16)
   let errors, inventory, plugin, runtime
   let type = 'transpiled'
-  let baseRuntime = 'nodejs14.x'
+  let baseRuntime = 'nodejs20.x'
 
   // No name
   runtime = { type }
@@ -205,13 +205,13 @@ test('Runtime setter validation', t => {
   t.match(errors[0], /Runtime plugin must provide a valid type/, 'Returned correct type error')
 
   // Name cannot conflict with an existing runtime
-  runtime = { name: 'nodejs14.x', type }
+  runtime = { name: 'nodejs20.x', type }
   plugin = () => runtime
   inventory = newInv([ plugin ])
   errors = []
   setRuntimesPlugins({ inventory, errors }, emptyProj)
   t.equal(errors.length, 1, 'Returned an error')
-  t.match(errors[0], /Runtime name 'nodejs14\.x' is reserved/, 'Returned correct name error')
+  t.match(errors[0], /Runtime name 'nodejs20\.x' is reserved/, 'Returned correct name error')
 
   // Name cannot conflict with an existing custom runtime
   runtime = { name, type, baseRuntime }

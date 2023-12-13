@@ -1,10 +1,20 @@
 let { join } = require('path')
 let test = require('tape')
+let proxyquire = require('proxyquire')
+
+async function awsLite () {
+  return { ssm: {
+    GetParametersByPath: async () => {
+      if (response instanceof Error) throw response
+      return response
+    }
+  } }
+}
+
 let sut = join(process.cwd(), 'src', 'env')
-let getEnv = require(sut)
-let awsMock = require('aws-sdk-mock')
-let aws = require('aws-sdk')
-awsMock.setSDKInstance(aws)
+let getEnv = proxyquire(sut, {
+  '@aws-lite/client': awsLite
+})
 
 let app = 'an-app'
 let nulls = {
@@ -41,10 +51,6 @@ let reset = () => {
 test('Set up env', t => {
   t.plan(1)
   t.ok(getEnv, 'Env var getter is present')
-  awsMock.mock('SSM', 'getParametersByPath', function (p, callback) {
-    if (response instanceof Error) callback(response)
-    else callback(null, response)
-  })
 })
 
 test('Do nothing', t => {
@@ -261,6 +267,5 @@ test('Error handling', t => {
 
 test('Teardown', t => {
   t.plan(1)
-  awsMock.restore()
   t.pass('All done')
 })

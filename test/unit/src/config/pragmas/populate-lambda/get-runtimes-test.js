@@ -23,7 +23,7 @@ test('Friendly runtime names (aka aliases)', t => {
   t.equal(config.runtimeAlias, 'python', `Alias returned lowcase as runtimeAlias: ${config.runtimeAlias}`)
 
   config = getRuntimes({ config: c('ruby'), inventory })
-  t.match(config.runtime, /ruby2\.\d/, `Alias mapped to valid AWS Ruby string: ${config.runtime}`)
+  t.match(config.runtime, /ruby3\.\d/, `Alias mapped to valid AWS Ruby string: ${config.runtime}`)
   t.equal(config.runtimeAlias, 'ruby', `Alias returned lowcase as runtimeAlias: ${config.runtimeAlias}`)
 
   config = getRuntimes({ config: c('java'), inventory })

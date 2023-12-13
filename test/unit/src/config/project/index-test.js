@@ -136,7 +136,7 @@ test('Project plugins', t => {
 
   // Env + custom runtime plugins
   let env = { henlo: 'friend' }
-  let runtime = { name: 'typescript', type: 'transpiled', build: 'dist', baseRuntime: 'nodejs14.x' }
+  let runtime = { name: 'typescript', type: 'transpiled', build: 'dist', baseRuntime: 'nodejs20.x' }
   let plugins = { _methods: { set: {
     env: [ () => (env) ],
     runtimes: [ () => (runtime) ],

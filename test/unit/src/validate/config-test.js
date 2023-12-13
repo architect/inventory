@@ -15,7 +15,7 @@ let reset = () => {
 }
 
 let name = 'an-event'
-let okRuntime = 'nodejs14.x'
+let okRuntime = 'nodejs20.x'
 let okMemory = 1000
 let okTimeout = 30
 let okStorage = 1024
