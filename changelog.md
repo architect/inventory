@@ -2,6 +2,15 @@
 
 ---
 
+## [4.0.0] 2024-01-08
+
+### Changed
+
+- Transitioned from `aws-sdk` to [`aws-lite`](https://aws-lite.org)
+- Breaking change: removed support for Node.js 14.x (now EOL, and no longer available to created in AWS Lambda)
+
+---
+
 ## [3.6.5] 2023-12-07
 
 ### Changed
