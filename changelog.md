@@ -7,6 +7,7 @@
 ### Changed
 
 - Transitioned from `aws-sdk` to [`aws-lite`](https://aws-lite.org)
+- Added Node.js 20.x to test matrix
 - Breaking change: removed support for Node.js 14.x (now EOL, and no longer available to created in AWS Lambda)
 
 ---

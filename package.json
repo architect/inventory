@@ -24,15 +24,15 @@
     "@architect/asap": "~6.1.0-RC.0",
     "@architect/parser": "~6.0.3",
     "@architect/utils": "~4.0.0-RC.1",
-    "@aws-lite/client": "~0.12.2",
-    "@aws-lite/ssm": "~0.2.1",
+    "@aws-lite/client": "~0.13.4",
+    "@aws-lite/ssm": "~0.2.2",
     "lambda-runtimes": "~1.1.7"
   },
   "devDependencies": {
     "@architect/eslint-config": "~2.1.2",
     "cross-env": "~7.0.3",
     "dotenv": "~16.3.1",
-    "eslint": "~8.55.0",
+    "eslint": "~8.56.0",
     "mock-tmp": "~0.0.2",
     "nyc": "~15.1.0",
     "proxyquire": "~2.1.3",
