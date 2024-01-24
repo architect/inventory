@@ -15,7 +15,7 @@ test('Friendly runtime names (aka aliases)', t => {
   let config
 
   config = getRuntimes({ config: c('Node.js'), inventory })
-  t.match(config.runtime, /nodejs1[02468]\.x/, `Alias mapped to valid AWS Node.js string: ${config.runtime}`)
+  t.match(config.runtime, /nodejs2[02468]\.x/, `Alias mapped to valid AWS Node.js string: ${config.runtime}`)
   t.equal(config.runtimeAlias, 'node.js', `Alias returned lowcase as runtimeAlias: ${config.runtimeAlias}`)
 
   config = getRuntimes({ config: c('Python'), inventory })

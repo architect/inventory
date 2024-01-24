@@ -26,7 +26,7 @@ test('[No global runtime] Inventory and compare functions with / without functio
       t.ok(get, 'Inventory returned getter')
       let def = inv._project.defaultFunctionConfig
       let custom = {
-        runtime: 'nodejs16.x',
+        runtime: 'nodejs20.x',
         runtimeAlias: 'node',
         architecture: 'arm64',
         timeout: 10,
@@ -97,7 +97,7 @@ test('[Global runtime alias] Inventory and compare functions with / without func
         Object.keys(custom).forEach(p => {
           let setting
           if (p === 'views') setting = str(true)
-          else if (p === 'runtime') setting = str('python3.9')
+          else if (p === 'runtime') setting = str('python3.12')
           else if (p === 'runtimeAlias') setting = str('py')
           else setting = str(def[p])
           t.equal(str(config[p]), setting, `get /default has correct default ${p} setting: ${str(config[p])}`)

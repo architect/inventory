@@ -300,7 +300,7 @@ custom setting
   modified = {
     timeout: 10,
     memory: 128,
-    runtime: `nodejs16.x`,
+    runtime: 'nodejs20.x',
     handler: 'index.handler',
     custom: 'setting',
   }
@@ -325,7 +325,7 @@ custom setting
   modified = {
     timeout: 10,
     memory: 128,
-    runtime: `nodejs16.x`,
+    runtime: 'nodejs20.x',
     handler: 'lambda.handler',
     custom: 'setting',
   }
