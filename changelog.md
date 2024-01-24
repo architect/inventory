@@ -7,8 +7,9 @@
 ### Changed
 
 - Transitioned from `aws-sdk` to [`aws-lite`](https://aws-lite.org)
-- Added Node.js 20.x to test matrix
+- Breaking change: `nodejs20.x` and `python3.12` are now the default Node.js and Python Lambda runtimes, respectively
 - Breaking change: removed support for Node.js 14.x (now EOL, and no longer available to created in AWS Lambda)
+- Added Node.js 20.x to test matrix
 
 ---
 
