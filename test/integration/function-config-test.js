@@ -28,7 +28,7 @@ test('[No global runtime] Inventory and compare functions with / without functio
       let custom = {
         runtime: 'nodejs20.x',
         runtimeAlias: 'node',
-        architecture: 'arm64',
+        architecture: 'x86_64',
         timeout: 10,
         memory: 128,
         storage: 1337,
@@ -73,7 +73,7 @@ test('[Global runtime alias] Inventory and compare functions with / without func
       let custom = {
         runtime: 'nodejs18.x',
         runtimeAlias: undefined,
-        architecture: 'arm64',
+        architecture: 'x86_64',
         timeout: 10,
         memory: 128,
         storage: 1337,

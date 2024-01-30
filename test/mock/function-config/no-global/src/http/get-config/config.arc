@@ -8,7 +8,7 @@ layers
   arn:a:b:us-west-1:c:d:e:f
 policies
   arn:b:c:us-west-1:d:e:f:g
-architecture arm64
+architecture x86_64
 
 @arc
 shared false

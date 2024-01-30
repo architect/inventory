@@ -22,7 +22,7 @@ layers
 policies
   policy-1
   policy-2
-architecture arm64
+architecture x86_64
 `
 let mock = parse(rawConfigMock)
 

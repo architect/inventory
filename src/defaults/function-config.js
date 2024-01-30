@@ -6,7 +6,7 @@ module.exports = function createDefaultFunctionConfig () {
     timeout: 5,
     memory: 1152,
     runtime: 'nodejs20.x',
-    architecture: 'x86_64', // TODO [BREAKING]: default to 'arm64'
+    architecture: 'arm64',
     handler: 'index.handler',
     state: 'n/a',
     concurrency: 'unthrottled',
