@@ -10,12 +10,12 @@ module.exports = function env (params, inventory, callback) {
 
   let aws
   let name = inventory.app
-  let { region } = inventory.aws
+  let { profile, region } = inventory.aws
   let result = []
   // eslint-disable-next-line
   let awsLite = require('@aws-lite/client')
   /* istanbul ignore next */
-  awsLite({ region }).then(_aws => {
+  awsLite({ profile, region }).then(_aws => {
     aws = _aws
 
     // Perform the query
