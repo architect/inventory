@@ -11,7 +11,7 @@ test('Set up env', t => {
 })
 
 test('Friendly runtime names (aka aliases)', t => {
-  t.plan(14)
+  t.plan(12)
   let config
 
   config = getRuntimes({ config: c('Node.js'), inventory })
@@ -30,12 +30,8 @@ test('Friendly runtime names (aka aliases)', t => {
   t.match(config.runtime, /java\d/, `Alias mapped to valid AWS Java string: ${config.runtime}`)
   t.equal(config.runtimeAlias, 'java', `Alias returned lowcase as runtimeAlias: ${config.runtimeAlias}`)
 
-  config = getRuntimes({ config: c('golang'), inventory })
-  t.match(config.runtime, /go\d\.x/, `Alias mapped to valid AWS Go string: ${config.runtime}`)
-  t.equal(config.runtimeAlias, 'golang', `Alias returned lowcase as runtimeAlias: ${config.runtimeAlias}`)
-
   config = getRuntimes({ config: c('.net'), inventory })
-  t.match(config.runtime, /dotnet6/, `Alias mapped to valid AWS .NET string: ${config.runtime}`)
+  t.match(config.runtime, /dotnet7/, `Alias mapped to valid AWS .NET string: ${config.runtime}`)
   t.equal(config.runtimeAlias, '.net', `Alias returned lowcase as runtimeAlias: ${config.runtimeAlias}`)
 
   config = getRuntimes({ config: c('custom'), inventory })
@@ -44,36 +40,31 @@ test('Friendly runtime names (aka aliases)', t => {
 })
 
 test('Exact runtime names', t => {
-  t.plan(16)
+  t.plan(14)
   let name
   let config
 
-  name = 'nodejs14.x'
+  name = 'nodejs18.x'
   config = getRuntimes({ config: c(name), inventory })
   t.equal(config.runtime, name, `Returned correct runtime string: ${name}`)
   t.notOk(config.runtimeAlias, 'Did not get runtimeAlias')
 
-  name = 'python3.9'
+  name = 'python3.11'
   config = getRuntimes({ config: c(name), inventory })
   t.equal(config.runtime, name, `Returned correct runtime string: ${name}`)
   t.notOk(config.runtimeAlias, 'Did not get runtimeAlias')
 
-  name = 'ruby2.7'
+  name = 'ruby3.2'
   config = getRuntimes({ config: c(name), inventory })
   t.equal(config.runtime, name, `Returned correct runtime string: ${name}`)
   t.notOk(config.runtimeAlias, 'Did not get runtimeAlias')
 
-  name = 'java11'
+  name = 'java17'
   config = getRuntimes({ config: c(name), inventory })
   t.equal(config.runtime, name, `Returned correct runtime string: ${name}`)
   t.notOk(config.runtimeAlias, 'Did not get runtimeAlias')
 
-  name = 'go1.x'
-  config = getRuntimes({ config: c(name), inventory })
-  t.equal(config.runtime, name, `Returned correct runtime string: ${name}`)
-  t.notOk(config.runtimeAlias, 'Did not get runtimeAlias')
-
-  name = 'dotnetcore3.1'
+  name = 'dotnet6'
   config = getRuntimes({ config: c(name), inventory })
   t.equal(config.runtime, name, `Returned correct runtime string: ${name}`)
   t.notOk(config.runtimeAlias, 'Did not get runtimeAlias')

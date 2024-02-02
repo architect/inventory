@@ -21,12 +21,12 @@
   },
   "license": "Apache-2.0",
   "dependencies": {
-    "@architect/asap": "~7.0.0-RC.2",
+    "@architect/asap": "~7.0.0",
     "@architect/parser": "~6.0.3",
-    "@architect/utils": "~4.0.0-RC.4",
-    "@aws-lite/client": "^0.15.1",
+    "@architect/utils": "~4.0.0",
+    "@aws-lite/client": "^0.15.2",
     "@aws-lite/ssm": "^0.2.2",
-    "lambda-runtimes": "~2.0.0"
+    "lambda-runtimes": "~2.0.1"
   },
   "devDependencies": {
     "@architect/eslint-config": "~2.1.2",

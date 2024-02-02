@@ -10,6 +10,7 @@
 - Breaking change: `arm64` is now the default Lambda architecture
 - Breaking change: `nodejs20.x` and `python3.12` are now the default Node.js and Python Lambda runtimes, respectively
 - Breaking change: removed support for Node.js 14.x (now EOL, and no longer available to created in AWS Lambda)
+- AWS Lambda no longer supports Go-specific runtimes; as such, `go` and `golang` runtime aliases are no longer available
 - Added Node.js 20.x to test matrix
 
 ---
