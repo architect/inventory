@@ -38,11 +38,13 @@ test('Get preferences', t => {
   t.plan(6)
   let prefs = {
     sandbox: { environment: 'testing' },
-    'sandbox-startup': [
+    'sandbox-start': [
       'ls',
       'echo hi',
       'echo hello',
       'echo hello there',
+    ],
+    'sandbox-startup': [
       `echo hi there`,
       `echo hi there`,
       `echo hi #here`,
@@ -57,11 +59,13 @@ test('Get preferences', t => {
 @sandbox
 environment testing
 
-@sandbox-startup
+@sandbox-start
 ls
 echo hi
 echo hello
 echo hello there
+
+@sandbox-startup
 echo "hi there"
 echo 'hi there'
 echo "hi #here"

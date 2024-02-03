@@ -28,11 +28,13 @@ test('Get global preferences', t => {
   let cwd = join(mock, 'prefs', 'global')
   let prefs = {
     sandbox: { environment: 'testing' },
-    'sandbox-startup': [
+    'sandbox-start': [
       'ls',
       'echo hi',
       'echo hello',
       'echo hello there',
+    ],
+    'sandbox-startup': [
       `echo hi there`,
       `echo hi there`,
       `echo hi #here`,
@@ -47,11 +49,13 @@ test('Get global preferences', t => {
 @sandbox
 environment testing
 
-@sandbox-startup
+@sandbox-start
 ls
 echo hi
 echo hello
 echo hello there
+
+@sandbox-startup
 echo "hi there"
 echo 'hi there'
 echo "hi #here"
@@ -93,11 +97,13 @@ test('Get local preferences', t => {
   let cwd = join(mock, 'max')
   let prefs = {
     sandbox: { environment: 'testing' },
-    'sandbox-startup': [
+    'sandbox-start': [
       'ls',
       'echo hi',
       'echo hello',
       'echo hello there',
+    ],
+    'sandbox-startup': [
       `echo hi there`,
       `echo hi there`,
       `echo hi #here`,

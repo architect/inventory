@@ -1,11 +1,13 @@
 @sandbox
 environment testing
 
-@sandbox-startup
+@sandbox-start
 ls
 echo hi
 echo hello #there
 echo hello there
+
+@sandbox-startup
 echo "hi there"
 echo 'hi there'
 echo "hi #here"

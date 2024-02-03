@@ -2,6 +2,14 @@
 
 ---
 
+## [4.0.1] 2024-02-03
+
+### Fixed
+
+- Fixed format of `@sandbox-start` pragma in preferences (which is preferred to `@sandbox-startup`)
+
+---
+
 ## [4.0.0] 2024-01-08
 
 ### Changed

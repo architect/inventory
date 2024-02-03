@@ -59,7 +59,7 @@ module.exports = function getPrefs ({ scope, inventory, errors }) {
         })
       }
       // Turn Sandbox scripts into commands
-      if (key === 'sandbox-startup') {
+      if (key === 'sandbox-start' || key === 'sandbox-startup') {
         preferences[key] = val.map(v => {
           if (is.string(v)) return v
           /* istanbul ignore else: Yet another jic */
