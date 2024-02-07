@@ -14,8 +14,8 @@ module.exports = function env (params, inventory, callback) {
   let result = []
   // eslint-disable-next-line
   let awsLite = require('@aws-lite/client')
-  /* istanbul ignore next */
-  awsLite({ profile, region }).then(_aws => {
+  /* istanbul ignore next */ // eslint-disable-next-line
+  awsLite({ profile, region, plugins: [ import('@aws-lite/ssm') ] }).then(_aws => {
     aws = _aws
 
     // Perform the query
