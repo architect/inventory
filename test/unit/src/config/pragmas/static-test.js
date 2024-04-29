@@ -160,7 +160,7 @@ test('Individual @static setting: ignore merged by plugin + userland arc', t => 
   let _static
   let valid
   let setter = () => ({
-    ignore: [ 'some-filename' ]
+    ignore: [ 'some-filename' ],
   })
 
   /**

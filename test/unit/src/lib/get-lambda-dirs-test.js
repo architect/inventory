@@ -22,15 +22,15 @@ test('Get dirs for pragma-defined Lambdas', t => {
 
   // Just a normal Lambda
   dirs = getLambdaDirs(
-    { cwd, projSrc, type, },
-    { name, },
+    { cwd, projSrc, type },
+    { name },
   )
   t.equal(Object.keys(dirs).length, 1, 'Only back a single Lambda dir')
   t.equal(dirs.src, join(projSrc, type, name), 'Got back the correct src dir')
 
   // A Lambda with a custom src property
   dirs = getLambdaDirs(
-    { cwd, projSrc, type, },
+    { cwd, projSrc, type },
     { name, customSrc: customLambdaSrc(name) },
   )
   t.equal(Object.keys(dirs).length, 1, 'Only back a single Lambda dir')
@@ -38,7 +38,7 @@ test('Get dirs for pragma-defined Lambdas', t => {
 
   // A normal transpiled Lambda
   dirs = getLambdaDirs(
-    { cwd, projSrc, projBuild, type, },
+    { cwd, projSrc, projBuild, type },
     { name },
   )
   t.equal(Object.keys(dirs).length, 2, 'Only back two Lambda dirs')
@@ -47,7 +47,7 @@ test('Get dirs for pragma-defined Lambdas', t => {
 
   // A normal transpiled Lambda with a custom src property
   dirs = getLambdaDirs(
-    { cwd, projSrc, projBuild, type, },
+    { cwd, projSrc, projBuild, type },
     { name, customSrc: customLambdaSrc(name) },
   )
   t.equal(Object.keys(dirs).length, 2, 'Only back two Lambda dirs')
@@ -62,8 +62,8 @@ test('Get dirs for plugin-defined Lambdas', t => {
   // Just a normal plugin Lambda
   item = { src: customLambdaSrc(name) }
   dirs = getLambdaDirs(
-    { cwd, item, projSrc, type, },
-    { name, plugin, },
+    { cwd, item, projSrc, type },
+    { name, plugin },
   )
   t.equal(Object.keys(dirs).length, 1, 'Only back a single Lambda dir')
   t.equal(dirs.src, join(cwd, 'whatev', name), 'Got back the correct plugin src dir')
@@ -71,8 +71,8 @@ test('Get dirs for plugin-defined Lambdas', t => {
   // Just a normal plugin Lambda returning an absolute dir
   item = { src: join(__dirname, cwd, customLambdaSrc(name)) }
   dirs = getLambdaDirs(
-    { cwd, item, projSrc, type, },
-    { name, plugin, },
+    { cwd, item, projSrc, type },
+    { name, plugin },
   )
   t.equal(Object.keys(dirs).length, 1, 'Only back a single Lambda dir')
   t.equal(dirs.src, join(__dirname, cwd, 'whatev', name), 'Got back the correct plugin src dir')
@@ -80,8 +80,8 @@ test('Get dirs for plugin-defined Lambdas', t => {
   // A normal transpiled Lambda
   item = { src: customLambdaSrc(name) }
   dirs = getLambdaDirs(
-    { cwd, item, projSrc, projBuild, type, },
-    { name, plugin, },
+    { cwd, item, projSrc, projBuild, type },
+    { name, plugin },
   )
   t.equal(Object.keys(dirs).length, 2, 'Only back two Lambda dirs')
   t.equal(dirs.src, join(cwd, 'whatev', name), 'Got back the correct plugin src dir')
@@ -90,8 +90,8 @@ test('Get dirs for plugin-defined Lambdas', t => {
   // A normal transpiled Lambda returning an absolute dir
   item = { src: join(__dirname, cwd, customLambdaSrc(name)) }
   dirs = getLambdaDirs(
-    { cwd, item, projSrc, projBuild, type, },
-    { name, plugin, },
+    { cwd, item, projSrc, projBuild, type },
+    { name, plugin },
   )
   t.equal(Object.keys(dirs).length, 2, 'Only back two Lambda dirs')
   t.equal(dirs.src, join(__dirname, cwd, 'whatev', name), 'Got back the correct plugin src dir')

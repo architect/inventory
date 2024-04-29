@@ -31,7 +31,7 @@ module.exports = function configureTablesIndexes ({ arc, inventory, errors }) {
     plugins: indexesSetters,
     inventory,
     type: 'indexes',
-    valid: { name: 'string' }
+    valid: { name: 'string' },
   })
   if (plugins) indexes.push(...plugins)
 

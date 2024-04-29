@@ -51,7 +51,6 @@ module.exports = async function getPluginModules ({ arc, inventory, errors }) {
         /* istanbul ignore next: idk why but for some reason nyc isn't picking up the catches; all cases are covered in tests, though! */
         if (type === 'plugin') {
           try {
-            // eslint-disable-next-line
             plugins[name] = require(pluginPath)
           }
           catch (err) {
@@ -69,7 +68,6 @@ module.exports = async function getPluginModules ({ arc, inventory, errors }) {
         }
         // Remap @macros to deploy.start
         if (type === 'macro') {
-          // eslint-disable-next-line
           plugins[name] = { deploy: { start: require(pluginPath) } }
         }
         // Walk each plugin and build the method tree

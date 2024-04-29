@@ -4,7 +4,6 @@ let { all: allPragmas } = pragmas
 // Get all pragmas except special cases
 let isSpecial = p => [ 'plugins', 'shared', 'views' ].includes(p)
 let visitors = allPragmas.map(p => {
-  // eslint-disable-next-line
   if (!isSpecial(p)) return require(`./${p}`)
 }).filter(Boolean)
 

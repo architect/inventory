@@ -12,9 +12,8 @@ module.exports = function env (params, inventory, callback) {
   let name = inventory.app
   let { profile, region } = inventory.aws
   let result = []
-  // eslint-disable-next-line
   let awsLite = require('@aws-lite/client')
-  /* istanbul ignore next */ // eslint-disable-next-line
+  /* istanbul ignore next */
   awsLite({ profile, region, plugins: [ import('@aws-lite/ssm') ] }).then(_aws => {
     aws = _aws
 
@@ -24,7 +23,7 @@ module.exports = function env (params, inventory, callback) {
       Recursive: true,
       MaxResults: 10,
       WithDecryption: true,
-      paginate: true
+      paginate: true,
     }
     aws.ssm.GetParametersByPath(params).then(data => {
       // Tidy up the response

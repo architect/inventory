@@ -7,13 +7,13 @@ async function awsLite () {
     GetParametersByPath: async () => {
       if (response instanceof Error) throw response
       return response
-    }
+    },
   } }
 }
 
 let sut = join(process.cwd(), 'src', 'env')
 let getEnv = proxyquire(sut, {
-  '@aws-lite/client': awsLite
+  '@aws-lite/client': awsLite,
 })
 
 let app = 'an-app'
@@ -217,7 +217,7 @@ test('SSM env vars conflict with plugin env vars', t => {
   t.test('Partial SSM + plugin merge failure', t => {
     t.plan(2)
     inventory = newInv({
-      testing: { foo: 'idk' }
+      testing: { foo: 'idk' },
     })
     response.Parameters.push(
       { Name: `/${app}/testing/foo`, Value: 'a' },

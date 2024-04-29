@@ -229,7 +229,7 @@ test('Handler properties (Node.js module systems)', t => {
   errors = []
   cwd = mockTmp({ [src]: {
     [`${file}.mjs`]: 'hi',
-    'package.json': JSON.stringify({})
+    'package.json': JSON.stringify({}),
   } })
   result = getHandler({ config, src: join(cwd, src), errors })
   t.notOk(errors.length, 'Did not get handler errors')

@@ -66,7 +66,7 @@ testing
   env_var_2 bar
 `
   let tmp = mockTmp({
-    [globalPrefsFile]: prefsText
+    [globalPrefsFile]: prefsText,
   })
   overrideHomedir(tmp)
   inv({ cwd }, (err, result) => {
@@ -113,7 +113,7 @@ test('Get local preferences', t => {
     env: {
       testing: { 'env_var_1': 'foo', 'env_var_2': 'bar' },
       staging: { 'env_var_1': 'fiz', 'env_var_2': 'buz' },
-      production: { 'env_var_1': 'qix qix', 'env_var_2': 'qux qux' }
+      production: { 'env_var_1': 'qix qix', 'env_var_2': 'qux qux' },
     },
   }
   inv({ cwd }, (err, result) => {
@@ -159,42 +159,42 @@ testing
   let globalPrefs = {
     sandbox: {
       environment: 'testing',
-      quiet: true
+      quiet: true,
     },
     deploy: false,
     env: {
       testing: { 'env_var_1': 'foo', 'env_var_2': 'bar' },
       staging: null,
       production: null,
-    }
+    },
   }
   let localPrefs = {
     sandbox: {
       environment: 'staging',
     },
     create: {
-      autocreate: true
+      autocreate: true,
     },
     env: {
       testing: { 'env_var_2': 'bar' },
       staging: { 'env_var_3': 'fiz' },
       production: null,
-    }
+    },
   }
   let prefs = {
     sandbox: {
       environment: 'staging',
-      quiet: true
+      quiet: true,
     },
     deploy: false,
     create: {
-      autocreate: true
+      autocreate: true,
     },
     env: {
       testing: { 'env_var_2': 'bar' },
       staging: { 'env_var_3': 'fiz' },
       production: null,
-    }
+    },
   }
   let tmp = mockTmp({
     [globalPrefsFile]: globalPrefsText,

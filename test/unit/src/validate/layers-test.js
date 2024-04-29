@@ -36,7 +36,7 @@ test('Do nothing', t => {
 test('Valid layer', t => {
   t.plan(1)
   defaults.aws.layers = [
-    `arn:aws:lambda:${region}:123456789012:layer:layer-name:version`
+    `arn:aws:lambda:${region}:123456789012:layer:layer-name:version`,
   ]
   validateLayers(params, defaults, errors)
   t.equal(errors.length, 0, `No errors reported`)
@@ -79,7 +79,7 @@ test('Too many layers', t => {
 test('Invalid layers', t => {
   t.plan(8)
   defaults.aws.layers = [
-    `arn:aws:lambda:us-east-1:123456789012:layer:layer-name:version`
+    `arn:aws:lambda:us-east-1:123456789012:layer:layer-name:version`,
   ]
   validateLayers(params, defaults, errors)
   t.equal(errors.length, 1, `Got back an error`)
@@ -87,7 +87,7 @@ test('Invalid layers', t => {
   reset()
 
   defaults.aws.layers = [
-    `arn:aws:lambda:${region}:123456789012:layer`
+    `arn:aws:lambda:${region}:123456789012:layer`,
   ]
   validateLayers(params, defaults, errors)
   t.equal(errors.length, 1, `Got back an error`)
@@ -102,7 +102,7 @@ test('Invalid layers', t => {
 
   defaults.aws.layers = [
     `arn:aws:lambda:${region}:123456789012:layer`,
-    true
+    true,
   ]
   let layers = defaults.aws.layers
   validateLayers(params, defaults, errors)

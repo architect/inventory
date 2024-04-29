@@ -87,6 +87,6 @@ module.exports = function getPrefs ({ scope, inventory, errors }) {
       _arc: prefs.arc,
       _raw: prefs.raw,
     },
-    preferencesFile: prefs.filepath
+    preferencesFile: prefs.filepath,
   }
 }

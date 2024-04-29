@@ -59,7 +59,7 @@ module.exports = function configureHTTP ({ arc, inventory, errors }) {
       arcStaticAssetProxy: true,
       pragma: 'http',
       method: 'get',
-      path: '/*'
+      path: '/*',
     }
     asap.config.shared = false
     asap.config.views = false

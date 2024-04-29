@@ -93,7 +93,7 @@ function getExt ({ runtime, src, errors }) {
   }
 }
 
-function findHandler (arr, src){
+function findHandler (arr, src) {
   for (let handler of arr) {
     if (existsSync(join(src, handler))) {
       let bits = handler.split('.')

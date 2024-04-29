@@ -8,7 +8,7 @@ module.exports = function checkFilePaths (inventory, errors) {
   if (proj.build && !ascii.test(proj.build)) return err('Build')
 
   let { lambdasBySrcDir } = inventory
-  if (lambdasBySrcDir){
+  if (lambdasBySrcDir) {
     Object.values(lambdasBySrcDir).forEach(lambdae => {
       if (!Array.isArray(lambdae)) lambdae = [ lambdae ] // Normalize possible multi-tenant Lambdas
       lambdae.forEach(lambda => {

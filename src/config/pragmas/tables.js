@@ -26,7 +26,7 @@ module.exports = function configureTables ({ arc, inventory, errors }) {
     plugins: tablesSetters,
     inventory,
     type: 'tables',
-    valid: { name: 'string' }
+    valid: { name: 'string' },
   })
   if (plugins) tables.push(...plugins)
 

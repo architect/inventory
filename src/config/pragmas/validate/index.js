@@ -1,4 +1,3 @@
-/* eslint-disable global-require */
 module.exports = {
   // Pragmas and project validation
   aws:            require('./_aws'),
@@ -15,5 +14,5 @@ module.exports = {
   websockets:     require('./_websockets'),
 
   // Misc
-  validate:       require('./_lib')
+  validate:       require('./_lib'),
 }

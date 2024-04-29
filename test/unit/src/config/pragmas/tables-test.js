@@ -308,7 +308,7 @@ test('@tables: plugin errors', t => {
 
   run([
     { name: 'hello', partitionKey, partitionKeyType },
-    { name: 'hello', partitionKey: 'data', partitionKeyType }
+    { name: 'hello', partitionKey: 'data', partitionKeyType },
   ])
   check(`Similarly duplicate tables errored`)
 

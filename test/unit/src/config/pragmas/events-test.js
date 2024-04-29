@@ -50,7 +50,7 @@ test('@events population: complex format', t => {
     `${values[0]}
   src ${values[0]}/path`,
     `${values[1]}
-  src ${values[1]}/path`
+  src ${values[1]}/path`,
   ]
   let arc = parse(`
 @events
@@ -75,7 +75,7 @@ test('@events population: complex format + fallback to default paths', t => {
     `${values[0]}
   whatever thingo`,
     `${values[1]}
-  whatever thingo`
+  whatever thingo`,
   ]
   let arc = parse(`
 @events

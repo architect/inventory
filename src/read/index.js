@@ -18,7 +18,7 @@ let functionConfig = {
 
 // Local preferences
 let preferences = {
-  arc: [ 'preferences.arc', 'prefs.arc', '.preferences.arc', '.prefs.arc', ],
+  arc: [ 'preferences.arc', 'prefs.arc', '.preferences.arc', '.prefs.arc' ],
   // TODO add json, yaml later if folks want it?
 }
 

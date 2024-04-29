@@ -76,7 +76,7 @@ testing
   env_var_2 bar
 `
   let tmp = mockTmp({
-    [path]: prefsText
+    [path]: prefsText,
   })
   overrideHomedir(tmp)
   let inventory = inventoryDefaults({ cwd })
@@ -119,7 +119,7 @@ staging
   env_var_2 bar
 `
   cwd = mockTmp({
-    'prefs.arc': prefsText
+    'prefs.arc': prefsText,
   })
   inventory = inventoryDefaults({ cwd })
 
@@ -135,11 +135,11 @@ staging
    */
   prefs = {
     sandbox: { environment: 'testing' },
-    env: { testing: null, staging: null, production: null }
+    env: { testing: null, staging: null, production: null },
   }
   cwd = mockTmp({
     '.env': '# eventually',
-    'prefs.arc': prefsText
+    'prefs.arc': prefsText,
   })
   inventory = inventoryDefaults({ cwd })
   errors = []
@@ -165,7 +165,7 @@ from-dotenv = lol
   }
   cwd = mockTmp({
     '.env': dotenv,
-    'prefs.arc': prefsText
+    'prefs.arc': prefsText,
   })
   inventory = inventoryDefaults({ cwd })
   errors = []
@@ -209,7 +209,7 @@ test('Get preferences (only unknown items)', t => {
 userland true
 `
   let tmp = mockTmp({
-    [path]: prefsText
+    [path]: prefsText,
   })
   overrideHomedir(tmp)
   let inventory = inventoryDefaults({ cwd })

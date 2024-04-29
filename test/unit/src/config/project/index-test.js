@@ -90,7 +90,7 @@ testing
 @sandbox
 useAWS true`
   tmp = mockTmp({
-    [globalPrefsFile]: globalPrefs
+    [globalPrefsFile]: globalPrefs,
   })
   overrideHomedir(tmp)
   inventory = inventoryDefaults({ cwd: process.cwd() })
@@ -163,7 +163,7 @@ test('Project plugins', t => {
 testing
   foo bar`
   cwd = mockTmp({
-    [localPrefsFile]: localPrefs
+    [localPrefsFile]: localPrefs,
   })
   inventory = inventoryDefaults({ cwd })
   inventory.plugins = plugins

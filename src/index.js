@@ -84,7 +84,7 @@ module.exports = function architectInventory (params = {}, callback) {
       // Userland: fill out the pragmas, starting with @plugins
       inventory = {
         ...inventory,
-        ...config.pragmas(project)
+        ...config.pragmas(project),
       }
 
       // End here if first-pass validation failed
@@ -107,7 +107,7 @@ module.exports = function architectInventory (params = {}, callback) {
         else {
           callback(null, {
             inv: inventory,
-            get: get(inventory)
+            get: get(inventory),
           })
         }
       })

@@ -22,7 +22,7 @@ let okStorage = 1024
 function createPragma (memory, runtime, storage, timeout) {
   return [ {
     name,
-    config: { memory, runtime, storage, timeout }
+    config: { memory, runtime, storage, timeout },
   } ]
 }
 
@@ -275,7 +275,7 @@ test('Minimum timeout not met', t => {
 
 test('Maximum timeout exceeded', t => {
   t.plan(6)
-  let timeout = 1 * 60 * 15 + 1
+  let timeout = (60 * 15) + 1
 
   defaults.aws.timeout = timeout
   validateConfig(params, defaults, errors)

@@ -7,7 +7,7 @@ module.exports = function validateProxy (proxy, errors) {
         errors.push(`Invalid @proxy protocol: ${url}`)
       }
     }
-    catch (e) {
+    catch {
       errors.push(`Invalid @proxy URL: ${url}`)
     }
   })

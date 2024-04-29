@@ -26,7 +26,7 @@ let get = {
       dayOfWeek: bits[4],
       year: bits[5],
     }
-  }
+  },
 }
 
 module.exports = function populateScheduled (params) {

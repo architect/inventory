@@ -15,7 +15,7 @@ let str = s => JSON.stringify(s)
 let rate = {
   expression: '1 day',
   value: 1,
-  interval: 'day'
+  interval: 'day',
 }
 let cron = {
   expression: '1 2 3 4 5 6',
@@ -75,7 +75,7 @@ test('@scheduled population: simple format (JSON)', t => {
     'scheduled': {
       [names[0]]: expressions[0],
       [names[1]]: expressions[1],
-    }
+    },
   }))
   let scheduled = populateScheduled({ arc, inventory })
   t.equal(scheduled.length, values.length, 'Got correct number of scheduled events back')
@@ -106,7 +106,7 @@ test('@scheduled population: complex format', t => {
   src ${names[0]}/path`,
     `${names[1]}
   cron ${cron.expression}
-  src ${names[1]}/path`
+  src ${names[1]}/path`,
   ]
   let arc = parse(`
 @scheduled
@@ -145,7 +145,7 @@ test('@scheduled population: complex format (JSON)', t => {
         cron: cron.expression,
         src: `${names[1]}/path`,
       },
-    }
+    },
   }
   let arc = parse.json(str(json))
   let scheduled = populateScheduled({ arc, inventory })
@@ -177,7 +177,7 @@ test('@scheduled population: complex format + fallback to default paths', t => {
   whatever thingo`,
     `${names[1]}
   cron ${cron.expression}
-  whatever thingo`
+  whatever thingo`,
   ]
   let arc = parse(`
 @scheduled

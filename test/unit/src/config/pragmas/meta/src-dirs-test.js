@@ -24,13 +24,13 @@ test('Lambda source dir population', t => {
   let pragmas = {
     http: [
       { src: values[0] },
-      { src: values[1] }
+      { src: values[1] },
     ],
     events: [
       { src: values[2] },
-      { src: values[3] }
+      { src: values[3] },
     ],
-    scheduled: null
+    scheduled: null,
   }
 
   let { lambdaSrcDirs, lambdasBySrcDir } = populateSrcDirs({ pragmas })
@@ -52,8 +52,8 @@ test('Multiple Lambdas mapped to the same source dir', t => {
       { src: values[1] },
     ],
     events: [
-      { src: values[2] }
-    ]
+      { src: values[2] },
+    ],
   }
 
   let { lambdaSrcDirs, lambdasBySrcDir } = populateSrcDirs({ pragmas })
@@ -80,9 +80,9 @@ test('HTTP Arc Static Asset Proxy handler', t => {
       {
         name: 'get /*',
         arcStaticAssetProxy: true,
-        src: null
-      }
-    ]
+        src: null,
+      },
+    ],
   }
 
   let { lambdaSrcDirs, lambdasBySrcDir } = populateSrcDirs({ pragmas })
@@ -95,8 +95,8 @@ test('Lambdas missing src errors', t => {
   t.plan(1)
   let pragmas = {
     http: [
-      { name: 'get /' }
-    ]
+      { name: 'get /' },
+    ],
   }
   let errors = []
   populateSrcDirs({ pragmas, errors })

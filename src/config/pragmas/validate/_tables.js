@@ -43,7 +43,7 @@ module.exports = function validateTablesAndIndexes (pragma, pragmaName, errors) 
             deepStrictEqual(index, expect)
             return true
           }
-          catch (err) {
+          catch {
             return false
           }
         })

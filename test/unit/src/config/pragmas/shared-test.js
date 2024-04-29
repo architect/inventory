@@ -86,7 +86,7 @@ test(`@shared population: defaults to enabled (without @shared)`, t => {
   pragmas = {
     http: populateHTTP({ arc, inventory }),
     events: populateEvents({ arc, inventory }),
-    lambdaSrcDirs
+    lambdaSrcDirs,
   }
 
   let shared = populateShared({ arc, pragmas, inventory })
@@ -113,7 +113,7 @@ test(`@shared population: defaults to enabled (with empty @shared)`, t => {
   pragmas = {
     http: populateHTTP({ arc, inventory }),
     events: populateEvents({ arc, inventory }),
-    lambdaSrcDirs
+    lambdaSrcDirs,
   }
 
   let shared = populateShared({ arc, pragmas, inventory })
@@ -142,7 +142,7 @@ src foo/bar`)
   pragmas = {
     http: populateHTTP({ arc, inventory }),
     events: populateEvents({ arc, inventory }),
-    lambdaSrcDirs
+    lambdaSrcDirs,
   }
 
   let shared = populateShared({ arc, pragmas, inventory })
@@ -179,7 +179,7 @@ test(`@shared population: plugin setter`, t => {
   pragmas = {
     http: populateHTTP({ arc, inventory }),
     events: populateEvents({ arc, inventory }),
-    lambdaSrcDirs
+    lambdaSrcDirs,
   }
 
   shared = populateShared({ arc, pragmas, inventory })
@@ -202,7 +202,7 @@ test(`@shared population: plugin setter`, t => {
   pragmas = {
     http: populateHTTP({ arc, inventory }),
     events: populateEvents({ arc, inventory }),
-    lambdaSrcDirs
+    lambdaSrcDirs,
   }
   shared = populateShared({ arc, pragmas, inventory })
   t.ok(shared.src.endsWith(join('src', 'shared')), 'Got correct src dir back')
@@ -218,7 +218,7 @@ test(`@shared population: plugin setter`, t => {
   pragmas = {
     http: populateHTTP({ arc, inventory }),
     events: populateEvents({ arc, inventory }),
-    lambdaSrcDirs
+    lambdaSrcDirs,
   }
   // Just a control test!
   shared = populateShared({ arc, pragmas, inventory })
@@ -239,7 +239,7 @@ test(`@shared population: plugin setter`, t => {
   pragmas = {
     http: populateHTTP({ arc, inventory }),
     events: populateEvents({ arc, inventory }),
-    lambdaSrcDirs
+    lambdaSrcDirs,
   }
   shared = populateShared({ arc, pragmas, inventory })
   t.equal(shared.src, 'foo/baz', 'Got correct src dir back')
@@ -263,7 +263,7 @@ test(`@shared population: plugin setter`, t => {
   arc = parse(`@http\n${httpLambda}`)
   pragmas = {
     http: populateHTTP({ arc, inventory }),
-    lambdaSrcDirs
+    lambdaSrcDirs,
   }
   shared = populateShared({ arc, pragmas, inventory })
   t.equal(shared.src, src, 'Got correct src dir back')
@@ -299,7 +299,7 @@ src foo/bar`)
     http: populateHTTP({ arc, inventory }),
     events: populateEvents({ arc, inventory }),
     queues: populateQueues({ arc, inventory }),
-    lambdaSrcDirs
+    lambdaSrcDirs,
   }
 
   let shared = populateShared({ arc, pragmas, inventory })
@@ -540,7 +540,7 @@ get /foo
 @shared
 idk whatev`)
   pragmas = {
-    http: populateHTTP({ arc, inventory }), lambdaSrcDirs
+    http: populateHTTP({ arc, inventory }), lambdaSrcDirs,
   }
   errors = []
   populateShared({ arc, pragmas, inventory, errors })

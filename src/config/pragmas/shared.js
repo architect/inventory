@@ -11,7 +11,7 @@ module.exports = function configureShared ({ arc, pragmas, inventory, errors }) 
   let src = join(projSrc, 'shared')
   let shared = {
     src: null,
-    shared: []
+    shared: [],
   }
 
   let foundPluginSrc, foundArcSrc, required = false

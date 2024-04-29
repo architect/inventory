@@ -67,7 +67,7 @@ function validateARN ({ layers, region, config }) {
     if (region !== layerRegion) {
       badRegions.push(
         `  - Layer ARN: ${arn}\n` +
-        `  - Layer region: ${layerRegion}`
+        `  - Layer region: ${layerRegion}`,
       )
     }
   })

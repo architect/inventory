@@ -21,7 +21,7 @@ test('Do nothing', t => {
   let result = mergeEnvVars({
     source: null,
     target: null,
-    errors
+    errors,
   })
   t.deepEqual(result, null, 'No source and target envs returned empty env object')
   t.equal(errors.length, 0, 'No errors returned')

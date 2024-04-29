@@ -15,7 +15,7 @@ module.exports = function configureViews ({ arc, pragmas, inventory, errors }) {
   let src = join(projSrc, 'views')
   let views = {
     src: null,
-    views: []
+    views: [],
   }
 
   let foundPluginSrc, foundArcSrc, required = false
