@@ -40,9 +40,6 @@
     "tap-arc": "^1.2.2",
     "tape": "^5.7.5"
   },
-  "eslintConfig": {
-    "extends": "@architect/eslint-config"
-  },
   "nyc": {
     "check-coverage": true,
     "branches": 100,
