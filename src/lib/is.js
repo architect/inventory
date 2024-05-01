@@ -13,8 +13,8 @@ let string = item => typeof item === 'string'
 let exists = path => existsSync(path)
 let folder = path => existsSync(path) && lstatSync(path).isDirectory()
 // Pragma-specific stuff
-let primaryKey = val => string(val) && [ '*', '*string', '*number' ].includes(val.toLowerCase())
-let sortKey = val => string(val) && [ '**', '**string', '**number' ].includes(val.toLowerCase())
+let primaryKey = val => string(val) && [ '*', '*string', '*number', '*ttl' ].includes(val.toLowerCase())
+let sortKey = val => string(val) && [ '**', '**string', '**number', '**ttl' ].includes(val.toLowerCase())
 
 module.exports = {
   array,
