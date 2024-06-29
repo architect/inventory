@@ -25,7 +25,7 @@ test('Set up env', t => {
 })
 
 test('Handler properties (built-in runtimes)', t => {
-  t.plan(38)
+  t.plan(41)
   let config, cwd, errors, pythonHandler, rubyHandler, result
 
   // Defaults to Node.js
@@ -149,6 +149,16 @@ test('Handler properties (built-in runtimes)', t => {
   t.notOk(errors.length, 'Did not get handler errors')
   t.equal(result.handlerFile, srcPath(`mod.ts`), `Got correct handlerFile: ${result.handlerFile}`)
   t.equal(result.handlerMethod, handler, `Got correct handlerMethod: ${result.handlerMethod}`)
+
+  // Bun
+  config = defaultFunctionConfig()
+  errors = []
+  config.runtime = 'bun'
+  result = getHandler({ config, src, errors })
+  t.notOk(errors.length, 'Did not get handler errors')
+  t.equal(result.handlerFile, srcPath(`mod.ts`), `Got correct handlerFile: ${result.handlerFile}`)
+  t.equal(result.handlerMethod, handler, `Got correct handlerMethod: ${result.handlerMethod}`)
+
 
   // Other / unknown
   config = defaultFunctionConfig()
