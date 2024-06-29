@@ -85,6 +85,10 @@ function getExt ({ runtime, src, errors }) {
       let { file = 'mod', ext = 'ts' } = findHandler(denoHandlers, src)
       return { file, ext }
     }
+    if (runtime.startsWith('bun')) {
+      let { file = 'mod', ext = 'ts' } = findHandler(denoHandlers, src)
+      return { file, ext }
+    }
     return { ext: '' }
   }
   catch (err) {

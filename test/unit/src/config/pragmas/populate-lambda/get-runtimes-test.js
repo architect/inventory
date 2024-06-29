@@ -40,7 +40,7 @@ test('Friendly runtime names (aka aliases)', t => {
 })
 
 test('Exact runtime names', t => {
-  t.plan(14)
+  t.plan(16)
   let name
   let config
 
@@ -75,6 +75,11 @@ test('Exact runtime names', t => {
   t.notOk(config.runtimeAlias, 'Did not get runtimeAlias')
 
   name = 'deno'
+  config = getRuntimes({ config: c(name), inventory })
+  t.equal(config.runtime, name, `Returned correct runtime string: ${name}`)
+  t.notOk(config.runtimeAlias, 'Did not get runtimeAlias')
+
+  name = 'bun'
   config = getRuntimes({ config: c(name), inventory })
   t.equal(config.runtime, name, `Returned correct runtime string: ${name}`)
   t.notOk(config.runtimeAlias, 'Did not get runtimeAlias')

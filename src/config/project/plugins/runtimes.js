@@ -2,7 +2,7 @@ let { aliases, runtimeList } = require('lambda-runtimes')
 let { deepFrozenCopy } = require('@architect/utils')
 let { is, validationPatterns } = require('../../../lib')
 let { looserName } = validationPatterns
-let allRuntimes = runtimeList.concat([ 'deno', ...Object.keys(aliases) ])
+let allRuntimes = runtimeList.concat([ 'bun', 'deno', ...Object.keys(aliases) ])
 let validTypes = [ 'transpiled', 'compiled', 'interpreted' ]
 let builtTypes = validTypes.filter(t => t !== 'interpreted')
 

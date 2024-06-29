@@ -14,7 +14,7 @@ module.exports = function configValidator (params, inventory, errors) {
   } = inventory.aws
 
   let customRuntimes = inventory._project?.customRuntimes?.runtimes || []
-  let allRuntimes = runtimeList.concat([ 'deno', ...customRuntimes ])
+  let allRuntimes = runtimeList.concat([ 'bun', 'deno', ...customRuntimes ])
 
   /**
    * Global config
