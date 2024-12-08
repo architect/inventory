@@ -152,6 +152,7 @@ function resolve (path, cwd) {
 }
 
 let esmErrors = [
+  'require() cannot be used on an ESM graph with top-level await. Use import() instead.',
   'Cannot use import statement outside a module',
   `Unexpected token 'export'`,
   'require() of ES Module',
