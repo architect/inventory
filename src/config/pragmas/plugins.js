@@ -21,6 +21,9 @@ module.exports = async function getPluginModules ({ arc, inventory, errors }) {
   if (arc?.plugins?.length) tagPlugins(arc.plugins, 'plugin')
   if (arc?.macros?.length) tagPlugins(arc.macros, 'macro')
 
+  let { node } = process.versions
+  let nodeVer = Number(node.split('.')[0])
+
   for (let pluginItem of pluginItems) {
     let { plugin, type } = pluginItem
     let name
@@ -52,6 +55,9 @@ module.exports = async function getPluginModules ({ arc, inventory, errors }) {
         if (type === 'plugin') {
           try {
             plugins[name] = require(pluginPath)
+            if (nodeVer >= 22 && plugins[name].default) {
+              plugins[name] = plugins[name].default
+            }
           }
           catch (err) {
             if (hasEsmError(err)) {

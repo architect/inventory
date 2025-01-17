@@ -31,7 +31,7 @@ test('Friendly runtime names (aka aliases)', t => {
   t.equal(config.runtimeAlias, 'java', `Alias returned lowcase as runtimeAlias: ${config.runtimeAlias}`)
 
   config = getRuntimes({ config: c('.net'), inventory })
-  t.match(config.runtime, /dotnet7/, `Alias mapped to valid AWS .NET string: ${config.runtime}`)
+  t.match(config.runtime, /dotnet8/, `Alias mapped to valid AWS .NET string: ${config.runtime}`)
   t.equal(config.runtimeAlias, '.net', `Alias returned lowcase as runtimeAlias: ${config.runtimeAlias}`)
 
   config = getRuntimes({ config: c('custom'), inventory })
@@ -64,7 +64,7 @@ test('Exact runtime names', t => {
   t.equal(config.runtime, name, `Returned correct runtime string: ${name}`)
   t.notOk(config.runtimeAlias, 'Did not get runtimeAlias')
 
-  name = 'dotnet6'
+  name = 'dotnet8'
   config = getRuntimes({ config: c(name), inventory })
   t.equal(config.runtime, name, `Returned correct runtime string: ${name}`)
   t.notOk(config.runtimeAlias, 'Did not get runtimeAlias')
