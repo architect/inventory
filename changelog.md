@@ -2,6 +2,14 @@
 
 ---
 
+## [4.0.6] 2025-01-17
+
+### Changed
+
+- Add support for new ESM-only import error message when importing plugins in Node.js 22; thanks @lpsinger!
+
+---
+
 ## [4.0.5] 2024-04-29
 
 ### Changed
