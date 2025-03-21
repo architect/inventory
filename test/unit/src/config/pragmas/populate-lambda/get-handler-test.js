@@ -40,7 +40,7 @@ test('Handler properties (built-in runtimes)', t => {
   // Assume Node will keep being developed and keyed by AWS starting with `nodejs`
   config = defaultFunctionConfig()
   errors = []
-  config.runtime = 'nodejs14.x'
+  config.runtime = 'nodejs22.x'
   result = getHandler({ config, src, errors })
   t.notOk(errors.length, 'Did not get handler errors')
   t.equal(result.handlerFile, srcPath(`${file}.mjs`), `Got correct handlerFile: ${result.handlerFile}`)
@@ -51,7 +51,7 @@ test('Handler properties (built-in runtimes)', t => {
   config = defaultFunctionConfig()
   errors = []
   pythonHandler = 'lambda.py'
-  config.runtime = 'python3.8'
+  config.runtime = 'python3.13'
   result = getHandler({ config, src, errors })
   t.notOk(errors.length, 'Did not get handler errors')
   t.equal(result.handlerFile, srcPath(pythonHandler), `Got correct handlerFile: ${result.handlerFile}`)
@@ -64,7 +64,7 @@ test('Handler properties (built-in runtimes)', t => {
     [pythonHandler]: 'hi',
     'index.py': 'hi',
   } })
-  config.runtime = 'python3.8'
+  config.runtime = 'python3.13'
   result = getHandler({ config, src: join(cwd, src), errors })
   t.notOk(errors.length, 'Did not get handler errors')
   t.equal(result.handlerFile, join(cwd, srcPath(pythonHandler)), `Got correct handlerFile: ${result.handlerFile}`)
@@ -75,7 +75,7 @@ test('Handler properties (built-in runtimes)', t => {
   errors = []
   pythonHandler = 'handler.py'
   cwd = mockTmp(fakeFile(pythonHandler))
-  config.runtime = 'python3.8'
+  config.runtime = 'python3.13'
   result = getHandler({ config, src: join(cwd, src), errors })
   t.notOk(errors.length, 'Did not get handler errors')
   t.equal(result.handlerFile, join(cwd, srcPath(pythonHandler)), `Got correct handlerFile: ${result.handlerFile}`)
@@ -87,7 +87,7 @@ test('Handler properties (built-in runtimes)', t => {
   errors = []
   pythonHandler = 'index.py'
   cwd = mockTmp(fakeFile(pythonHandler))
-  config.runtime = 'python3.8'
+  config.runtime = 'python3.13'
   result = getHandler({ config, src: join(cwd, src), errors })
   t.notOk(errors.length, 'Did not get handler errors')
   t.equal(result.handlerFile, join(cwd, srcPath(pythonHandler)), `Got correct handlerFile: ${result.handlerFile}`)
@@ -98,7 +98,7 @@ test('Handler properties (built-in runtimes)', t => {
   config = defaultFunctionConfig()
   errors = []
   rubyHandler = 'lambda.rb'
-  config.runtime = 'ruby2.7'
+  config.runtime = 'ruby3.3'
   result = getHandler({ config, src, errors })
   t.notOk(errors.length, 'Did not get handler errors')
   t.equal(result.handlerFile, srcPath(rubyHandler), `Got correct handlerFile: ${result.handlerFile}`)
@@ -111,7 +111,7 @@ test('Handler properties (built-in runtimes)', t => {
     [rubyHandler]: 'hi',
     'index.rb': 'hi',
   } })
-  config.runtime = 'ruby2.7'
+  config.runtime = 'ruby3.3'
   result = getHandler({ config, src: join(cwd, src), errors })
   t.notOk(errors.length, 'Did not get handler errors')
   t.equal(result.handlerFile, join(cwd, srcPath(rubyHandler)), `Got correct handlerFile: ${result.handlerFile}`)
@@ -122,7 +122,7 @@ test('Handler properties (built-in runtimes)', t => {
   errors = []
   rubyHandler = 'handler.rb'
   cwd = mockTmp(fakeFile(rubyHandler))
-  config.runtime = 'ruby2.7'
+  config.runtime = 'ruby3.3'
   result = getHandler({ config, src: join(cwd, src), errors })
   t.notOk(errors.length, 'Did not get handler errors')
   t.equal(result.handlerFile, join(cwd, srcPath(rubyHandler)), `Got correct handlerFile: ${result.handlerFile}`)
@@ -134,7 +134,7 @@ test('Handler properties (built-in runtimes)', t => {
   errors = []
   rubyHandler = 'index.rb'
   cwd = mockTmp(fakeFile(rubyHandler))
-  config.runtime = 'ruby2.7'
+  config.runtime = 'ruby3.3'
   result = getHandler({ config, src: join(cwd, src), errors })
   t.notOk(errors.length, 'Did not get handler errors')
   t.equal(result.handlerFile, join(cwd, srcPath(rubyHandler)), `Got correct handlerFile: ${result.handlerFile}`)
@@ -168,7 +168,7 @@ test('Handler properties (Node.js module systems)', t => {
   // 14
   config = defaultFunctionConfig()
   errors = []
-  config.runtime = 'nodejs14.x'
+  config.runtime = 'nodejs22.x'
   result = getHandler({ config, src, errors })
   t.notOk(errors.length, 'Did not get handler errors')
   t.equal(result.handlerFile, srcPath(`${file}.mjs`), `Got correct handlerFile: ${result.handlerFile}`)

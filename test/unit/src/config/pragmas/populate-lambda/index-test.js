@@ -337,7 +337,7 @@ custom setting
   config = `@aws
 timeout 10
 memory 128
-runtime python3.8
+runtime python3.13
 
 @arc
 custom setting
@@ -350,7 +350,7 @@ custom setting
   modified = {
     timeout: 10,
     memory: 128,
-    runtime: `python3.8`,
+    runtime: `python3.13`,
     handler: 'lambda.handler',
     custom: 'setting',
   }
@@ -362,7 +362,7 @@ custom setting
   config = `@aws
 timeout 10
 memory 128
-runtime ruby2.7
+runtime ruby3.3
 
 @arc
 custom setting
@@ -375,7 +375,7 @@ custom setting
   modified = {
     timeout: 10,
     memory: 128,
-    runtime: `ruby2.7`,
+    runtime: `ruby3.3`,
     handler: 'lambda.handler',
     custom: 'setting',
   }
