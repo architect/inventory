@@ -22,7 +22,9 @@ module.exports = async function getPluginModules ({ arc, inventory, errors }) {
   if (arc?.macros?.length) tagPlugins(arc.macros, 'macro')
 
   let { node } = process.versions
-  let nodeVer = Number(node.split('.')[0])
+  let nodeVersionParts = node.split('.')
+  let nodeMajorVer = Number(nodeVersionParts[0])
+  let nodeMinorVer = Number(nodeVersionParts[1])
 
   for (let pluginItem of pluginItems) {
     let { plugin, type } = pluginItem
@@ -55,7 +57,8 @@ module.exports = async function getPluginModules ({ arc, inventory, errors }) {
         if (type === 'plugin') {
           try {
             plugins[name] = require(pluginPath)
-            if (nodeVer >= 22 && plugins[name].default) {
+            // starting in node 20.19, you can now require() esm
+            if ((nodeMajorVer >= 22 || (nodeMajorVer >= 20 && nodeMinorVer >= 19)) && plugins[name].default) {
               plugins[name] = plugins[name].default
             }
           }
