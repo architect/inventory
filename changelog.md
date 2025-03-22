@@ -2,6 +2,12 @@
 
 ---
 
+## [4.0.7] 2025-03-21
+
+### Fixed
+
+- Fixed support for loading ESM plugins in node v20.19 (which now supports `require()` of ESM modules)
+
 ## [4.0.6] 2025-01-17
 
 ### Changed
