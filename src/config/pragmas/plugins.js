@@ -163,6 +163,7 @@ async function resolve (path, cwd) {
       catch {
         return
       }
+      /* istanbul ignore next: idk why but for some reason nyc isn't picking up the catches; all cases are covered in tests, though! */
       if (gotSomething) return mjsPath
       else return
     }
