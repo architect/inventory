@@ -55,7 +55,7 @@ test('Missing @macro errors', async t => {
 })
 
 test('Check plugin file paths', async t => {
-  t.plan(88)
+  t.plan(96)
   let mockRoot = join(cwd, 'test', 'mock', 'plugin-paths')
   let arc, result
   let plugin = 'a-plugin'
