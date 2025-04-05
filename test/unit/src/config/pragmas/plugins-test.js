@@ -55,7 +55,7 @@ test('Missing @macro errors', async t => {
 })
 
 test('Check plugin file paths', async t => {
-  t.plan(88)
+  t.plan(96)
   let mockRoot = join(cwd, 'test', 'mock', 'plugin-paths')
   let arc, result
   let plugin = 'a-plugin'
@@ -86,7 +86,12 @@ test('Check plugin file paths', async t => {
   result = await populatePlugins({ arc, inventory, errors })
   check(plugin, pluginFnName, 'plugin', 'sandbox')
 
-  setup(join(mockRoot, 'plugin-folder'))
+  setup(join(mockRoot, 'plugin-folder-js'))
+  arc = { plugins: [ plugin ] }
+  result = await populatePlugins({ arc, inventory, errors })
+  check(plugin, pluginFnName, 'plugin', 'sandbox')
+
+  setup(join(mockRoot, 'plugin-folder-mjs'))
   arc = { plugins: [ plugin ] }
   result = await populatePlugins({ arc, inventory, errors })
   check(plugin, pluginFnName, 'plugin', 'sandbox')

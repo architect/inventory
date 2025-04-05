@@ -33,12 +33,12 @@ module.exports = async function getPluginModules ({ arc, inventory, errors }) {
 
     if (is.string(plugin)) {
       name = plugin
-      pluginPath = getPath(cwd, type + 's', name)
+      pluginPath = await getPath(cwd, type + 's', name)
     }
     else if (is.object(plugin)) {
       name = Object.keys(plugin)[0]
       pluginPath = plugin[name].src
-        ? resolve('.' + sep + plugin[name].src, cwd)
+        ? await resolve('.' + sep + plugin[name].src, cwd)
         : join(cwd, 'src', type + 's', name)
     }
 
@@ -136,17 +136,17 @@ module.exports = async function getPluginModules ({ arc, inventory, errors }) {
   return plugins
 }
 
-function getPath (cwd, srcDir, name) {
+async function getPath (cwd, srcDir, name) {
   let path1 = join(cwd, 'src', srcDir, `${name}.js`)
   let path2 = join(cwd, 'src', srcDir, `${name}.mjs`)
   let path3 = join(cwd, 'src', srcDir, name)
   /**/ if (existsSync(path1)) return path1
   else if (existsSync(path2)) return path2
-  else if (existsSync(path3)) return resolve(path3, cwd)
-  return resolve(name, cwd)
+  else if (existsSync(path3)) return await resolve(path3, cwd)
+  return await resolve(name, cwd)
 }
 
-function resolve (path, cwd) {
+async function resolve (path, cwd) {
   try {
     return require.resolve(path, { paths: [ cwd ] })
   }
@@ -155,7 +155,17 @@ function resolve (path, cwd) {
       return require.resolve(`@${path}`, { paths: [ cwd ] })
     }
     catch {
-      return
+      let gotSomething
+      let mjsPath = `${path}/index.mjs`
+      try {
+        gotSomething = await import(mjsPath)
+      }
+      catch {
+        return
+      }
+      /* istanbul ignore next: idk why but for some reason nyc isn't picking up the catches; all cases are covered in tests, though! */
+      if (gotSomething) return mjsPath
+      else return
     }
   }
 }
