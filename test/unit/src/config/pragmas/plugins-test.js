@@ -86,7 +86,12 @@ test('Check plugin file paths', async t => {
   result = await populatePlugins({ arc, inventory, errors })
   check(plugin, pluginFnName, 'plugin', 'sandbox')
 
-  setup(join(mockRoot, 'plugin-folder'))
+  setup(join(mockRoot, 'plugin-folder-js'))
+  arc = { plugins: [ plugin ] }
+  result = await populatePlugins({ arc, inventory, errors })
+  check(plugin, pluginFnName, 'plugin', 'sandbox')
+
+  setup(join(mockRoot, 'plugin-folder-mjs'))
   arc = { plugins: [ plugin ] }
   result = await populatePlugins({ arc, inventory, errors })
   check(plugin, pluginFnName, 'plugin', 'sandbox')
