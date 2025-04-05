@@ -2,6 +2,14 @@
 
 ---
 
+## [4.0.8] 2025-04-05
+
+### Fixed
+
+- Fixes [architect/architect#1478](https://github.com/architect/architect/issues/1478): support for loading plugins implemented as `index.mjs` under a plugin folder name
+
+---
+
 ## [4.0.7] 2025-03-21
 
 ### Fixed
