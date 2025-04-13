@@ -22,8 +22,8 @@ module.exports = function setEnvPlugins (params, project) {
       let errType = `plugin: ${fn.plugin}, method: set.env`
       try {
         let result = fn({ arc: inv._project.arc, inventory: { inv } })
-        if (!is.object(result) || !Object.keys(result).length) {
-          return errors.push(`Env plugin returned invalid data, must return an Object with one or more keys + values: ${errType}`)
+        if (!is.object(result)) {
+          return errors.push(`Env plugin returned invalid data, must return an Object: ${errType}`)
         }
         // Populate env vars based on environment
         // If any keys are environment names, disregard all keys except environment names
