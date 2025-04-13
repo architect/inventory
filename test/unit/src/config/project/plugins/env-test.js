@@ -44,7 +44,7 @@ test('Do nothing if no env setter plugins are present', t => {
 })
 
 test('Env setter plugin runs', t => {
-  t.plan(54)
+  t.plan(58)
   let errors, inventory, plugins, pluginOne, pluginTwo
 
   // Stringify env obj values
@@ -66,6 +66,14 @@ test('Env setter plugin runs', t => {
   }
   inventory = newInv([ pluginOne ])
   plugins = setEnvPlugins({ inventory, errors }, { arc: {}, env: noEnv })
+
+  // Empty object
+  errors = []
+  pluginOne = () => ({})
+  inventory = newInv([ pluginOne ])
+  setEnvPlugins({ inventory, errors }, emptyProj)
+  t.notOk(errors.length, 'Did not return errors')
+  check(plugins, varStr)
 
   // String
   errors = []
@@ -176,7 +184,7 @@ test('Env setter plugin runs', t => {
 })
 
 test('Env setter plugin errors', t => {
-  t.plan(18)
+  t.plan(16)
   let errors, inventory, pluginOne, pluginTwo
 
   // No return
@@ -220,14 +228,6 @@ test('Env setter plugin errors', t => {
   setEnvPlugins({ inventory, errors }, emptyProj)
   t.equal(errors.length, 1, 'Returned an error')
   t.match(errors[0], /Runtime plugin/, 'Got correct error')
-
-  // Empty object
-  errors = []
-  pluginOne = () => ({})
-  inventory = newInv([ pluginOne ])
-  setEnvPlugins({ inventory, errors }, emptyProj)
-  t.equal(errors.length, 1, 'Returned an error')
-  t.match(errors[0], /must return an Object/, 'Got correct error')
 
   // Multiple plugins
   errors = []
