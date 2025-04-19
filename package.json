@@ -4,17 +4,19 @@
   "description": "Architect project resource enumeration utility",
   "main": "src/index.js",
   "scripts": {
+    "test:unit": "node --test --test-reporter=spec",
+    "coverage:node20": "npm run test:unit -- --experimental-test-coverage",
+    "coverage": "npm run coverage:node20 -- --test-coverage-exclude=test/*.js",
+    "test:node20": "npm run lint && npm run coverage:node20 && npm run test:integration:node20",
     "test": "npm run lint && npm run test:integration && npm run coverage",
-    "test:nolint": "npm run test:integration && npm run coverage",
-    "test:unit": "cross-env tape 'test/unit/**/*-test.js' | tap-arc",
-    "test:integration": "cross-env tape 'test/integration/**/*-test.js' | tap-arc",
-    "coverage": "nyc --reporter=lcov --reporter=text npm run test:unit",
+    "test:integration:node20": "node --test --test-reporter=spec test/integration",
+    "test:integration": "node --test --test-reporter=spec 'test/integration/**/*-test.js'",
     "lint": "eslint . --fix",
     "rc": "npm version prerelease --preid RC",
     "vendor": "scripts/vendor"
   },
   "engines": {
-    "node": ">=16"
+    "node": ">=20"
   },
   "repository": {
     "type": "git",
@@ -31,20 +33,10 @@
   },
   "devDependencies": {
     "@architect/eslint-config": "~3.0.0",
-    "cross-env": "~7.0.3",
     "dotenv": "~16.4.5",
     "eslint": "~9.1.1",
     "mock-tmp": "~0.0.4",
-    "nyc": "~15.1.0",
     "proxyquire": "~2.1.3",
-    "tap-arc": "^1.2.2",
     "tape": "^5.7.5"
-  },
-  "nyc": {
-    "check-coverage": true,
-    "branches": 100,
-    "lines": 100,
-    "functions": 100,
-    "statements": 100
   }
 }
