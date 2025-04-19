@@ -1,6 +1,13 @@
 # Architect Inventory changelog
 
 ---
+## [5.0.0] 2025-04-06
+    
+### Changed
+
+- Breaking change: dropped node 16, 18 support
+
+---
 
 ## [4.0.9] 2025-04-26
 
