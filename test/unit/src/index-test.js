@@ -1,151 +1,79 @@
-let { join } = require('path')
-let test = require('tape')
-let sut = join(process.cwd(), 'src', 'index')
-let inv = require(sut)
+let { join } = require('node:path')
+let { test } = require('node:test')
+let inventory = require('../../../src/index')
 
 let mock = join(process.cwd(), 'test', 'mock')
 let rawArc = `@app\na-stateless-app\n@http`
 
 test('Set up env', t => {
   t.plan(1)
-  t.ok(inv, 'Inventory entry is present')
+  t.assert.ok(inventory, 'Inventory entry is present')
 })
 
-test('Inventory calls callback (manifest on disk)', t => {
+test('Inventory calls callback (manifest on disk)', async t => {
   t.plan(3)
-  inv({ cwd: join(mock, 'max') }, (err, result) => {
-    if (err) t.fail(err)
-    else {
-      t.ok(result.inv, 'Returned inventory object')
-      t.ok(result.get, 'Returned getter')
-      t.equal(result.inv._project.manifest, join(mock, 'max', 'app.arc'), 'Using a manifest file')
-    }
-  })
+  let result = await inventory({ cwd: join(mock, 'max') })
+  t.assert.ok(result.inv, 'Returned inventory object')
+  t.assert.ok(result.get, 'Returned getter')
+  t.assert.equal(result.inv._project.manifest, join(mock, 'max', 'app.arc'), 'Using a manifest file')
 })
 
-test('Inventory calls callback (manifest via rawArc param)', t => {
+test('Inventory calls callback (manifest via rawArc param)', async t => {
   t.plan(3)
-  inv({ rawArc }, (err, result) => {
-    if (err) t.fail(err)
-    else {
-      t.ok(result.inv, 'Returned inventory object')
-      t.ok(result.get, 'Returned getter')
-      t.equal(result.inv._project.manifest, null, 'Not using a manifest file')
-    }
-  })
+  let result = await inventory({ rawArc })
+  t.assert.ok(result.inv, 'Returned inventory object')
+  t.assert.ok(result.get, 'Returned getter')
+  t.assert.equal(result.inv._project.manifest, null, 'Not using a manifest file')
 })
 
-test('Inventory returns single early manifest validation error', t => {
-  t.plan(3)
-  inv({ cwd: join(mock, 'fail', 'bad-pragma') }, (err) => {
-    if (!err) t.fail('Should have returned an error')
-    else {
-      let { message, ARC_ERRORS } = err
-      t.ok(message.startsWith('Validation error'), 'Returned validation error message')
-      t.equal(ARC_ERRORS.type, 'validation', 'Returned validation error type')
-      t.equal(ARC_ERRORS.errors.length, 1, 'Returned validation error array')
-    }
-  })
-})
-
-test('Inventory returns single early manifest validation error (async)', async t => {
+test('Inventory returns single early manifest validation error', async t => {
   t.plan(3)
   try {
-    await inv({ cwd: join(mock, 'fail', 'bad-pragma') })
-    t.fail('Should have returned an error')
+    await inventory({ cwd: join(mock, 'fail', 'bad-pragma') })
+    t.assert.fail('Should have returned an error')
   }
   catch (err) {
     let { message, ARC_ERRORS } = err
-    t.ok(message.startsWith('Validation error:'), 'Returned validation error message')
-    t.equal(ARC_ERRORS.type, 'validation', 'Returned validation error type')
-    t.equal(ARC_ERRORS.errors.length, 1, 'Returned validation error array')
+    t.assert.ok(message.startsWith('Validation error'), 'Returned validation error message')
+    t.assert.equal(ARC_ERRORS.type, 'validation', 'Returned validation error type')
+    t.assert.equal(ARC_ERRORS.errors.length, 1, 'Returned validation error array')
   }
 })
 
-test('Inventory returns multiple early manifest validation errors', t => {
+test('Inventory returns multiple early manifest validation errors', async t => {
   t.plan(3)
   let rawArc = `@http\nwell hello there`
-  inv({ rawArc }, (err) => {
-    if (!err) t.fail('Should have returned an error')
-    else {
-      let { message, ARC_ERRORS } = err
-      t.ok(message.startsWith('Validation errors:'), 'Returned validation error message')
-      t.equal(ARC_ERRORS.type, 'validation', 'Returned validation error type')
-      t.equal(ARC_ERRORS.errors.length, 2, 'Returned validation error array')
-    }
-  })
-})
-
-test('Inventory returns multiple early manifest validation errors (async)', async t => {
-  t.plan(3)
   try {
-    let rawArc = `@http\nwell hello there`
-    await inv({ rawArc })
-    t.fail('Should have returned an error')
+    await inventory({ rawArc })
+    t.assert.fail('Should have returned an error')
   }
   catch (err) {
     let { message, ARC_ERRORS } = err
-    t.ok(message.startsWith('Validation errors:'), 'Returned validation error message')
-    t.equal(ARC_ERRORS.type, 'validation', 'Returned validation error type')
-    t.equal(ARC_ERRORS.errors.length, 2, 'Returned validation error array')
+    t.assert.ok(message.startsWith('Validation errors:'), 'Returned validation error message')
+    t.assert.equal(ARC_ERRORS.type, 'validation', 'Returned validation error type')
+    t.assert.equal(ARC_ERRORS.errors.length, 2, 'Returned validation error array')
   }
 })
 
-test('Inventory returns plugin error', t => {
-  t.plan(3)
-  let rawArc = `@app
-my-app
-@plugins
-foo`
-  inv({ rawArc }, (err) => {
-    if (!err) t.fail('Should have returned an error')
-    else {
-      let { message, ARC_ERRORS } = err
-      t.ok(message.startsWith('Plugin error:'), 'Returned plugin error message')
-      t.equal(ARC_ERRORS.type, 'plugin', 'Returned plugin error type')
-      t.equal(ARC_ERRORS.errors.length, 1, 'Returned plugin error array')
-    }
-  })
-})
-
-test('Inventory returns plugin error (async)', async t => {
+test('Inventory returns plugin error', async t => {
   t.plan(3)
   let rawArc = `@app
 my-app
 @plugins
 foo`
   try {
-    await inv({ rawArc })
-    t.fail('Should have returned an error')
+    await inventory({ rawArc })
+    t.assert.fail('Should have returned an error')
   }
   catch (err) {
     let { message, ARC_ERRORS } = err
-    t.ok(message.startsWith('Plugin error:'), 'Returned plugin error message')
-    t.equal(ARC_ERRORS.type, 'plugin', 'Returned plugin error type')
-    t.equal(ARC_ERRORS.errors.length, 1, 'Returned plugin error array')
+    t.assert.ok(message.startsWith('Plugin error:'), 'Returned plugin error message')
+    t.assert.equal(ARC_ERRORS.type, 'plugin', 'Returned plugin error type')
+    t.assert.equal(ARC_ERRORS.errors.length, 1, 'Returned plugin error array')
   }
 })
 
-test('Inventory returns validation error', t => {
-  t.plan(3)
-  let rawArc = `@app
-my-app
-@tables
-foo
-@tables-streams
-bar`
-  inv({ rawArc }, (err) => {
-    if (!err) t.fail('Should have returned an error')
-    else {
-      let { message, ARC_ERRORS } = err
-      t.ok(message.startsWith('Validation error:'), 'Returned validation error message')
-      t.equal(ARC_ERRORS.type, 'validation', 'Returned validation error type')
-      t.equal(ARC_ERRORS.errors.length, 1, 'Returned validation error array')
-    }
-  })
-})
-
-test('Inventory returns validation error (async)', async t => {
+test('Inventory returns validation error', async t => {
   t.plan(3)
   let rawArc = `@app
 my-app
@@ -154,131 +82,86 @@ foo
 @tables-streams
 bar`
   try {
-    await inv({ rawArc })
-    t.fail('Should have returned an error')
+    await inventory({ rawArc })
+    t.assert.fail('Should have returned an error')
   }
   catch (err) {
     let { message, ARC_ERRORS } = err
-    t.ok(message.startsWith('Validation error:'), 'Returned validation error message')
-    t.equal(ARC_ERRORS.type, 'validation', 'Returned validation error type')
-    t.equal(ARC_ERRORS.errors.length, 1, 'Returned validation error array')
+    t.assert.ok(message.startsWith('Validation error:'), 'Returned validation error message')
+    t.assert.equal(ARC_ERRORS.type, 'validation', 'Returned validation error type')
+    t.assert.equal(ARC_ERRORS.errors.length, 1, 'Returned validation error array')
   }
 })
 
-test('Inventory returns configuration error', t => {
-  t.plan(3)
-  let rawArc = `@app
-my-app
-@aws
-layer foo`
-  inv({ rawArc }, (err) => {
-    if (!err) t.fail('Should have returned an error')
-    else {
-      let { message, ARC_ERRORS } = err
-      t.ok(message.startsWith('Configuration error:'), 'Returned configuration error message')
-      t.equal(ARC_ERRORS.type, 'configuration', 'Returned configuration error type')
-      t.equal(ARC_ERRORS.errors.length, 1, 'Returned configuration error array')
-    }
-  })
-})
-
-test('Inventory returns configuration error (async)', async t => {
+test('Inventory returns configuration error', async t => {
   t.plan(3)
   let rawArc = `@app
 my-app
 @aws
 layer foo`
   try {
-    await inv({ rawArc })
-    t.fail('Should have returned an error')
+    await inventory({ rawArc })
+    t.assert.fail('Should have returned an error')
   }
   catch (err) {
     let { message, ARC_ERRORS } = err
-    t.ok(message.startsWith('Configuration error:'), 'Returned configuration error message')
-    t.equal(ARC_ERRORS.type, 'configuration', 'Returned configuration error type')
-    t.equal(ARC_ERRORS.errors.length, 1, 'Returned configuration error array')
+    t.assert.ok(message.startsWith('Configuration error:'), 'Returned configuration error message')
+    t.assert.equal(ARC_ERRORS.type, 'configuration', 'Returned configuration error type')
+    t.assert.equal(ARC_ERRORS.errors.length, 1, 'Returned configuration error array')
   }
 })
 
 test('Inventory invokes async (manifest on disk)', async t => {
   t.plan(3)
-  try {
-    let result = await inv({ cwd: join(mock, 'max') })
-    t.ok(result.inv, 'Returned inventory object')
-    t.ok(result.get, 'Returned getter')
-    t.equal(result.inv._project.manifest, join(mock, 'max', 'app.arc'), 'Using a manifest file')
-  }
-  catch (err) {
-    t.fail(err)
-  }
+  let result = await inventory({ cwd: join(mock, 'max') })
+  t.assert.ok(result.inv, 'Returned inventory object')
+  t.assert.ok(result.get, 'Returned getter')
+  t.assert.equal(result.inv._project.manifest, join(mock, 'max', 'app.arc'), 'Using a manifest file')
 })
 
 test('Inventory invokes async (manifest via rawArc param)', async t => {
   t.plan(3)
-  try {
-    let result = await inv({ rawArc })
-    t.ok(result.inv, 'Returned inventory object')
-    t.ok(result.get, 'Returned getter')
-    t.equal(result.inv._project.manifest, null, 'Not using a manifest file')
-  }
-  catch (err) {
-    t.fail(err)
-  }
+  let result = await inventory({ rawArc })
+  t.assert.ok(result.inv, 'Returned inventory object')
+  t.assert.ok(result.get, 'Returned getter')
+  t.assert.equal(result.inv._project.manifest, null, 'Not using a manifest file')
 })
 
 test(`Inventory doesn't blow up without params`, async t => {
   t.plan(1)
   try {
-    await inv()
-    t.pass(`Shouldn't have returned an error`)
+    await inventory()
+    t.assert.ok(true, `Shouldn't have returned an error`)
   }
   catch (err) {
-    t.fail(err)
+    t.assert.fail(err)
   }
 })
 
-test('Manifest error', t => {
-  t.plan(6)
-  inv({ cwd: join(mock, 'fail', 'bad-manifest') }, err => {
-    if (!err) t.fail('Should have returned an error')
-    else {
-      let { message, ARC_ERRORS } = err
-      t.ok(message.startsWith('Manifest error:'), 'Returned manifest error message')
-      t.equal(ARC_ERRORS.type, 'manifest', 'Returned manifest error type')
-      t.equal(ARC_ERRORS.errors.length, 1, 'Returned manifest error array')
-    }
-  })
-  inv({ rawArc: '\n' }, err => {
-    if (!err) t.fail('Should have returned an error')
-    else {
-      let { message, ARC_ERRORS } = err
-      t.ok(message.startsWith('Manifest error:'), 'Returned manifest error message')
-      t.equal(ARC_ERRORS.type, 'manifest', 'Returned manifest error type')
-      t.equal(ARC_ERRORS.errors.length, 1, 'Returned manifest error array')
-    }
-  })
-})
-
-test('Manifest error (async)', async t => {
-  t.plan(6)
+test('Manifest error (bad-manifest)', async t => {
+  t.plan(3)
   try {
-    await inv({ cwd: join(mock, 'fail', 'bad-manifest') })
+    await inventory({ cwd: join(mock, 'fail', 'bad-manifest') })
     t.fail('Should have returned an error')
   }
   catch (err) {
     let { message, ARC_ERRORS } = err
-    t.ok(message.startsWith('Manifest error:'), 'Returned manifest error message')
-    t.equal(ARC_ERRORS.type, 'manifest', 'Returned manifest error type')
-    t.equal(ARC_ERRORS.errors.length, 1, 'Returned manifest error array')
+    t.assert.ok(message.startsWith('Manifest error:'), 'Returned manifest error message')
+    t.assert.equal(ARC_ERRORS.type, 'manifest', 'Returned manifest error type')
+    t.assert.equal(ARC_ERRORS.errors.length, 1, 'Returned manifest error array')
   }
+})
+
+test('Manifest error (empty rawArc)', async t => {
+  t.plan(3)
   try {
-    await inv({ rawArc: '\n' })
+    await inventory({ rawArc: '\n' })
     t.fail('Should have returned an error')
   }
   catch (err) {
     let { message, ARC_ERRORS } = err
-    t.ok(message.startsWith('Manifest error:'), 'Returned manifest error message')
-    t.equal(ARC_ERRORS.type, 'manifest', 'Returned manifest error type')
-    t.equal(ARC_ERRORS.errors.length, 1, 'Returned manifest error array')
+    t.assert.ok(message.startsWith('Manifest error:'), 'Returned manifest error message')
+    t.assert.equal(ARC_ERRORS.type, 'manifest', 'Returned manifest error type')
+    t.assert.equal(ARC_ERRORS.errors.length, 1, 'Returned manifest error array')
   }
 })

@@ -1,18 +1,21 @@
-let { join } = require('path')
-let test = require('tape')
-let sut = join(process.cwd(), 'src', 'lib', 'merge-env-vars')
-let mergeEnvVars = require(sut)
+let { test } = require('node:test')
+let mergeEnvVars = require('../../../../src/lib/merge-env-vars')
 
 let hi, yo
 function reset () {
   hi = { hi: 'there' }
   yo = { yo: 'friend' }
 }
+
+// Run reset before each test
+test.beforeEach(reset)
+
+// Initial reset to set up variables
 reset()
 
 test('Set up env', t => {
   t.plan(1)
-  t.ok(mergeEnvVars, 'mergeEnvVars util is present')
+  t.assert.ok(mergeEnvVars, 'mergeEnvVars util is present')
 })
 
 test('Do nothing', t => {
@@ -23,9 +26,8 @@ test('Do nothing', t => {
     target: null,
     errors,
   })
-  t.deepEqual(result, null, 'No source and target envs returned empty env object')
-  t.equal(errors.length, 0, 'No errors returned')
-  t.teardown(reset)
+  t.assert.deepEqual(result, null, 'No source and target envs returned empty env object')
+  t.assert.equal(errors.length, 0, 'No errors returned')
 })
 
 test('No source returns target', t => {
@@ -33,9 +35,8 @@ test('No source returns target', t => {
   let errors = []
   let target = { testing: hi,   staging: hi,    production: hi }
   let result = mergeEnvVars({ source: null, target, errors })
-  t.deepEqual(result, target, 'No source returned same target')
-  t.equal(errors.length, 0, 'No errors returned')
-  t.teardown(reset)
+  t.assert.deepEqual(result, target, 'No source returned same target')
+  t.assert.equal(errors.length, 0, 'No errors returned')
 })
 
 test('No target returns source', t => {
@@ -43,9 +44,8 @@ test('No target returns source', t => {
   let errors = []
   let source = { testing: hi,   staging: hi,    production: hi }
   let result = mergeEnvVars({ source, target: null, errors })
-  t.deepEqual(result, source, 'No target returned same source')
-  t.equal(errors.length, 0, 'No errors returned')
-  t.teardown(reset)
+  t.assert.deepEqual(result, source, 'No target returned same source')
+  t.assert.equal(errors.length, 0, 'No errors returned')
 })
 
 // Only testing merges from source into target, as the source is plugins
@@ -60,9 +60,8 @@ test('Merge a single target environment', t => {
     staging: hi,
     production: hi,
   }
-  t.deepEqual(result, expected, 'Single environment successfully merged')
-  t.equal(errors.length, 0, 'No errors returned')
-  t.teardown(reset)
+  t.assert.deepEqual(result, expected, 'Single environment successfully merged')
+  t.assert.equal(errors.length, 0, 'No errors returned')
 })
 
 test('Merge of two environments', t => {
@@ -76,9 +75,8 @@ test('Merge of two environments', t => {
     staging: { ...hi, ...yo },
     production: hi,
   }
-  t.deepEqual(result, expected, 'Two environments successfully merged')
-  t.equal(errors.length, 0, 'No errors returned')
-  t.teardown(reset)
+  t.assert.deepEqual(result, expected, 'Two environments successfully merged')
+  t.assert.equal(errors.length, 0, 'No errors returned')
 })
 
 test('Merge of all environments', t => {
@@ -92,9 +90,8 @@ test('Merge of all environments', t => {
     staging: { ...hi, ...yo },
     production: { ...hi, ...yo },
   }
-  t.deepEqual(result, expected, 'All environments successfully merged')
-  t.equal(errors.length, 0, 'No errors returned')
-  t.teardown(reset)
+  t.assert.deepEqual(result, expected, 'All environments successfully merged')
+  t.assert.equal(errors.length, 0, 'No errors returned')
 })
 
 test('Errors', t => {
@@ -103,7 +100,6 @@ test('Errors', t => {
   let source = { testing: hi,   staging: hi,    production: hi }
   let target = { testing: hi,   staging: null,  production: null }
   mergeEnvVars({ source, target, errors })
-  t.equal(errors.length, 1, 'No errors returned')
-  t.match(errors[0], /conflicts with plugin/, `Got back error: ${errors[0]}`)
-  t.teardown(reset)
+  t.assert.equal(errors.length, 1, 'No errors returned')
+  t.assert.match(errors[0], /conflicts with plugin/, `Got back error: ${errors[0]}`)
 })

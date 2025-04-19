@@ -1,12 +1,10 @@
-let { join } = require('path')
 let parse = require('@architect/parser')
-let test = require('tape')
-let sut = join(process.cwd(), 'src', 'config', 'pragmas', 'app')
-let populateApp = require(sut)
+let { test } = require('node:test')
+let populateApp = require('../../../../../src/config/pragmas/app')
 
 test('Set up env', t => {
   t.plan(1)
-  t.ok(populateApp, '@app populator is present')
+  t.assert.ok(populateApp, '@app populator is present')
 })
 
 test('@app population', t => {
@@ -18,7 +16,7 @@ test('@app population', t => {
 @app
 ${name}
 `)
-  t.equal(populateApp({ arc }), name, `Returned correct app name: ${name}`)
+  t.assert.equal(populateApp({ arc }), name, `Returned correct app name: ${name}`)
 })
 
 test('@app validation', t => {
@@ -32,7 +30,7 @@ hi there
 `)
   errors = []
   populateApp({ arc, errors })
-  t.ok(errors.length, 'Invalid app name errored: >1 word')
+  t.assert.ok(errors.length, 'Invalid app name errored: >1 word')
 
   arc = parse(`
   @app
@@ -40,7 +38,7 @@ hi there
   `)
   errors = []
   populateApp({ arc, errors })
-  t.ok(errors.length, 'Invalid app name errored: bool')
+  t.assert.ok(errors.length, 'Invalid app name errored: bool')
 
   arc = parse(`
   @app
@@ -48,7 +46,7 @@ hi there
   `)
   errors = []
   populateApp({ arc, errors })
-  t.ok(errors.length, 'Invalid app name errored: non-lowercase alpha first char')
+  t.assert.ok(errors.length, 'Invalid app name errored: non-lowercase alpha first char')
 
   arc = parse(`
 @app
@@ -56,7 +54,7 @@ hello!
 `)
   errors = []
   populateApp({ arc, errors })
-  t.ok(errors.length, 'Invalid app name errored: invalid char')
+  t.assert.ok(errors.length, 'Invalid app name errored: invalid char')
 
   arc = parse(`
 @app
@@ -64,5 +62,5 @@ abcdefghi-abcdefghi-abcdefghi-abcdefghi-abcdefghi-abcdefghi-abcdefghi-abcdefghi-
 `)
   errors = []
   populateApp({ arc, errors })
-  t.ok(errors.length, 'Invalid app name errored: too long')
+  t.assert.ok(errors.length, 'Invalid app name errored: too long')
 })
