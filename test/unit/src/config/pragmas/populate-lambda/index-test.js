@@ -1,19 +1,17 @@
-let { join } = require('path')
+let { join } = require('node:path')
 let mockTmp = require('mock-tmp')
-let test = require('tape')
+let { test } = require('node:test')
 let cwd = process.cwd()
-let _defaults = join(cwd, 'src', 'defaults')
-let defaultConfig = require(_defaults)
-let sut = join(cwd, 'src', 'config', 'pragmas', 'populate-lambda')
-let populateLambda = require(sut)
+let defaultConfig = require('../../../../../../src/defaults')
+let populateLambda = require('../../../../../../src/config/pragmas/populate-lambda')
 
 let name = 'an-event'
 let src = join('proj', 'src', 'fn')
 
 test('Set up env', t => {
   t.plan(2)
-  t.ok(populateLambda, 'Lambda populator is present')
-  t.ok(defaultConfig, 'Default config is present')
+  t.assert.ok(populateLambda, 'Lambda populator is present')
+  t.assert.ok(defaultConfig, 'Default config is present')
 })
 
 test('Do nothing', t => {
@@ -24,13 +22,13 @@ test('Do nothing', t => {
   let errors = []
 
   result = populateLambda.events({ arc, inventory, errors })
-  t.equal(result, null, 'Returned null pragma')
-  t.notOk(errors.length, 'No errors returned')
+  t.assert.equal(result, null, 'Returned null pragma')
+  t.assert.ok(!errors.length, 'No errors returned')
 
   arc.events = []
   result = populateLambda.events({ arc, inventory, errors })
-  t.equal(result, null, 'Returned null pragma')
-  t.notOk(errors.length, 'No errors returned')
+  t.assert.equal(result, null, 'Returned null pragma')
+  t.assert.ok(!errors.length, 'No errors returned')
 })
 
 test('Populate Lambdas (via manifest)', t => {
@@ -38,14 +36,14 @@ test('Populate Lambdas (via manifest)', t => {
   let arc, inventory, errors, result
 
   function check (item) {
-    t.notOk(errors.length, 'No errors returned')
-    t.equal(item.name, name, 'Returned proper Lambda')
-    t.equal(item.src, join(cwd, 'src', 'events', 'an-event'), 'Returned correct source path')
-    t.notOk(item.plugin, 'Lambda does not have a plugin name')
-    t.notOk(item.type, 'Lambda not identified as having been created by a plugin')
-    t.notOk(item.build, 'Build property not set')
-    t.ok(item.config.shared, 'config.shared is true')
-    t.equal(item.config.views, undefined, 'config.views is undefined (not http)')
+    t.assert.ok(!errors.length, 'No errors returned')
+    t.assert.equal(item.name, name, 'Returned proper Lambda')
+    t.assert.equal(item.src, join(cwd, 'src', 'events', 'an-event'), 'Returned correct source path')
+    t.assert.ok(!item.plugin, 'Lambda does not have a plugin name')
+    t.assert.ok(!item.type, 'Lambda not identified as having been created by a plugin')
+    t.assert.ok(!item.build, 'Build property not set')
+    t.assert.ok(item.config.shared, 'config.shared is true')
+    t.assert.equal(item.config.views, undefined, 'config.views is undefined (not http)')
   }
 
   // The normal case: @pragma
@@ -53,7 +51,7 @@ test('Populate Lambdas (via manifest)', t => {
   inventory = defaultConfig()
   errors = []
   result = populateLambda.events({ arc, inventory, errors })
-  t.equal(result.length, 1, 'Returned a Lambda')
+  t.assert.equal(result.length, 1, 'Returned a Lambda')
   check(result[0])
 
   // Ensure src slashes are normalized
@@ -61,7 +59,7 @@ test('Populate Lambdas (via manifest)', t => {
   inventory = defaultConfig()
   errors = []
   result = populateLambda.events({ arc, inventory, errors })
-  t.equal(result.length, 1, 'Returned a Lambda')
+  t.assert.equal(result.length, 1, 'Returned a Lambda')
   check(result[0])
 
   // Special case: one pragma populates another
@@ -70,7 +68,7 @@ test('Populate Lambdas (via manifest)', t => {
   inventory = defaultConfig()
   errors = []
   result = populateLambda.events({ arc, inventory, errors, pragma: [ name ] })
-  t.equal(result.length, 1, 'Returned a Lambda')
+  t.assert.equal(result.length, 1, 'Returned a Lambda')
   check(result[0])
 })
 
@@ -88,12 +86,12 @@ test('Populate Lambdas (manifest vs. plugin conflict resolution)', t => {
   inventory = defaultConfig()
   inventory.plugins = { _methods: { set: { events: [ fn ] } } }
   result = populateLambda.events({ arc, inventory, errors })
-  t.notOk(errors.length, 'No errors returned')
-  t.equal(result.length, 1, 'Returned 1 Lambda')
-  t.equal(result[0].name, name, 'Lambda has conflicting name')
-  t.ok(!result[0].src.includes('foo'), 'Lambda has correct src path')
-  t.notOk(result[0]._plugin, 'Lambda _plugin property not found')
-  t.notOk(result[0].required, 'Lambda required property not found')
+  t.assert.ok(!errors.length, 'No errors returned')
+  t.assert.equal(result.length, 1, 'Returned 1 Lambda')
+  t.assert.equal(result[0].name, name, 'Lambda has conflicting name')
+  t.assert.ok(!result[0].src.includes('foo'), 'Lambda has correct src path')
+  t.assert.ok(!result[0]._plugin, 'Lambda _plugin property not found')
+  t.assert.ok(!result[0].required, 'Lambda required property not found')
 
   // Arc + set plugin result in multiple conflicting lambdas when `required` property IS set
   // (This will later throw a conflict error)
@@ -102,18 +100,18 @@ test('Populate Lambdas (manifest vs. plugin conflict resolution)', t => {
   inventory = defaultConfig()
   inventory.plugins = { _methods: { set: { events: [ fnOverride ] } } }
   result = populateLambda.events({ arc, inventory, errors })
-  t.notOk(errors.length, 'No errors returned')
-  t.equal(result.length, 2, 'Returned 2 Lambdas')
+  t.assert.ok(!errors.length, 'No errors returned')
+  t.assert.equal(result.length, 2, 'Returned 2 Lambdas')
   // Plugin Lambda
-  t.equal(result[0].name, name, 'Lambda has conflicting name')
-  t.ok(result[0].src.includes('foo'), 'Lambda has correct src path')
-  t.ok(result[0]._plugin, 'Lambda _plugin property found')
-  t.ok(result[0].required, 'Lambda required property found')
+  t.assert.equal(result[0].name, name, 'Lambda has conflicting name')
+  t.assert.ok(result[0].src.includes('foo'), 'Lambda has correct src path')
+  t.assert.ok(result[0]._plugin, 'Lambda _plugin property found')
+  t.assert.ok(result[0].required, 'Lambda required property found')
   // Arc Lambda
-  t.equal(result[1].name, name, 'Lambda has conflicting name')
-  t.ok(!result[1].src.includes('foo'), 'Lambda has correct src path')
-  t.notOk(result[1]._plugin, 'Lambda _plugin property not found')
-  t.notOk(result[1].required, 'Lambda required property not found')
+  t.assert.equal(result[1].name, name, 'Lambda has conflicting name')
+  t.assert.ok(!result[1].src.includes('foo'), 'Lambda has correct src path')
+  t.assert.ok(!result[1]._plugin, 'Lambda _plugin property not found')
+  t.assert.ok(!result[1].required, 'Lambda required property not found')
 })
 
 test('Populate Lambdas (via plugin)', t => {

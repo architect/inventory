@@ -1,12 +1,11 @@
-let { join } = require('path')
-let test = require('tape')
+let { join } = require('node:path')
+let { test } = require('node:test')
 let cwd = process.cwd()
-let sut = join(cwd, 'src', 'lib')
-let { normalizeSrc } = require(sut)
+let { normalizeSrc } = require('../../../../src/lib')
 
 test('Set up env', t => {
   t.plan(1)
-  t.ok(normalizeSrc, 'Source path normalizer util is present')
+  t.assert.ok(normalizeSrc, 'Source path normalizer util is present')
 })
 
 test('Get src', t => {
@@ -17,9 +16,9 @@ test('Get src', t => {
 
   dir = 'foo'
   src = normalizeSrc(cwd, dir)
-  t.equal(src, join(cwd, dir), `Normalized src to cwd: ${src}`)
+  t.assert.equal(src, join(cwd, dir), `Normalized src to cwd: ${src}`)
 
   dir = join(cwd, 'foo')
   src = normalizeSrc(cwd, dir)
-  t.equal(src, dir, `Normalized src to cwd: ${src}`)
+  t.assert.equal(src, dir, `Normalized src to cwd: ${src}`)
 })

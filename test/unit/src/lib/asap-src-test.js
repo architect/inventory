@@ -1,13 +1,12 @@
-let { join } = require('path')
-let test = require('tape')
+let { join } = require('node:path')
+let { test } = require('node:test')
 let mockTmp = require('mock-tmp')
 let cwd = process.cwd()
-let sut = join(cwd, 'src', 'lib', 'asap-src')
-let asapSrc = require(sut)
+let asapSrc = require('../../../../src/lib/asap-src')
 
 test('Set up env', t => {
   t.plan(1)
-  t.ok(asapSrc, 'ASAP src util is present')
+  t.assert.ok(asapSrc, 'ASAP src util is present')
 })
 
 test('Get ASAP', t => {
@@ -19,24 +18,24 @@ test('Get ASAP', t => {
   process.chdir('/')
   asap = asapSrc({ _testing: join(tmp, '1', '2') })
   // On Macs the tmp filesystem path may present differently via process.cwd() vs. fs.mkdtemp due to root symlinks from /var → /private/var, so use includes()
-  t.ok(asap.includes(join(tmp, localInstallPath)), `Got ASAP module in local dev mode: ${asap}`)
+  t.assert.ok(asap.includes(join(tmp, localInstallPath)), `Got ASAP module in local dev mode: ${asap}`)
   mockTmp.reset()
 
   let globalInstallPath = join('asap', 'src')
   tmp = mockTmp({ [globalInstallPath]: 'ok' })
   process.chdir(tmp)
   asap = asapSrc({ _testing: join(tmp, '1', '2', '3') })
-  t.equal(asap, join(tmp, globalInstallPath), `Got ASAP module in global mode: ${asap}`)
+  t.assert.equal(asap, join(tmp, globalInstallPath), `Got ASAP module in global mode: ${asap}`)
   process.chdir(cwd)
   mockTmp.reset()
 
   asap = asapSrc()
-  t.equal(asap, join(cwd, localInstallPath), `Got ASAP module as a normal dependency: ${asap}`)
+  t.assert.equal(asap, join(cwd, localInstallPath), `Got ASAP module as a normal dependency: ${asap}`)
 
   tmp = mockTmp({ hi: 'ok' })
   process.chdir(tmp)
   asap = asapSrc({ _testing: '/' })
-  t.equal(asap, require.resolve('@architect/asap'), `Got ASAP module via require.resolve: ${asap}`)
+  t.assert.equal(asap, require.resolve('@architect/asap'), `Got ASAP module via require.resolve: ${asap}`)
   process.chdir(cwd)
   mockTmp.reset()
 

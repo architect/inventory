@@ -1,8 +1,7 @@
-let { join } = require('path')
+let { join } = require('node:path')
 let mockTmp = require('mock-tmp')
-let test = require('tape')
-let sut = join(process.cwd(), 'src', 'read')
-let read = require(sut)
+let { test } = require('node:test')
+let read = require('../../../../src/read')
 let cwd = process.cwd()
 
 // Mock data – super stripped down, this isn't to validate parser compat
@@ -17,16 +16,16 @@ function check (params, file) {
   let { t, text, obj, type, subset } = params
   let cwd = mockTmp({ [file]: text })
   let { arc, raw, filepath } = read({ type, cwd })
-  t.deepEqual(arc, obj, 'Returned Arc object')
+  t.assert.deepEqual(arc, obj, 'Returned Arc object')
   // Subset used for extracting Arc from an existing manifest (like package.json)
-  t.equal(raw, subset ? subset : text, 'Returned raw text')
-  t.equal(filepath, join(cwd, file), `Returned filepath`)
+  t.assert.equal(raw, subset ? subset : text, 'Returned raw text')
+  t.assert.equal(filepath, join(cwd, file), `Returned filepath`)
   mockTmp.restore()
 }
 
 test('Set up env', t => {
   t.plan(1)
-  t.ok(read, 'Reader is present')
+  t.assert.ok(read, 'Reader is present')
 })
 
 test('Read core Architect manifests', t => {
@@ -130,7 +129,7 @@ test('Read Architect embedded in existing manifests', t => {
   text = JSON.stringify(proj)
   mockTmp({ [arcs[0]]: text })
   let result = read({ type, cwd })
-  t.notEqual(result.arc.app, arc.app, 'Did not return arc')
+  t.assert.notEqual(result.arc.app, arc.app, 'Did not return arc')
   mockTmp.restore()
 })
 
@@ -143,12 +142,12 @@ test('Reader errors', t => {
   function go () {
     let errors = []
     read({ type: 'projectManifest', cwd, errors })
-    t.equal(errors.length, 1, `Got reader error: ${type} ${file}`)
+    t.assert.equal(errors.length, 1, `Got reader error: ${type} ${file}`)
     mockTmp.restore()
   }
 
   // Invalid reader type
-  t.throws(() => {
+  t.assert.throws(() => {
     read({ type: 'idk', cwd, errors: [] })
   }, 'Invalid reader type throws')
 
