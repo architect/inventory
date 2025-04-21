@@ -1,13 +1,10 @@
-let { join } = require('path')
+let { join } = require('node:path')
 let parse = require('@architect/parser')
-let test = require('tape')
+let { test } = require('node:test')
 let cwd = process.cwd()
-let inventoryDefaultsPath = join(cwd, 'src', 'defaults')
-let inventoryDefaults = require(inventoryDefaultsPath)
-let testLibPath = join(cwd, 'test', 'lib')
-let testLib = require(testLibPath)
-let sut = join(cwd, 'src', 'config', 'pragmas', 'ws')
-let populateWS = require(sut)
+let inventoryDefaults = require('../../../../../src/defaults')
+let testLib = require('../../../../lib')
+let populateWS = require('../../../../../src/config/pragmas/ws')
 
 let inventory = inventoryDefaults()
 let defaults = [ 'connect', 'default', 'disconnect' ]
@@ -16,26 +13,26 @@ let setterPluginSetup = testLib.setterPluginSetup.bind({}, 'ws')
 
 test('Set up env', t => {
   t.plan(1)
-  t.ok(populateWS, '@ws Lambda populator is present')
+  t.assert.ok(populateWS, '@ws Lambda populator is present')
 })
 
 test('No @ws returns null', t => {
   t.plan(1)
-  t.equal(populateWS({ arc: {}, inventory }), null, 'Returned null')
+  t.assert.equal(populateWS({ arc: {}, inventory }), null, 'Returned null')
 })
 
 test('@ws population: simple format + defaults', t => {
   t.plan(10)
   let arc = parse(`@ws`)
   let ws = populateWS({ arc, inventory })
-  t.equal(ws.length, defaults.length, 'Got correct number of routes back')
+  t.assert.equal(ws.length, defaults.length, 'Got correct number of routes back')
   defaults.forEach(val => {
-    t.ok(ws.some(route => route.name === val), `Got route: ${val}`)
+    t.assert.ok(ws.some(route => route.name === val), `Got route: ${val}`)
   })
   ws.forEach(route => {
     let { name, handlerFile, src } = route
-    t.equal(src, join(wsDir, name), `Route configured with correct source dir: ${src}`)
-    t.ok(handlerFile.startsWith(src), `Handler file is in the correct source dir`)
+    t.assert.equal(src, join(wsDir, name), `Route configured with correct source dir: ${src}`)
+    t.assert.ok(handlerFile.startsWith(src), `Handler file is in the correct source dir`)
   })
 })
 
@@ -48,14 +45,14 @@ ${defaults[0]} # enumerate a default for good measure / testing all code paths
 ${values.join('\n')}
 `)
   let ws = populateWS({ arc, inventory })
-  t.equal(ws.length, defaults.length + values.length, 'Got correct number of routes back')
+  t.assert.equal(ws.length, defaults.length + values.length, 'Got correct number of routes back')
   defaults.concat(values).forEach(val => {
-    t.ok(ws.some(route => route.name === val), `Got route: ${val}`)
+    t.assert.ok(ws.some(route => route.name === val), `Got route: ${val}`)
   })
   ws.forEach(route => {
     let { name, handlerFile, src } = route
-    t.equal(src, join(wsDir, name), `Route configured with correct source dir: ${src}`)
-    t.ok(handlerFile.startsWith(src), `Handler file is in the correct source dir`)
+    t.assert.equal(src, join(wsDir, name), `Route configured with correct source dir: ${src}`)
+    t.assert.ok(handlerFile.startsWith(src), `Handler file is in the correct source dir`)
   })
 })
 
@@ -79,14 +76,14 @@ test('@ws population: complex format + defaults + additional action', t => {
 ${complexValues.join('\n')}
 `)
   let ws = populateWS({ arc, inventory })
-  t.equal(ws.length, defaults.length + values.length, 'Got correct number of routes back')
+  t.assert.equal(ws.length, defaults.length + values.length, 'Got correct number of routes back')
   defaults.concat(values).forEach(val => {
-    t.ok(ws.some(route => route.name === val), `Got route: ${val}`)
+    t.assert.ok(ws.some(route => route.name === val), `Got route: ${val}`)
   })
   ws.forEach(route => {
     let { name, handlerFile, src } = route
-    t.equal(src, join(cwd, `${name}/path`), `Route configured with correct source dir: ${src}`)
-    t.ok(handlerFile.startsWith(src), `Handler file is in the correct source dir`)
+    t.assert.equal(src, join(cwd, `${name}/path`), `Route configured with correct source dir: ${src}`)
+    t.assert.ok(handlerFile.startsWith(src), `Handler file is in the correct source dir`)
   })
 })
 
@@ -99,14 +96,14 @@ test('@ws population: plugin setter', t => {
   inventory.plugins = setterPluginSetup(setter)
 
   let ws = populateWS({ arc: {}, inventory })
-  t.equal(ws.length, defaults.length + values.length, 'Got correct number of routes back')
+  t.assert.equal(ws.length, defaults.length + values.length, 'Got correct number of routes back')
   defaults.concat(values).forEach(val => {
-    t.ok(ws.some(route => route.name === val), `Got route: ${val}`)
+    t.assert.ok(ws.some(route => route.name === val), `Got route: ${val}`)
   })
   ws.forEach(route => {
     let { name, handlerFile, src } = route
-    t.equal(src, join(wsDir, name), `Route configured with correct source dir: ${src}`)
-    t.ok(handlerFile.startsWith(src), `Handler file is in the correct source dir`)
+    t.assert.equal(src, join(wsDir, name), `Route configured with correct source dir: ${src}`)
+    t.assert.ok(handlerFile.startsWith(src), `Handler file is in the correct source dir`)
   })
 })
 
@@ -121,7 +118,7 @@ hi there
 `)
   errors = []
   populateWS({ arc, inventory, errors })
-  t.ok(errors.length, 'Invalid route errored')
+  t.assert.ok(errors.length, 'Invalid route errored')
 
   arc = parse(`
 @ws
@@ -129,7 +126,7 @@ hi there
 `)
   errors = []
   populateWS({ arc, inventory, errors })
-  t.ok(errors.length, 'Invalid simple route errored')
+  t.assert.ok(errors.length, 'Invalid simple route errored')
 
   arc = parse(`
 @ws
@@ -137,7 +134,7 @@ why hello there
 `)
   errors = []
   populateWS({ arc, inventory, errors })
-  t.ok(errors.length, 'Invalid complex route errored')
+  t.assert.ok(errors.length, 'Invalid complex route errored')
 })
 
 
@@ -150,8 +147,8 @@ test('@ws population: validation errors', t => {
     populateWS({ arc, inventory, errors })
   }
   function check (str = 'Invalid WebSocket errored', qty = 1) {
-    t.equal(errors.length, qty, str)
-    console.log(errors.join('\n'))
+    t.assert.equal(errors.length, qty, str)
+    t.diagnostic(errors.join('\n'))
     // Run a bunch of control tests at the top by resetting errors after asserting
     errors = []
   }
@@ -169,7 +166,7 @@ test('@ws population: validation errors', t => {
   run(`hi_`)
   run(`hi.`)
   run(`hi-`)
-  t.equal(errors.length, 0, `Valid WebSocket did not error`)
+  t.assert.equal(errors.length, 0, `Valid WebSocket did not error`)
 
   // Errors
   run(`hi\nhi\nhi`)
@@ -204,15 +201,15 @@ test('@ws population: plugin errors', t => {
     populateWS({ arc: {}, inventory, errors })
   }
   function check (str = 'Invalid setter return', qty = 1) {
-    t.equal(errors.length, qty, str)
-    console.log(errors.join('\n'))
+    t.assert.equal(errors.length, qty, str)
+    t.diagnostic(errors.join('\n'))
     // Run a bunch of control tests at the top by resetting errors after asserting
     errors = []
   }
 
   // Control
   run({ name: 'hi', src: 'hi' })
-  t.equal(errors.length, 0, `Valid routes did not error`)
+  t.assert.equal(errors.length, 0, `Valid routes did not error`)
 
   // Errors
   run()

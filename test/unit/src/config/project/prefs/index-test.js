@@ -1,19 +1,16 @@
-let { join } = require('path')
-let test = require('tape')
+let { test } = require('node:test')
 let mockTmp = require('mock-tmp')
 let cwd = process.cwd()
-let testLibPath = join(cwd, 'test', 'lib')
-let { overrideHomedir } = require(testLibPath)
-let inventoryDefaultsPath = join(cwd, 'src', 'defaults')
-let inventoryDefaults = require(inventoryDefaultsPath)
-let sut = join(cwd, 'src', 'config', 'project', 'prefs')
-let getPrefs = require(sut)
+let { overrideHomedir } = require('../../../../../lib/')
+let inventoryDefaults = require('../../../../../../src/defaults')
+let getPrefs = require('../../../../../../src/config/project/prefs')
 
 let path = '.prefs.arc'
 let reset = () => {
   mockTmp.reset()
   overrideHomedir.reset()
 }
+test.beforeEach(reset)
 function clean (preferences) {
   // Delete the meta stuff so the actual preferences match during an equality check
   delete preferences._arc
@@ -22,7 +19,7 @@ function clean (preferences) {
 
 test('Set up env', t => {
   t.plan(1)
-  t.ok(getPrefs, 'Preference getter module is present')
+  t.assert.ok(getPrefs, 'Preference getter module is present')
 })
 
 test('Do nothing', t => {
@@ -30,8 +27,8 @@ test('Do nothing', t => {
   let errors = []
   let inventory = inventoryDefaults()
   let preferences = getPrefs({ scope: 'local', inventory, errors })
-  t.equal(preferences, null, 'No preferences or .env returns null')
-  t.notOk(errors.length, 'Did not error')
+  t.assert.equal(preferences, null, 'No preferences or .env returns null')
+  t.assert.ok(!errors.length, 'Did not error')
 })
 
 test('Get preferences', t => {
@@ -83,14 +80,13 @@ testing
 
   let errors = []
   let { preferences, preferencesFile } = getPrefs({ scope: 'global', inventory, errors })
-  t.ok(preferences, 'Got preferences')
-  t.ok(preferences._arc, 'Got (arc object)')
-  t.ok(preferences._raw, 'Got (raw file)')
-  t.ok(preferencesFile, 'Got preferencesFile')
+  t.assert.ok(preferences, 'Got preferences')
+  t.assert.ok(preferences._arc, 'Got (arc object)')
+  t.assert.ok(preferences._raw, 'Got (raw file)')
+  t.assert.ok(preferencesFile, 'Got preferencesFile')
   clean(preferences)
-  t.deepEqual(preferences, prefs, 'Got correct preferences')
-  t.notOk(errors.length, 'Did not error')
-  t.teardown(reset)
+  t.assert.deepEqual(preferences, prefs, 'Got correct preferences')
+  t.assert.ok(!errors.length, 'Did not error')
 })
 
 test('.env file handling', t => {
@@ -125,10 +121,10 @@ staging
 
   errors = []
   preferences = getPrefs({ scope: 'local', inventory, errors }).preferences
-  t.ok(preferences, 'Got preferences')
+  t.assert.ok(preferences, 'Got preferences')
   clean(preferences)
-  t.deepEqual(preferences, prefs, 'Got correct preferences from local prefs')
-  t.notOk(errors.length, 'Did not error')
+  t.assert.deepEqual(preferences, prefs, 'Got correct preferences from local prefs')
+  t.assert.ok(!errors.length, 'Did not error')
 
   /**
    * Empty .env file just nulls out env, but no others
@@ -144,10 +140,10 @@ staging
   inventory = inventoryDefaults({ cwd })
   errors = []
   preferences = getPrefs({ scope: 'local', inventory, errors }).preferences
-  t.ok(preferences, 'Got preferences')
+  t.assert.ok(preferences, 'Got preferences')
   clean(preferences)
-  t.deepEqual(preferences, prefs, 'Got no preferences from empty .env > prefs.arc')
-  t.notOk(errors.length, 'Did not error')
+  t.assert.deepEqual(preferences, prefs, 'Got no preferences from empty .env > prefs.arc')
+  t.assert.ok(!errors.length, 'Did not error')
 
   /**
    * Actual .env file that overrides env prefs, but no others
@@ -170,10 +166,10 @@ from-dotenv = lol
   inventory = inventoryDefaults({ cwd })
   errors = []
   preferences = getPrefs({ scope: 'local', inventory, errors }).preferences
-  t.ok(preferences, 'Got preferences')
+  t.assert.ok(preferences, 'Got preferences')
   clean(preferences)
-  t.deepEqual(preferences, prefs, 'Got correct preferences from .env > prefs.arc')
-  t.notOk(errors.length, 'Did not error')
+  t.assert.deepEqual(preferences, prefs, 'Got correct preferences from .env > prefs.arc')
+  t.assert.ok(!errors.length, 'Did not error')
 
   /**
    * .env file only, no prefs file
@@ -194,11 +190,10 @@ from-dotenv = lol
   inventory = inventoryDefaults({ cwd })
   errors = []
   preferences = getPrefs({ scope: 'local', inventory, errors }).preferences
-  t.ok(preferences, 'Got preferences')
+  t.assert.ok(preferences, 'Got preferences')
   clean(preferences)
-  t.deepEqual(preferences, prefs, 'Got correct preferences from .env')
-  t.notOk(errors.length, 'Did not error')
-  t.teardown(reset)
+  t.assert.deepEqual(preferences, prefs, 'Got correct preferences from .env')
+  t.assert.ok(!errors.length, 'Did not error')
 })
 
 test('Get preferences (only unknown items)', t => {
@@ -215,14 +210,13 @@ userland true
   let inventory = inventoryDefaults({ cwd })
   let errors = []
   let { preferences, preferencesFile } = getPrefs({ scope: 'global', inventory, errors })
-  t.ok(preferences, 'Got preferences')
-  t.ok(preferences._arc, 'Got (arc object)')
-  t.ok(preferences._raw, 'Got (raw file)')
-  t.ok(preferencesFile, 'Got preferencesFile')
+  t.assert.ok(preferences, 'Got preferences')
+  t.assert.ok(preferences._arc, 'Got (arc object)')
+  t.assert.ok(preferences._raw, 'Got (raw file)')
+  t.assert.ok(preferencesFile, 'Got preferencesFile')
   clean(preferences)
-  t.deepEqual(preferences, prefs, 'Got correct preferences')
-  t.notOk(errors.length, 'Did not error')
-  t.teardown(reset)
+  t.assert.deepEqual(preferences, prefs, 'Got correct preferences')
+  t.assert.ok(!errors.length, 'Did not error')
 })
 
 test('Validate preferences', t => {
@@ -240,7 +234,7 @@ env foo
   inventory = inventoryDefaults({ cwd })
   errors = []
   getPrefs({ scope: 'global', inventory, errors })
-  t.equal(errors.length, 1, `Invalid preferences errored: ${errors[0]}`)
+  t.assert.equal(errors.length, 1, `Invalid preferences errored: ${errors[0]}`)
 
   // Invalid @env pragma
   prefsText = `
@@ -252,7 +246,7 @@ foo
   inventory = inventoryDefaults({ cwd })
   errors = []
   getPrefs({ scope: 'global', inventory, errors })
-  t.equal(errors.length, 1, `Invalid preferences errored: ${errors[0]}`)
+  t.assert.equal(errors.length, 1, `Invalid preferences errored: ${errors[0]}`)
 
   // Invalid @env environments
   prefsText = `
@@ -265,7 +259,7 @@ staging
   inventory = inventoryDefaults({ cwd })
   errors = []
   getPrefs({ scope: 'global', inventory, errors })
-  t.equal(errors.length, 1, `Invalid preferences errored: ${errors[0]}`)
+  t.assert.equal(errors.length, 1, `Invalid preferences errored: ${errors[0]}`)
 
   prefsText = `
 @env
@@ -277,7 +271,7 @@ staging
   inventory = inventoryDefaults({ cwd })
   errors = []
   getPrefs({ scope: 'global', inventory, errors })
-  t.equal(errors.length, 1, `Invalid preferences errored: ${errors[0]}`)
+  t.assert.equal(errors.length, 1, `Invalid preferences errored: ${errors[0]}`)
 
   prefsText = `
 @env
@@ -292,7 +286,7 @@ staging
   inventory = inventoryDefaults({ cwd })
   errors = []
   getPrefs({ scope: 'global', inventory, errors })
-  t.equal(errors.length, 1, `Invalid preferences errored: ${errors[0]}`)
+  t.assert.equal(errors.length, 1, `Invalid preferences errored: ${errors[0]}`)
 
   prefsText = `
 @env
@@ -311,7 +305,7 @@ production
   inventory = inventoryDefaults({ cwd })
   errors = []
   getPrefs({ scope: 'global', inventory, errors })
-  t.equal(errors.length, 1, `Invalid preferences errored: ${errors[0]}`)
+  t.assert.equal(errors.length, 1, `Invalid preferences errored: ${errors[0]}`)
 
   prefsText = `
 @env
@@ -326,7 +320,5 @@ staging
   inventory = inventoryDefaults({ cwd })
   errors = []
   getPrefs({ scope: 'global', inventory, errors })
-  t.equal(errors.length, 1, `Invalid preferences errored: ${errors[0]}`)
-
-  t.teardown(reset)
+  t.assert.equal(errors.length, 1, `Invalid preferences errored: ${errors[0]}`)
 })

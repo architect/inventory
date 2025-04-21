@@ -1,4 +1,3 @@
-let { join } = require('node:path')
 let parse = require('@architect/parser')
 let { test } = require('node:test')
 let inventoryDefaults = require('../../../../../src/defaults')

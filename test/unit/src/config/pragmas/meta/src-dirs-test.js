@@ -1,20 +1,18 @@
-let { join } = require('path')
-let test = require('tape')
-let sut = join(process.cwd(), 'src', 'config', 'pragmas', 'meta', 'src-dirs')
-let populateSrcDirs = require(sut)
+let { test } = require('node:test')
+let populateSrcDirs = require('../../../../../../src/config/pragmas/meta/src-dirs')
 
 let str = s => JSON.stringify(s)
 
 test('Set up env', t => {
   t.plan(1)
-  t.ok(populateSrcDirs, 'Lambda source directory populator is present')
+  t.assert.ok(populateSrcDirs, 'Lambda source directory populator is present')
 })
 
 test('No Lambdae returns null', t => {
   t.plan(2)
   let { lambdaSrcDirs, lambdasBySrcDir } = populateSrcDirs({ pragmas: {} })
-  t.equal(lambdaSrcDirs, null, 'Returned null lambdaSrcDirs')
-  t.equal(lambdasBySrcDir, null, 'Returned null lambdasBySrcDir')
+  t.assert.equal(lambdaSrcDirs, null, 'Returned null lambdaSrcDirs')
+  t.assert.equal(lambdasBySrcDir, null, 'Returned null lambdasBySrcDir')
 })
 
 test('Lambda source dir population', t => {
@@ -34,10 +32,10 @@ test('Lambda source dir population', t => {
   }
 
   let { lambdaSrcDirs, lambdasBySrcDir } = populateSrcDirs({ pragmas })
-  t.equal(lambdaSrcDirs.length, values.length, 'Got correct number of lambdaSrcDirs back')
-  t.equal(Object.keys(lambdasBySrcDir).length, values.length, 'Got correct number of lambdasBySrcDir params back')
-  t.equal(str(lambdaSrcDirs.sort()), str(values.sort()), 'Got back same source dirs from various pragmas in lambdaSrcDirs')
-  t.equal(str(Object.keys(lambdasBySrcDir).sort()), str(values.sort()), 'Got back same source dirs from various pragmas in lambdasBySrcDir')
+  t.assert.equal(lambdaSrcDirs.length, values.length, 'Got correct number of lambdaSrcDirs back')
+  t.assert.equal(Object.keys(lambdasBySrcDir).length, values.length, 'Got correct number of lambdasBySrcDir params back')
+  t.assert.equal(str(lambdaSrcDirs.sort()), str(values.sort()), 'Got back same source dirs from various pragmas in lambdaSrcDirs')
+  t.assert.equal(str(Object.keys(lambdasBySrcDir).sort()), str(values.sort()), 'Got back same source dirs from various pragmas in lambdasBySrcDir')
 })
 
 test('Multiple Lambdas mapped to the same source dir', t => {
@@ -57,18 +55,18 @@ test('Multiple Lambdas mapped to the same source dir', t => {
   }
 
   let { lambdaSrcDirs, lambdasBySrcDir } = populateSrcDirs({ pragmas })
-  t.equal(lambdaSrcDirs.length, values.length, 'Got correct number of (deduped) lambdaSrcDirs back')
-  t.equal(Object.keys(lambdasBySrcDir).length, values.length, 'Got correct number of lambdasBySrcDir back')
+  t.assert.equal(lambdaSrcDirs.length, values.length, 'Got correct number of (deduped) lambdaSrcDirs back')
+  t.assert.equal(Object.keys(lambdasBySrcDir).length, values.length, 'Got correct number of lambdasBySrcDir back')
 
   values.forEach(dir => {
     if (dir === values[0]) {
-      t.ok(Array.isArray(lambdasBySrcDir[dir]), 'Got array of multitenant Lambdae back')
-      t.equal(lambdasBySrcDir[dir].length, 3, 'Got correct number of multitenant Lambdae back')
+      t.assert.ok(Array.isArray(lambdasBySrcDir[dir]), 'Got array of multitenant Lambdae back')
+      t.assert.equal(lambdasBySrcDir[dir].length, 3, 'Got correct number of multitenant Lambdae back')
       lambdasBySrcDir[dir].forEach(l => {
-        t.ok((l.src === values[0]), 'Multitenant Lambda params identify the same dir')
+        t.assert.ok((l.src === values[0]), 'Multitenant Lambda params identify the same dir')
       })
     }
-    else t.equal(lambdasBySrcDir[dir].src, dir, 'Got normal Lambda back')
+    else t.assert.equal(lambdasBySrcDir[dir].src, dir, 'Got normal Lambda back')
   })
 })
 
@@ -86,8 +84,8 @@ test('HTTP Arc Static Asset Proxy handler', t => {
   }
 
   let { lambdaSrcDirs, lambdasBySrcDir } = populateSrcDirs({ pragmas })
-  t.equal(lambdaSrcDirs, null, 'Returned null lambdaSrcDirs')
-  t.equal(lambdasBySrcDir, null, 'Returned null lambdasBySrcDir')
+  t.assert.equal(lambdaSrcDirs, null, 'Returned null lambdaSrcDirs')
+  t.assert.equal(lambdasBySrcDir, null, 'Returned null lambdasBySrcDir')
 })
 
 
@@ -100,5 +98,5 @@ test('Lambdas missing src errors', t => {
   }
   let errors = []
   populateSrcDirs({ pragmas, errors })
-  t.ok(errors.length, 'Invalid pragma errored')
+  t.assert.ok(errors.length, 'Invalid pragma errored')
 })

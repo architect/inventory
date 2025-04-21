@@ -1,4 +1,3 @@
-let { join } = require('node:path')
 let { test } = require('node:test')
 let functionConfig = require('../../../../src/defaults/function-config')
 

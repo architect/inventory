@@ -1,40 +1,33 @@
 let { join } = require('path')
 let mockTmp = require('mock-tmp')
 let parse = require('@architect/parser')
-let test = require('tape')
-let cwd = process.cwd()
-let populateHTTPPath = join(cwd, 'src', 'config', 'pragmas', 'http')
-let populateHTTP = require(populateHTTPPath)
-let populateEventsPath = join(cwd, 'src', 'config', 'pragmas', 'events')
-let populateEvents = require(populateEventsPath)
-let populateQueuesPath = join(cwd, 'src', 'config', 'pragmas', 'queues')
-let populateQueues = require(populateQueuesPath)
-let inventoryDefaultsPath = join(cwd, 'src', 'defaults')
-let inventoryDefaults = require(inventoryDefaultsPath)
-let testLibPath = join(cwd, 'test', 'lib')
-let testLib = require(testLibPath)
-let sut = join(cwd, 'src', 'config', 'pragmas', 'shared')
-let populateShared = require(sut)
+let { test } = require('node:test')
+let populateHTTP = require('../../../../../src/config/pragmas/http')
+let populateEvents = require('../../../../../src/config/pragmas/events')
+let populateQueues = require('../../../../../src/config/pragmas/queues')
+let inventoryDefaults = require('../../../../../src/defaults')
+let testLib = require('../../../../lib')
+let populateShared = require('../../../../../src/config/pragmas/shared')
 
 let lambdaSrcDirs = [] // Only needs to be truthy to test code path
 let setterPluginSetup = testLib.setterPluginSetup.bind({}, 'shared')
 
 test('Set up env', t => {
   t.plan(1)
-  t.ok(populateShared, '@shared populator is present')
+  t.assert.ok(populateShared, '@shared populator is present')
 })
 
 test('No lambdae anywhere returns null @shared', t => {
   t.plan(1)
   let inventory = inventoryDefaults()
-  t.deepEqual(populateShared({ arc: {}, pragmas: {}, inventory }), null, 'Returned null')
+  t.assert.deepEqual(populateShared({ arc: {}, pragmas: {}, inventory }), null, 'Returned null')
 })
 
 test('Project with any lambdae get a default @shared object', t => {
   t.plan(1)
   let inventory = inventoryDefaults()
   let shared = populateShared({ arc: {}, pragmas: { lambdaSrcDirs }, inventory })
-  t.equal(shared, null, 'Returned null')
+  t.assert.equal(shared, null, 'Returned null')
 })
 
 test('Default dir is: src/shared (if present)', t => {
@@ -47,8 +40,8 @@ test('Default dir is: src/shared (if present)', t => {
   pragmas = { http: populateHTTP({ arc, inventory }), lambdaSrcDirs }
 
   let shared = populateShared({ arc, pragmas, inventory })
-  t.equal(shared.src, join(cwd, 'src', 'shared'), 'Returned correct default dir')
-  t.deepEqual(shared.shared, [], 'Returned empty shared array')
+  t.assert.equal(shared.src, join(cwd, 'src', 'shared'), 'Returned correct default dir')
+  t.assert.deepEqual(shared.shared, [], 'Returned empty shared array')
   mockTmp.reset()
 })
 
@@ -66,11 +59,11 @@ http
   pragmas = { http: populateHTTP({ arc, inventory }), lambdaSrcDirs }
 
   let shared = populateShared({ arc, pragmas, inventory })
-  t.equal(shared.src, join(cwd, 'src', 'shared'), 'Returned correct default dir')
-  t.deepEqual(shared.shared, [], 'Returned empty shared array')
+  t.assert.equal(shared.src, join(cwd, 'src', 'shared'), 'Returned correct default dir')
+  t.assert.deepEqual(shared.shared, [], 'Returned empty shared array')
   let asap = pragmas.http.find(r => r.name === 'get /*')
-  t.ok(asap.arcStaticAssetProxy, 'Got back ASAP')
-  t.notOk(asap.config.shared, `Shared setting not enabled in ASAP`)
+  t.assert.ok(asap.arcStaticAssetProxy, 'Got back ASAP')
+  t.assert.ok(!asap.config.shared, `Shared setting not enabled in ASAP`)
   mockTmp.reset()
 })
 
@@ -90,14 +83,14 @@ test(`@shared population: defaults to enabled (without @shared)`, t => {
   }
 
   let shared = populateShared({ arc, pragmas, inventory })
-  t.equal(shared.src, join(cwd, 'src', 'shared'), 'Returned correct default dir')
-  t.equal(shared.shared.length, 2, 'Got correct number of lambdae with shared back')
+  t.assert.equal(shared.src, join(cwd, 'src', 'shared'), 'Returned correct default dir')
+  t.assert.equal(shared.shared.length, 2, 'Got correct number of lambdae with shared back')
   let fn1 = pragmas.http.find(r => r.name === httpLambda)
   let fn2 = pragmas.events.find(r => r.name === eventLambda)
-  t.ok(shared.shared.includes(fn1.src), `Got shared lambda: ${httpLambda}`)
-  t.ok(shared.shared.includes(fn2.src), `Got shared lambda: ${eventLambda}`)
-  t.ok(fn1.config.shared, `Shared setting enabled in lambda: ${httpLambda}`)
-  t.ok(fn2.config.shared, `Shared setting enabled in lambda: ${eventLambda}`)
+  t.assert.ok(shared.shared.includes(fn1.src), `Got shared lambda: ${httpLambda}`)
+  t.assert.ok(shared.shared.includes(fn2.src), `Got shared lambda: ${eventLambda}`)
+  t.assert.ok(fn1.config.shared, `Shared setting enabled in lambda: ${httpLambda}`)
+  t.assert.ok(fn2.config.shared, `Shared setting enabled in lambda: ${eventLambda}`)
   mockTmp.reset()
 })
 
@@ -117,14 +110,14 @@ test(`@shared population: defaults to enabled (with empty @shared)`, t => {
   }
 
   let shared = populateShared({ arc, pragmas, inventory })
-  t.equal(shared.src, join(cwd, 'src', 'shared'), 'Returned correct default dir')
-  t.equal(shared.shared.length, 2, 'Got correct number of lambdae with shared back')
+  t.assert.equal(shared.src, join(cwd, 'src', 'shared'), 'Returned correct default dir')
+  t.assert.equal(shared.shared.length, 2, 'Got correct number of lambdae with shared back')
   let fn1 = pragmas.http.find(r => r.name === httpLambda)
   let fn2 = pragmas.events.find(r => r.name === eventLambda)
-  t.ok(shared.shared.includes(fn1.src), `Got shared lambda: ${httpLambda}`)
-  t.ok(shared.shared.includes(fn2.src), `Got shared lambda: ${eventLambda}`)
-  t.ok(fn1.config.shared, `Shared setting enabled in lambda: ${httpLambda}`)
-  t.ok(fn2.config.shared, `Shared setting enabled in lambda: ${eventLambda}`)
+  t.assert.ok(shared.shared.includes(fn1.src), `Got shared lambda: ${httpLambda}`)
+  t.assert.ok(shared.shared.includes(fn2.src), `Got shared lambda: ${eventLambda}`)
+  t.assert.ok(fn1.config.shared, `Shared setting enabled in lambda: ${httpLambda}`)
+  t.assert.ok(fn2.config.shared, `Shared setting enabled in lambda: ${eventLambda}`)
   mockTmp.reset()
 })
 
@@ -146,14 +139,14 @@ src foo/bar`)
   }
 
   let shared = populateShared({ arc, pragmas, inventory })
-  t.equal(shared.src, 'foo/bar', 'Got correct src dir back')
-  t.equal(shared.shared.length, 2, 'Got correct number of lambdae with shared back')
+  t.assert.equal(shared.src, 'foo/bar', 'Got correct src dir back')
+  t.assert.equal(shared.shared.length, 2, 'Got correct number of lambdae with shared back')
   let fn1 = pragmas.http.find(r => r.name === httpLambda)
   let fn2 = pragmas.events.find(r => r.name === eventLambda)
-  t.ok(shared.shared.includes(fn1.src), `Got shared lambda: ${httpLambda}`)
-  t.ok(shared.shared.includes(fn2.src), `Got shared lambda: ${eventLambda}`)
-  t.ok(fn1.config.shared, `Shared setting enabled in lambda: ${httpLambda}`)
-  t.ok(fn2.config.shared, `Shared setting enabled in lambda: ${eventLambda}`)
+  t.assert.ok(shared.shared.includes(fn1.src), `Got shared lambda: ${httpLambda}`)
+  t.assert.ok(shared.shared.includes(fn2.src), `Got shared lambda: ${eventLambda}`)
+  t.assert.ok(fn1.config.shared, `Shared setting enabled in lambda: ${httpLambda}`)
+  t.assert.ok(fn2.config.shared, `Shared setting enabled in lambda: ${eventLambda}`)
   mockTmp.reset()
 })
 
@@ -183,14 +176,14 @@ test(`@shared population: plugin setter`, t => {
   }
 
   shared = populateShared({ arc, pragmas, inventory })
-  t.equal(shared.src, 'foo/bar', 'Got correct src dir back')
-  t.equal(shared.shared.length, 2, 'Got correct number of lambdae with shared back')
+  t.assert.equal(shared.src, 'foo/bar', 'Got correct src dir back')
+  t.assert.equal(shared.shared.length, 2, 'Got correct number of lambdae with shared back')
   fn1 = pragmas.http.find(r => r.name === httpLambda)
   fn2 = pragmas.events.find(r => r.name === eventLambda)
-  t.ok(shared.shared.includes(fn1.src), `Got shared lambda: ${httpLambda}`)
-  t.ok(shared.shared.includes(fn2.src), `Got shared lambda: ${eventLambda}`)
-  t.ok(fn1.config.shared, `Shared setting enabled in lambda: ${httpLambda}`)
-  t.ok(fn2.config.shared, `Shared setting enabled in lambda: ${eventLambda}`)
+  t.assert.ok(shared.shared.includes(fn1.src), `Got shared lambda: ${httpLambda}`)
+  t.assert.ok(shared.shared.includes(fn2.src), `Got shared lambda: ${eventLambda}`)
+  t.assert.ok(fn1.config.shared, `Shared setting enabled in lambda: ${httpLambda}`)
+  t.assert.ok(fn2.config.shared, `Shared setting enabled in lambda: ${eventLambda}`)
   mockTmp.reset()
 
   // Fall back to src/shared if specified dir is not found
@@ -205,8 +198,8 @@ test(`@shared population: plugin setter`, t => {
     lambdaSrcDirs,
   }
   shared = populateShared({ arc, pragmas, inventory })
-  t.ok(shared.src.endsWith(join('src', 'shared')), 'Got correct src dir back')
-  t.equal(shared.shared.length, 2, 'Got correct number of lambdae with shared back')
+  t.assert.ok(shared.src.endsWith(join('src', 'shared')), 'Got correct src dir back')
+  t.assert.equal(shared.shared.length, 2, 'Got correct number of lambdae with shared back')
   mockTmp.reset()
 
   // Shared is null if setter doesn't set `required` flag and no dirs are found
@@ -222,10 +215,10 @@ test(`@shared population: plugin setter`, t => {
   }
   // Just a control test!
   shared = populateShared({ arc, pragmas, inventory })
-  t.equal(shared.src, 'foo/bar', 'Got correct src dir back')
+  t.assert.equal(shared.src, 'foo/bar', 'Got correct src dir back')
   mockTmp.reset()
   shared = populateShared({ arc, pragmas, inventory })
-  t.equal(shared, null, 'shared is null')
+  t.assert.equal(shared, null, 'shared is null')
   mockTmp.reset()
 
   // Arc file wins
@@ -242,14 +235,14 @@ test(`@shared population: plugin setter`, t => {
     lambdaSrcDirs,
   }
   shared = populateShared({ arc, pragmas, inventory })
-  t.equal(shared.src, 'foo/baz', 'Got correct src dir back')
-  t.equal(shared.shared.length, 2, 'Got correct number of lambdae with shared back')
+  t.assert.equal(shared.src, 'foo/baz', 'Got correct src dir back')
+  t.assert.equal(shared.shared.length, 2, 'Got correct number of lambdae with shared back')
   fn1 = pragmas.http.find(r => r.name === httpLambda)
   fn2 = pragmas.events.find(r => r.name === eventLambda)
-  t.ok(shared.shared.includes(fn1.src), `Got shared lambda: ${httpLambda}`)
-  t.ok(shared.shared.includes(fn2.src), `Got shared lambda: ${eventLambda}`)
-  t.ok(fn1.config.shared, `Shared setting enabled in lambda: ${httpLambda}`)
-  t.ok(fn2.config.shared, `Shared setting enabled in lambda: ${eventLambda}`)
+  t.assert.ok(shared.shared.includes(fn1.src), `Got shared lambda: ${httpLambda}`)
+  t.assert.ok(shared.shared.includes(fn2.src), `Got shared lambda: ${eventLambda}`)
+  t.assert.ok(fn1.config.shared, `Shared setting enabled in lambda: ${httpLambda}`)
+  t.assert.ok(fn2.config.shared, `Shared setting enabled in lambda: ${eventLambda}`)
   mockTmp.reset()
 
   // cwd isn't concatenated when an absolute file path is returned
@@ -266,11 +259,11 @@ test(`@shared population: plugin setter`, t => {
     lambdaSrcDirs,
   }
   shared = populateShared({ arc, pragmas, inventory })
-  t.equal(shared.src, src, 'Got correct src dir back')
-  t.equal(shared.shared.length, 1, 'Got correct number of lambdae with shared back')
+  t.assert.equal(shared.src, src, 'Got correct src dir back')
+  t.assert.equal(shared.shared.length, 1, 'Got correct number of lambdae with shared back')
   fn1 = pragmas.http.find(r => r.name === httpLambda)
-  t.ok(shared.shared.includes(fn1.src), `Got shared lambda: ${httpLambda}`)
-  t.ok(fn1.config.shared, `Shared setting enabled in lambda: ${httpLambda}`)
+  t.assert.ok(shared.shared.includes(fn1.src), `Got shared lambda: ${httpLambda}`)
+  t.assert.ok(fn1.config.shared, `Shared setting enabled in lambda: ${httpLambda}`)
   mockTmp.reset()
 })
 
@@ -303,17 +296,17 @@ src foo/bar`)
   }
 
   let shared = populateShared({ arc, pragmas, inventory })
-  t.equal(shared.src, 'foo/bar', 'Got correct src dir back')
-  t.equal(shared.shared.length, 2, 'Got correct number of lambdae with shared back')
+  t.assert.equal(shared.src, 'foo/bar', 'Got correct src dir back')
+  t.assert.equal(shared.shared.length, 2, 'Got correct number of lambdae with shared back')
   let fn1 = pragmas.http.find(r => r.name === httpLambda)
   let fn2 = pragmas.events.find(r => r.name === eventLambda)
   let fn3 = pragmas.queues.find(r => r.name === queueLambda)
-  t.ok(shared.shared.includes(fn1.src), `Got shared lambda: ${httpLambda}`)
-  t.ok(shared.shared.includes(fn2.src), `Got shared lambda: ${eventLambda}`)
-  t.notOk(shared.shared.includes(fn3.src), `Did not get lambda: ${queueLambda}`)
-  t.ok(fn1.config.shared, `Shared setting enabled in lambda: ${httpLambda}`)
-  t.ok(fn2.config.shared, `Shared setting enabled in lambda: ${eventLambda}`)
-  t.notOk(fn3.config.shared, `Shared setting not enabled in lambda: ${queueLambda}`)
+  t.assert.ok(shared.shared.includes(fn1.src), `Got shared lambda: ${httpLambda}`)
+  t.assert.ok(shared.shared.includes(fn2.src), `Got shared lambda: ${eventLambda}`)
+  t.assert.ok(!shared.shared.includes(fn3.src), `Did not get lambda: ${queueLambda}`)
+  t.assert.ok(fn1.config.shared, `Shared setting enabled in lambda: ${httpLambda}`)
+  t.assert.ok(fn2.config.shared, `Shared setting enabled in lambda: ${eventLambda}`)
+  t.assert.ok(!fn3.config.shared, `Shared setting not enabled in lambda: ${queueLambda}`)
   mockTmp.reset()
 })
 
@@ -338,7 +331,7 @@ http
   errors = []
   updatePragmas()
   populateShared({ arc, pragmas, inventory, errors })
-  t.equal(errors.length, 1, '@shared lambda not found in corresponding pragma errored')
+  t.assert.equal(errors.length, 1, '@shared lambda not found in corresponding pragma errored')
   mockTmp.reset()
 
   cwd = mockTmp({ 'src/shared': {} })
@@ -350,7 +343,7 @@ hi`)
   errors = []
   updatePragmas()
   populateShared({ arc, pragmas, inventory, errors })
-  t.equal(errors.length, 1, '@shared invalid entry errored')
+  t.assert.equal(errors.length, 1, '@shared invalid entry errored')
   mockTmp.reset()
 
   cwd = mockTmp({ 'src/shared': {} })
@@ -363,7 +356,7 @@ static
   errors = []
   updatePragmas()
   populateShared({ arc, pragmas, inventory, errors })
-  t.equal(errors.length, 1, '@shared invalid pragma errored')
+  t.assert.equal(errors.length, 1, '@shared invalid pragma errored')
   mockTmp.reset()
 
   arc = parse(`@http
@@ -373,7 +366,7 @@ src foo`)
   errors = []
   updatePragmas()
   populateShared({ arc, pragmas, inventory, errors })
-  t.equal(errors.length, 1, '@shared src dir must exist')
+  t.assert.equal(errors.length, 1, '@shared src dir must exist')
 
   cwd = mockTmp({ foo: 'hi!' })
   inventory = inventoryDefaults({ cwd })
@@ -384,7 +377,7 @@ src foo`)
   errors = []
   updatePragmas()
   populateShared({ arc, pragmas, inventory, errors })
-  t.equal(errors.length, 1, '@shared src must refer to a dir, not a file')
+  t.assert.equal(errors.length, 1, '@shared src must refer to a dir, not a file')
 
   // From here on out we haven't needed to mock the filesystem since it should be returning errors prior to any folder existence checks; of course, update if that changes!
   arc = parse(`@http
@@ -394,7 +387,7 @@ src src/index.js`)
   errors = []
   updatePragmas()
   populateShared({ arc, pragmas, inventory, errors })
-  t.equal(errors.length, 1, '@shared src must be a directory')
+  t.assert.equal(errors.length, 1, '@shared src must be a directory')
 
   arc = parse(`@http
 get /foo
@@ -403,7 +396,7 @@ src .`)
   errors = []
   updatePragmas()
   populateShared({ arc, pragmas, inventory, errors })
-  t.equal(errors.length, 1, '@shared src cannot be .')
+  t.assert.equal(errors.length, 1, '@shared src cannot be .')
 
   arc = parse(`@http
 get /foo
@@ -412,7 +405,7 @@ src ./`)
   errors = []
   updatePragmas()
   populateShared({ arc, pragmas, inventory, errors })
-  t.equal(errors.length, 1, '@shared src cannot be ./')
+  t.assert.equal(errors.length, 1, '@shared src cannot be ./')
 
   arc = parse(`@http
 get /foo
@@ -421,7 +414,7 @@ src ..`)
   errors = []
   updatePragmas()
   populateShared({ arc, pragmas, inventory, errors })
-  t.equal(errors.length, 1, '@shared src cannot be ..')
+  t.assert.equal(errors.length, 1, '@shared src cannot be ..')
 
   arc = parse(`@http
 get /foo
@@ -430,7 +423,7 @@ src ../`)
   errors = []
   updatePragmas()
   populateShared({ arc, pragmas, inventory, errors })
-  t.equal(errors.length, 1, '@shared src cannot be ../')
+  t.assert.equal(errors.length, 1, '@shared src cannot be ../')
 
   arc = parse(`@http
 get /foo
@@ -439,7 +432,7 @@ src true`)
   errors = []
   updatePragmas()
   populateShared({ arc, pragmas, inventory, errors })
-  t.equal(errors.length, 1, '@shared src must be a string')
+  t.assert.equal(errors.length, 1, '@shared src must be a string')
 })
 
 test('@shared: plugin errors', t => {
@@ -462,7 +455,7 @@ test('@shared: plugin errors', t => {
   errors = []
   updatePragmas()
   populateShared({ arc, pragmas, inventory, errors })
-  t.equal(errors[0], '@shared src setting conflicts with plugin', '@shared src dir must exist if required flag is set')
+  t.assert.equal(errors[0], '@shared src setting conflicts with plugin', '@shared src dir must exist if required flag is set')
   mockTmp.reset()
 
   arc = parse(`@http\nget /foo`)
@@ -470,7 +463,7 @@ test('@shared: plugin errors', t => {
   errors = []
   updatePragmas()
   populateShared({ arc, pragmas, inventory, errors })
-  t.equal(errors[0], 'Directory not found: hi', '@shared src dir must exist if required flag is set')
+  t.assert.equal(errors[0], 'Directory not found: hi', '@shared src dir must exist if required flag is set')
 
   cwd = mockTmp({ foo: 'hi!' })
   inventory = inventoryDefaults({ cwd })
@@ -479,7 +472,7 @@ test('@shared: plugin errors', t => {
   errors = []
   updatePragmas()
   populateShared({ arc, pragmas, inventory, errors })
-  t.equal(errors.length, 1, '@shared src must refer to a dir, not a file')
+  t.assert.equal(errors.length, 1, '@shared src must refer to a dir, not a file')
   mockTmp.reset()
 
   cwd = mockTmp({ 'src/index.js': '// hi!' })
@@ -489,7 +482,7 @@ test('@shared: plugin errors', t => {
   errors = []
   updatePragmas()
   populateShared({ arc, pragmas, inventory, errors })
-  t.equal(errors.length, 1, '@shared src must be a directory')
+  t.assert.equal(errors.length, 1, '@shared src must be a directory')
   mockTmp.reset()
 
   // From here on out we haven't needed to mock the filesystem since it should be returning errors prior to any folder existence checks; of course, update if that changes!
@@ -498,34 +491,34 @@ test('@shared: plugin errors', t => {
   errors = []
   updatePragmas()
   populateShared({ arc, pragmas, inventory, errors })
-  t.equal(errors.length, 1, '@shared src cannot be .')
+  t.assert.equal(errors.length, 1, '@shared src cannot be .')
 
   setter = () => ({ src: './' })
   inventory.plugins = setterPluginSetup(setter)
   errors = []
   updatePragmas()
   populateShared({ arc, pragmas, inventory, errors })
-  t.equal(errors.length, 1, '@shared src cannot be ./')
+  t.assert.equal(errors.length, 1, '@shared src cannot be ./')
 
   setter = () => ({ src: '..' })
   inventory.plugins = setterPluginSetup(setter)
   errors = []
   updatePragmas()
   populateShared({ arc, pragmas, inventory, errors })
-  t.equal(errors.length, 1, '@shared src cannot be ..')
+  t.assert.equal(errors.length, 1, '@shared src cannot be ..')
 
   setter = () => ({ src: '../' })
   inventory.plugins = setterPluginSetup(setter)
   errors = []
   updatePragmas()
   populateShared({ arc, pragmas, inventory, errors })
-  t.equal(errors.length, 1, '@shared src cannot be ../')
+  t.assert.equal(errors.length, 1, '@shared src cannot be ../')
 
   setter = () => ({ src: true })
   inventory.plugins = setterPluginSetup(setter)
   errors = []
   populateShared({ arc, pragmas, inventory, errors })
-  t.equal(errors.length, 1, '@shared src must be a string')
+  t.assert.equal(errors.length, 1, '@shared src must be a string')
 })
 
 test('@shared other settings ignored', t => {
@@ -544,5 +537,5 @@ idk whatev`)
   }
   errors = []
   populateShared({ arc, pragmas, inventory, errors })
-  t.notOk(errors.length, '@shared ignores unknown settings')
+  t.assert.ok(!errors.length, '@shared ignores unknown settings')
 })

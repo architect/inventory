@@ -1,16 +1,12 @@
-let { join } = require('path')
-let test = require('tape')
-let cwd = process.cwd()
-let _defaults = join(cwd, 'src', 'defaults')
-let defaultConfig = require(_defaults)
-let sut = join(cwd, 'src', 'config', 'pragmas', 'populate-other')
-let populateOther = require(sut)
+let { test } = require('node:test')
+let defaultConfig = require('../../../../../../src/defaults')
+let populateOther = require('../../../../../../src/config/pragmas/populate-other')
 
 test('Set up env', t => {
   t.plan(3)
-  t.ok(populateOther.resources, 'Resource pragma populator is present')
-  t.ok(populateOther.settings, 'Setting pragma populator is present')
-  t.ok(defaultConfig, 'Default config is present')
+  t.assert.ok(populateOther.resources, 'Resource pragma populator is present')
+  t.assert.ok(populateOther.settings, 'Setting pragma populator is present')
+  t.assert.ok(defaultConfig, 'Default config is present')
 })
 
 test('Do nothing', t => {
@@ -21,12 +17,12 @@ test('Do nothing', t => {
   let errors = []
 
   result = populateOther.resources({ arc, inventory, errors })
-  t.equal(result, undefined, 'Returned undefined')
-  t.notOk(errors.length, 'No errors returned')
+  t.assert.equal(result, undefined, 'Returned undefined')
+  t.assert.ok(!errors.length, 'No errors returned')
 
   result = populateOther.settings({ arc, inventory, errors })
-  t.equal(result, undefined, 'Returned undefined')
-  t.notOk(errors.length, 'No errors returned')
+  t.assert.equal(result, undefined, 'Returned undefined')
+  t.assert.ok(!errors.length, 'No errors returned')
 })
 
 test('Populate resources (via plugin)', t => {
@@ -35,9 +31,9 @@ test('Populate resources (via plugin)', t => {
   let type = 'tables'
   let errors = []
   function check (item) {
-    t.notOk(errors.length, 'No errors returned')
-    t.equal(item._plugin, 'test', 'Resource identified by plugin name')
-    t.equal(item._type, 'plugin', 'Resource identified as having been created by a plugin')
+    t.assert.ok(!errors.length, 'No errors returned')
+    t.assert.equal(item._plugin, 'test', 'Resource identified by plugin name')
+    t.assert.equal(item._type, 'plugin', 'Resource identified as having been created by a plugin')
     errors = []
   }
 
@@ -55,23 +51,23 @@ test('Populate resources (via plugin)', t => {
   plugins = [ fn ]
   returning = { name1 }
   result = populateOther.resources({ inventory, plugins, template, type, errors })
-  t.equal(result.length, 1, 'Returned a resource')
-  t.equal(result[0].prop, null, 'Backfilled property from template')
+  t.assert.equal(result.length, 1, 'Returned a resource')
+  t.assert.equal(result[0].prop, null, 'Backfilled property from template')
   check(result[0])
 
   // One setter, one resource (with prop returned)
   returning = { name1, prop: 'resource-prop' }
   result = populateOther.resources({ inventory, plugins, template, type, errors })
-  t.equal(result.length, 1, 'Returned a resource')
-  t.equal(result[0].prop, 'resource-prop', 'Returned property overrides template')
+  t.assert.equal(result.length, 1, 'Returned a resource')
+  t.assert.equal(result[0].prop, 'resource-prop', 'Returned property overrides template')
   check(result[0])
 
   // One setter, multiple resources
   returning = [ { name1 }, { name2 } ]
   result = populateOther.resources({ inventory, plugins, template, type, errors })
-  t.equal(result.length, 2, 'Returned multiple resources')
-  t.equal(result[0].prop, null, 'Backfilled property from template')
-  t.equal(result[1].prop, null, 'Backfilled property from template')
+  t.assert.equal(result.length, 2, 'Returned multiple resources')
+  t.assert.equal(result[0].prop, null, 'Backfilled property from template')
+  t.assert.equal(result[1].prop, null, 'Backfilled property from template')
   check(result[0])
   check(result[1])
 
@@ -79,9 +75,9 @@ test('Populate resources (via plugin)', t => {
   plugins = [ fn, fn ]
   returning = { name1 }
   result = populateOther.resources({ inventory, plugins, template, type, errors })
-  t.equal(result.length, 2, 'Returned multiple resources')
-  t.equal(result[0].prop, null, 'Backfilled property from template')
-  t.equal(result[1].prop, null, 'Backfilled property from template')
+  t.assert.equal(result.length, 2, 'Returned multiple resources')
+  t.assert.equal(result[0].prop, null, 'Backfilled property from template')
+  t.assert.equal(result[1].prop, null, 'Backfilled property from template')
   check(result[0])
   check(result[1])
 
@@ -89,9 +85,9 @@ test('Populate resources (via plugin)', t => {
   plugins = [ fn, fn ]
   returning = { name1, prop: 'resource-prop' }
   result = populateOther.resources({ inventory, plugins, template, type, errors })
-  t.equal(result.length, 2, 'Returned multiple resources')
-  t.equal(result[0].prop, 'resource-prop', 'Returned property overrides template')
-  t.equal(result[1].prop, 'resource-prop', 'Returned property overrides template')
+  t.assert.equal(result.length, 2, 'Returned multiple resources')
+  t.assert.equal(result[0].prop, 'resource-prop', 'Returned property overrides template')
+  t.assert.equal(result[1].prop, 'resource-prop', 'Returned property overrides template')
   check(result[0])
   check(result[1])
 
@@ -99,11 +95,11 @@ test('Populate resources (via plugin)', t => {
   plugins = [ fn, fn ]
   returning = [ { name1 }, { name2 } ]
   result = populateOther.resources({ inventory, plugins, template, type, errors })
-  t.equal(result.length, 4, 'Returned multiple resources')
-  t.equal(result[0].prop, null, 'Backfilled property from template')
-  t.equal(result[1].prop, null, 'Backfilled property from template')
-  t.equal(result[2].prop, null, 'Backfilled property from template')
-  t.equal(result[3].prop, null, 'Backfilled property from template')
+  t.assert.equal(result.length, 4, 'Returned multiple resources')
+  t.assert.equal(result[0].prop, null, 'Backfilled property from template')
+  t.assert.equal(result[1].prop, null, 'Backfilled property from template')
+  t.assert.equal(result[2].prop, null, 'Backfilled property from template')
+  t.assert.equal(result[3].prop, null, 'Backfilled property from template')
   check(result[0])
   check(result[1])
   check(result[2])
@@ -122,15 +118,15 @@ test('Plugin resource population errors', t => {
     plugins = [ fn ]
   }
   function check (msg) {
-    if (errors.length) console.log(errors[0])
-    t.equal(errors.length, 1, 'Returned an error')
+    if (errors.length) t.diagnostic(errors[0])
+    t.assert.equal(errors.length, 1, 'Returned an error')
     if (msg) {
-      t.equal(errors[0], msg, 'Got a setter plugin error')
+      t.assert.equal(errors[0], msg, 'Got a setter plugin error')
     }
     else {
-      t.equal(errors[0], 'Setter plugins must return a valid response: plugin: test, method: set.tables', 'Got a setter plugin error')
+      t.assert.equal(errors[0], 'Setter plugins must return a valid response: plugin: test, method: set.tables', 'Got a setter plugin error')
     }
-    t.deepEqual(result, [], 'Empty array (no result) returned')
+    t.assert.deepEqual(result, [], 'Empty array (no result) returned')
     errors = []
   }
 
@@ -170,7 +166,7 @@ test('Plugin resource population errors', t => {
   fn._plugin = 'test'
   fn._type = 'plugin'
   plugins = [ fn ]
-  t.throws(() => {
+  t.assert.throws(() => {
     populateOther.resources({ inventory, plugins, template, type, valid, errors })
   }, /Setter plugin exception/, 'Failing setter threw')
 })
@@ -181,7 +177,7 @@ test('Populate settings (via plugin)', t => {
   let type = 'tables'
   let errors = []
   function check () {
-    t.notOk(errors.length, 'No errors returned')
+    t.assert.ok(!errors.length, 'No errors returned')
     errors = []
   }
 
@@ -198,55 +194,55 @@ test('Populate settings (via plugin)', t => {
   plugins = [ fn ]
   returning = { name1 }
   result = populateOther.settings({ inventory, plugins, settings, type, errors })
-  t.ok(result, 'Returned settings')
-  t.deepEqual(result, settings, 'Backfilled default setting')
+  t.assert.ok(result, 'Returned settings')
+  t.assert.deepEqual(result, settings, 'Backfilled default setting')
   check()
 
   // One setter, returns a property from settings
   plugins = [ fn ]
   returning = { prop: 'hi' }
   result = populateOther.settings({ inventory, plugins, settings, type, errors })
-  t.ok(result, 'Returned settings')
-  t.deepEqual(result, returning, 'Returned property overrides setting')
+  t.assert.ok(result, 'Returned settings')
+  t.assert.deepEqual(result, returning, 'Returned property overrides setting')
   check()
 
   // One setter, returns multiple properties
   plugins = [ fn ]
   returning = { prop: 'hi' }
   result = populateOther.settings({ inventory, plugins, settings, type, errors })
-  t.ok(result, 'Returned settings')
-  t.equal(result.prop, 'hi', 'Returned property overrides setting')
+  t.assert.ok(result, 'Returned settings')
+  t.assert.equal(result.prop, 'hi', 'Returned property overrides setting')
   check()
 
   // Multiple setters, ignores properties not specified in settings
   plugins = [ fn, fn ]
   returning = { name1 }
   result = populateOther.settings({ inventory, plugins, settings, type, errors })
-  t.ok(result, 'Returned settings')
-  t.deepEqual(result, settings, 'Backfilled default setting')
+  t.assert.ok(result, 'Returned settings')
+  t.assert.deepEqual(result, settings, 'Backfilled default setting')
   check()
 
   // Multiple setters, returns a property from settings
   plugins = [ fn, fn ]
   returning = { prop: 'hi' }
   result = populateOther.settings({ inventory, plugins, settings, type, errors })
-  t.ok(result, 'Returned settings')
-  t.deepEqual(result, returning, 'Returned property overrides setting')
+  t.assert.ok(result, 'Returned settings')
+  t.assert.deepEqual(result, returning, 'Returned property overrides setting')
   check()
 
   // Multiple setters
   plugins = [ fn, fn ]
   returning = { prop: 'hi' }
   result = populateOther.settings({ inventory, plugins, settings, type, errors })
-  t.ok(result, 'Returned settings')
-  t.equal(result.prop, 'hi', 'Returned property overrides setting')
+  t.assert.ok(result, 'Returned settings')
+  t.assert.equal(result.prop, 'hi', 'Returned property overrides setting')
   check()
 
   // Multiple setters, last one wins
   plugins = [ () => ({ prop: 1 }), () => ({ prop: 2 }) ]
   result = populateOther.settings({ inventory, plugins, settings, type, errors })
-  t.ok(result, 'Returned settings')
-  t.equal(result.prop, 2, 'Returned property overrides setting')
+  t.assert.ok(result, 'Returned settings')
+  t.assert.equal(result.prop, 2, 'Returned property overrides setting')
   check()
 })
 
@@ -262,15 +258,15 @@ test('Plugin settings population errors', t => {
     plugins = [ fn ]
   }
   function check (msg) {
-    if (errors.length) console.log(errors)
-    t.equal(errors.length, 1, 'Returned an error')
+    if (errors.length) t.diagnostic(errors)
+    t.assert.equal(errors.length, 1, 'Returned an error')
     if (msg) {
-      t.equal(errors[0], msg, 'Got a setter plugin error')
+      t.assert.equal(errors[0], msg, 'Got a setter plugin error')
     }
     else {
-      t.equal(errors[0], 'Setter plugins must return a valid response: plugin: test, method: set.tables', 'Got a setter plugin error')
+      t.assert.equal(errors[0], 'Setter plugins must return a valid response: plugin: test, method: set.tables', 'Got a setter plugin error')
     }
-    t.equal(result, null, 'Null (no result) returned')
+    t.assert.equal(result, null, 'Null (no result) returned')
     errors = []
   }
 
@@ -311,7 +307,7 @@ test('Plugin settings population errors', t => {
   fn._plugin = 'test'
   fn._type = 'plugin'
   plugins = [ fn ]
-  t.throws(() => {
+  t.assert.throws(() => {
     populateOther.settings({ inventory, plugins, type, valid, errors })
   }, /Setter plugin exception/, 'Failing setter threw')
 })

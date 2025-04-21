@@ -1,13 +1,10 @@
 let { join } = require('path')
 let parse = require('@architect/parser')
-let test = require('tape')
+let { test } = require('node:test')
+let inventoryDefaults = require('../../../../../src/defaults')
+let populateEvents = require('../../../../../src/config/pragmas/events')
+let testLib = require('../../../../lib')
 let cwd = process.cwd()
-let inventoryDefaultsPath = join(cwd, 'src', 'defaults')
-let inventoryDefaults = require(inventoryDefaultsPath)
-let testLibPath = join(cwd, 'test', 'lib')
-let testLib = require(testLibPath)
-let sut = join(cwd, 'src', 'config', 'pragmas', 'events')
-let populateEvents = require(sut)
 
 let inventory = inventoryDefaults()
 let eventsDir = join(cwd, 'src', 'events')
@@ -16,12 +13,12 @@ let setterPluginSetup = testLib.setterPluginSetup.bind({}, 'events')
 
 test('Set up env', t => {
   t.plan(1)
-  t.ok(populateEvents, '@events Lambda populator is present')
+  t.assert.ok(populateEvents, '@events Lambda populator is present')
 })
 
 test('No @events returns null', t => {
   t.plan(1)
-  t.equal(populateEvents({ arc: {}, inventory }), null, 'Returned null')
+  t.assert.equal(populateEvents({ arc: {}, inventory }), null, 'Returned null')
 })
 
 test('@events population: simple format', t => {
@@ -32,14 +29,14 @@ test('@events population: simple format', t => {
 ${values.join('\n')}
 `)
   let events = populateEvents({ arc, inventory })
-  t.equal(events.length, values.length, 'Got correct number of events back')
+  t.assert.equal(events.length, values.length, 'Got correct number of events back')
   values.forEach(val => {
-    t.ok(events.some(event => event.name === val), `Got event: ${val}`)
+    t.assert.ok(events.some(event => event.name === val), `Got event: ${val}`)
   })
   events.forEach(event => {
     let { handlerFile, name, src } = event
-    t.equal(src, join(eventsDir, name), `Event configured with correct source dir: ${src}`)
-    t.ok(handlerFile.startsWith(src), `Handler file is in the correct source dir`)
+    t.assert.equal(src, join(eventsDir, name), `Event configured with correct source dir: ${src}`)
+    t.assert.ok(handlerFile.startsWith(src), `Handler file is in the correct source dir`)
   })
 })
 
@@ -57,14 +54,14 @@ test('@events population: complex format', t => {
 ${complexValues.join('\n')}
 `)
   let events = populateEvents({ arc, inventory })
-  t.equal(events.length, complexValues.length, 'Got correct number of events back')
+  t.assert.equal(events.length, complexValues.length, 'Got correct number of events back')
   values.forEach(val => {
-    t.ok(events.some(event => event.name === val), `Got event: ${val}`)
+    t.assert.ok(events.some(event => event.name === val), `Got event: ${val}`)
   })
   events.forEach(event => {
     let { handlerFile, name, src } = event
-    t.equal(src, join(cwd, `${name}/path`), `Event configured with correct source dir: ${name}/path`)
-    t.ok(handlerFile.startsWith(join(cwd, `${name}/path`)), `Handler file is in the correct source dir`)
+    t.assert.equal(src, join(cwd, `${name}/path`), `Event configured with correct source dir: ${name}/path`)
+    t.assert.ok(handlerFile.startsWith(join(cwd, `${name}/path`)), `Handler file is in the correct source dir`)
   })
 })
 
@@ -82,14 +79,14 @@ test('@events population: complex format + fallback to default paths', t => {
 ${complexValues.join('\n')}
 `)
   let events = populateEvents({ arc, inventory })
-  t.equal(events.length, complexValues.length, 'Got correct number of events back')
+  t.assert.equal(events.length, complexValues.length, 'Got correct number of events back')
   values.forEach(val => {
-    t.ok(events.some(event => event.name === val), `Got event: ${val}`)
+    t.assert.ok(events.some(event => event.name === val), `Got event: ${val}`)
   })
   events.forEach(event => {
     let { handlerFile, name, src } = event
-    t.equal(src, join(eventsDir, name), `Complex event entry fell back to correct default source dir: $vent.src}`)
-    t.ok(handlerFile.startsWith(src), `Handler file is in the correct source dir`)
+    t.assert.equal(src, join(eventsDir, name), `Complex event entry fell back to correct default source dir: $vent.src}`)
+    t.assert.ok(handlerFile.startsWith(src), `Handler file is in the correct source dir`)
   })
 })
 
@@ -101,14 +98,14 @@ test('@events population: plugin setter', t => {
   inventory.plugins = setterPluginSetup(setter)
 
   let events = populateEvents({ arc: {}, inventory })
-  t.equal(events.length, values.length, 'Got correct number of events back')
+  t.assert.equal(events.length, values.length, 'Got correct number of events back')
   values.forEach(val => {
-    t.ok(events.some(event => event.name === val), `Got event: ${val}`)
+    t.assert.ok(events.some(event => event.name === val), `Got event: ${val}`)
   })
   events.forEach(event => {
     let { handlerFile, name, src } = event
-    t.equal(src, join(eventsDir, name), `Event configured with correct source dir: ${src}`)
-    t.ok(handlerFile.startsWith(src), `Handler file is in the correct source dir`)
+    t.assert.equal(src, join(eventsDir, name), `Event configured with correct source dir: ${src}`)
+    t.assert.ok(handlerFile.startsWith(src), `Handler file is in the correct source dir`)
   })
 })
 
@@ -121,7 +118,7 @@ test('@events population: validation errors', t => {
     populateEvents({ arc, inventory, errors })
   }
   function check (str = 'Invalid event errored', qty = 1) {
-    t.equal(errors.length, qty, str)
+    t.assert.equal(errors.length, qty, str)
     console.log(errors.join('\n'))
     // Run a bunch of control tests at the top by resetting errors after asserting
     errors = []
@@ -134,7 +131,7 @@ test('@events population: validation errors', t => {
   run(`hiThere`)
   run(`hi.there`)
   run(`h1_there`)
-  t.equal(errors.length, 0, `Valid events did not error`)
+  t.assert.equal(errors.length, 0, `Valid events did not error`)
 
   // Errors
   run(`hi\nhi\nhi`)
@@ -186,7 +183,7 @@ test('@events population: plugin errors', t => {
     populateEvents({ arc: {}, inventory, errors })
   }
   function check (str = 'Invalid setter return', qty = 1) {
-    t.equal(errors.length, qty, str)
+    t.assert.equal(errors.length, qty, str)
     console.log(errors.join('\n'))
     // Run a bunch of control tests at the top by resetting errors after asserting
     errors = []
@@ -194,7 +191,7 @@ test('@events population: plugin errors', t => {
 
   // Control
   run({ name: 'hi', src: 'hi' })
-  t.equal(errors.length, 0, `Valid routes did not error`)
+  t.assert.equal(errors.length, 0, `Valid routes did not error`)
 
   // Errors
   run()

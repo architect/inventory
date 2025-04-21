@@ -1,13 +1,10 @@
-let { join } = require('path')
+let { join } = require('node:path')
 let parse = require('@architect/parser')
-let test = require('tape')
+let { test } = require('node:test')
 let cwd = process.cwd()
-let inventoryDefaultsPath = join(cwd, 'src', 'defaults')
-let inventoryDefaults = require(inventoryDefaultsPath)
-let testLibPath = join(cwd, 'test', 'lib')
-let testLib = require(testLibPath)
-let sut = join(cwd, 'src', 'config', 'pragmas', 'tables-streams')
-let populateTablesStreams = require(sut)
+let inventoryDefaults = require('../../../../../src/defaults')
+let testLib = require('../../../../lib')
+let populateTablesStreams = require('../../../../../src/config/pragmas/tables-streams')
 
 let inventory = inventoryDefaults()
 let setterPluginSetup = testLib.setterPluginSetup.bind({}, 'tables-streams')
@@ -18,17 +15,17 @@ let tablesStreamsDir = join(cwd, 'src', 'tables-streams')
 
 test('Set up env', t => {
   t.plan(1)
-  t.ok(populateTablesStreams, '@tables-streams Lambda populator is present')
+  t.assert.ok(populateTablesStreams, '@tables-streams Lambda populator is present')
 })
 
 test('No @tables-streams returns null', t => {
   t.plan(1)
-  t.equal(populateTablesStreams({ arc: {}, inventory }), null, 'Returned null')
+  t.assert.equal(populateTablesStreams({ arc: {}, inventory }), null, 'Returned null')
 })
 
 test('@tables without @tables-streams returns null', t => {
   t.plan(1)
-  t.equal(populateTablesStreams({ arc: { tables: [ 'a-table' ] }, inventory }), null, 'Returned null')
+  t.assert.equal(populateTablesStreams({ arc: { tables: [ 'a-table' ] }, inventory }), null, 'Returned null')
 })
 
 test('@tables populates @tables-streams: legacy + current source paths', t => {
@@ -52,15 +49,15 @@ ${tableNames[2]}
   stream true
 `)
   let streams = populateTablesStreams({ arc, inventory })
-  t.equal(streams.length, tableNames.length, 'Got correct number of tables-streams back')
+  t.assert.equal(streams.length, tableNames.length, 'Got correct number of tables-streams back')
   tableNames.forEach(val => {
-    t.ok(streams.some(stream => stream.name === val), `Got stream: ${val}`)
+    t.assert.ok(streams.some(stream => stream.name === val), `Got stream: ${val}`)
   })
   streams.forEach(stream => {
     let { name, handlerFile, src } = stream
     let dir = join(tablesStreamsDir, name)
-    t.equal(src, dir, `Stream configured with correct source dir: ${src}`)
-    t.ok(handlerFile.startsWith(src), `Handler file is in the correct source dir`)
+    t.assert.equal(src, dir, `Stream configured with correct source dir: ${src}`)
+    t.assert.ok(handlerFile.startsWith(src), `Handler file is in the correct source dir`)
   })
 })
 
@@ -76,7 +73,7 @@ ${tableNames[0]}
   let streams = populateTablesStreams({ arc, inventory })
   streams.forEach(stream => {
     let { name, src } = stream
-    t.equal(src, join(tablesStreamsDir, name), `Stream configured with correct source dir: ${src}`)
+    t.assert.equal(src, join(tablesStreamsDir, name), `Stream configured with correct source dir: ${src}`)
   })
 })
 
@@ -94,14 +91,14 @@ ${tableNames[1]}
 ${tableNames[2]}
 `)
   let streams = populateTablesStreams({ arc, inventory })
-  t.equal(streams.length, tableNames.length, 'Got correct number of tables-streams back')
+  t.assert.equal(streams.length, tableNames.length, 'Got correct number of tables-streams back')
   tableNames.forEach(val => {
-    t.ok(streams.some(stream => stream.name === val), `Got stream: ${val}`)
+    t.assert.ok(streams.some(stream => stream.name === val), `Got stream: ${val}`)
   })
   streams.forEach(stream => {
     let { name, handlerFile, src } = stream
-    t.equal(src, join(tablesStreamsDir, name), `Stream configured with correct source dir: ${src}`)
-    t.ok(handlerFile.startsWith(src), `Handler file is in the correct source dir`)
+    t.assert.equal(src, join(tablesStreamsDir, name), `Stream configured with correct source dir: ${src}`)
+    t.assert.ok(handlerFile.startsWith(src), `Handler file is in the correct source dir`)
   })
 })
 
@@ -127,16 +124,16 @@ ${tableNames[2]}
 ${complextableNames.join('\n')}
 `)
   let streams = populateTablesStreams({ arc, inventory })
-  t.equal(streams.length, tableNames.length, 'Got correct number of tables-streams back')
+  t.assert.equal(streams.length, tableNames.length, 'Got correct number of tables-streams back')
   streamNames.forEach(val => {
-    t.ok(streams.some(stream => stream.name === val), `Got stream: ${val}`)
+    t.assert.ok(streams.some(stream => stream.name === val), `Got stream: ${val}`)
   })
   streams.forEach(stream => {
     let { name, handlerFile, src, table } = stream
-    if (name === streamNames[0]) t.equal(table, tableNames[0], `Stream associated with correct table: ${tableNames[0]}`)
-    if (name === streamNames[1]) t.equal(table, tableNames[1], `Stream associated with correct table: ${tableNames[1]}`)
-    t.equal(src, join(cwd, `${name}/path`), `Stream configured with correct source dir: ${src}`)
-    t.ok(handlerFile.startsWith(join(cwd, `${name}/path`)), `Handler file is in the correct source dir`)
+    if (name === streamNames[0]) t.assert.equal(table, tableNames[0], `Stream associated with correct table: ${tableNames[0]}`)
+    if (name === streamNames[1]) t.assert.equal(table, tableNames[1], `Stream associated with correct table: ${tableNames[1]}`)
+    t.assert.equal(src, join(cwd, `${name}/path`), `Stream configured with correct source dir: ${src}`)
+    t.assert.ok(handlerFile.startsWith(join(cwd, `${name}/path`)), `Handler file is in the correct source dir`)
   })
 })
 
@@ -159,16 +156,16 @@ ${tableNames[2]}
 ${complextableNames.join('\n')}
 `)
   let streams = populateTablesStreams({ arc, inventory })
-  t.equal(streams.length, tableNames.length, 'Got correct number of tables-streams back')
+  t.assert.equal(streams.length, tableNames.length, 'Got correct number of tables-streams back')
   streamNames.forEach(val => {
-    t.ok(streams.some(stream => stream.name === val), `Got stream: ${val}`)
+    t.assert.ok(streams.some(stream => stream.name === val), `Got stream: ${val}`)
   })
   streams.forEach(stream => {
     let { name, handlerFile, src, table } = stream
-    if (name === streamNames[0]) t.equal(table, streamNames[0], `Stream associated with correct table: ${streamNames[0]}`)
-    if (name === streamNames[1]) t.equal(table, streamNames[1], `Stream associated with correct table: ${streamNames[1]}`)
-    t.equal(src, join(cwd, `${name}/path`), `Stream configured with correct source dir: ${src}`)
-    t.ok(handlerFile.startsWith(join(cwd, `${name}/path`)), `Handler file is in the correct source dir`)
+    if (name === streamNames[0]) t.assert.equal(table, streamNames[0], `Stream associated with correct table: ${streamNames[0]}`)
+    if (name === streamNames[1]) t.assert.equal(table, streamNames[1], `Stream associated with correct table: ${streamNames[1]}`)
+    t.assert.equal(src, join(cwd, `${name}/path`), `Stream configured with correct source dir: ${src}`)
+    t.assert.ok(handlerFile.startsWith(join(cwd, `${name}/path`)), `Handler file is in the correct source dir`)
   })
 })
 
@@ -192,14 +189,14 @@ yet-another-stream
   table a-stream
 `)
   let streams = populateTablesStreams({ arc, inventory })
-  t.equal(streams.length, streamNames.length + tableNames.length, 'Got correct number of tables-streams back')
+  t.assert.equal(streams.length, streamNames.length + tableNames.length, 'Got correct number of tables-streams back')
   streamNames.concat(tableNames).forEach(val => {
-    t.ok(streams.some(stream => stream.name === val), `Got stream: ${val}`)
+    t.assert.ok(streams.some(stream => stream.name === val), `Got stream: ${val}`)
   })
   streams.forEach(stream => {
     let { name, handlerFile, src } = stream
-    t.equal(src, join(tablesStreamsDir, name), `Stream configured with correct source dir: ${src}`)
-    t.ok(handlerFile.startsWith(src), `Handler file is in the correct source dir`)
+    t.assert.equal(src, join(tablesStreamsDir, name), `Stream configured with correct source dir: ${src}`)
+    t.assert.ok(handlerFile.startsWith(src), `Handler file is in the correct source dir`)
   })
 })
 
@@ -217,14 +214,14 @@ ${tableNames[2]}
   inventory.plugins = setterPluginSetup(setter)
 
   let streams = populateTablesStreams({ arc, inventory })
-  t.equal(streams.length, tableNames.length, 'Got correct number of tables-streams back')
+  t.assert.equal(streams.length, tableNames.length, 'Got correct number of tables-streams back')
   tableNames.forEach(val => {
-    t.ok(streams.some(stream => stream.name === val), `Got stream: ${val}`)
+    t.assert.ok(streams.some(stream => stream.name === val), `Got stream: ${val}`)
   })
   streams.forEach(stream => {
     let { name, handlerFile, src } = stream
-    t.equal(src, join(tablesStreamsDir, name), `Stream configured with correct source dir: ${src}`)
-    t.ok(handlerFile.startsWith(src), `Handler file is in the correct source dir`)
+    t.assert.equal(src, join(tablesStreamsDir, name), `Stream configured with correct source dir: ${src}`)
+    t.assert.ok(handlerFile.startsWith(src), `Handler file is in the correct source dir`)
   })
 })
 
@@ -236,7 +233,7 @@ test('@tables-streams population: validation errors', t => {
     populateTablesStreams({ arc, inventory, errors })
   }
   function check (str = 'Invalid stream errored', qty = 1) {
-    t.equal(errors.length, qty, str)
+    t.assert.equal(errors.length, qty, str)
     console.log(errors.join('\n'))
     // Run a bunch of control tests at the top by resetting errors after asserting
     errors = []
@@ -264,7 +261,7 @@ hello`)
   // These two are funky, but not specifying table in complex format defaults to the stream name
   run(`${tables}hello\n${tablesStreams}hello\n  there`)
   run(`${tables}hello\n${tablesStreams}hello\n  friend table`)
-  t.equal(errors.length, 0, `Valid tables did not error`)
+  t.assert.equal(errors.length, 0, `Valid tables did not error`)
 
   // Errors
   run(`${tablesStreams}hi`)
@@ -310,7 +307,7 @@ test('@tables-streams population: plugin errors', t => {
     populateTablesStreams({ arc, inventory, errors })
   }
   function check (str = 'Invalid setter return', qty = 1) {
-    t.equal(errors.length, qty, str)
+    t.assert.equal(errors.length, qty, str)
     console.log(errors.join('\n'))
     // Run a bunch of control tests at the top by resetting errors after asserting
     errors = []
@@ -318,7 +315,7 @@ test('@tables-streams population: plugin errors', t => {
 
   // Control
   run({ name: 'hello', table: 'hello', src: 'hi' })
-  t.equal(errors.length, 0, `Valid routes did not error`)
+  t.assert.equal(errors.length, 0, `Valid routes did not error`)
 
   // Errors
   run()

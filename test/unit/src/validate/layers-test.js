@@ -1,4 +1,3 @@
-let { join } = require('node:path')
 let { test } = require('node:test')
 let inventoryDefaults = require('../../../../src/defaults')
 let validateLayers = require('../../../../src/validate/layers')

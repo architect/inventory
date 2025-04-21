@@ -124,20 +124,20 @@ test('Populate Lambdas (via plugin)', t => {
   fn._type = fn2x._type = 'plugin'
   inventory._project.build = 'uh-oh'
   function check (item, compiled, absoluteSrc) {
-    t.notOk(errors.length, 'No errors returned')
-    t.equal(item.name, name, 'Returned proper Lambda')
-    t.equal(item.src, absoluteSrc || join(cwd, src), 'Returned correct source path')
-    t.equal(item.plugin, fn.plugin, 'Lambda identified by plugin name')
-    t.equal(item.type, fn.type, 'Lambda identified as having been created by a plugin')
+    t.assert.ok(!errors.length, 'No errors returned')
+    t.assert.equal(item.name, name, 'Returned proper Lambda')
+    t.assert.equal(item.src, absoluteSrc || join(cwd, src), 'Returned correct source path')
+    t.assert.equal(item.plugin, fn.plugin, 'Lambda identified by plugin name')
+    t.assert.equal(item.type, fn.type, 'Lambda identified as having been created by a plugin')
     if (!compiled) {
-      t.notOk(item.build, 'Build property not set')
-      t.ok(item.config.shared, 'config.shared is true')
-      t.equal(item.config.views, undefined, 'config.views is undefined (not http)')
+      t.assert.ok(!item.build, 'Build property not set')
+      t.assert.ok(item.config.shared, 'config.shared is true')
+      t.assert.equal(item.config.views, undefined, 'config.views is undefined (not http)')
     }
     else {
-      t.ok(item.build, 'Build property set')
-      t.equal(item.config.shared, false, 'config.shared is false')
-      t.equal(item.config.views, false, 'config.views is false')
+      t.assert.ok(item.build, 'Build property set')
+      t.assert.equal(item.config.shared, false, 'config.shared is false')
+      t.assert.equal(item.config.views, false, 'config.views is false')
     }
     inventory = defaultConfig()
     errors = []
@@ -146,14 +146,14 @@ test('Populate Lambdas (via plugin)', t => {
   // One setter, one Lambda
   inventory.plugins = { _methods: { set: { events: [ fn ] } } }
   result = populateLambda.events({ arc, inventory, errors })
-  t.equal(result.length, 1, 'Returned a Lambda')
+  t.assert.equal(result.length, 1, 'Returned a Lambda')
   check(result[0])
 
   // ... same, but ensure src slashes are normalized
   returning.src = `proj\\src/fn`
   inventory.plugins = { _methods: { set: { events: [ fn ] } } }
   result = populateLambda.events({ arc, inventory, errors })
-  t.equal(result.length, 1, 'Returned a Lambda')
+  t.assert.equal(result.length, 1, 'Returned a Lambda')
   check(result[0])
   returning.src = src
 
@@ -161,21 +161,21 @@ test('Populate Lambdas (via plugin)', t => {
   returning.src = join(process.cwd(), 'foo', 'bar')
   inventory.plugins = { _methods: { set: { events: [ fn ] } } }
   result = populateLambda.events({ arc, inventory, errors })
-  t.equal(result.length, 1, 'Returned a Lambda')
+  t.assert.equal(result.length, 1, 'Returned a Lambda')
   check(result[0], null, returning.src)
   returning.src = src
 
   // One setter, multiple Lambdas
   inventory.plugins = { _methods: { set: { events: [ fn2x ] } } }
   result = populateLambda.events({ arc, inventory, errors })
-  t.equal(result.length, 2, 'Returned two Lambdas')
+  t.assert.equal(result.length, 2, 'Returned two Lambdas')
   check(result[0])
   check(result[1])
 
   // Multiple setters, multiple Lambdas
   inventory.plugins = { _methods: { set: { events: [ fn, fn ] } } }
   result = populateLambda.events({ arc, inventory, errors })
-  t.equal(result.length, 2, 'Returned two Lambdas')
+  t.assert.equal(result.length, 2, 'Returned two Lambdas')
   check(result[0])
   check(result[1])
 
@@ -185,7 +185,7 @@ test('Populate Lambdas (via plugin)', t => {
   inventory._project.customRuntimes = { rust: { type: 'compiled' } }
   inventory.plugins = { _methods: { set: { events: [ fn ] } } }
   result = populateLambda.events({ arc, inventory, errors })
-  t.equal(result.length, 1, 'Returned a Lambda')
+  t.assert.equal(result.length, 1, 'Returned a Lambda')
   check(result[0], true)
 
   // Setter is transpiled
@@ -193,7 +193,7 @@ test('Populate Lambdas (via plugin)', t => {
   inventory._project.customRuntimes = { typescript: { type: 'transpiled' } }
   inventory.plugins = { _methods: { set: { events: [ fn ] } } }
   result = populateLambda.events({ arc, inventory, errors })
-  t.equal(result.length, 1, 'Returned a Lambda')
+  t.assert.equal(result.length, 1, 'Returned a Lambda')
   check(result[0], true)
 
   // Populate regular Lambda with custom runtime
@@ -205,15 +205,15 @@ test('Populate Lambdas (via plugin)', t => {
   arc = { events: [ name ] }
   errors = []
   result = populateLambda.events({ arc, inventory, errors })
-  t.equal(result.length, 1, 'Returned a Lambda')
-  t.notOk(errors.length, 'No errors returned')
-  t.equal(result[0].name, name, 'Returned proper Lambda')
-  t.equal(result[0].src, join(cwd, 'src', 'events', 'an-event'), 'Returned correct source path')
-  t.notOk(result[0].plugin, 'Lambda not identified by plugin name')
-  t.notOk(result[0].type, 'Lambda not identified as having been created by a plugin')
-  t.equal(result[0].build, join(inventory._project.build, 'events', 'an-event'), 'Build property set')
-  t.equal(result[0].config.shared, false, 'config.shared is false')
-  t.equal(result[0].config.views, false, 'config.views is false')
+  t.assert.equal(result.length, 1, 'Returned a Lambda')
+  t.assert.ok(!errors.length, 'No errors returned')
+  t.assert.equal(result[0].name, name, 'Returned proper Lambda')
+  t.assert.equal(result[0].src, join(cwd, 'src', 'events', 'an-event'), 'Returned correct source path')
+  t.assert.ok(!result[0].plugin, 'Lambda not identified by plugin name')
+  t.assert.ok(!result[0].type, 'Lambda not identified as having been created by a plugin')
+  t.assert.equal(result[0].build, join(inventory._project.build, 'events', 'an-event'), 'Build property set')
+  t.assert.equal(result[0].config.shared, false, 'config.shared is false')
+  t.assert.equal(result[0].config.views, false, 'config.views is false')
   inventory = defaultConfig()
 })
 
@@ -228,11 +228,11 @@ test('Plugin population errors', t => {
   }
   function check () {
     if (errors.length) console.log(errors[0])
-    t.equal(errors.length, 1, 'Returned an error')
-    t.match(errors[0], /Setter plugins/, 'Got a setter plugin error')
-    t.match(errors[0], /plugin: plugin-name/, 'Got a setter plugin error')
-    t.match(errors[0], /method: set\.events/, 'Got a setter plugin error')
-    t.notOk(result, 'No result returned')
+    t.assert.equal(errors.length, 1, 'Returned an error')
+    t.assert.match(errors[0], /Setter plugins/, 'Got a setter plugin error')
+    t.assert.match(errors[0], /plugin: plugin-name/, 'Got a setter plugin error')
+    t.assert.match(errors[0], /method: set\.events/, 'Got a setter plugin error')
+    t.assert.ok(!result, 'No result returned')
     errors = []
   }
 
@@ -266,7 +266,7 @@ test('Plugin population errors', t => {
   fn._plugin = 'plugin-name'
   fn._type = 'plugin'
   inventory.plugins = { _methods: { set: { events: [ fn ] } } }
-  t.throws(() => {
+  t.assert.throws(() => {
     populateLambda.events({ arc, inventory, errors })
   }, /Setter plugin exception/, 'Failing setter threw')
 })
@@ -294,7 +294,7 @@ custom setting
   arc = { events: inventory.events }
   errors = []
   lambdas = populateLambda.events({ arc, inventory, errors })
-  t.deepEqual(lambdas[0].config, inventory._project.defaultFunctionConfig, 'Config was unmodified')
+  t.assert.deepEqual(lambdas[0].config, inventory._project.defaultFunctionConfig, 'Config was unmodified')
   modified = {
     timeout: 10,
     memory: 128,
@@ -302,8 +302,8 @@ custom setting
     handler: 'index.handler',
     custom: 'setting',
   }
-  t.deepEqual(lambdas[1].config, { ...inventory._project.defaultFunctionConfig, ...modified }, 'Config was correctly upserted')
-  t.notOk(errors.length, 'No errors returned')
+  t.assert.deepEqual(lambdas[1].config, { ...inventory._project.defaultFunctionConfig, ...modified }, 'Config was correctly upserted')
+  t.assert.ok(!errors.length, 'No errors returned')
   mockTmp.restore()
 
   // Node.js custom configured handler
@@ -319,7 +319,7 @@ custom setting
   inventory = defaultConfig({ cwd })
   errors = []
   lambdas = populateLambda.events({ arc, inventory, errors })
-  t.deepEqual(lambdas[0].config, inventory._project.defaultFunctionConfig, 'Config was unmodified')
+  t.assert.deepEqual(lambdas[0].config, inventory._project.defaultFunctionConfig, 'Config was unmodified')
   modified = {
     timeout: 10,
     memory: 128,
@@ -327,8 +327,8 @@ custom setting
     handler: 'lambda.handler',
     custom: 'setting',
   }
-  t.deepEqual(lambdas[1].config, { ...inventory._project.defaultFunctionConfig, ...modified }, 'Config was correctly upserted')
-  t.notOk(errors.length, 'No errors returned')
+  t.assert.deepEqual(lambdas[1].config, { ...inventory._project.defaultFunctionConfig, ...modified }, 'Config was correctly upserted')
+  t.assert.ok(!errors.length, 'No errors returned')
   mockTmp.restore()
 
   // Python
@@ -344,7 +344,7 @@ custom setting
   inventory = defaultConfig({ cwd })
   errors = []
   lambdas = populateLambda.events({ arc, inventory, errors })
-  t.deepEqual(lambdas[0].config, inventory._project.defaultFunctionConfig, 'Config was unmodified')
+  t.assert.deepEqual(lambdas[0].config, inventory._project.defaultFunctionConfig, 'Config was unmodified')
   modified = {
     timeout: 10,
     memory: 128,
@@ -352,8 +352,8 @@ custom setting
     handler: 'lambda.handler',
     custom: 'setting',
   }
-  t.deepEqual(lambdas[1].config, { ...inventory._project.defaultFunctionConfig, ...modified }, 'Config was correctly upserted')
-  t.notOk(errors.length, 'No errors returned')
+  t.assert.deepEqual(lambdas[1].config, { ...inventory._project.defaultFunctionConfig, ...modified }, 'Config was correctly upserted')
+  t.assert.ok(!errors.length, 'No errors returned')
   mockTmp.restore()
 
   // Ruby
@@ -369,7 +369,7 @@ custom setting
   inventory = defaultConfig({ cwd })
   errors = []
   lambdas = populateLambda.events({ arc, inventory, errors })
-  t.deepEqual(lambdas[0].config, inventory._project.defaultFunctionConfig, 'Config was unmodified')
+  t.assert.deepEqual(lambdas[0].config, inventory._project.defaultFunctionConfig, 'Config was unmodified')
   modified = {
     timeout: 10,
     memory: 128,
@@ -377,8 +377,8 @@ custom setting
     handler: 'lambda.handler',
     custom: 'setting',
   }
-  t.deepEqual(lambdas[1].config, { ...inventory._project.defaultFunctionConfig, ...modified }, 'Config was correctly upserted')
-  t.notOk(errors.length, 'No errors returned')
+  t.assert.deepEqual(lambdas[1].config, { ...inventory._project.defaultFunctionConfig, ...modified }, 'Config was correctly upserted')
+  t.assert.ok(!errors.length, 'No errors returned')
   mockTmp.restore()
 
   // Now return a Lambda config error
@@ -386,6 +386,6 @@ custom setting
   cwd = mockTmp({ [configPath]: config })
   inventory = defaultConfig({ cwd })
   lambdas = populateLambda.events({ arc, inventory, errors })
-  t.equal(errors.length, 1, `Invalid Lambda config returned error: ${errors[0]}`)
+  t.assert.equal(errors.length, 1, `Invalid Lambda config returned error: ${errors[0]}`)
   mockTmp.restore()
 })
