@@ -1,1 +1,3 @@
-// empty
+module.exports = {
+  sandbox: {}
+}
