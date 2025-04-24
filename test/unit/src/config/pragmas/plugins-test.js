@@ -142,7 +142,7 @@ test('Check plugin file paths', async t => {
 })
 
 test('@plugins validation', async t => {
-  t.plan(45)
+  t.plan(47)
   let mockRoot = join(cwd, 'test', 'mock', 'plugin-validation')
   let arc, err, errors, result
   let plugin1 = 'a-plugin-1'
@@ -242,6 +242,14 @@ test('@plugins validation', async t => {
   errors = []
   result = await populatePlugins({ arc, inventory, errors })
   err = /Unable to load plugin 'no-load'/
+  t.equal(errors.length, 1, 'Invalid plugin errored')
+  t.match(errors[0], err, `Got correct error: ${errors[0]}`)
+
+  // Plugin loads but is empty/incomplete
+  arc = { plugins: [ 'incomplete' ] }
+  errors = []
+  result = await populatePlugins({ arc, inventory, errors })
+  err = /No recognized methods for plugin: incomplete/
   t.equal(errors.length, 1, 'Invalid plugin errored')
   t.match(errors[0], err, `Got correct error: ${errors[0]}`)
 })
