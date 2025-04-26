@@ -79,6 +79,10 @@ module.exports = async function getPluginModules ({ arc, inventory, errors }) {
         if (type === 'macro') {
           plugins[name] = { deploy: { start: require(pluginPath) } }
         }
+        // Check the plugin has at least one recognised method configured
+        if (![ 'set', ...pluginMethods ].some((method) => plugins[name][method])) {
+          errors.push(`No recognized methods for plugin: ${name}`)
+        }
         // Walk each plugin and build the method tree
         Object.entries(plugins[name]).forEach(([ method, item ]) => {
           // Primitive setters
