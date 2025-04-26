@@ -2,6 +2,14 @@
 
 ---
 
+## [4.0.9] 2025-04-26
+
+### Fixed
+
+- Error out if imported plugin has no discernable plugin API implementation; added in [#83](https://github.com/architect/inventory/pull/83) by @andybee, thanks! 
+
+---
+
 ## [4.0.8] 2025-04-05
 
 ### Fixed
