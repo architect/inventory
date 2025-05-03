@@ -28,7 +28,7 @@
     "@architect/asap": "~7.0.10",
     "@architect/parser": "~7.0.1",
     "@architect/utils": "~4.0.6",
-    "@aws-lite/client": "^0.23.1",
+    "@aws-lite/client": "^0.23.2",
     "@aws-lite/ssm": "^0.2.5",
     "lambda-runtimes": "~2.0.5"
   },
