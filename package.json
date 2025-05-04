@@ -26,7 +26,7 @@
   "license": "Apache-2.0",
   "dependencies": {
     "@architect/asap": "~7.0.10",
-    "@architect/parser": "~7.0.1",
+    "@architect/parser": "8.0.0-RC.0",
     "@architect/utils": "~4.0.6",
     "@aws-lite/client": "^0.23.2",
     "@aws-lite/ssm": "^0.2.5",
