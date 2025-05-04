@@ -1,13 +1,10 @@
 let { join } = require('path')
 let parse = require('@architect/parser')
-let test = require('tape')
+let { test } = require('node:test')
 let cwd = process.cwd()
-let inventoryDefaultsPath = join(cwd, 'src', 'defaults')
-let inventoryDefaults = require(inventoryDefaultsPath)
-let testLibPath = join(cwd, 'test', 'lib')
-let testLib = require(testLibPath)
-let sut = join(cwd, 'src', 'config', 'pragmas', 'scheduled')
-let populateScheduled = require(sut)
+let inventoryDefaults = require('../../../../../src/defaults')
+let testLib = require('../../../../lib')
+let populateScheduled = require('../../../../../src/config/pragmas/scheduled')
 
 let inventory = inventoryDefaults()
 let scheduledDir = join(cwd, 'src', 'scheduled')
@@ -33,12 +30,12 @@ let setterPluginSetup = testLib.setterPluginSetup.bind({}, 'scheduled')
 
 test('Set up env', t => {
   t.plan(1)
-  t.ok(populateScheduled, '@scheduled Lambda populator is present')
+  t.assert.ok(populateScheduled, '@scheduled Lambda populator is present')
 })
 
 test('No @scheduled returns null', t => {
   t.plan(1)
-  t.equal(populateScheduled({ arc: {}, inventory }), null, 'Returned null')
+  t.assert.equal(populateScheduled({ arc: {}, inventory }), null, 'Returned null')
 })
 
 test('@scheduled population: simple format', t => {
@@ -49,22 +46,22 @@ test('@scheduled population: simple format', t => {
 ${values.join('\n')}
 `)
   let scheduled = populateScheduled({ arc, inventory })
-  t.equal(scheduled.length, values.length, 'Got correct number of scheduled events back')
+  t.assert.equal(scheduled.length, values.length, 'Got correct number of scheduled events back')
   names.forEach(name => {
-    t.ok(scheduled.some(sched => sched.name === name), `Got scheduled event: ${name}`)
+    t.assert.ok(scheduled.some(sched => sched.name === name), `Got scheduled event: ${name}`)
   })
   scheduled.forEach(sched => {
-    t.equal(sched.src, join(scheduledDir, sched.name), `Scheduled event configured with correct source dir: ${sched.src}`)
-    t.ok(sched.handlerFile.startsWith(sched.src), `Handler file is in the correct source dir`)
+    t.assert.equal(sched.src, join(scheduledDir, sched.name), `Scheduled event configured with correct source dir: ${sched.src}`)
+    t.assert.ok(sched.handlerFile.startsWith(sched.src), `Handler file is in the correct source dir`)
     if (sched.rate) {
-      t.equal(str(rate), str(sched.rate), `Got back correct rate object: ${str(rate)}`)
-      t.equal(sched.cron, null, `Got back null cron param`)
+      t.assert.equal(str(rate), str(sched.rate), `Got back correct rate object: ${str(rate)}`)
+      t.assert.equal(sched.cron, null, `Got back null cron param`)
     }
     else if (sched.cron) {
-      t.equal(str(cron), str(sched.cron), `Got back correct cron object: ${str(cron)}`)
-      t.equal(sched.rate, null, `Got back null rate param`)
+      t.assert.equal(str(cron), str(sched.cron), `Got back correct cron object: ${str(cron)}`)
+      t.assert.equal(sched.rate, null, `Got back null rate param`)
     }
-    else t.fail('Could not find rate or cron expression')
+    else t.assert.fail('Could not find rate or cron expression')
   })
 })
 
@@ -78,22 +75,22 @@ test('@scheduled population: simple format (JSON)', t => {
     },
   }))
   let scheduled = populateScheduled({ arc, inventory })
-  t.equal(scheduled.length, values.length, 'Got correct number of scheduled events back')
+  t.assert.equal(scheduled.length, values.length, 'Got correct number of scheduled events back')
   names.forEach(name => {
-    t.ok(scheduled.some(sched => sched.name === name), `Got scheduled event: ${name}`)
+    t.assert.ok(scheduled.some(sched => sched.name === name), `Got scheduled event: ${name}`)
   })
   scheduled.forEach(sched => {
-    t.equal(sched.src, join(scheduledDir, sched.name), `Scheduled event configured with correct source dir: ${sched.src}`)
-    t.ok(sched.handlerFile.startsWith(sched.src), `Handler file is in the correct source dir`)
+    t.assert.equal(sched.src, join(scheduledDir, sched.name), `Scheduled event configured with correct source dir: ${sched.src}`)
+    t.assert.ok(sched.handlerFile.startsWith(sched.src), `Handler file is in the correct source dir`)
     if (sched.rate) {
-      t.equal(str(rate), str(sched.rate), `Got back correct rate object: ${str(rate)}`)
-      t.equal(sched.cron, null, `Got back null cron param`)
+      t.assert.equal(str(rate), str(sched.rate), `Got back correct rate object: ${str(rate)}`)
+      t.assert.equal(sched.cron, null, `Got back null cron param`)
     }
     else if (sched.cron) {
-      t.equal(str(cron), str(sched.cron), `Got back correct cron object: ${str(cron)}`)
-      t.equal(sched.rate, null, `Got back null rate param`)
+      t.assert.equal(str(cron), str(sched.cron), `Got back correct cron object: ${str(cron)}`)
+      t.assert.equal(sched.rate, null, `Got back null rate param`)
     }
-    else t.fail('Could not find rate or cron expression')
+    else t.assert.fail('Could not find rate or cron expression')
   })
 })
 
@@ -113,22 +110,22 @@ test('@scheduled population: complex format', t => {
 ${complexValues.join('\n')}
 `)
   let scheduled = populateScheduled({ arc, inventory })
-  t.equal(scheduled.length, complexValues.length, 'Got correct number of scheduled events back')
+  t.assert.equal(scheduled.length, complexValues.length, 'Got correct number of scheduled events back')
   names.forEach(name => {
-    t.ok(scheduled.some(sched => sched.name === name), `Got scheduled event: ${name}`)
+    t.assert.ok(scheduled.some(sched => sched.name === name), `Got scheduled event: ${name}`)
   })
   scheduled.forEach(sched => {
-    t.equal(sched.src, join(cwd, `${sched.name}/path`), `Scheduled event configured with correct source dir: ${sched.name}/path`)
-    t.ok(sched.handlerFile.startsWith(join(cwd, `${sched.name}/path`)), `Handler file is in the correct source dir`)
+    t.assert.equal(sched.src, join(cwd, `${sched.name}/path`), `Scheduled event configured with correct source dir: ${sched.name}/path`)
+    t.assert.ok(sched.handlerFile.startsWith(join(cwd, `${sched.name}/path`)), `Handler file is in the correct source dir`)
     if (sched.rate) {
-      t.equal(str(rate), str(sched.rate), `Got back correct rate object: ${str(rate)}`)
-      t.equal(sched.cron, null, `Got back null cron param`)
+      t.assert.equal(str(rate), str(sched.rate), `Got back correct rate object: ${str(rate)}`)
+      t.assert.equal(sched.cron, null, `Got back null cron param`)
     }
     else if (sched.cron) {
-      t.equal(str(cron), str(sched.cron), `Got back correct cron object: ${str(cron)}`)
-      t.equal(sched.rate, null, `Got back null rate param`)
+      t.assert.equal(str(cron), str(sched.cron), `Got back correct cron object: ${str(cron)}`)
+      t.assert.equal(sched.rate, null, `Got back null rate param`)
     }
-    else t.fail('Could not find rate or cron expression')
+    else t.assert.fail('Could not find rate or cron expression')
   })
 })
 
@@ -149,22 +146,22 @@ test('@scheduled population: complex format (JSON)', t => {
   }
   let arc = parse.json(str(json))
   let scheduled = populateScheduled({ arc, inventory })
-  t.equal(scheduled.length, Object.keys(json.scheduled).length, 'Got correct number of scheduled events back')
+  t.assert.equal(scheduled.length, Object.keys(json.scheduled).length, 'Got correct number of scheduled events back')
   names.forEach(name => {
-    t.ok(scheduled.some(sched => sched.name === name), `Got scheduled event: ${name}`)
+    t.assert.ok(scheduled.some(sched => sched.name === name), `Got scheduled event: ${name}`)
   })
   scheduled.forEach(sched => {
-    t.equal(sched.src, join(cwd, `${sched.name}/path`), `Scheduled event configured with correct source dir: ${sched.name}/path`)
-    t.ok(sched.handlerFile.startsWith(join(cwd, `${sched.name}/path`)), `Handler file is in the correct source dir`)
+    t.assert.equal(sched.src, join(cwd, `${sched.name}/path`), `Scheduled event configured with correct source dir: ${sched.name}/path`)
+    t.assert.ok(sched.handlerFile.startsWith(join(cwd, `${sched.name}/path`)), `Handler file is in the correct source dir`)
     if (sched.rate) {
-      t.equal(str(rate), str(sched.rate), `Got back correct rate object: ${str(rate)}`)
-      t.equal(sched.cron, null, `Got back null cron param`)
+      t.assert.equal(str(rate), str(sched.rate), `Got back correct rate object: ${str(rate)}`)
+      t.assert.equal(sched.cron, null, `Got back null cron param`)
     }
     else if (sched.cron) {
-      t.equal(str(cron), str(sched.cron), `Got back correct cron object: ${str(cron)}`)
-      t.equal(sched.rate, null, `Got back null rate param`)
+      t.assert.equal(str(cron), str(sched.cron), `Got back correct cron object: ${str(cron)}`)
+      t.assert.equal(sched.rate, null, `Got back null rate param`)
     }
-    else t.fail('Could not find rate or cron expression')
+    else t.assert.fail('Could not find rate or cron expression')
   })
 })
 
@@ -184,22 +181,22 @@ test('@scheduled population: complex format + fallback to default paths', t => {
 ${complexValues.join('\n')}
 `)
   let scheduled = populateScheduled({ arc, inventory })
-  t.equal(scheduled.length, complexValues.length, 'Got correct number of scheduled events back')
+  t.assert.equal(scheduled.length, complexValues.length, 'Got correct number of scheduled events back')
   names.forEach(name => {
-    t.ok(scheduled.some(sched => sched.name === name), `Got scheduled event: ${name}`)
+    t.assert.ok(scheduled.some(sched => sched.name === name), `Got scheduled event: ${name}`)
   })
   scheduled.forEach(sched => {
-    t.equal(sched.src, join(scheduledDir, sched.name), `Complex scheduled event entry fell back to correct default source dir: ${sched.src}`)
-    t.ok(sched.handlerFile.startsWith(sched.src), `Handler file is in the correct source dir`)
+    t.assert.equal(sched.src, join(scheduledDir, sched.name), `Complex scheduled event entry fell back to correct default source dir: ${sched.src}`)
+    t.assert.ok(sched.handlerFile.startsWith(sched.src), `Handler file is in the correct source dir`)
     if (sched.rate) {
-      t.equal(str(rate), str(sched.rate), `Got back correct rate object: ${str(rate)}`)
-      t.equal(sched.cron, null, `Got back null cron param`)
+      t.assert.equal(str(rate), str(sched.rate), `Got back correct rate object: ${str(rate)}`)
+      t.assert.equal(sched.cron, null, `Got back null cron param`)
     }
     else if (sched.cron) {
-      t.equal(str(cron), str(sched.cron), `Got back correct cron object: ${str(cron)}`)
-      t.equal(sched.rate, null, `Got back null rate param`)
+      t.assert.equal(str(cron), str(sched.cron), `Got back correct cron object: ${str(cron)}`)
+      t.assert.equal(sched.rate, null, `Got back null rate param`)
     }
-    else t.fail('Could not find rate or cron expression')
+    else t.assert.fail('Could not find rate or cron expression')
   })
 })
 
@@ -214,22 +211,22 @@ test('@scheduled population: plugin setter', t => {
   inventory.plugins = setterPluginSetup(setter)
 
   let scheduled = populateScheduled({ arc: {}, inventory })
-  t.equal(scheduled.length, values.length, 'Got correct number of scheduled events back')
+  t.assert.equal(scheduled.length, values.length, 'Got correct number of scheduled events back')
   names.forEach(name => {
-    t.ok(scheduled.some(sched => sched.name === name), `Got scheduled event: ${name}`)
+    t.assert.ok(scheduled.some(sched => sched.name === name), `Got scheduled event: ${name}`)
   })
   scheduled.forEach(sched => {
-    t.equal(sched.src, join(scheduledDir, sched.name), `Scheduled event configured with correct source dir: ${sched.src}`)
-    t.ok(sched.handlerFile.startsWith(sched.src), `Handler file is in the correct source dir`)
+    t.assert.equal(sched.src, join(scheduledDir, sched.name), `Scheduled event configured with correct source dir: ${sched.src}`)
+    t.assert.ok(sched.handlerFile.startsWith(sched.src), `Handler file is in the correct source dir`)
     if (sched.rate) {
-      t.equal(str(rate), str(sched.rate), `Got back correct rate object: ${str(rate)}`)
-      t.equal(sched.cron, null, `Got back null cron param`)
+      t.assert.equal(str(rate), str(sched.rate), `Got back correct rate object: ${str(rate)}`)
+      t.assert.equal(sched.cron, null, `Got back null cron param`)
     }
     else if (sched.cron) {
-      t.equal(str(cron), str(sched.cron), `Got back correct cron object: ${str(cron)}`)
-      t.equal(sched.rate, null, `Got back null rate param`)
+      t.assert.equal(str(cron), str(sched.cron), `Got back correct cron object: ${str(cron)}`)
+      t.assert.equal(sched.rate, null, `Got back null rate param`)
     }
-    else t.fail('Could not find rate or cron expression')
+    else t.assert.fail('Could not find rate or cron expression')
   })
 })
 
@@ -241,7 +238,7 @@ test('@scheduled population: validation errors', t => {
     populateScheduled({ arc, inventory, errors })
   }
   function check (str = 'Invalid schedule errored', qty = 1) {
-    t.equal(errors.length, qty, str)
+    t.assert.equal(errors.length, qty, str)
     console.log(errors.join('\n'))
     // Run a bunch of control tests at the top by resetting errors after asserting
     errors = []
@@ -270,7 +267,7 @@ test('@scheduled population: validation errors', t => {
   run(`hi cron(/ / / / * /)`)
   run(`hi cron(* * L * L *)`)
   run(`hi cron(* * W * "#" *)`)
-  t.equal(errors.length, 0, `Valid scheduled did not error`)
+  t.assert.equal(errors.length, 0, `Valid scheduled did not error`)
 
   // Errors
   run(`hello ${rate}\nhello ${rate}`)
@@ -364,7 +361,7 @@ test('@scheduled population: plugin errors', t => {
     populateScheduled({ arc: {}, inventory, errors })
   }
   function check (str = 'Invalid setter return', qty = 1) {
-    t.equal(errors.length, qty, str)
+    t.assert.equal(errors.length, qty, str)
     console.log(errors.join('\n'))
     // Run a bunch of control tests at the top by resetting errors after asserting
     errors = []
@@ -372,7 +369,7 @@ test('@scheduled population: plugin errors', t => {
 
   // Control
   run({ name: 'hi', rate: '1 day', src: 'hi' })
-  t.equal(errors.length, 0, `Valid routes did not error`)
+  t.assert.equal(errors.length, 0, `Valid routes did not error`)
 
   // Errors
   run()

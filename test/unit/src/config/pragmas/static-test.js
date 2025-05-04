@@ -1,13 +1,9 @@
-let { join } = require('path')
 let parse = require('@architect/parser')
-let test = require('tape')
+let { test } = require('node:test')
 let cwd = process.cwd()
-let inventoryDefaultsPath = join(cwd, 'src', 'defaults')
-let inventoryDefaults = require(inventoryDefaultsPath)
-let testLibPath = join(cwd, 'test', 'lib')
-let testLib = require(testLibPath)
-let sut = join(cwd, 'src', 'config', 'pragmas', 'static')
-let populateStatic = require(sut)
+let inventoryDefaults = require('../../../../../src/defaults')
+let testLib = require('../../../../lib')
+let populateStatic = require('../../../../../src/config/pragmas/static')
 
 let inventory
 function reset () {
@@ -19,12 +15,12 @@ let setterPluginSetup = testLib.setterPluginSetup.bind({}, 'static')
 
 test('Set up env', t => {
   t.plan(1)
-  t.ok(populateStatic, '@static populator is present')
+  t.assert.ok(populateStatic, '@static populator is present')
 })
 
 test('No @static returns null', t => {
   t.plan(1)
-  t.equal(populateStatic({ arc: {}, inventory: {} }), null, 'Returned null')
+  t.assert.equal(populateStatic({ arc: {}, inventory: {} }), null, 'Returned null')
 })
 
 test('@static can be disabled', t => {
@@ -35,7 +31,7 @@ test('@static can be disabled', t => {
 
   arc = parse(`@static\nfalse`)
   _static = populateStatic({ arc, inventory })
-  t.equal(_static, false, 'Static is disabled')
+  t.assert.equal(_static, false, 'Static is disabled')
 })
 
 test('@static population via @http', t => {
@@ -43,9 +39,9 @@ test('@static population via @http', t => {
   reset()
   let arc = parse(`@http`)
   let _static = populateStatic({ arc, inventory })
-  t.equal(Object.keys(_static).length, 9, 'Returned correct number of settings')
-  t.notOk(inventory._project.rootHandler, '_project.rootHandler not set')
-  t.notOk(inventory._project.asapSrc, '_project.asapSrc not set')
+  t.assert.equal(Object.keys(_static).length, 9, 'Returned correct number of settings')
+  t.assert.ok(!inventory._project.rootHandler, '_project.rootHandler not set')
+  t.assert.ok(!inventory._project.asapSrc, '_project.asapSrc not set')
 })
 
 test('@static returns all known defaults or null values', t => {
@@ -67,10 +63,10 @@ test('@static returns all known defaults or null values', t => {
 idk whatev
 `)
   let _static = populateStatic({ arc, inventory })
-  t.equal(Object.keys(_static).length, 9, 'Returned correct number of settings')
-  t.equal(str(_static), str(mock), 'Returned all known keys')
-  t.equal(inventory._project.rootHandler, 'arcStaticAssetProxy', '_project.rootHandler set')
-  t.ok(inventory._project.asapSrc, '_project.asapSrc set')
+  t.assert.equal(Object.keys(_static).length, 9, 'Returned correct number of settings')
+  t.assert.equal(str(_static), str(mock), 'Returned all known keys')
+  t.assert.equal(inventory._project.rootHandler, 'arcStaticAssetProxy', '_project.rootHandler set')
+  t.assert.ok(inventory._project.asapSrc, '_project.asapSrc set')
 })
 
 test('Individual @static setting: fingerprint', t => {
@@ -87,7 +83,7 @@ test('Individual @static setting: fingerprint', t => {
 ${setting} ${value}
 `)
   _static = populateStatic({ arc, inventory })
-  t.equal(_static[setting], value, `Returned correct ${setting} setting: ${value}`)
+  t.assert.equal(_static[setting], value, `Returned correct ${setting} setting: ${value}`)
 
   value = false
   arc = parse(`
@@ -95,7 +91,7 @@ ${setting} ${value}
 ${setting} ${value}
 `)
   _static = populateStatic({ arc, inventory })
-  t.equal(_static[setting], value, `Returned correct ${setting} setting: ${value}`)
+  t.assert.equal(_static[setting], value, `Returned correct ${setting} setting: ${value}`)
 })
 
 test('Individual @static setting: folder', t => {
@@ -108,7 +104,7 @@ test('Individual @static setting: folder', t => {
 ${setting} ${value}
 `)
   let _static = populateStatic({ arc, inventory })
-  t.equal(_static[setting], value, `Returned correct ${setting} setting: ${value}`)
+  t.assert.equal(_static[setting], value, `Returned correct ${setting} setting: ${value}`)
 })
 
 test('Individual @static setting: ignore', t => {
@@ -129,7 +125,7 @@ ${setting}
   ${values.join('\n  ')}
 `)
   _static = populateStatic({ arc, inventory })
-  t.equal(str(_static[setting]), str(values), `Returned correct ${setting} setting: ${str(values)}`)
+  t.assert.equal(str(_static[setting]), str(values), `Returned correct ${setting} setting: ${str(values)}`)
 
   /**
    * Single ignore value
@@ -141,14 +137,14 @@ ${setting}
   ${values[0]}
 `)
   _static = populateStatic({ arc, inventory })
-  t.equal(str(_static[setting]), str(values), `Returned correct ${setting} setting: ${str(values)}`)
+  t.assert.equal(str(_static[setting]), str(values), `Returned correct ${setting} setting: ${str(values)}`)
 
   arc = parse(`
 @static
 ${setting} ${values[0]}
   `)
   _static = populateStatic({ arc, inventory })
-  t.equal(str(_static[setting]), str(values), `Returned correct ${setting} setting: ${str(values)}`)
+  t.assert.equal(str(_static[setting]), str(values), `Returned correct ${setting} setting: ${str(values)}`)
 })
 
 test('Individual @static setting: ignore merged by plugin + userland arc', t => {
@@ -173,7 +169,7 @@ ${setting}
 `)
   _static = populateStatic({ arc, inventory })
   valid = values.slice(1)
-  t.equal(str(_static[setting]), str(valid), `Returned correct ${setting} setting: ${str(valid)}`)
+  t.assert.equal(str(_static[setting]), str(valid), `Returned correct ${setting} setting: ${str(valid)}`)
 
   /**
    * Plugin, no arc
@@ -183,7 +179,7 @@ ${setting}
   inventory.plugins = setterPluginSetup(setter)
   _static = populateStatic({ arc, inventory })
   valid = values.slice(0, 1)
-  t.equal(str(_static[setting]), str(valid), `Returned correct ${setting} setting: ${str(valid)}`)
+  t.assert.equal(str(_static[setting]), str(valid), `Returned correct ${setting} setting: ${str(valid)}`)
 
   /**
    * Arc + plugin merged
@@ -194,7 +190,7 @@ ${setting}
   ${values[1]}
 `)
   _static = populateStatic({ arc, inventory })
-  t.equal(str(_static[setting]), str(values), `Returned correct ${setting} setting: ${str(values)}`)
+  t.assert.equal(str(_static[setting]), str(values), `Returned correct ${setting} setting: ${str(values)}`)
 })
 
 test('Individual @static setting: prefix', t => {
@@ -207,7 +203,7 @@ test('Individual @static setting: prefix', t => {
 ${setting} ${value}
 `)
   let _static = populateStatic({ arc, inventory })
-  t.equal(_static[setting], value, `Returned correct ${setting} setting: ${value}`)
+  t.assert.equal(_static[setting], value, `Returned correct ${setting} setting: ${value}`)
 })
 
 test('Individual @static setting: prune', t => {
@@ -224,7 +220,7 @@ test('Individual @static setting: prune', t => {
 ${setting} ${value}
 `)
   _static = populateStatic({ arc, inventory })
-  t.equal(_static[setting], value, `Returned correct ${setting} setting: ${value}`)
+  t.assert.equal(_static[setting], value, `Returned correct ${setting} setting: ${value}`)
 
   value = false
   arc = parse(`
@@ -232,7 +228,7 @@ ${setting} ${value}
 ${setting} ${value}
 `)
   _static = populateStatic({ arc, inventory })
-  t.equal(_static[setting], value, `Returned correct ${setting} setting: ${value}`)
+  t.assert.equal(_static[setting], value, `Returned correct ${setting} setting: ${value}`)
 })
 
 test('Individual @static setting: spa', t => {
@@ -249,7 +245,7 @@ test('Individual @static setting: spa', t => {
 ${setting} ${value}
 `)
   _static = populateStatic({ arc, inventory })
-  t.equal(_static[setting], value, `Returned correct ${setting} setting: ${value}`)
+  t.assert.equal(_static[setting], value, `Returned correct ${setting} setting: ${value}`)
 
   value = false
   arc = parse(`
@@ -257,7 +253,7 @@ ${setting} ${value}
 ${setting} ${value}
 `)
   _static = populateStatic({ arc, inventory })
-  t.equal(_static[setting], value, `Returned correct ${setting} setting: ${value}`)
+  t.assert.equal(_static[setting], value, `Returned correct ${setting} setting: ${value}`)
 })
 
 test('Individual @static setting: staging', t => {
@@ -270,7 +266,7 @@ test('Individual @static setting: staging', t => {
 ${setting} ${value}
 `)
   let _static = populateStatic({ arc, inventory })
-  t.equal(_static[setting], value, `Returned correct ${setting} setting: ${value}`)
+  t.assert.equal(_static[setting], value, `Returned correct ${setting} setting: ${value}`)
 })
 
 test('Individual @static setting: production', t => {
@@ -283,7 +279,7 @@ test('Individual @static setting: production', t => {
 ${setting} ${value}
 `)
   let _static = populateStatic({ arc, inventory })
-  t.equal(_static[setting], value, `Returned correct ${setting} setting: ${value}`)
+  t.assert.equal(_static[setting], value, `Returned correct ${setting} setting: ${value}`)
 })
 
 test('@static population: validation errors', t => {
@@ -295,7 +291,7 @@ test('@static population: validation errors', t => {
     populateStatic({ arc, inventory, errors })
   }
   function check (str = 'Invalid setting errored', qty = 1) {
-    t.equal(errors.length, qty, str)
+    t.assert.equal(errors.length, qty, str)
     // Run a bunch of control tests at the top by resetting errors after asserting
     errors = []
   }
@@ -322,7 +318,7 @@ test('@static population: validation errors', t => {
   run(`spa true`)
   run(`staging lol`)
   run(`production idk`)
-  t.equal(errors.length, 0, `Valid settings did not error`)
+  t.assert.equal(errors.length, 0, `Valid settings did not error`)
 
   // Errors
   run(`compression deflate`)
@@ -363,7 +359,7 @@ test('@static population: plugin errors', t => {
     populateStatic({ arc: {}, inventory, errors })
   }
   function check (str = 'Invalid setting errored', qty = 1) {
-    t.equal(errors.length, qty, str)
+    t.assert.equal(errors.length, qty, str)
     // Run a bunch of control tests at the top by resetting errors after asserting
     errors = []
   }
@@ -385,7 +381,7 @@ test('@static population: plugin errors', t => {
   run({ spa: true })
   run({ staging: 'lol' })
   run({ production: 'idk' })
-  t.equal(errors.length, 0, `Valid settings did not error`)
+  t.assert.equal(errors.length, 0, `Valid settings did not error`)
 
   // Errors
   run({ compression: 'deflate' })

@@ -1,11 +1,9 @@
-let { join } = require('path')
+let { join } = require('node:path')
 let parse = require('@architect/parser')
-let test = require('tape')
+let { test } = require('node:test')
 let cwd = process.cwd()
-let inventoryDefaultsPath = join(cwd, 'src', 'defaults')
-let inventoryDefaults = require(inventoryDefaultsPath)
-let sut = join(cwd, 'src', 'config', 'pragmas', 'queues')
-let populateQueues = require(sut)
+let inventoryDefaults = require('../../../../../src/defaults')
+let populateQueues = require('../../../../../src/config/pragmas/queues')
 
 let inventory = inventoryDefaults()
 let queuesDir = join(cwd, 'src', 'queues')
@@ -13,12 +11,12 @@ let values = [ 'foo', 'bar' ]
 
 test('Set up env', t => {
   t.plan(1)
-  t.ok(populateQueues, '@queues Lambda populator is present')
+  t.assert.ok(populateQueues, '@queues Lambda populator is present')
 })
 
 test('No @queues returns null', t => {
   t.plan(1)
-  t.equal(populateQueues({ arc: {}, inventory }), null, 'Returned null')
+  t.assert.equal(populateQueues({ arc: {}, inventory }), null, 'Returned null')
 })
 
 test('@queues: fifo defaults', t => {
@@ -33,7 +31,7 @@ ${values[0]}
   queues = populateQueues({ arc, inventory })
   queues.forEach(queue => {
     let { config } = queue
-    t.equal(config.fifo, true, `Queue fifo is true by default`)
+    t.assert.equal(config.fifo, true, `Queue fifo is true by default`)
   })
 
   // A bit jank, but `@aws config fifo` is populated in a diff code path
@@ -51,7 +49,7 @@ ${values[0]}
   queues = populateQueues({ arc, inventory: inv })
   queues.forEach(queue => {
     let { config } = queue
-    t.equal(config.fifo, false, `Queue fifo is set to false via @aws fifo false`)
+    t.assert.equal(config.fifo, false, `Queue fifo is set to false via @aws fifo false`)
   })
 })
 
@@ -63,14 +61,14 @@ test('@queues population: simple format', t => {
 ${values.join('\n')}
 `)
   let queues = populateQueues({ arc, inventory })
-  t.equal(queues.length, values.length, 'Got correct number of queues back')
+  t.assert.equal(queues.length, values.length, 'Got correct number of queues back')
   values.forEach(val => {
-    t.ok(queues.some(queue => queue.name === val), `Got queue: ${val}`)
+    t.assert.ok(queues.some(queue => queue.name === val), `Got queue: ${val}`)
   })
   queues.forEach(queue => {
     let { handlerFile, name, src } = queue
-    t.equal(src, join(queuesDir, name), `Queue configured with correct source dir: ${src}`)
-    t.ok(handlerFile.startsWith(src), `Handler file is in the correct source dir`)
+    t.assert.equal(src, join(queuesDir, name), `Queue configured with correct source dir: ${src}`)
+    t.assert.ok(handlerFile.startsWith(src), `Handler file is in the correct source dir`)
   })
 })
 
@@ -88,14 +86,14 @@ test('@queues population: complex format', t => {
 ${complexValues.join('\n')}
 `)
   let queues = populateQueues({ arc, inventory })
-  t.equal(queues.length, complexValues.length, 'Got correct number of queues back')
+  t.assert.equal(queues.length, complexValues.length, 'Got correct number of queues back')
   values.forEach(val => {
-    t.ok(queues.some(queue => queue.name === val), `Got queue: ${val}`)
+    t.assert.ok(queues.some(queue => queue.name === val), `Got queue: ${val}`)
   })
   queues.forEach(queue => {
     let { handlerFile, name, src } = queue
-    t.equal(src, join(cwd, `${name}/path`), `Queue configured with correct source dir: ${name}/path`)
-    t.ok(handlerFile.startsWith(join(cwd, `${name}/path`)), `Handler file is in the correct source dir`)
+    t.assert.equal(src, join(cwd, `${name}/path`), `Queue configured with correct source dir: ${name}/path`)
+    t.assert.ok(handlerFile.startsWith(join(cwd, `${name}/path`)), `Handler file is in the correct source dir`)
   })
 })
 
@@ -113,14 +111,14 @@ test('@queues population: complex format + fallback to default paths', t => {
 ${complexValues.join('\n')}
 `)
   let queues = populateQueues({ arc, inventory })
-  t.equal(queues.length, complexValues.length, 'Got correct number of queues back')
+  t.assert.equal(queues.length, complexValues.length, 'Got correct number of queues back')
   values.forEach(val => {
-    t.ok(queues.some(queue => queue.name === val), `Got queue: ${val}`)
+    t.assert.ok(queues.some(queue => queue.name === val), `Got queue: ${val}`)
   })
   queues.forEach(queue => {
     let { handlerFile, name, src } = queue
-    t.equal(src, join(queuesDir, name), `Complex queue entry fell back to correct default source dir: ${src}`)
-    t.ok(handlerFile.startsWith(src), `Handler file is in the correct source dir`)
+    t.assert.equal(src, join(queuesDir, name), `Complex queue entry fell back to correct default source dir: ${src}`)
+    t.assert.ok(handlerFile.startsWith(src), `Handler file is in the correct source dir`)
   })
 })
 
@@ -133,7 +131,7 @@ test('@queues population: validation errors', t => {
     populateQueues({ arc, inventory, errors })
   }
   function check (str = 'Invalid queue errored') {
-    t.equal(errors.length, 1, str)
+    t.assert.equal(errors.length, 1, str)
     console.log(errors[0])
     // Run a bunch of control tests at the top by resetting errors after asserting
     errors = []
@@ -146,7 +144,7 @@ test('@queues population: validation errors', t => {
   run(`hiThere`)
   run(`hi.there`)
   run(`h1_there`)
-  t.equal(errors.length, 0, `Valid queues did not error`)
+  t.assert.equal(errors.length, 0, `Valid queues did not error`)
 
   // Errors
   run(`hi\nhi\nhi`)

@@ -1,14 +1,11 @@
 let { join } = require('path')
 let parse = require('@architect/parser')
-let test = require('tape')
-let cwd = process.cwd()
 let { getLambdaName } = require('@architect/utils')
-let inventoryDefaultsPath = join(cwd, 'src', 'defaults')
-let inventoryDefaults = require(inventoryDefaultsPath)
-let testLibPath = join(cwd, 'test', 'lib')
-let testLib = require(testLibPath)
-let sut = join(cwd, 'src', 'config', 'pragmas', 'http')
-let populateHTTP = require(sut)
+let { test } = require('node:test')
+let inventoryDefaults = require('../../../../../src/defaults')
+let populateHTTP = require('../../../../../src/config/pragmas/http')
+let testLib = require('../../../../lib')
+let cwd = process.cwd()
 
 let inventory = inventoryDefaults()
 let httpDir = join(cwd, 'src', 'http')
@@ -16,12 +13,12 @@ let setterPluginSetup = testLib.setterPluginSetup.bind({}, 'http')
 
 test('Set up env', t => {
   t.plan(1)
-  t.ok(populateHTTP, '@http Lambda populator is present')
+  t.assert.ok(populateHTTP, '@http Lambda populator is present')
 })
 
 test('No @http returns null', t => {
   t.plan(1)
-  t.equal(populateHTTP({ arc: {}, inventory }), null, 'Returned null')
+  t.assert.equal(populateHTTP({ arc: {}, inventory }), null, 'Returned null')
 })
 
 test('@http population via @static: implicit get /* (Arc Static Asset Proxy)', t => {
@@ -32,37 +29,37 @@ test('@http population via @static: implicit get /* (Arc Static Asset Proxy)', t
     let inventory = inventoryDefaults()
     let http = populateHTTP({ arc, inventory })
     let result = http === null ? http : http.length
-    t.equal(result, expected, `Got expected number of routes back: ${expected}`)
+    t.assert.equal(result, expected, `Got expected number of routes back: ${expected}`)
     if (expectedRootHandler === 'arcStaticAssetProxy') {
       let asap = http.find(r => r.arcStaticAssetProxy)
-      t.equal(asap.name, 'get /*', `ASAP is 'get /*`)
-      t.ok(asap.src, `Found Arc Static Asset Proxy dist src`)
-      t.equal(asap.handlerFile, join(asap.src, 'index.js'), `Found Arc Static Asset Proxy dist handler file`)
-      t.equal(asap.handlerMethod, 'handler', `Found Arc Static Asset Proxy dist handler method`)
-      t.equal(asap.arcStaticAssetProxy, true, `Found Arc Static Asset Proxy root handler`)
-      t.ok(asap.config, `Found Arc Static Asset Proxy config`)
-      t.equal(asap.config.shared, false, 'Arc Static Asset Proxy has disabled shared files')
-      t.equal(asap.config.views, false, 'Arc Static Asset Proxy has disabled shared views')
-      t.deepEqual(asap.config.layers, [], 'Arc Static Asset Proxy has no layers')
-      t.equal(asap.pragma, 'http', `Found Arc Static Asset Proxy @http pragma`)
-      t.equal(asap.method, 'get', `Found Arc Static Asset Proxy http method`)
-      t.equal(asap.path, '/*', `Found Arc Static Asset Proxy http path`)
-      t.equal(inventory._project.rootHandler, expectedRootHandler, '_project.rootHandler set to: arcStaticAssetProxy')
-      t.ok(inventory._project.asapSrc, '_project.asapSrc set')
+      t.assert.equal(asap.name, 'get /*', `ASAP is 'get /*`)
+      t.assert.ok(asap.src, `Found Arc Static Asset Proxy dist src`)
+      t.assert.equal(asap.handlerFile, join(asap.src, 'index.js'), `Found Arc Static Asset Proxy dist handler file`)
+      t.assert.equal(asap.handlerMethod, 'handler', `Found Arc Static Asset Proxy dist handler method`)
+      t.assert.equal(asap.arcStaticAssetProxy, true, `Found Arc Static Asset Proxy root handler`)
+      t.assert.ok(asap.config, `Found Arc Static Asset Proxy config`)
+      t.assert.equal(asap.config.shared, false, 'Arc Static Asset Proxy has disabled shared files')
+      t.assert.equal(asap.config.views, false, 'Arc Static Asset Proxy has disabled shared views')
+      t.assert.deepEqual(asap.config.layers, [], 'Arc Static Asset Proxy has no layers')
+      t.assert.equal(asap.pragma, 'http', `Found Arc Static Asset Proxy @http pragma`)
+      t.assert.equal(asap.method, 'get', `Found Arc Static Asset Proxy http method`)
+      t.assert.equal(asap.path, '/*', `Found Arc Static Asset Proxy http path`)
+      t.assert.equal(inventory._project.rootHandler, expectedRootHandler, '_project.rootHandler set to: arcStaticAssetProxy')
+      t.assert.ok(inventory._project.asapSrc, '_project.asapSrc set')
     }
     else if (expectedRootHandler) {
       // Most cases: some HTTP routes
       if (http.length) {
-        t.equal(http[0].arcStaticAssetProxy, undefined, `Found explicitly defined root handler`)
+        t.assert.equal(http[0].arcStaticAssetProxy, undefined, `Found explicitly defined root handler`)
       }
       // Bare @proxy and no routes
       else {
-        t.equal(http.length, expected, `Found correct number of roots: ${expected}`)
+        t.assert.equal(http.length, expected, `Found correct number of roots: ${expected}`)
       }
-      t.equal(inventory._project.rootHandler, expectedRootHandler, `_project.rootHandler set to: ${expectedRootHandler}`)
+      t.assert.equal(inventory._project.rootHandler, expectedRootHandler, `_project.rootHandler set to: ${expectedRootHandler}`)
     }
     else {
-      t.equal(result, null, 'Did not populate @http')
+      t.assert.equal(result, null, 'Did not populate @http')
     }
   }
 
@@ -161,18 +158,18 @@ test('@http population: simple format + implicit get /*', t => {
 ${values.join('\n')}
 `)
   let http = populateHTTP({ arc, inventory })
-  t.equal(http.length, values.length + 1, 'Got correct number of routes back (including default get /*)')
+  t.assert.equal(http.length, values.length + 1, 'Got correct number of routes back (including default get /*)')
   values.forEach(val => {
-    t.ok(http.some(route => route.name === val), `Got route: ${val}`)
+    t.assert.ok(http.some(route => route.name === val), `Got route: ${val}`)
   })
   http.forEach(route => {
     let name = `${route.method}${getLambdaName(route.path)}`
     if (route.name === 'get /*') {
-      t.equal(route.arcStaticAssetProxy, true, 'Implicit get /* (ASAP) found')
+      t.assert.equal(route.arcStaticAssetProxy, true, 'Implicit get /* (ASAP) found')
     }
     else {
-      t.equal(route.src, join(httpDir, name), `Route configured with correct source dir: ${route.src}`)
-      t.ok(route.handlerFile.startsWith(route.src), `Handler file is in the correct source dir`)
+      t.assert.equal(route.src, join(httpDir, name), `Route configured with correct source dir: ${route.src}`)
+      t.assert.ok(route.handlerFile.startsWith(route.src), `Handler file is in the correct source dir`)
     }
   })
 })
@@ -186,17 +183,17 @@ test('@http population: simple format + explicit get /*', t => {
 ${values.join('\n')}
 `)
   let http = populateHTTP({ arc, inventory })
-  t.equal(http.length, values.length, 'Got correct number of routes back')
+  t.assert.equal(http.length, values.length, 'Got correct number of routes back')
   values.forEach(val => {
-    t.ok(http.some(route => route.name === val), `Got route: ${val}`)
+    t.assert.ok(http.some(route => route.name === val), `Got route: ${val}`)
   })
   http.forEach(route => {
     let name = `${route.method}${getLambdaName(route.path)}`
     if (route.name === 'get /*') {
-      t.notOk(route.arcStaticAssetProxy, 'Explicit get /* does not have truthy arcStaticAssetProxy param')
+      t.assert.ok(!route.arcStaticAssetProxy, 'Explicit get /* does not have truthy arcStaticAssetProxy param')
     }
-    t.equal(route.src, join(httpDir, name), `Route configured with correct source dir: ${route.src}`)
-    t.ok(route.handlerFile.startsWith(route.src), `Handler file is in the correct source dir`)
+    t.assert.equal(route.src, join(httpDir, name), `Route configured with correct source dir: ${route.src}`)
+    t.assert.ok(route.handlerFile.startsWith(route.src), `Handler file is in the correct source dir`)
   })
 })
 
@@ -220,17 +217,17 @@ test('@http population: complex format + implicit get /*', t => {
 ${complexValues.join('\n')}
 `)
   let http = populateHTTP({ arc, inventory })
-  t.equal(http.length, values.length + 1, 'Got correct number of routes back')
+  t.assert.equal(http.length, values.length + 1, 'Got correct number of routes back')
   values.forEach(val => {
-    t.ok(http.some(route => route.name === `get /${val}`), `Got route: ${val}`)
+    t.assert.ok(http.some(route => route.name === `get /${val}`), `Got route: ${val}`)
   })
   http.forEach(route => {
     if (route.name === 'get /*') {
-      t.equal(route.arcStaticAssetProxy, true, 'Implicit get /* (ASAP) found')
+      t.assert.equal(route.arcStaticAssetProxy, true, 'Implicit get /* (ASAP) found')
     }
     else {
-      t.equal(route.src, join(cwd, `${route.path}/path`), `Route configured with correct source dir: ${route.src}`)
-      t.ok(route.handlerFile.startsWith(route.src), `Handler file is in the correct source dir`)
+      t.assert.equal(route.src, join(cwd, `${route.path}/path`), `Route configured with correct source dir: ${route.src}`)
+      t.assert.ok(route.handlerFile.startsWith(route.src), `Handler file is in the correct source dir`)
     }
   })
 })
@@ -258,18 +255,18 @@ test('@http population: complex format + explicit get /*', t => {
 ${complexValues.join('\n')}
 `)
   let http = populateHTTP({ arc, inventory })
-  t.equal(http.length, values.length, 'Got correct number of routes back')
+  t.assert.equal(http.length, values.length, 'Got correct number of routes back')
   values.forEach(val => {
-    t.ok(http.some(route => route.name === `get /${val.replace('/', '')}`), `Got route: ${val}`)
+    t.assert.ok(http.some(route => route.name === `get /${val.replace('/', '')}`), `Got route: ${val}`)
   })
   http.forEach(route => {
     if (route.name === 'get /*') {
-      t.notOk(route.arcStaticAssetProxy, 'Explicit get /* does not have truthy arcStaticAssetProxy param')
-      t.equal(route.src, join(cwd, `index/path`), `Route configured with correct source dir: ${route.src}`)
+      t.assert.ok(!route.arcStaticAssetProxy, 'Explicit get /* does not have truthy arcStaticAssetProxy param')
+      t.assert.equal(route.src, join(cwd, `index/path`), `Route configured with correct source dir: ${route.src}`)
     }
     else {
-      t.equal(route.src, join(cwd, `${route.path}/path`), `Route configured with correct source dir: ${route.src}`)
-      t.ok(route.handlerFile.startsWith(route.src), `Handler file is in the correct source dir`)
+      t.assert.equal(route.src, join(cwd, `${route.path}/path`), `Route configured with correct source dir: ${route.src}`)
+      t.assert.ok(route.handlerFile.startsWith(route.src), `Handler file is in the correct source dir`)
     }
   })
 })
@@ -291,18 +288,18 @@ test('@http population: complex format + implicit get /* + fallback to default p
 ${complexValues.join('\n')}
 `)
   let http = populateHTTP({ arc, inventory })
-  t.equal(http.length, values.length + 1, 'Got correct number of routes back')
+  t.assert.equal(http.length, values.length + 1, 'Got correct number of routes back')
   values.forEach(val => {
-    t.ok(http.some(route => route.name === `get /${val}`), `Got route: ${val}`)
+    t.assert.ok(http.some(route => route.name === `get /${val}`), `Got route: ${val}`)
   })
   http.forEach(route => {
     let name = `${route.method}${getLambdaName(route.path)}`
     if (route.name === 'get /*') {
-      t.equal(route.arcStaticAssetProxy, true, 'Implicit get /* (ASAP) found')
+      t.assert.equal(route.arcStaticAssetProxy, true, 'Implicit get /* (ASAP) found')
     }
     else {
-      t.equal(route.src, join(httpDir, name), `Complex HTTP entry fell back to correct default source dir: ${route.src}`)
-      t.ok(route.handlerFile.startsWith(route.src), `Handler file is in the correct source dir`)
+      t.assert.equal(route.src, join(httpDir, name), `Complex HTTP entry fell back to correct default source dir: ${route.src}`)
+      t.assert.ok(route.handlerFile.startsWith(route.src), `Handler file is in the correct source dir`)
     }
   })
 })
@@ -322,18 +319,18 @@ test('@http population: plugin setter', t => {
   inventory.plugins = setterPluginSetup(setter)
   let http = populateHTTP({ arc: {}, inventory })
 
-  t.equal(http.length, values.length + 1, 'Got correct number of routes back (including default get /*)')
+  t.assert.equal(http.length, values.length + 1, 'Got correct number of routes back (including default get /*)')
   values.forEach(val => {
-    t.ok(http.some(route => route.name === val), `Got route: ${val}`)
+    t.assert.ok(http.some(route => route.name === val), `Got route: ${val}`)
   })
   http.forEach(route => {
     let name = `${route.method}${getLambdaName(route.path)}`
     if (route.name === 'get /*') {
-      t.equal(route.arcStaticAssetProxy, true, 'Implicit get /* (ASAP) found')
+      t.assert.equal(route.arcStaticAssetProxy, true, 'Implicit get /* (ASAP) found')
     }
     else {
-      t.equal(route.src, join(httpDir, name), `Route configured with correct source dir: ${route.src}`)
-      t.ok(route.handlerFile.startsWith(route.src), `Handler file is in the correct source dir`)
+      t.assert.equal(route.src, join(httpDir, name), `Route configured with correct source dir: ${route.src}`)
+      t.assert.ok(route.handlerFile.startsWith(route.src), `Handler file is in the correct source dir`)
     }
   })
 })
@@ -371,20 +368,20 @@ test('@http population: plugin setter respects custom config', t => {
   inventory.plugins = setterPluginSetup(setter)
   let http = populateHTTP({ arc: {}, inventory })
 
-  t.equal(http.length, values.length + 1, 'Got correct number of routes back (including default get /*)')
+  t.assert.equal(http.length, values.length + 1, 'Got correct number of routes back (including default get /*)')
   values.forEach(val => {
-    t.ok(http.some(route => route.name === val), `Got route: ${val}`)
+    t.assert.ok(http.some(route => route.name === val), `Got route: ${val}`)
   })
   http.forEach(route => {
     let name = `${route.method}${getLambdaName(route.path)}`
     if (route.name === 'get /*') {
-      t.equal(route.arcStaticAssetProxy, true, 'Implicit get /* (ASAP) found')
+      t.assert.equal(route.arcStaticAssetProxy, true, 'Implicit get /* (ASAP) found')
     }
     else {
-      t.equal(route.src, join(httpDir, name), `Route configured with correct source dir: ${route.src}`)
-      t.ok(route.handlerFile.startsWith(route.src), `Handler file is in the correct source dir`)
+      t.assert.equal(route.src, join(httpDir, name), `Route configured with correct source dir: ${route.src}`)
+      t.assert.ok(route.handlerFile.startsWith(route.src), `Handler file is in the correct source dir`)
       Object.entries(configs[route.name]).forEach(([ option, setting ]) => {
-        t.equal(route.config[option], setting, `Plugin config setting '${option}' is correct: ${setting}`)
+        t.assert.equal(route.config[option], setting, `Plugin config setting '${option}' is correct: ${setting}`)
       })
     }
   })
@@ -485,12 +482,12 @@ test('@http population: route sorting', t => {
     'any /*',
   ]
   let shuffled = [ ...desiredOrder ].sort(() => Math.random() - 0.5)
-  t.notDeepEqual(shuffled, desiredOrder, 'Routes were indeed shuffled')
+  t.assert.notDeepEqual(shuffled, desiredOrder, 'Routes were indeed shuffled')
 
   let arc = parse(`@http\n${shuffled.join('\n')}`)
   let http = populateHTTP({ arc, inventory })
   let resultingOrder = http.map(({ name }) => name)
-  t.deepEqual(resultingOrder, desiredOrder, 'Sorted correctly')
+  t.assert.deepEqual(resultingOrder, desiredOrder, 'Sorted correctly')
 })
 
 test('@http population: validation errors', t => {
@@ -502,7 +499,7 @@ test('@http population: validation errors', t => {
     populateHTTP({ arc, inventory, errors })
   }
   function check (str = 'Invalid path errored', qty = 1) {
-    t.equal(errors.length, qty, str)
+    t.assert.equal(errors.length, qty, str)
     console.log(errors.join('\n'))
     // Run a bunch of control tests at the top by resetting errors after asserting
     errors = []
@@ -519,7 +516,7 @@ test('@http population: validation errors', t => {
   run(`get /hi/:there_friend/*`)
   run(`get /hi/:there-friend/*`)
   run(`get /hi/:there/foo.Bar.baz_f1z-buz/*`)
-  t.equal(errors.length, 0, `Valid routes did not error`)
+  t.assert.equal(errors.length, 0, `Valid routes did not error`)
 
   // Errors
   run(`get /there\nget /there\nget /there`)
@@ -597,7 +594,7 @@ test('@plugin population: plugin errors', t => {
     populateHTTP({ arc: {}, inventory, errors })
   }
   function check (str = 'Invalid setter return', qty = 1) {
-    t.equal(errors.length, qty, str)
+    t.assert.equal(errors.length, qty, str)
     console.log(errors.join('\n'))
     // Run a bunch of control tests at the top by resetting errors after asserting
     errors = []
@@ -605,7 +602,7 @@ test('@plugin population: plugin errors', t => {
 
   // Control
   run({ method: 'get', path: '/hi', src: 'hi' })
-  t.equal(errors.length, 0, `Valid routes did not error`)
+  t.assert.equal(errors.length, 0, `Valid routes did not error`)
 
   // Errors
   run()

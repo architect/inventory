@@ -1,9 +1,7 @@
 let parse = require('@architect/parser')
-let { join } = require('path')
-let test = require('tape')
-let sut = join(process.cwd(), 'src', 'config', '_upsert')
-let upsert = require(sut)
-let defaultFunctionConfig = require(join(process.cwd(), 'src', 'defaults', 'function-config'))
+let { test } = require('node:test')
+let upsert = require('../../../../src/config/_upsert')
+let defaultFunctionConfig = require('../../../../src/defaults/function-config')
 
 let defaults = defaultFunctionConfig()
 let str = s => JSON.stringify(s)
@@ -26,26 +24,31 @@ architecture x86_64
 `
 let mock = parse(rawConfigMock)
 
+// Reset defaults before each test
+test.beforeEach(() => {
+  defaults = defaultFunctionConfig()
+})
+
 test('Set up env', t => {
   t.plan(1)
-  t.ok(upsert, 'Upsert module is present')
+  t.assert.ok(upsert, 'Upsert module is present')
 })
 
 test('Upsert does not mutate params', t => {
   t.plan(3)
   let mockBackup = { ...mock }
   let result = upsert(defaults, mock.aws)
-  t.ok(result, 'Got result from upsert')
-  t.equal(str(defaults), str(defaultFunctionConfig()), 'Did not mutate base config')
-  t.equal(str(mock.aws), str(mockBackup.aws), 'Did not mutate overlaid config')
+  t.assert.ok(result, 'Got result from upsert')
+  t.assert.equal(str(defaults), str(defaultFunctionConfig()), 'Did not mutate base config')
+  t.assert.equal(str(mock.aws), str(mockBackup.aws), 'Did not mutate overlaid config')
 })
 
 test('Upsert returns same number of params', t => {
   t.plan(3)
   let result = upsert(defaults, [])
-  t.ok(result, 'Got result from upsert')
-  t.equal(Object.keys(result).length, 12, 'Got back same number of params as base config')
-  t.equal(str(defaults), str(result), 'Passed back config as-is')
+  t.assert.ok(result, 'Got result from upsert')
+  t.assert.equal(Object.keys(result).length, 12, 'Got back same number of params as base config')
+  t.assert.equal(str(defaults), str(result), 'Passed back config as-is')
 })
 
 test('Upsert ignores invalid setting (strings)', t => {
@@ -54,8 +57,8 @@ test('Upsert ignores invalid setting (strings)', t => {
 idk
 `).aws
   let result = upsert(defaults, stringSetting)
-  t.notOk(defaults.idk, 'Testing property not already present in the default')
-  t.equal(str(defaults), str(result), 'Ignored invalid setting')
+  t.assert.ok(!defaults.idk, 'Testing property not already present in the default')
+  t.assert.equal(str(defaults), str(result), 'Ignored invalid setting')
 })
 
 test('Individual setting upsert: timeout', t => {
@@ -65,8 +68,8 @@ test('Individual setting upsert: timeout', t => {
 timeout ${value}
 `)
   let result = upsert(defaults, timeout)
-  t.notEqual(defaults.timeout, value, 'Testing value is not already the default')
-  t.equal(result.timeout, value, 'Properly upserted timeout')
+  t.assert.notEqual(defaults.timeout, value, 'Testing value is not already the default')
+  t.assert.equal(result.timeout, value, 'Properly upserted timeout')
 })
 
 test('Individual setting upsert: memory', t => {
@@ -76,8 +79,8 @@ test('Individual setting upsert: memory', t => {
 memory ${value}
 `)
   let result = upsert(defaults, memory)
-  t.notEqual(defaults.memory, value, 'Testing value is not already the default')
-  t.equal(result.memory, value, 'Properly upserted memory')
+  t.assert.notEqual(defaults.memory, value, 'Testing value is not already the default')
+  t.assert.equal(result.memory, value, 'Properly upserted memory')
 })
 
 test('Individual setting upsert: runtime', t => {
@@ -87,8 +90,8 @@ test('Individual setting upsert: runtime', t => {
 runtime ${value}
 `)
   let result = upsert(defaults, runtime)
-  t.notEqual(defaults.runtime, value, 'Testing value is not already the default')
-  t.equal(result.runtime, value, 'Properly upserted runtime')
+  t.assert.notEqual(defaults.runtime, value, 'Testing value is not already the default')
+  t.assert.equal(result.runtime, value, 'Properly upserted runtime')
 })
 
 test('Individual setting upsert: handler', t => {
@@ -98,8 +101,8 @@ test('Individual setting upsert: handler', t => {
 handler ${value}
 `)
   let result = upsert(defaults, handler)
-  t.notEqual(defaults.handler, value, 'Testing value is not already the default')
-  t.equal(result.handler, value, 'Properly upserted handler')
+  t.assert.notEqual(defaults.handler, value, 'Testing value is not already the default')
+  t.assert.equal(result.handler, value, 'Properly upserted handler')
 })
 
 test('Individual setting upsert: state', t => {
@@ -109,8 +112,8 @@ test('Individual setting upsert: state', t => {
 state ${value}
 `)
   let result = upsert(defaults, state)
-  t.notEqual(defaults.state, value, 'Testing value is not already the default')
-  t.equal(result.state, value, 'Properly upserted state')
+  t.assert.notEqual(defaults.state, value, 'Testing value is not already the default')
+  t.assert.equal(result.state, value, 'Properly upserted state')
 })
 
 test('Individual setting upsert: concurrency', t => {
@@ -120,8 +123,8 @@ test('Individual setting upsert: concurrency', t => {
 concurrency ${value}
 `)
   let result = upsert(defaults, concurrency)
-  t.notEqual(defaults.concurrency, value, 'Testing value is not already the default')
-  t.equal(result.concurrency, value, 'Properly upserted concurrency')
+  t.assert.notEqual(defaults.concurrency, value, 'Testing value is not already the default')
+  t.assert.equal(result.concurrency, value, 'Properly upserted concurrency')
 })
 
 test('Individual setting upsert: layers', t => {
@@ -141,8 +144,8 @@ test('Individual setting upsert: layers', t => {
 layer ${value}
 `).aws
   result = upsert(defaults, layers)
-  t.notEqual(str(defaults.layers), str(value), 'Testing value is not already the default')
-  t.equal(str(result.layers), str(value), 'Properly upserted single layer')
+  t.assert.notEqual(str(defaults.layers), str(value), 'Testing value is not already the default')
+  t.assert.equal(str(result.layers), str(value), 'Properly upserted single layer')
 
   // Multiple inline
   value = [ 'layer-1', 'layer-2' ]
@@ -150,8 +153,8 @@ layer ${value}
 layer ${value.join(' ')}
 `).aws
   result = upsert(defaults, layers)
-  t.notEqual(str(defaults.layers), str(value), 'Testing value is not already the default')
-  t.equal(str(result.layers), str(value), 'Properly upserted layers')
+  t.assert.notEqual(str(defaults.layers), str(value), 'Testing value is not already the default')
+  t.assert.equal(str(result.layers), str(value), 'Properly upserted layers')
 
   // Single in array
   value = [ 'layer-1' ]
@@ -160,8 +163,8 @@ layer
   ${value}
 `).aws
   result = upsert(defaults, layers)
-  t.notEqual(str(defaults.layers), str(value), 'Testing value is not already the default')
-  t.equal(str(result.layers), str(value), 'Properly upserted single layer')
+  t.assert.notEqual(str(defaults.layers), str(value), 'Testing value is not already the default')
+  t.assert.equal(str(result.layers), str(value), 'Properly upserted single layer')
 
   // Multiple in array
   value = [ 'layer-1', 'layer-2' ]
@@ -170,8 +173,8 @@ layer
   ${value.join('\n  ')}
 `).aws
   result = upsert(defaults, layers)
-  t.notEqual(str(defaults.layers), str(value), 'Testing value is not already the default')
-  t.equal(str(result.layers), str(value), 'Properly upserted layers')
+  t.assert.notEqual(str(defaults.layers), str(value), 'Testing value is not already the default')
+  t.assert.equal(str(result.layers), str(value), 'Properly upserted layers')
 
   // Multiple in array de-duped
   layersDefaults = defaultFunctionConfig()
@@ -183,8 +186,8 @@ layer
   ${value.join('\n  ')}
 `).aws
   result = upsert(layersDefaults, layers)
-  t.notEqual(str(layersDefaults.layers), str(value), 'Testing value is not already the default')
-  t.equal(str(result.layers), str(expected), 'Properly upserted layers & de-duped')
+  t.assert.notEqual(str(layersDefaults.layers), str(value), 'Testing value is not already the default')
+  t.assert.equal(str(result.layers), str(expected), 'Properly upserted layers & de-duped')
 
   /**
    * layers
@@ -195,8 +198,8 @@ layer
 layers ${value}
 `).aws
   result = upsert(defaults, layers)
-  t.notEqual(str(defaults.layers), str(value), 'Testing value is not already the default')
-  t.equal(str(result.layers), str(value), 'Properly upserted single layer')
+  t.assert.notEqual(str(defaults.layers), str(value), 'Testing value is not already the default')
+  t.assert.equal(str(result.layers), str(value), 'Properly upserted single layer')
 
   // Multiple inline
   value = [ 'layer-1', 'layer-2' ]
@@ -204,8 +207,8 @@ layers ${value}
 layers ${value.join(' ')}
 `).aws
   result = upsert(defaults, layers)
-  t.notEqual(str(defaults.layers), str(value), 'Testing value is not already the default')
-  t.equal(str(result.layers), str(value), 'Properly upserted layers')
+  t.assert.notEqual(str(defaults.layers), str(value), 'Testing value is not already the default')
+  t.assert.equal(str(result.layers), str(value), 'Properly upserted layers')
 
   // Single in array
   value = [ 'layer-1' ]
@@ -214,8 +217,8 @@ layers
   ${value}
 `).aws
   result = upsert(defaults, layers)
-  t.notEqual(str(defaults.layers), str(value), 'Testing value is not already the default')
-  t.equal(str(result.layers), str(value), 'Properly upserted single layer')
+  t.assert.notEqual(str(defaults.layers), str(value), 'Testing value is not already the default')
+  t.assert.equal(str(result.layers), str(value), 'Properly upserted single layer')
 
   // Multiple in array
   value = [ 'layer-1', 'layer-2' ]
@@ -224,8 +227,8 @@ layers
   ${value.join('\n  ')}
 `).aws
   result = upsert(defaults, layers)
-  t.notEqual(str(defaults.layers), str(value), 'Testing value is not already the default')
-  t.equal(str(result.layers), str(value), 'Properly upserted layers')
+  t.assert.notEqual(str(defaults.layers), str(value), 'Testing value is not already the default')
+  t.assert.equal(str(result.layers), str(value), 'Properly upserted layers')
 
   // Multiple in array de-duped
   layersDefaults = defaultFunctionConfig()
@@ -237,8 +240,8 @@ layers
   ${value.join('\n  ')}
 `).aws
   result = upsert(layersDefaults, layers)
-  t.notEqual(str(layersDefaults.layers), str(value), 'Testing value is not already the default')
-  t.equal(str(result.layers), str(expected), 'Properly upserted layers & de-duped')
+  t.assert.notEqual(str(layersDefaults.layers), str(value), 'Testing value is not already the default')
+  t.assert.equal(str(result.layers), str(expected), 'Properly upserted layers & de-duped')
 
   /**
    * layer multiple times
@@ -250,8 +253,8 @@ layer ${value[1]}
 layer ${value[1]}
 `).aws
   result = upsert(defaults, layers)
-  t.notEqual(str(defaults.layers), str(value), 'Testing value is not already the default')
-  t.equal(str(result.layers), str(value), 'Properly upserted layers & de-duped')
+  t.assert.notEqual(str(defaults.layers), str(value), 'Testing value is not already the default')
+  t.assert.equal(str(result.layers), str(value), 'Properly upserted layers & de-duped')
 
   /**
    * layer + layers if you're a total weirdo
@@ -262,8 +265,8 @@ layer ${value[0]}
 layers ${value[1]}
 `).aws
   result = upsert(defaults, layers)
-  t.notEqual(str(defaults.layers), str(value), 'Testing value is not already the default')
-  t.equal(str(result.layers), str(value), 'Properly upserted single layer')
+  t.assert.notEqual(str(defaults.layers), str(value), 'Testing value is not already the default')
+  t.assert.equal(str(result.layers), str(value), 'Properly upserted single layer')
 
   layers = parse(`@aws
 layer
@@ -272,8 +275,8 @@ layers
   ${value[1]}
 `).aws
   result = upsert(defaults, layers)
-  t.notEqual(str(defaults.layers), str(value), 'Testing value is not already the default')
-  t.equal(str(result.layers), str(value), 'Properly upserted single layer')
+  t.assert.notEqual(str(defaults.layers), str(value), 'Testing value is not already the default')
+  t.assert.equal(str(result.layers), str(value), 'Properly upserted single layer')
 
   /**
    * Don't unnecessarily overwrite existing layers config
@@ -284,8 +287,8 @@ layers
 runtime python
 `).aws
   result = upsert(layersDefaults, layers)
-  t.notEqual(str(layersDefaults.layers), str(layers.layers), 'Testing value is not already the default')
-  t.equal(str(layersDefaults.layers), str(result.layers), 'Did not overwrite project-level config with empty layers array')
+  t.assert.notEqual(str(layersDefaults.layers), str(layers.layers), 'Testing value is not already the default')
+  t.assert.equal(str(layersDefaults.layers), str(result.layers), 'Did not overwrite project-level config with empty layers array')
 })
 
 test('Individual setting upsert: policies', t => {
@@ -305,8 +308,8 @@ test('Individual setting upsert: policies', t => {
 policy ${value}
 `).aws
   result = upsert(defaults, policies)
-  t.notEqual(str(defaults.policies), str(value), 'Testing value is not already the default')
-  t.equal(str(result.policies), str(value), 'Properly upserted single policy')
+  t.assert.notEqual(str(defaults.policies), str(value), 'Testing value is not already the default')
+  t.assert.equal(str(result.policies), str(value), 'Properly upserted single policy')
 
   // Multiple inline
   value = [ 'policy-1', 'policy-2' ]
@@ -314,8 +317,8 @@ policy ${value}
 policy ${value.join(' ')}
 `).aws
   result = upsert(defaults, policies)
-  t.notEqual(str(defaults.policies), str(value), 'Testing value is not already the default')
-  t.equal(str(result.policies), str(value), 'Properly upserted policies')
+  t.assert.notEqual(str(defaults.policies), str(value), 'Testing value is not already the default')
+  t.assert.equal(str(result.policies), str(value), 'Properly upserted policies')
 
   // Single in array
   value = [ 'policy-1' ]
@@ -324,8 +327,8 @@ policy
   ${value}
 `).aws
   result = upsert(defaults, policies)
-  t.notEqual(str(defaults.policies), str(value), 'Testing value is not already the default')
-  t.equal(str(result.policies), str(value), 'Properly upserted single policy')
+  t.assert.notEqual(str(defaults.policies), str(value), 'Testing value is not already the default')
+  t.assert.equal(str(result.policies), str(value), 'Properly upserted single policy')
 
   // Multiple in array
   value = [ 'policy-1', 'policy-2' ]
@@ -334,8 +337,8 @@ policy
   ${value.join('\n  ')}
 `).aws
   result = upsert(defaults, policies)
-  t.notEqual(str(defaults.policies), str(value), 'Testing value is not already the default')
-  t.equal(str(result.policies), str(value), 'Properly upserted policies')
+  t.assert.notEqual(str(defaults.policies), str(value), 'Testing value is not already the default')
+  t.assert.equal(str(result.policies), str(value), 'Properly upserted policies')
 
   // Multiple in array de-duped
   policiesDefaults = defaultFunctionConfig()
@@ -347,8 +350,8 @@ policy
   ${value.join('\n  ')}
 `).aws
   result = upsert(policiesDefaults, policies)
-  t.notEqual(str(policiesDefaults.policies), str(value), 'Testing value is not already the default')
-  t.equal(str(result.policies), str(expected), 'Properly upserted policies & de-duped')
+  t.assert.notEqual(str(policiesDefaults.policies), str(value), 'Testing value is not already the default')
+  t.assert.equal(str(result.policies), str(expected), 'Properly upserted policies & de-duped')
 
   /**
    * policies
@@ -359,8 +362,8 @@ policy
 policies ${value}
 `).aws
   result = upsert(defaults, policies)
-  t.notEqual(str(defaults.policies), str(value), 'Testing value is not already the default')
-  t.equal(str(result.policies), str(value), 'Properly upserted single policy')
+  t.assert.notEqual(str(defaults.policies), str(value), 'Testing value is not already the default')
+  t.assert.equal(str(result.policies), str(value), 'Properly upserted single policy')
 
   // Multiple inline
   value = [ 'policy-1', 'policy-2' ]
@@ -368,8 +371,8 @@ policies ${value}
 policies ${value.join(' ')}
 `).aws
   result = upsert(defaults, policies)
-  t.notEqual(str(defaults.policies), str(value), 'Testing value is not already the default')
-  t.equal(str(result.policies), str(value), 'Properly upserted single policy')
+  t.assert.notEqual(str(defaults.policies), str(value), 'Testing value is not already the default')
+  t.assert.equal(str(result.policies), str(value), 'Properly upserted single policy')
 
   // Single in array
   value = [ 'policy-1' ]
@@ -378,8 +381,8 @@ policies
   ${value}
 `).aws
   result = upsert(defaults, policies)
-  t.notEqual(str(defaults.policies), str(value), 'Testing value is not already the default')
-  t.equal(str(result.policies), str(value), 'Properly upserted single policy')
+  t.assert.notEqual(str(defaults.policies), str(value), 'Testing value is not already the default')
+  t.assert.equal(str(result.policies), str(value), 'Properly upserted single policy')
 
   // Multiple in array
   value = [ 'policy-1', 'policy-2' ]
@@ -388,8 +391,8 @@ policies
     ${value.join('\n  ')}
   `).aws
   result = upsert(defaults, policies)
-  t.notEqual(str(defaults.policies), str(value), 'Testing value is not already the default')
-  t.equal(str(result.policies), str(value), 'Properly upserted single policy')
+  t.assert.notEqual(str(defaults.policies), str(value), 'Testing value is not already the default')
+  t.assert.equal(str(result.policies), str(value), 'Properly upserted single policy')
 
   // Multiple in array de-duped
   policiesDefaults = defaultFunctionConfig()
@@ -401,8 +404,8 @@ policies
   ${value.join('\n  ')}
 `).aws
   result = upsert(policiesDefaults, policies)
-  t.notEqual(str(policiesDefaults.policies), str(value), 'Testing value is not already the default')
-  t.equal(str(result.policies), str(expected), 'Properly upserted policies & de-duped')
+  t.assert.notEqual(str(policiesDefaults.policies), str(value), 'Testing value is not already the default')
+  t.assert.equal(str(result.policies), str(expected), 'Properly upserted policies & de-duped')
 
   /**
    * policy multiple times
@@ -414,8 +417,8 @@ policy ${value[1]}
 policy ${value[1]}
 `).aws
   result = upsert(defaults, policies)
-  t.notEqual(str(defaults.policies), str(value), 'Testing value is not already the default')
-  t.equal(str(result.policies), str(value), 'Properly upserted policies & de-duped')
+  t.assert.notEqual(str(defaults.policies), str(value), 'Testing value is not already the default')
+  t.assert.equal(str(result.policies), str(value), 'Properly upserted policies & de-duped')
 
   /**
    * policy + policies if you're a total weirdo
@@ -426,8 +429,8 @@ policy ${value[0]}
 policies ${value[1]}
 `).aws
   result = upsert(defaults, policies)
-  t.notEqual(str(defaults.policies), str(value), 'Testing value is not already the default')
-  t.equal(str(result.policies), str(value), 'Properly upserted single policy')
+  t.assert.notEqual(str(defaults.policies), str(value), 'Testing value is not already the default')
+  t.assert.equal(str(result.policies), str(value), 'Properly upserted single policy')
 
   policies = parse(`@aws
 policy
@@ -436,8 +439,8 @@ policies
   ${value[1]}
 `).aws
   result = upsert(defaults, policies)
-  t.notEqual(str(defaults.policies), str(value), 'Testing value is not already the default')
-  t.equal(str(result.policies), str(value), 'Properly upserted single policy')
+  t.assert.notEqual(str(defaults.policies), str(value), 'Testing value is not already the default')
+  t.assert.equal(str(result.policies), str(value), 'Properly upserted single policy')
 
   /**
    * Don't unnecessarily overwrite existing policies config
@@ -448,8 +451,8 @@ policies
 runtime python
 `).aws
   result = upsert(policiesDefaults, policies)
-  t.notEqual(str(policiesDefaults.policies), str(policies.policies), 'Testing value is not already the default')
-  t.equal(str(policiesDefaults.policies), str(result.policies), 'Did not overwrite project-level config with empty policies array')
+  t.assert.notEqual(str(policiesDefaults.policies), str(policies.policies), 'Testing value is not already the default')
+  t.assert.equal(str(policiesDefaults.policies), str(result.policies), 'Did not overwrite project-level config with empty policies array')
 })
 
 test('Individual setting upsert: something unknown', t => {
@@ -461,8 +464,8 @@ test('Individual setting upsert: something unknown', t => {
 idk ${value}
 `)
   result = upsert(defaults, idk)
-  t.notOk(defaults.idk, 'Testing property not already present in the default')
-  t.equal(result.idk, value, 'Properly upserted unknown setting')
+  t.assert.ok(!defaults.idk, 'Testing property not already present in the default')
+  t.assert.equal(result.idk, value, 'Properly upserted unknown setting')
 
   value = [ 'foo', 'bar' ]
   let { aws: arr } = parse(`@aws
@@ -471,13 +474,13 @@ arr
   ${value[1]}
 `)
   result = upsert(defaults, arr)
-  t.notOk(defaults.arr, 'Testing property not already present in the default')
-  t.deepEqual(result.arr, value, 'Properly upserted unknown array setting')
+  t.assert.ok(!defaults.arr, 'Testing property not already present in the default')
+  t.assert.deepEqual(result.arr, value, 'Properly upserted unknown array setting')
 
   let { aws: inlineArr } = parse(`@aws
 arr ${value[0]} ${value[1]}
 `)
   result = upsert(defaults, inlineArr)
-  t.notOk(defaults.arr, 'Testing property not already present in the default')
-  t.deepEqual(result.arr, value, 'Properly upserted unknown inline array setting')
+  t.assert.ok(!defaults.arr, 'Testing property not already present in the default')
+  t.assert.deepEqual(result.arr, value, 'Properly upserted unknown inline array setting')
 })

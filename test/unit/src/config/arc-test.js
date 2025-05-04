@@ -1,12 +1,11 @@
-let { join } = require('path')
+let { join } = require('node:path')
 let mockTmp = require('mock-tmp')
-let test = require('tape')
-let sut = join(process.cwd(), 'src', 'config', 'arc')
-let getArcConfig = require(sut)
+let { test } = require('node:test')
+let getArcConfig = require('../../../../src/config/arc')
 
 test('Set up env', t => {
   t.plan(1)
-  t.ok(getArcConfig, 'Arc config module is present')
+  t.assert.ok(getArcConfig, 'Arc config module is present')
 })
 
 test('Set Arc version (if possible)', t => {
@@ -16,6 +15,6 @@ test('Set Arc version (if possible)', t => {
   let json = JSON.stringify({ version })
   let cwd = mockTmp({ [path]: json })
   let arc = getArcConfig({ cwd, inventory: { _arc: {} } })
-  t.equal(arc.version, version, 'Got back installed arc version')
+  t.assert.equal(arc.version, version, 'Got back installed arc version')
   mockTmp.reset()
 })
