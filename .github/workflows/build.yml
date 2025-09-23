@@ -15,7 +15,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        node-version: [ 20.x, 22.x ]
+        node-version: [ 20.x, 22.x, 24.x ]
         os: [ windows-latest, ubuntu-latest, macOS-latest ]
 
     # Go
@@ -41,15 +41,7 @@ jobs:
     - name: Install
       run: npm install
 
-    - name: Test (Node.js <= 20.x)
-      # node 20 doesnt support excluding files from coverage report, and by default includes test files themselves.
-      if: matrix.node-version <= '20.x'
-      run: npm run test:node20
-      env:
-        CI: true
-
     - name: Test
-      if: matrix.node-version > '20.x'
       run: npm test
       env:
         CI: true
