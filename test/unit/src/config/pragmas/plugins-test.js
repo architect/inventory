@@ -91,7 +91,7 @@ test('Check plugin file paths', async t => {
   setup(join(mockRoot, 'plugin-folder-mjs'))
   arc = { plugins: [ plugin ] }
   result = await populatePlugins({ arc, inventory, errors })
-  console.log('SETUP for FAIL!', {inventory, arc, result})
+  console.log('SETUP for FAIL!', { inventory, arc, result })
   check(plugin, pluginFnName, 'plugin', 'sandbox')
 
   setup(join(mockRoot, 'plugin-custom-path'))
