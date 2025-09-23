@@ -1,5 +1,5 @@
 let { is } = require('../../../lib')
-let { aliases, runtimes } = require('lambda-runtimes')
+let { aliases, runtimes } = require('@architect/utils/lambda-runtimes')
 
 // Runtime interpolater
 module.exports = function getRuntime ({ config, inventory }) {

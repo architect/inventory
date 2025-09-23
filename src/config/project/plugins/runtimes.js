@@ -1,4 +1,4 @@
-let { aliases, runtimeList } = require('lambda-runtimes')
+let { aliases, runtimeList } = require('@architect/utils/lambda-runtimes')
 let { deepFrozenCopy } = require('@architect/utils')
 let { is, validationPatterns } = require('../../../lib')
 let { looserName } = validationPatterns

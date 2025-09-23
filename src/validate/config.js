@@ -1,6 +1,6 @@
 let { is, pragmas } = require('../lib')
 let { lambdas } = pragmas
-let { aliases, runtimeList } = require('lambda-runtimes')
+let { aliases, runtimeList } = require('@architect/utils/lambda-runtimes')
 
 /**
  * Configuration validator
