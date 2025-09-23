@@ -6,9 +6,9 @@
   "scripts": {
     "lint": "eslint . --fix",
     "test": "npm run lint && npm run test:integration && npm run test:coverage",
-    "test:integration": "node --test --test-reporter=spec test/integration/*-test.js",
-    "test:coverage": "node --test --test-reporter=spec --experimental-test-coverage test/unit/**/*-test.js",
-    "test:unit": "node --test --test-reporter=spec test/unit/**/*-test.js",
+    "test:integration": "node --test --test-reporter=spec \"test/integration/*-test.js\"",
+    "test:coverage": "node --test --test-reporter=spec --experimental-test-coverage \"test/unit/**/*-test.js\"",
+    "test:unit": "node --test --test-reporter=spec \"test/unit/**/*-test.js\"",
     "rc": "npm version prerelease --preid RC",
     "vendor": "scripts/vendor"
   },
