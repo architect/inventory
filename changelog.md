@@ -1,11 +1,13 @@
 # Architect Inventory changelog
 
 ---
-## [5.0.0] 2025-04-06
+## [5.0.0] 2025-09-24
     
 ### Changed
 
 - Breaking change: dropped node 16, 18 support
+- Updated deps
+- Moved to node native test runner
 
 ---
 
