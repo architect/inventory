@@ -13,7 +13,7 @@
     "vendor": "scripts/vendor"
   },
   "engines": {
-    "node": ">=20"
+    "node": ">=22"
   },
   "repository": {
     "type": "git",
@@ -23,7 +23,7 @@
   "dependencies": {
     "@architect/asap": "~7.0.10",
     "@architect/parser": "~8.0.1",
-    "@architect/utils": "~5.0.0",
+    "@architect/utils": "~6.0.0-RC.1",
     "@aws-lite/client": "^0.23.2",
     "@aws-lite/ssm": "^0.2.5"
   },
