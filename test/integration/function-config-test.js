@@ -63,7 +63,7 @@ test('[Global runtime alias] Inventory and compare functions with / without func
   t.assert.ok(get, 'Inventory returned getter')
   let def = inv._project.defaultFunctionConfig
   let custom = {
-    runtime: 'nodejs18.x',
+    runtime: 'nodejs24.x',
     runtimeAlias: undefined,
     architecture: 'x86_64',
     timeout: 10,

@@ -42,7 +42,7 @@ test('Exact runtime names', t => {
   let name
   let config
 
-  name = 'nodejs18.x'
+  name = 'nodejs24.x'
   config = getRuntimes({ config: c(name), inventory })
   t.assert.equal(config.runtime, name, `Returned correct runtime string: ${name}`)
   t.assert.ok(!config.runtimeAlias, 'Did not get runtimeAlias')
