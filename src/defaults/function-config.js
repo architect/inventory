@@ -5,7 +5,7 @@ module.exports = function createDefaultFunctionConfig () {
   return {
     timeout: 5,
     memory: 1152,
-    runtime: 'nodejs20.x',
+    runtime: 'nodejs22.x',
     architecture: 'arm64',
     handler: 'index.handler',
     state: 'n/a',
