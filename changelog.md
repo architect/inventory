@@ -1,8 +1,24 @@
 # Architect Inventory changelog
 
 ---
+## [6.1.0] 2026-01-07
+
+- Add support for `timezone` property for scheduled functions
+
+### Changed
+
+- Update to latest `@architect/utils`
+
+---
+## [6.0.0] 2025-11-27
+
+### Changed
+
+- Update to latest `@architect/utils`
+
+---
 ## [5.0.0] 2025-09-24
-    
+
 ### Changed
 
 - Breaking change: dropped node 16, 18 support
@@ -15,7 +31,7 @@
 
 ### Fixed
 
-- Error out if imported plugin has no discernable plugin API implementation; added in [#83](https://github.com/architect/inventory/pull/83) by @andybee, thanks! 
+- Error out if imported plugin has no discernable plugin API implementation; added in [#83](https://github.com/architect/inventory/pull/83) by @andybee, thanks!
 
 ---
 
