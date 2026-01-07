@@ -33,12 +33,14 @@ module.exports = function populateScheduled (params) {
   let { item, errors, plugin } = params
   let rate = null
   let cron = null
+  let timezone = null
   if (plugin) {
     let { name, src } = item
     if (name && src && (item.rate || item.cron)) {
       if (item.rate) rate = get.rate(item.rate)
       if (item.cron) cron = get.cron(item.cron)
-      return { ...item, rate, cron, ...getLambdaDirs(params, { plugin }) }
+      if (item.timezone) timezone = item.timezone
+      return { ...item, rate, cron, timezone, ...getLambdaDirs(params, { plugin }) }
     }
     errors.push(`Invalid plugin-generated @scheduled item: name: ${name}, rate: ${item.rate}, cron: ${item.cron}, src: ${src}`)
     return
@@ -57,12 +59,12 @@ module.exports = function populateScheduled (params) {
     if (isCron) cron = get.cron(clean(isCron))
 
     let dirs = getLambdaDirs(params, { name })
-    return { name, rate, cron, ...dirs }
+    return { name, rate, cron, timezone, ...dirs }
   }
   else if (is.object(item)) {
     let name = Object.keys(item)[0]
 
-    // Handle rate + cron props
+    // Handle rate + cron + timezone props
     if (item[name].rate) {
       let itemRate = item[name].rate
       let exp = is.array(itemRate) ? itemRate.join(' ') : itemRate
@@ -73,9 +75,12 @@ module.exports = function populateScheduled (params) {
       let exp = is.array(itemCron) ? itemCron.join(' ') : itemCron
       cron = get.cron(exp)
     }
+    if (item[name].timezone) {
+      timezone = item[name].timezone
+    }
 
     let dirs = getLambdaDirs(params, { name, customSrc: item[name].src })
-    return { name, rate, cron, ...dirs }
+    return { name, rate, cron, timezone, ...dirs }
   }
   errors.push(`Invalid @scheduled item: ${item}`)
 }
