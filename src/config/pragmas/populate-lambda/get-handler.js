@@ -22,7 +22,6 @@ module.exports = function getHandler ({ config, src, build, errors }) {
   }
   // Compiled to a binary
   else if (customRuntimeType === 'compiled') {
-    /* istanbul ignore next */
     let bootstrap = `bootstrap${isWin ? '.exe' : ''}`
     handlerFile = join(build, runtimeConfig.buildSubpath || '', runtimeConfig.handlerFile || bootstrap)
     handlerMethod = null

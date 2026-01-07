@@ -13,7 +13,7 @@ module.exports = function env (params, inventory, callback) {
   let { profile, region } = inventory.aws
   let result = []
   let awsLite = require('@aws-lite/client')
-  /* istanbul ignore next */
+  /* node:coverage ignore next */
   awsLite({ profile, region, plugins: [ import('@aws-lite/ssm') ] }).then(_aws => {
     aws = _aws
 

@@ -1,7 +1,7 @@
 // Copyright (c) 2015, Scott Motte
 // All rights reserved.
 
-/* istanbul ignore file */
+/* node:coverage disable */
 /* eslint-disable */
 // node_modules/dotenv/lib/main.js
 var fs = require("fs");

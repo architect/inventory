@@ -53,7 +53,6 @@ module.exports = async function getPluginModules ({ arc, inventory, errors }) {
 
     if (pluginPath) {
       try {
-        /* istanbul ignore next: idk why but for some reason nyc isn't picking up the catches; all cases are covered in tests, though! */
         if (type === 'plugin') {
           try {
             plugins[name] = require(pluginPath)
@@ -167,7 +166,8 @@ async function resolve (path, cwd) {
       catch {
         return
       }
-      /* istanbul ignore next: idk why but for some reason nyc isn't picking up the catches; all cases are covered in tests, though! */
+      // idk why but for some reason we aren't picking up the catches; all cases are covered in tests, though!
+      /* node:coverage ignore next 2 */
       if (gotSomething) return mjsPath
       else return
     }

@@ -19,8 +19,8 @@ module.exports = function asapSrc (params = {}) {
   try {
     return require.resolve('@architect/asap')
   }
+  /* node:coverage ignore next 3 */
   catch {
-    /* istanbul ignore next */
     throw Error('Cannot find ASAP module!')
   }
 }

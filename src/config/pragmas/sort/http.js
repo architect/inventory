@@ -31,7 +31,8 @@ module.exports = function sortHTTP (http) {
   let sorted = []
   httpMethods.forEach(method => {
     if (!tree[method]) return
-    /* istanbul ignore next: random test shuffles may not trigger all paths */
+    // random test shuffles may not trigger all paths
+    /* node:coverage ignore next */
     tree[method]
       // Sort by depth
       .sort((a, b) => b.depth - a.depth)

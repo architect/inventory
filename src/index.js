@@ -67,7 +67,6 @@ module.exports = function architectInventory (params = {}, callback) {
 
   // @plugins come first, as they register hooks all around the project
   plugins(project, (err, result) => {
-    /* istanbul ignore next: yeah we know what happens here */
     if (err) callback(err)
     else {
       inventory.plugins = result
@@ -102,7 +101,6 @@ module.exports = function architectInventory (params = {}, callback) {
 
       // Maybe get env vars
       getEnv(params, inventory, function done (err) {
-        /* istanbul ignore next: yeah we know what happens here */
         if (err) callback(err)
         else {
           callback(null, {

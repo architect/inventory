@@ -33,7 +33,6 @@ module.exports = function getProjectConfig (params) {
       _project[`${scope}PreferencesFile`] = p.preferencesFile
 
       // Build out the final preferences
-      /* istanbul ignore else: jic */
       if (!_project.preferences) _project.preferences = {}
       Object.keys(p.preferences).forEach(pragma => {
         // Ignore the raw data
@@ -44,7 +43,6 @@ module.exports = function getProjectConfig (params) {
           return
         }
         // Traverse and merge individual settings
-        /* istanbul ignore else: jic */
         if (!_project.preferences[pragma]) _project.preferences[pragma] = {}
         Object.entries(p.preferences[pragma]).forEach(([ setting, value ]) => {
           _project.preferences[pragma][setting] = value

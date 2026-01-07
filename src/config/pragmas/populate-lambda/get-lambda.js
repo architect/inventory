@@ -18,6 +18,5 @@ module.exports = function getLambda (params) {
   if (type === 'scheduled') return getScheduled(params)
   if (type === ts)          return getTablesStreams(params)
   if (type === 'tables')    return getTablesStreams(params) // Shortcut for creating streams
-  /* istanbul ignore else: clearer to be explicit here */
   if (type === 'ws')        return getWS(params)
 }
