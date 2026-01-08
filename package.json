@@ -7,7 +7,7 @@
     "lint": "eslint . --fix",
     "test": "npm run lint && npm run test:integration && npm run test:coverage",
     "test:integration": "node --test --test-reporter=spec test/integration/*-test.js",
-    "test:coverage": "node --test --test-reporter=spec --experimental-test-coverage --test-coverage-lines=100 --test-coverage-exclude='test/**/*' 'test/unit/**/*-test.js'",
+    "test:coverage": "node --test --test-reporter=lcov --test-reporter-destination=lcov.info --experimental-test-coverage --test-coverage-lines=100 --test-coverage-exclude='test/**/*' 'test/unit/**/*-test.js' && npx lcoview lcov.info -q -s . -d coverage",
     "test:unit": "node --test --test-reporter=spec 'test/unit/**/*-test.js'",
     "rc": "npm version prerelease --preid RC",
     "vendor": "scripts/vendor"
@@ -31,6 +31,7 @@
     "@architect/eslint-config": "~3.0.0",
     "dotenv": "~17.2.2",
     "eslint": "~9.36.0",
+    "lcoview": "~1.1.1",
     "mock-tmp": "~0.0.4"
   }
 }

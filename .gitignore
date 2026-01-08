@@ -1,3 +1,5 @@
-scratch
-node_modules/
 !test/mock/**/node_modules/
+coverage/
+lcov.info
+node_modules/
+scratch
