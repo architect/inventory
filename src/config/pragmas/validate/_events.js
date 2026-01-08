@@ -43,13 +43,13 @@ module.exports = function validateEventsAndQueues (pragma, pragmaName, errors) {
       if (event.pragma === 'queues') {
         let { fifo, batchSize, batchWindow } = event
         if (!is.nullish(fifo) && !is.bool(fifo)) {
-          errors.push(`Invalid  ${pragmaName} item (fifo must be a boolean): ${name}`)
+          errors.push(`Invalid ${pragmaName} item (fifo must be a boolean): ${name}`)
         }
         if (!is.nullish(batchSize) && !is.number(batchSize)) {
-          errors.push(`Invalid  ${pragmaName} item (batchSize must be a number): ${name}`)
+          errors.push(`Invalid ${pragmaName} item (batchSize must be a number): ${name}`)
         }
         if (!is.nullish(batchWindow) && !is.number(batchWindow)) {
-          errors.push(`Invalid  ${pragmaName} item (batchWindow must be a number): ${name}`)
+          errors.push(`Invalid ${pragmaName} item (batchWindow must be a number): ${name}`)
         }
       }
     })
