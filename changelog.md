@@ -1,13 +1,31 @@
 # Architect Inventory changelog
 
 ---
-## [5.0.0] 2025-09-24
-    
+
+## [6.1.0] 2026-01-08
+
+### Added
+
+- Added `batchSize`, `batchWindow` support to `@queues`
+  - Ensure `fifo`, `batchSize`, `batchWindow` are top-level `@queues` semantics properties
+
+---
+
+## [6.0.0] 2026-01-08
+
 ### Changed
 
-- Breaking change: dropped node 16, 18 support
+- Breaking change: dropped Node.js 20 support
+
+---
+
+## [5.0.0] 2025-09-24
+
+### Changed
+
+- Breaking change: dropped Node.js 16, 18 support
 - Updated deps
-- Moved to node native test runner
+- Moved to Node.js native test runner
 
 ---
 
@@ -15,7 +33,7 @@
 
 ### Fixed
 
-- Error out if imported plugin has no discernable plugin API implementation; added in [#83](https://github.com/architect/inventory/pull/83) by @andybee, thanks! 
+- Error out if imported plugin has no discernable plugin API implementation; added in [#83](https://github.com/architect/inventory/pull/83) by @andybee, thanks!
 
 ---
 
