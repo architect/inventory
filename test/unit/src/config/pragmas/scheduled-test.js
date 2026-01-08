@@ -129,6 +129,45 @@ ${complexValues.join('\n')}
   })
 })
 
+test('@scheduled population: complex format with timezone', t => {
+  t.plan(13)
+
+  let tz = 'America/New_York'
+  let complexValues = [
+    `${names[0]}
+  rate ${rate.expression}
+  src ${names[0]}/path
+  timezone ${tz}`,
+    `${names[1]}
+  cron ${cron.expression}
+  src ${names[1]}/path
+  timezone ${tz}`,
+  ]
+  let arc = parse(`
+@scheduled
+${complexValues.join('\n')}
+`)
+  let scheduled = populateScheduled({ arc, inventory })
+  t.assert.equal(scheduled.length, complexValues.length, 'Got correct number of scheduled events back')
+  names.forEach(name => {
+    t.assert.ok(scheduled.some(sched => sched.name === name), `Got scheduled event: ${name}`)
+  })
+  scheduled.forEach(sched => {
+    t.assert.equal(sched.src, join(cwd, `${sched.name}/path`), `Scheduled event configured with correct source dir: ${sched.name}/path`)
+    t.assert.ok(sched.handlerFile.startsWith(join(cwd, `${sched.name}/path`)), `Handler file is in the correct source dir`)
+    t.assert.equal(sched.timezone, tz, `Got back correct timezone: ${tz}`)
+    if (sched.rate) {
+      t.assert.equal(str(rate), str(sched.rate), `Got back correct rate object: ${str(rate)}`)
+      t.assert.equal(sched.cron, null, `Got back null cron param`)
+    }
+    else if (sched.cron) {
+      t.assert.equal(str(cron), str(sched.cron), `Got back correct cron object: ${str(cron)}`)
+      t.assert.equal(sched.rate, null, `Got back null rate param`)
+    }
+    else t.assert.fail('Could not find rate or cron expression')
+  })
+})
+
 test('@scheduled population: complex format (JSON)', t => {
   t.plan(11)
 
@@ -153,6 +192,46 @@ test('@scheduled population: complex format (JSON)', t => {
   scheduled.forEach(sched => {
     t.assert.equal(sched.src, join(cwd, `${sched.name}/path`), `Scheduled event configured with correct source dir: ${sched.name}/path`)
     t.assert.ok(sched.handlerFile.startsWith(join(cwd, `${sched.name}/path`)), `Handler file is in the correct source dir`)
+    if (sched.rate) {
+      t.assert.equal(str(rate), str(sched.rate), `Got back correct rate object: ${str(rate)}`)
+      t.assert.equal(sched.cron, null, `Got back null cron param`)
+    }
+    else if (sched.cron) {
+      t.assert.equal(str(cron), str(sched.cron), `Got back correct cron object: ${str(cron)}`)
+      t.assert.equal(sched.rate, null, `Got back null rate param`)
+    }
+    else t.assert.fail('Could not find rate or cron expression')
+  })
+})
+
+test('@scheduled population: complex format with timezone (JSON)', t => {
+  t.plan(13)
+
+  let tz = 'America/New_York'
+  let json = {
+    'scheduled': {
+      [names[0]]: {
+        rate: rate.expression,
+        src: `${names[0]}/path`,
+        timezone: tz,
+      },
+      [names[1]]: {
+        cron: cron.expression,
+        src: `${names[1]}/path`,
+        timezone: tz,
+      },
+    },
+  }
+  let arc = parse.json(str(json))
+  let scheduled = populateScheduled({ arc, inventory })
+  t.assert.equal(scheduled.length, Object.keys(json.scheduled).length, 'Got correct number of scheduled events back')
+  names.forEach(name => {
+    t.assert.ok(scheduled.some(sched => sched.name === name), `Got scheduled event: ${name}`)
+  })
+  scheduled.forEach(sched => {
+    t.assert.equal(sched.src, join(cwd, `${sched.name}/path`), `Scheduled event configured with correct source dir: ${sched.name}/path`)
+    t.assert.ok(sched.handlerFile.startsWith(join(cwd, `${sched.name}/path`)), `Handler file is in the correct source dir`)
+    t.assert.equal(sched.timezone, tz, `Got back correct timezone: ${tz}`)
     if (sched.rate) {
       t.assert.equal(str(rate), str(sched.rate), `Got back correct rate object: ${str(rate)}`)
       t.assert.equal(sched.cron, null, `Got back null cron param`)
@@ -230,8 +309,40 @@ test('@scheduled population: plugin setter', t => {
   })
 })
 
+test('@scheduled population: plugin setter with timezone', t => {
+  t.plan(13)
+
+  let tz = 'America/New_York'
+  let inventory = inventoryDefaults()
+  let setter = () => [
+    { name: names[0], rate: rate.expression, src: join(scheduledDir, names[0]), timezone: tz },
+    { name: names[1], cron: cron.expression, src: join(scheduledDir, names[1]), timezone: tz },
+  ]
+  inventory.plugins = setterPluginSetup(setter)
+
+  let scheduled = populateScheduled({ arc: {}, inventory })
+  t.assert.equal(scheduled.length, values.length, 'Got correct number of scheduled events back')
+  names.forEach(name => {
+    t.assert.ok(scheduled.some(sched => sched.name === name), `Got scheduled event: ${name}`)
+  })
+  scheduled.forEach(sched => {
+    t.assert.equal(sched.src, join(scheduledDir, sched.name), `Scheduled event configured with correct source dir: ${sched.src}`)
+    t.assert.ok(sched.handlerFile.startsWith(sched.src), `Handler file is in the correct source dir`)
+    t.assert.equal(sched.timezone, tz, `Got back correct timezone: ${tz}`)
+    if (sched.rate) {
+      t.assert.equal(str(rate), str(sched.rate), `Got back correct rate object: ${str(rate)}`)
+      t.assert.equal(sched.cron, null, `Got back null cron param`)
+    }
+    else if (sched.cron) {
+      t.assert.equal(str(cron), str(sched.cron), `Got back correct cron object: ${str(cron)}`)
+      t.assert.equal(sched.rate, null, `Got back null rate param`)
+    }
+    else t.assert.fail('Could not find rate or cron expression')
+  })
+})
+
 test('@scheduled population: validation errors', t => {
-  t.plan(27)
+  t.plan(30)
   let errors = []
   function run (str) {
     let arc = parse(`@scheduled\n${str}`)
@@ -267,6 +378,16 @@ test('@scheduled population: validation errors', t => {
   run(`hi cron(/ / / / * /)`)
   run(`hi cron(* * L * L *)`)
   run(`hi cron(* * W * "#" *)`)
+  // Valid timezone
+  run(`hi
+  rate 1 day
+  timezone America/New_York`)
+  run(`hi
+  rate 1 day
+  timezone Europe/London`)
+  run(`hi
+  rate 1 day
+  timezone UTC`)
   t.assert.equal(errors.length, 0, `Valid scheduled did not error`)
 
   // Errors
@@ -350,6 +471,22 @@ test('@scheduled population: validation errors', t => {
 
   run(`hi`)
   check()
+
+  // Invalid timezone errors
+  run(`hi
+  rate 1 day
+  timezone Gallifrey/Capitol`)
+  check('Invalid timezone errored')
+
+  run(`hi
+  rate 1 day
+  timezone NotATimezone`)
+  check('Invalid timezone errored')
+
+  run(`hi
+  rate 1 day
+  timezone 123`)
+  check('Invalid timezone errored')
 })
 
 test('@scheduled population: plugin errors', t => {

@@ -174,7 +174,7 @@ function populate (type, pragma, inventory, errors, plugin) {
 let normalize = path => path.replace(/[\\\/]/g, sep)
 
 // Lambda setter plugins can technically return anything, so this ensures everything is tidy
-let lambdaProps = [ 'cron', 'batchSize', 'batchWindow', 'fifo', 'method', 'path', 'plugin', 'rate', 'route', 'table', 'type' ]
+let lambdaProps = [ 'cron', 'batchSize', 'batchWindow', 'fifo', 'method', 'path', 'plugin', 'rate', 'route', 'table', 'timezone', 'type' ]
 let configProps = [ ...Object.keys(defaultFunctionConfig()), 'fifo', 'views' ]
 let getKnownProps = (knownProps, raw = {}) => {
   let props = knownProps.flatMap(prop => is.defined(raw[prop]) ? [ [ prop, raw[prop] ] ] : [])

@@ -14,7 +14,7 @@ module.exports = function validateScheduled (scheduled, errors) {
     unique(scheduled, '@scheduled', errors)
 
     scheduled.forEach(schedule => {
-      let { name, rate, cron } = schedule
+      let { name, rate, cron, timezone } = schedule
       regex(name, 'veryLooseName', '@scheduled', errors)
 
       // Assume 14 chars are taken up by resource naming in arc/package
@@ -22,6 +22,7 @@ module.exports = function validateScheduled (scheduled, errors) {
 
       if (cron) validateCron(schedule, errors)
       if (rate) validateRate(schedule, errors)
+      if (timezone) validateTimezone(schedule, errors)
 
       if (!cron && !rate) errors.push(`Invalid @scheduled item (no cron or rate expression found): ${name}`)
       if (cron && rate) errors.push(`Invalid @scheduled item (use either cron or rate, not both): ${name}`)
@@ -51,6 +52,22 @@ function validateCron (schedule, errors) {
   if (!month.toString().match(mon))       expErr('month', month)
   if (!dayOfWeek.toString().match(dow))   expErr('day-of-week', dayOfWeek)
   if (!year.toString().match(minHrYr))    expErr('year', year)
+}
+
+function validateTimezone (schedule, errors) {
+  let { name, timezone } = schedule
+  if (!is.string(timezone) || !timezone.length) {
+    errors.push(`Invalid @scheduled item (timezone must be a non-empty string): ${name}`)
+  }
+  else {
+    // AWS EventBridge accepts IANA timezone identifiers (e.g., America/New_York, Europe/London)
+    try {
+      Intl.DateTimeFormat(undefined, { timeZone: timezone })
+    }
+    catch {
+      errors.push(`Invalid @scheduled item (timezone must be a valid IANA timzone identifier): ${name}`)
+    }
+  }
 }
 
 let singular = [ 'minute', 'hour', 'day' ]

@@ -8,14 +8,16 @@
 
 - Added `batchSize`, `batchWindow` support to `@queues`
   - Ensure `fifo`, `batchSize`, `batchWindow` are top-level `@queues` semantics properties
+- Add support for `timezone` property for scheduled functions
 
 ---
 
-## [6.0.0] 2026-01-08
+## [6.0.0] 2025-11-27
 
 ### Changed
 
 - Breaking change: dropped Node.js 20 support
+- Update to latest `@architect/utils`
 
 ---
 
