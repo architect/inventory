@@ -1,13 +1,15 @@
 let { join } = require('node:path')
 let parse = require('@architect/parser')
 let { test } = require('node:test')
-let cwd = process.cwd()
 let inventoryDefaults = require('../../../../../src/defaults')
 let populateQueues = require('../../../../../src/config/pragmas/queues')
+let testLib = require('../../../../lib')
+let cwd = process.cwd()
 
 let inventory = inventoryDefaults()
 let queuesDir = join(cwd, 'src', 'queues')
 let values = [ 'foo', 'bar' ]
+let setterPluginSetup = testLib.setterPluginSetup.bind({}, 'queues')
 
 test('Set up env', t => {
   t.plan(1)
@@ -50,6 +52,27 @@ ${values[0]}
   queues.forEach(queue => {
     let { config } = queue
     t.assert.equal(config.fifo, false, `Queue fifo is set to false via @aws fifo false`)
+  })
+})
+
+test('@queues: fifo, batchSize, batchWindow', t => {
+  t.plan(3)
+  let arc
+  let queues
+
+  arc = parse(`
+@queues
+${values[0]}
+  fifo false
+  batchSize 1
+  batchWindow 2
+`)
+  queues = populateQueues({ arc, inventory })
+  queues.forEach(queue => {
+    let { fifo, batchSize, batchWindow } = queue
+    t.assert.equal(fifo, false, `Queue fifo is correct`)
+    t.assert.equal(batchSize, 1, `Queue batchSize is correct`)
+    t.assert.equal(batchWindow, 2, `Queue batchWindow is correct`)
   })
 })
 
@@ -122,8 +145,30 @@ ${complexValues.join('\n')}
   })
 })
 
-test('@queues population: validation errors', t => {
+test('@queues population: plugin setter', t => {
   t.plan(13)
+
+  let inventory = inventoryDefaults()
+  let setter = () => values.map(v => ({ name: v, src: join(queuesDir, v) }))
+  inventory.plugins = setterPluginSetup(setter)
+
+  let queues = populateQueues({ arc: {}, inventory })
+  t.assert.equal(queues.length, values.length, 'Got correct number of queues back')
+  values.forEach(val => {
+    t.assert.ok(queues.some(queue => queue.name === val), `Got queue: ${val}`)
+  })
+  queues.forEach(queue => {
+    let { handlerFile, name, src, fifo, batchSize, batchWindow } = queue
+    t.assert.equal(src, join(queuesDir, name), `Queue configured with correct source dir: ${src}`)
+    t.assert.ok(handlerFile.startsWith(src), `Handler file is in the correct source dir`)
+    t.assert.equal(fifo, true, `Queue defaults to correct fifo`)
+    t.assert.equal(batchSize, null, `Queue defaults to correct batchSize`)
+    t.assert.equal(batchWindow, null, `Queue defaults to correct batchWindow`)
+  })
+})
+
+test('@queues population: validation errors', t => {
+  t.plan(16)
   // Test assumes complex format is outputting the same data as simple, so we're only testing errors in the simple format
   let errors = []
   function run (str) {
@@ -184,5 +229,14 @@ hi
   check()
 
   run(`Amazon.hi-there`)
+  check()
+
+  run(`a-queue\n  fifo hi`)
+  check()
+
+  run(`a-queue\n  batchSize hi`)
+  check()
+
+  run(`a-queue\n  batchWindow hi`)
   check()
 })

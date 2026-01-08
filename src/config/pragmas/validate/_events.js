@@ -1,3 +1,4 @@
+let { is } = require('../../../lib')
 let { regex, size, unique } = require('./_lib')
 
 /**
@@ -37,6 +38,19 @@ module.exports = function validateEventsAndQueues (pragma, pragmaName, errors) {
       let n = name.toLowerCase()
       if (n.startsWith('aws') || n.startsWith('amazon')) {
         errors.push(`Invalid ${pragmaName} item (cannot start with 'AWS' or 'Amazon'): ${name}`)
+      }
+
+      if (event.pragma === 'queues') {
+        let { fifo, batchSize, batchWindow } = event
+        if (!is.nullish(fifo) && !is.bool(fifo)) {
+          errors.push(`Invalid  ${pragmaName} item (fifo must be a boolean): ${name}`)
+        }
+        if (!is.nullish(batchSize) && !is.number(batchSize)) {
+          errors.push(`Invalid  ${pragmaName} item (batchSize must be a number): ${name}`)
+        }
+        if (!is.nullish(batchWindow) && !is.number(batchWindow)) {
+          errors.push(`Invalid  ${pragmaName} item (batchWindow must be a number): ${name}`)
+        }
       }
     })
   }

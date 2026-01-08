@@ -90,9 +90,13 @@ function populate (type, pragma, inventory, errors, plugin) {
     let config = defaultProjectConfig()
     config = { ...config, ...getKnownProps(configProps, result.config) }
 
-    // Knock out any pragma-specific early
+    // Knock out any pragma-specific bits early
     if (type === 'queues') {
-      config.fifo = config.fifo === undefined ? true : config.fifo
+      // Queues lifted up FIFO out of config and into top-level function semantics
+      // config.fifo remains for backward compat (until we want to make a breaking change), while also allowing queue functions to respect @aws global overrides
+      if (!is.nullish(result.fifo)) config.fifo = result.fifo
+      else if ((!is.nullish(config.fifo))) result.fifo = config.fifo
+      else config.fifo = result.fifo = true
     }
     if (type === 'http') {
       if (name.startsWith('get ') || name.startsWith('any ')) {
@@ -170,7 +174,7 @@ function populate (type, pragma, inventory, errors, plugin) {
 let normalize = path => path.replace(/[\\\/]/g, sep)
 
 // Lambda setter plugins can technically return anything, so this ensures everything is tidy
-let lambdaProps = [ 'cron', 'method', 'path', 'plugin', 'rate', 'route', 'table', 'type' ]
+let lambdaProps = [ 'cron', 'batchSize', 'batchWindow', 'fifo', 'method', 'path', 'plugin', 'rate', 'route', 'table', 'type' ]
 let configProps = [ ...Object.keys(defaultFunctionConfig()), 'fifo', 'views' ]
 let getKnownProps = (knownProps, raw = {}) => {
   let props = knownProps.flatMap(prop => is.defined(raw[prop]) ? [ [ prop, raw[prop] ] ] : [])
