@@ -10,6 +10,16 @@
   - Ensure `fifo`, `batchSize`, `batchWindow` are top-level `@queues` semantics properties
 - Add support for `timezone` property for scheduled functions
 
+
+### Changed
+
+- Update default function runtime to Node.js 22.x
+
+
+### Fixed
+
+- Internal fixes for tests, code coverage and coverage thresholds
+
 ---
 
 ## [6.0.0] 2025-11-27
